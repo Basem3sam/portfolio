@@ -3,6 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Basem Esam - Backend Developer & CS Student specializing in Node.js, Express, and scalable systems"
+    />
+    <meta
+      name="keywords"
+      content="Backend Developer, Node.js, Express, MongoDB, Web Development"
+    />
+    <meta name="author" content="Basem Esam" />
     <title>Basem Esam | Backend Developer</title>
 
     <!-- Bootstrap CSS -->
@@ -19,18 +28,35 @@
 
     <!-- Custom CSS -->
     <link href="css/bootstrap-custom.css" rel="stylesheet" />
+
+    <!-- Main CSS -->
     <link href="css/style.css" rel="stylesheet" />
+
+    <!-- Dark Mode CSS (load but don't apply until toggled) -->
+    <link href="css/dark-style.css" rel="stylesheet" />
   </head>
   <body>
+    <!-- Skip to content link for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <nav
+      class="navbar navbar-expand-lg navbar-dark fixed-top"
+      role="navigation"
+      aria-label="Main navigation"
+    >
       <div class="container">
-        <a class="navbar-brand" href="#">Basem Esam</a>
+        <a class="navbar-brand" href="#hero" aria-label="Basem Esam - Home"
+          >Basem Esam</a
+        >
         <button
           class="navbar-toggler"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
         >
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -54,372 +80,511 @@
             <li class="nav-item">
               <a class="nav-link" href="#contact">Contact</a>
             </li>
+            <!-- Add this button to your navigation -->
+            <li class="nav-item">
+              <button
+                id="darkModeToggle"
+                class="btn btn-link nav-link"
+                aria-label="Toggle dark mode"
+              >
+                <i class="fas fa-moon"></i>
+              </button>
+            </li>
           </ul>
         </div>
       </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero-section text-center">
-      <div class="container">
-        <div class="row align-items-center">
-          <div class="col-lg-4">
-            <img
-              src="assets/images/profile.jpg"
-              alt="Basem Esam"
-              class="profile-img mb-4"
-            />
-          </div>
-          <div class="col-lg-8">
-            <h1 class="display-4 fw-bold mb-3">Basem Esam</h1>
-            <h2 class="h3 mb-4">Backend Developer & CS Student</h2>
-            <p class="lead mb-4">
-              Focused on building reliable, scalable backend systems using
-              strong foundations in system design, OOP, and clean architecture.
-            </p>
-            <div class="social-links mb-4">
-              <a href="https://linkedin.com/in/BasemEsam" target="_blank"
-                ><i class="fab fa-linkedin-in"></i
-              ></a>
-              <a href="https://github.com/basem3sam" target="_blank"
-                ><i class="fab fa-github"></i
-              ></a>
-              <a href="mailto:basem.esam.omar@gmail.com"
-                ><i class="fas fa-envelope"></i
-              ></a>
+    <!-- Main Content -->
+    <main id="main-content">
+      <!-- Hero Section -->
+      <section class="hero-section" id="hero" aria-labelledby="hero-title">
+        <div class="container">
+          <div class="row align-items-center">
+            <div class="col-lg-4 text-center mb-5 mb-lg-0">
+              <div class="profile-img-container">
+                <img
+                  src="assets/images/profile.jpg"
+                  alt="Basem Esam - Backend Developer"
+                  class="profile-img"
+                  loading="eager"
+                  onerror="this.src='https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80'"
+                />
+              </div>
             </div>
-            <a href="#projects" class="btn btn-light btn-lg">View My Work</a>
-          </div>
-        </div>
-      </div>
-    </section>
+            <div class="col-lg-8 text-center text-lg-start">
+              <h1 id="hero-title" class="display-3 fw-bold mb-3">Basem Esam</h1>
+              <h2 class="h2 mb-4" style="color: #4ecdc4">
+                Backend Developer & CS Student
+              </h2>
+              <p class="lead mb-4 fs-5">
+                Focused on building reliable, scalable backend systems using
+                strong foundations in system design, OOP, and clean
+                architecture.
+              </p>
 
-    <!-- About Section -->
-    <section id="about" class="py-5 bg-light">
-      <div class="container">
-        <h2 class="section-title">About Me</h2>
-        <div class="row">
-          <div class="col-lg-8 mx-auto">
-            <p class="lead">
-              A passionate backend developer and ICPC competitive programmer
-              with a strong foundation in system design, OOP, and clean
-              architecture principles.
-            </p>
+              <div
+                class="social-links mb-4"
+                role="list"
+                aria-label="Social media links"
+              >
+                <a
+                  href="https://linkedin.com/in/BasemEsam"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="social-link"
+                  aria-label="LinkedIn Profile"
+                >
+                  <i class="fab fa-linkedin-in" aria-hidden="true"></i>
+                </a>
+                <a
+                  href="https://github.com/basem3sam"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="social-link"
+                  aria-label="GitHub Profile"
+                >
+                  <i class="fab fa-github" aria-hidden="true"></i>
+                </a>
+                <a
+                  href="mailto:basem.esam.omar@gmail.com"
+                  class="social-link"
+                  aria-label="Email Basem Esam"
+                >
+                  <i class="fas fa-envelope" aria-hidden="true"></i>
+                </a>
+              </div>
 
-            <p>
-              My journey in technology started early, inspired by a teacher's
-              encouragement of my first website at age 11. Growing up in a
-              family electronics repair shop gave me a unique, hands-on
-              perspective on technology that continues to influence my approach
-              to software development.
-            </p>
-
-            <p>
-              Currently in my 3rd year at Suez Canal University, I've been
-              focused on programming since 2022. Beyond coding, I'm passionate
-              about knowledge sharing, having served as an OOP instructor at GDG
-              and as an active member of the Mech Hackers community.
-            </p>
-
-            <p>
-              Currently, I serve as the Vice IT Head at Trosc Student Club,
-              leading the backend development for the club's website.
-            </p>
-
-            <div class="mt-4">
-              <span class="badge badge-custom bg-primary me-2 mb-2"
-                >Backend Development</span
-              >
-              <span class="badge badge-custom bg-primary me-2 mb-2"
-                >Node.js</span
-              >
-              <span class="badge badge-custom bg-primary me-2 mb-2"
-                >Express</span
-              >
-              <span class="badge badge-custom bg-primary me-2 mb-2"
-                >MongoDB</span
-              >
-              <span class="badge badge-custom bg-primary me-2 mb-2"
-                >REST APIs</span
-              >
-              <span class="badge badge-custom bg-primary me-2 mb-2"
-                >Competitive Programming</span
-              >
+              <a href="#projects" class="btn btn-light btn-lg mt-3">
+                <i class="fas fa-code me-2" aria-hidden="true"></i>View My Work
+              </a>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Skills Section -->
-    <section id="skills" class="py-5">
-      <div class="container">
-        <h2 class="section-title">Technical Skills</h2>
-        <div class="row">
-          <div class="col-md-6 col-lg-4 mb-4">
-            <div class="skill-card text-center">
-              <div class="skill-icon">
-                <i class="fab fa-node-js"></i>
-              </div>
-              <h4>Backend Development</h4>
-              <p>Node.js, Express, REST APIs, Authentication, PHP, Laravel</p>
-            </div>
-          </div>
-          <div class="col-md-6 col-lg-4 mb-4">
-            <div class="skill-card text-center">
-              <div class="skill-icon">
-                <i class="fas fa-database"></i>
-              </div>
-              <h4>Databases</h4>
-              <p>MongoDB (with Mongoose), MySQL</p>
-            </div>
-          </div>
-          <div class="col-md-6 col-lg-4 mb-4">
-            <div class="skill-card text-center">
-              <div class="skill-icon">
-                <i class="fas fa-cloud"></i>
-              </div>
-              <h4>DevOps & Tools</h4>
-              <p>Docker, Kubernetes, Git, Linux Administration</p>
-            </div>
-          </div>
-          <div class="col-md-6 col-lg-4 mb-4">
-            <div class="skill-card text-center">
-              <div class="skill-icon">
-                <i class="fas fa-code"></i>
-              </div>
-              <h4>Programming Languages</h4>
-              <p>JavaScript, PHP, Bash/Linux Scripting</p>
-            </div>
-          </div>
-          <div class="col-md-6 col-lg-4 mb-4">
-            <div class="skill-card text-center">
-              <div class="skill-icon">
-                <i class="fas fa-server"></i>
-              </div>
-              <h4>System Design</h4>
-              <p>OOP, Clean Architecture, Scalable Systems</p>
-            </div>
-          </div>
-          <div class="col-md-6 col-lg-4 mb-4">
-            <div class="skill-card text-center">
-              <div class="skill-icon">
-                <i class="fas fa-users"></i>
-              </div>
-              <h4>Soft Skills</h4>
-              <p>Teaching, Team Leadership, Problem Solving</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+      <!-- About Section -->
+      <section id="about" class="py-5 bg-light">
+        <div class="container">
+          <h2 class="section-title">About Me</h2>
+          <div class="row">
+            <div class="col-lg-8 mx-auto">
+              <p class="lead">
+                A passionate backend developer and ICPC competitive programmer
+                with a strong foundation in system design, OOP, and clean
+                architecture principles.
+              </p>
 
-    <!-- Experience Section -->
-    <section id="experience" class="py-5 bg-light">
-      <div class="container">
-        <h2 class="section-title">Experience</h2>
-        <div class="row">
-          <div class="col-lg-10 mx-auto">
-            <div class="timeline">
-              <div class="timeline-item">
-                <h4>Vice IT Head</h4>
-                <h5>Trosc Student Club</h5>
-                <p class="text-muted">2025 - Present</p>
-                <p>
-                  Leading the backend development for the club's website,
-                  managing the technical team, and overseeing IT operations.
-                </p>
-              </div>
-              <div class="timeline-item">
-                <h4>OOP Instructor</h4>
-                <h5>Google Developer Groups (GDG)</h5>
-                <p class="text-muted">2023 - 2024</p>
-                <p>
-                  Teaching Object-Oriented Programming fundamentals to
-                  beginners, helping them understand core programming concepts
-                  and best practices.
-                </p>
-              </div>
-              <div class="timeline-item">
-                <h4>Active Member</h4>
-                <h5>Mech Hackers Community</h5>
-                <p class="text-muted">2023 - Present</p>
-                <p>
-                  Participating in community events, hackathons, and
-                  knowledge-sharing sessions focused on software development and
-                  technology.
-                </p>
+              <p>
+                My journey in technology started early, inspired by a teacher's
+                encouragement of my first website at age 11. Growing up in a
+                family electronics repair shop gave me a unique, hands-on
+                perspective on technology that continues to influence my
+                approach to software development.
+              </p>
+
+              <p>
+                Currently in my 3rd year at Suez Canal University, I've been
+                focused on programming since 2022. Beyond coding, I'm passionate
+                about knowledge sharing, having served as an OOP instructor at
+                GDG and as an active member of the Mech Hackers community.
+              </p>
+
+              <p>
+                Currently, I serve as the Vice IT Head at Trosc Student Club,
+                leading the backend development for the club's website.
+              </p>
+
+              <div class="mt-4">
+                <span class="badge badge-custom bg-primary me-2 mb-2"
+                  >Backend Development</span
+                >
+                <span class="badge badge-custom bg-primary me-2 mb-2"
+                  >Node.js</span
+                >
+                <span class="badge badge-custom bg-primary me-2 mb-2"
+                  >Express</span
+                >
+                <span class="badge badge-custom bg-primary me-2 mb-2"
+                  >MongoDB</span
+                >
+                <span class="badge badge-custom bg-primary me-2 mb-2"
+                  >REST APIs</span
+                >
+                <span class="badge badge-custom bg-primary me-2 mb-2"
+                  >Competitive Programming</span
+                >
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Projects Section -->
-    <section id="projects" class="py-5">
-      <div class="container">
-        <h2 class="section-title">Projects</h2>
-
-        <!-- Static Projects -->
-        <div class="row mb-5">
-          <div class="col-md-6 col-lg-4 mb-4">
-            <div class="project-card card">
-              <img
-                src="assets/images/projects/project1.jpeg"
-                class="card-img-top project-img"
-                alt="Trosc Club Website"
-              />
-              <div class="card-body">
-                <h5 class="card-title">Trosc Club Website</h5>
-                <p class="card-text">
-                  Backend development for the Trosc Student Club website using
-                  Node.js, Express, and MongoDB.
-                </p>
-                <div class="mb-3">
-                  <span class="badge bg-secondary me-1">Node.js</span>
-                  <span class="badge bg-secondary me-1">Express</span>
-                  <span class="badge bg-secondary me-1">MongoDB</span>
+      <!-- Skills Section -->
+      <section id="skills" class="py-5">
+        <div class="container">
+          <h2 class="section-title">Technical Skills</h2>
+          <div class="row">
+            <div class="col-md-6 col-lg-4 mb-4">
+              <div class="skill-card text-center">
+                <div class="skill-icon">
+                  <i class="fab fa-node-js" aria-hidden="true"></i>
                 </div>
-                <a href="#" class="btn btn-primary">View Details</a>
+                <h4>Backend Development</h4>
+                <p>Node.js, Express, REST APIs, Authentication, PHP, Laravel</p>
               </div>
             </div>
-          </div>
-          <div class="col-md-6 col-lg-4 mb-4">
-            <div class="project-card card">
-              <img
-                src="assets/images/projects/placeholder.png"
-                class="card-img-top project-img"
-                alt="REST API Project"
-              />
-              <div class="card-body">
-                <h5 class="card-title">REST API Project</h5>
-                <p class="card-text">
-                  A complete RESTful API with authentication and authorization
-                  built with Node.js and Express.
-                </p>
-                <div class="mb-3">
-                  <span class="badge bg-secondary me-1">Node.js</span>
-                  <span class="badge bg-secondary me-1">Express</span>
-                  <span class="badge bg-secondary me-1">JWT</span>
-                  <span class="badge bg-secondary me-1">MongoDB</span>
+            <div class="col-md-6 col-lg-4 mb-4">
+              <div class="skill-card text-center">
+                <div class="skill-icon">
+                  <i class="fas fa-database" aria-hidden="true"></i>
                 </div>
-                <a href="#" class="btn btn-primary">View Details</a>
+                <h4>Databases</h4>
+                <p>MongoDB (with Mongoose), MySQL</p>
               </div>
             </div>
-          </div>
-          <div class="col-md-6 col-lg-4 mb-4">
-            <div class="project-card card">
-              <img
-                src="assets/images/projects/placeholder.png"
-                class="card-img-top project-img"
-                alt="Laravel E-commerce"
-              />
-              <div class="card-body">
-                <h5 class="card-title">Laravel E-commerce</h5>
-                <p class="card-text">
-                  An e-commerce platform developed with Laravel framework during
-                  my PHP course.
-                </p>
-                <div class="mb-3">
-                  <span class="badge bg-secondary me-1">PHP</span>
-                  <span class="badge bg-secondary me-1">Laravel</span>
-                  <span class="badge bg-secondary me-1">MySQL</span>
+            <div class="col-md-6 col-lg-4 mb-4">
+              <div class="skill-card text-center">
+                <div class="skill-icon">
+                  <i class="fas fa-cloud" aria-hidden="true"></i>
                 </div>
-                <a href="#" class="btn btn-primary">View Details</a>
+                <h4>DevOps & Tools</h4>
+                <p>Docker, Kubernetes, Git, Linux Administration</p>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-4 mb-4">
+              <div class="skill-card text-center">
+                <div class="skill-icon">
+                  <i class="fas fa-code" aria-hidden="true"></i>
+                </div>
+                <h4>Programming Languages</h4>
+                <p>JavaScript, PHP, Bash/Linux Scripting</p>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-4 mb-4">
+              <div class="skill-card text-center">
+                <div class="skill-icon">
+                  <i class="fas fa-server" aria-hidden="true"></i>
+                </div>
+                <h4>System Design</h4>
+                <p>OOP, Clean Architecture, Scalable Systems</p>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-4 mb-4">
+              <div class="skill-card text-center">
+                <div class="skill-icon">
+                  <i class="fas fa-users" aria-hidden="true"></i>
+                </div>
+                <h4>Soft Skills</h4>
+                <p>Teaching, Team Leadership, Problem Solving</p>
               </div>
             </div>
           </div>
         </div>
+      </section>
 
-        <!-- GitHub Projects -->
-        <h3 class="mb-4">GitHub Projects</h3>
-        <div class="github-projects">
-          <div class="loading-spinner" id="github-loading">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
-            <p class="mt-2">Fetching projects from GitHub...</p>
-          </div>
-          <div class="row" id="github-projects-container">
-            <!-- GitHub projects will be loaded here dynamically -->
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Education Section -->
-    <section id="education" class="py-5 bg-light">
-      <div class="container">
-        <h2 class="section-title">Education</h2>
-        <div class="row">
-          <div class="col-lg-8 mx-auto">
-            <div class="card mb-4">
-              <div class="card-body">
-                <h4 class="card-title">Suez Canal University</h4>
-                <h5 class="card-subtitle mb-2 text-muted">
-                  Bachelor of Computer Science
-                </h5>
-                <p class="card-text">Expected Graduation: 2026/2027</p>
-                <p class="card-text">GPA: 3.48</p>
-                <h6>Relevant Coursework:</h6>
-                <ul>
-                  <li>Object-Oriented Programming</li>
-                  <li>Backend Development Fundamentals</li>
-                  <li>Linux Administration</li>
-                  <li>PHP/Laravel</li>
-                  <li>Node.js Basics</li>
-                </ul>
-                <h6>Achievements:</h6>
-                <ul>
-                  <li>ICPC Competitor</li>
-                  <li>Active member in GDG and Mech Hackers</li>
-                  <li>Vice IT Head at Trosc Student Club</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Contact Section -->
-    <section id="contact" class="py-5">
-      <div class="container">
-        <h2 class="section-title">Get In Touch</h2>
-        <div class="row">
-          <div class="col-lg-8 mx-auto">
-            <div class="contact-info">
-              <div class="row">
-                <div class="col-md-6 mb-4">
+      <!-- Experience Section -->
+      <section id="experience" class="py-5 bg-light">
+        <div class="container">
+          <h2 class="section-title">Experience</h2>
+          <div class="row">
+            <div class="col-lg-10 mx-auto">
+              <div class="timeline">
+                <div class="timeline-item">
+                  <h4>Vice IT Head</h4>
+                  <h5>Trosc Student Club</h5>
+                  <p class="text-muted mb-2">2025 - Present</p>
                   <p>
-                    <i class="fas fa-envelope contact-icon"></i>
-                    basem.esam.omar@gmail.com
+                    Leading the backend development for the club's website,
+                    managing the technical team, and overseeing IT operations.
                   </p>
                 </div>
-                <div class="col-md-6 mb-4">
+                <div class="timeline-item">
+                  <h4>OOP Instructor</h4>
+                  <h5>Google Developer Groups (GDG)</h5>
+                  <p class="text-muted mb-2">2023 - 2024</p>
                   <p>
-                    <i class="fas fa-map-marker-alt contact-icon"></i> Port
-                    Said, Egypt
+                    Teaching Object-Oriented Programming fundamentals to
+                    beginners, helping them understand core programming concepts
+                    and best practices.
+                  </p>
+                </div>
+                <div class="timeline-item">
+                  <h4>Active Member</h4>
+                  <h5>Mech Hackers Community</h5>
+                  <p class="text-muted mb-2">2023 - Present</p>
+                  <p>
+                    Participating in community events, hackathons, and
+                    knowledge-sharing sessions focused on software development
+                    and technology.
                   </p>
                 </div>
               </div>
-              <div class="social-links text-center mt-4">
-                <a href="https://linkedin.com/in/BasemEsam" target="_blank"
-                  ><i class="fab fa-linkedin-in"></i
-                ></a>
-                <a href="https://github.com/basem3sam" target="_blank"
-                  ><i class="fab fa-github"></i
-                ></a>
-                <a href="mailto:basem.esam.omar@gmail.com"
-                  ><i class="fas fa-envelope"></i
-                ></a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Projects Section -->
+      <section id="projects" class="py-5">
+        <div class="container">
+          <h2 class="section-title">Projects</h2>
+
+          <!-- Static Projects -->
+          <div class="row mb-5">
+            <div class="col-md-6 col-lg-4 mb-4">
+              <div class="project-card card">
+                <img
+                  src="assets/images/projects/project1.jpeg"
+                  class="card-img-top project-img"
+                  alt="Trosc Club Website - Backend development project"
+                  loading="lazy"
+                  onerror="this.src='https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=500&q=80'"
+                />
+                <div class="card-body">
+                  <h5 class="card-title">Trosc Club Website</h5>
+                  <p class="card-text">
+                    Backend development for the Trosc Student Club website using
+                    Node.js, Express, and MongoDB.
+                  </p>
+                  <div class="mb-4">
+                    <span class="badge bg-secondary me-1">Node.js</span>
+                    <span class="badge bg-secondary me-1">Express</span>
+                    <span class="badge bg-secondary me-1">MongoDB</span>
+                  </div>
+                  <div class="button-group">
+                    <a
+                      href="https://trosc-scu.netlify.app/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="btn btn-primary me-2"
+                      >Visit Website</a
+                    >
+                    <a
+                      href="https://github.com/Basem3sam/trosc-backend"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="btn btn-outline-primary"
+                      >View Code</a
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-4 mb-4">
+              <div class="project-card card">
+                <img
+                  src="assets/images/projects/placeholder.png"
+                  class="card-img-top project-img"
+                  alt="REST API Project with authentication"
+                  loading="lazy"
+                  onerror="this.src='https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=500&q=80'"
+                />
+                <div class="card-body">
+                  <h5 class="card-title">REST API Project</h5>
+                  <p class="card-text">
+                    A complete RESTful API with authentication and authorization
+                    built with Node.js and Express.
+                  </p>
+                  <div class="mb-4">
+                    <span class="badge bg-secondary me-1">Node.js</span>
+                    <span class="badge bg-secondary me-1">Express</span>
+                    <span class="badge bg-secondary me-1">JWT</span>
+                    <span class="badge bg-secondary me-1">MongoDB</span>
+                  </div>
+                  <div class="button-group">
+                    <button class="btn btn-outline-primary" disabled>
+                      Coming Soon
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-4 mb-4">
+              <div class="project-card card">
+                <img
+                  src="assets/images/projects/github-placeholder.png"
+                  class="card-img-top project-img"
+                  alt="Laravel E-commerce platform project"
+                  loading="lazy"
+                  onerror="this.src='https://images.unsplash.com/photo-1557821552-17105176677c?auto=format&fit=crop&w=500&q=80'"
+                />
+                <div class="card-body">
+                  <h5 class="card-title">Laravel E-commerce</h5>
+                  <p class="card-text">
+                    An e-commerce platform developed with Laravel framework
+                    during my PHP course.
+                  </p>
+                  <div class="mb-4">
+                    <span class="badge bg-secondary me-1">PHP</span>
+                    <span class="badge bg-secondary me-1">Laravel</span>
+                    <span class="badge bg-secondary me-1">MySQL</span>
+                  </div>
+                  <div class="button-group">
+                    <a
+                      href="https://github.com/Basem3sam/laravel-ecommerce-app"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="btn btn-primary"
+                      >View on GitHub</a
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- GitHub Projects -->
+          <h3 class="mb-4">More Projects from GitHub</h3>
+          <div class="github-projects">
+            <div class="loading-spinner" id="github-loading">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading projects...</span>
+              </div>
+              <p class="mt-3">Fetching projects from GitHub...</p>
+            </div>
+            <div class="row" id="github-projects-container">
+              <!-- GitHub projects will be loaded here dynamically -->
+            </div>
+            <!-- Fallback message if no projects loaded -->
+            <div class="github-fallback d-none" id="github-fallback">
+              <i class="fab fa-github fa-3x mb-3" aria-hidden="true"></i>
+              <p>Unable to load GitHub projects at this time.</p>
+              <a
+                href="https://github.com/basem3sam"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-primary"
+              >
+                Visit GitHub Profile
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Education Section -->
+      <section id="education" class="py-5 bg-light">
+        <div class="container">
+          <h2 class="section-title">Education</h2>
+          <div class="row">
+            <div class="col-lg-8 mx-auto">
+              <div class="card education-card">
+                <div class="card-body">
+                  <h4 class="card-title">Suez Canal University</h4>
+                  <h5 class="card-subtitle mb-3 text-muted">
+                    Bachelor of Computer Science
+                  </h5>
+                  <p class="card-text mb-2">
+                    <strong>Expected Graduation:</strong> 2026/2027
+                  </p>
+                  <p class="card-text mb-4"><strong>GPA:</strong> 3.48</p>
+                  <h6 class="mt-3">Relevant Coursework:</h6>
+                  <ul class="mb-3">
+                    <li>Object-Oriented Programming</li>
+                    <li>Backend Development Fundamentals</li>
+                    <li>Linux Administration</li>
+                    <li>PHP/Laravel Development</li>
+                    <li>Node.js Basics</li>
+                  </ul>
+                  <h6 class="mt-3">Achievements:</h6>
+                  <ul class="mb-0">
+                    <li>ICPC Competitor</li>
+                    <li>Active member in GDG and Mech Hackers</li>
+                    <li>Vice IT Head at Trosc Student Club</li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      <section id="contact" class="py-5">
+        <!-- Floating Background Elements -->
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+
+        <div class="contact-immersive">
+          <div class="container">
+            <div class="contact-content">
+              <h1 class="contact-main-title">Let's Build Something Amazing</h1>
+              <p class="contact-subtitle">
+                Ready to bring your ideas to life? Whether you need a robust
+                backend system or want to discuss technology, I'm here to help.
+              </p>
+
+              <div class="contact-grid-immersive">
+                <!-- Email Card -->
+                <div class="contact-card-immersive">
+                  <div class="card-icon-immersive">
+                    <i class="fas fa-paper-plane"></i>
+                  </div>
+                  <h3>Send an Email</h3>
+                  <a href="mailto:basem.esam.omar@gmail.com"
+                    >basem.esam.omar@gmail.com</a
+                  >
+                  <p class="mt-3 small" style="font-size: 0.9rem; opacity: 0.7">
+                    Typically replies within hours
+                  </p>
+                </div>
+
+                <!-- Location Card -->
+                <div class="contact-card-immersive">
+                  <div class="card-icon-immersive">
+                    <i class="fas fa-map-marker-alt"></i>
+                  </div>
+                  <h3>Based In</h3>
+                  <p>Port Said, Egypt</p>
+                  <p class="mt-3 small" style="font-size: 0.9rem; opacity: 0.7">
+                    Open to remote opportunities worldwide
+                  </p>
+                </div>
+
+                <!-- Availability Card -->
+                <div class="contact-card-immersive">
+                  <div class="card-icon-immersive">
+                    <i class="fas fa-code"></i>
+                  </div>
+                  <h3>Currently Available</h3>
+                  <p>For new projects</p>
+                  <p class="mt-3 small" style="font-size: 0.9rem; opacity: 0.7">
+                    Backend development & system architecture
+                  </p>
+                </div>
+              </div>
+
+              <!-- Social Links -->
+              <div class="social-immersive">
+                <h4>Connect with me</h4>
+                <div class="social-links-immersive">
+                  <a
+                    href="https://linkedin.com/in/BasemEsam"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="LinkedIn"
+                  >
+                    <i class="fab fa-linkedin-in"></i>
+                  </a>
+                  <a
+                    href="https://github.com/basem3sam"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="GitHub"
+                  >
+                    <i class="fab fa-github"></i>
+                  </a>
+                  <a href="mailto:basem.esam.omar@gmail.com" aria-label="Email">
+                    <i class="fas fa-envelope"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
 
     <!-- Footer -->
     <footer class="text-center">
@@ -429,10 +594,13 @@
     </footer>
 
     <!-- Back to Top Button -->
-    <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i></a>
+    <a href="#" class="back-to-top" aria-label="Back to top">
+      <i class="fas fa-arrow-up"></i>
+    </a>
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/dark-mode.js"></script>
     <script src="js/smooth-scroll.js"></script>
     <script src="js/github-api.js"></script>
     <script src="js/main.js"></script>

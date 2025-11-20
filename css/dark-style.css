@@ -1,0 +1,285 @@
+/* dark-mode.css - Complete Dark Mode Theme */
+body.dark-mode {
+  /* Dark Mode Color Palette */
+  --primary-color: #0f172a;
+  --secondary-color: #3b82f6;
+  --accent-color: #ef4444;
+  --gradient-start: #6366f1;
+  --gradient-end: #8b5cf6;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+
+  /* Background Colors */
+  --light-bg: #1e293b;
+  --white: #1e293b;
+  --dark-bg: #0f172a;
+
+  /* Text Colors */
+  --dark-text: #f1f5f9;
+  --light-text: #cbd5e1;
+  --muted-text: #94a3b8;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 5px 15px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 15px 35px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.7);
+}
+
+body.dark-mode {
+  background-color: var(--primary-color);
+  color: var(--dark-text);
+}
+
+/* Navigation */
+body.dark-mode .navbar {
+  background-color: var(--primary-color) !important;
+  border-bottom: 1px solid #334155;
+}
+
+body.dark-mode .navbar.scrolled {
+  background-color: rgba(15, 23, 42, 0.95) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+}
+
+body.dark-mode .navbar-brand,
+body.dark-mode .nav-link {
+  color: var(--dark-text) !important;
+}
+
+body.dark-mode .nav-link:hover {
+  color: var(--secondary-color) !important;
+}
+
+/* Hero Section */
+body.dark-mode .hero-section {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color) 0%,
+    var(--dark-bg) 100%
+  ) !important;
+}
+
+body.dark-mode .hero-section::before {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23000000" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,213.3C672,192,768,128,864,128C960,128,1056,192,1152,197.3C1248,203,1344,149,1392,122.7L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+}
+
+/* Cards & Sections */
+body.dark-mode .skill-card,
+body.dark-mode .project-card,
+body.dark-mode .timeline-item,
+body.dark-mode .education-card,
+body.dark-mode .contact-info,
+body.dark-mode .contact-minimalist,
+body.dark-mode .contact-animated,
+body.dark-mode .contact-map-style {
+  background: var(--white) !important;
+  border: 1px solid #334155 !important;
+  color: var(--dark-text) !important;
+}
+
+body.dark-mode .skill-card:hover,
+body.dark-mode .project-card:hover,
+body.dark-mode .timeline-item:hover,
+body.dark-mode .education-card:hover {
+  border-color: var(--secondary-color) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+/* Section backgrounds */
+body.dark-mode .bg-light {
+  background-color: var(--light-bg) !important;
+}
+
+/* Text colors */
+body.dark-mode .section-title {
+  color: var(--dark-text) !important;
+}
+
+body.dark-mode .skill-card h4,
+body.dark-mode .project-card .card-title,
+body.dark-mode .timeline-item h4,
+body.dark-mode .education-card h4 {
+  color: var(--dark-text) !important;
+}
+
+body.dark-mode .skill-card p,
+body.dark-mode .project-card .card-text,
+body.dark-mode .timeline-item p,
+body.dark-mode .education-card p {
+  color: var(--light-text) !important;
+}
+
+/* Badges */
+body.dark-mode .badge {
+  background-color: #334155 !important;
+  color: var(--dark-text) !important;
+}
+
+body.dark-mode .badge.bg-primary,
+body.dark-mode .badge.bg-secondary {
+  background-color: var(--secondary-color) !important;
+}
+
+/* Buttons */
+body.dark-mode .btn-light {
+  background-color: #374151 !important;
+  color: var(--dark-text) !important;
+  border-color: #4b5563 !important;
+}
+
+body.dark-mode .btn-light:hover {
+  background-color: #4b5563 !important;
+  color: var(--dark-text) !important;
+}
+
+body.dark-mode .btn-outline-primary {
+  border-color: var(--secondary-color) !important;
+  color: var(--secondary-color) !important;
+}
+
+body.dark-mode .btn-outline-primary:hover {
+  background-color: var(--secondary-color) !important;
+  color: var(--dark-text) !important;
+}
+
+/* Profile image */
+body.dark-mode .profile-img-container {
+  background: linear-gradient(135deg, #334155 0%, #475569 100%) !important;
+}
+
+body.dark-mode .profile-img {
+  border-color: var(--light-bg) !important;
+}
+
+/* Social links */
+body.dark-mode .social-links a {
+  background-color: #334155 !important;
+  color: var(--dark-text) !important;
+  border: 1px solid #475569 !important;
+}
+
+body.dark-mode .social-links a:hover {
+  background-color: var(--secondary-color) !important;
+  border-color: var(--secondary-color) !important;
+}
+
+/* Timeline Dark Mode - Same Positioning */
+body.dark-mode .timeline::before {
+  left: 20px !important;
+  width: 3px !important;
+}
+
+body.dark-mode .timeline-item::before {
+  left: -26px !important; /* SAME as light mode */
+  top: 30px !important;
+  width: 12px !important;
+  height: 12px !important;
+  background-color: var(--white) !important;
+  border: 3px solid var(--secondary-color) !important;
+  box-shadow: 0 0 0 4px var(--white) !important;
+}
+
+body.dark-mode .timeline-item:hover::before {
+  background-color: var(--secondary-color) !important;
+  box-shadow: 0 0 0 6px var(--white), 0 0 20px rgba(59, 130, 246, 0.5) !important;
+}
+
+/* Contact sections */
+body.dark-mode .contact-card {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
+  border: 1px solid #475569 !important;
+}
+
+body.dark-mode .contact-item {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
+  border: 1px solid #475569 !important;
+}
+
+body.dark-mode .contact-floating {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
+  border: 1px solid #475569 !important;
+}
+
+/* Full-width immersive contact */
+body.dark-mode #contact {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color) 0%,
+    #1e293b 100%
+  ) !important;
+}
+
+body.dark-mode .contact-immersive::before {
+  background: radial-gradient(
+      circle at 20% 80%,
+      rgba(59, 130, 246, 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 20%,
+      rgba(239, 68, 68, 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 40% 40%,
+      rgba(16, 185, 129, 0.05) 0%,
+      transparent 50%
+    ) !important;
+}
+
+body.dark-mode .contact-card-immersive {
+  background: rgba(30, 41, 59, 0.6) !important;
+  border: 1px solid rgba(100, 116, 139, 0.3) !important;
+}
+
+body.dark-mode .card-icon-immersive {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode .social-links-immersive a {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Footer */
+body.dark-mode footer {
+  background-color: var(--primary-color) !important;
+  border-top: 1px solid #334155;
+}
+
+body.dark-mode footer::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--secondary-color),
+    transparent
+  ) !important;
+}
+
+/* Scrollbar */
+body.dark-mode ::-webkit-scrollbar-track {
+  background: var(--light-bg) !important;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb {
+  background: var(--secondary-color) !important;
+  border: 2px solid var(--light-bg) !important;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb:hover {
+  background: #2563eb !important;
+}
+
+/* Selection */
+body.dark-mode ::selection {
+  background-color: var(--secondary-color) !important;
+  color: white !important;
+}
+
+body.dark-mode ::-moz-selection {
+  background-color: var(--secondary-color) !important;
+  color: white !important;
+}
