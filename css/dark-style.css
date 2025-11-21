@@ -165,25 +165,137 @@ body.dark-mode .social-links a:hover {
   border-color: var(--secondary-color) !important;
 }
 
-/* Timeline Dark Mode - Same Positioning */
-body.dark-mode .timeline::before {
-  left: 20px !important;
-  width: 3px !important;
+/* ===================================
+   Timeline Dark Mode - PERFECTLY CENTERED
+   =================================== */
+
+/* Vertical line positioning - consistent across all sizes */
+body.dark-mode .timeline {
+  padding-left: 40px; /* Same as light mode */
 }
 
+body.dark-mode .timeline::before {
+  left: 14px; /* Perfectly center the 3px line: (40px padding - 3px line width) / 2 - 6px adjustment */
+  width: 3px;
+  background: linear-gradient(
+    180deg,
+    var(--secondary-color),
+    var(--gradient-start)
+  );
+}
+
+/* Timeline item styling */
+body.dark-mode .timeline-item {
+  background: var(--card-bg);
+  border-left-color: transparent;
+  box-shadow: var(--shadow-md);
+}
+
+body.dark-mode .timeline-item:hover {
+  border-left-color: var(--secondary-color);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Dots positioning - perfectly centered on the line */
 body.dark-mode .timeline-item::before {
-  left: -26px !important; /* SAME as light mode */
-  top: 30px !important;
-  width: 12px !important;
-  height: 12px !important;
-  background-color: var(--white) !important;
-  border: 3px solid var(--secondary-color) !important;
-  box-shadow: 0 0 0 4px var(--white) !important;
+  left: -32.5px; /* Perfectly center 12px dot on 3px line at 14px left */
+  top: 30px;
+  width: 12px;
+  height: 12px;
+  background-color: var(--dark-bg);
+  border: 3px solid var(--secondary-color);
+  box-shadow: 0 0 0 4px var(--dark-bg);
 }
 
 body.dark-mode .timeline-item:hover::before {
-  background-color: var(--secondary-color) !important;
-  box-shadow: 0 0 0 6px var(--white), 0 0 20px rgba(59, 130, 246, 0.5) !important;
+  background-color: var(--secondary-color);
+  box-shadow: 0 0 0 6px var(--dark-bg), 0 0 20px rgba(59, 130, 246, 0.5);
+}
+
+/* Responsive adjustments - maintain same positioning */
+@media (max-width: 991px) {
+  body.dark-mode .timeline {
+    padding-left: 30px; /* SAME as light mode */
+  }
+
+  body.dark-mode .timeline::before {
+    left: 15px; /* Adjust proportionally */
+  }
+
+  body.dark-mode .timeline-item::before {
+    left: -36px; /* Adjust proportionally - SAME offset as light mode */
+  }
+}
+
+@media (max-width: 767px) {
+  body.dark-mode .timeline {
+    padding-left: 25px; /* SAME as light mode */
+  }
+
+  body.dark-mode .timeline::before {
+    left: 5px; /* SAME as light mode */
+    width: 2px;
+  }
+
+  body.dark-mode .timeline-item {
+    padding: 20px;
+  }
+
+  body.dark-mode .timeline-item::before {
+    left: -31px; /* SAME calculation as light mode */
+    top: 25px;
+    width: 10px;
+    height: 10px;
+    border-width: 2px;
+    box-shadow: 0 0 0 3px var(--dark-bg);
+  }
+
+  body.dark-mode .timeline-item:hover::before {
+    box-shadow: 0 0 0 5px var(--dark-bg), 0 0 15px rgba(59, 130, 246, 0.5);
+  }
+}
+
+@media (max-width: 575px) {
+  body.dark-mode .timeline {
+    padding-left: 20px; /* SAME as light mode */
+  }
+
+  body.dark-mode .timeline::before {
+    left: 3px; /* SAME as light mode */
+    width: 2px;
+  }
+
+  body.dark-mode .timeline-item {
+    padding: 15px;
+    margin-bottom: 25px;
+  }
+
+  body.dark-mode .timeline-item::before {
+    /* Same calculation as light mode: -20px (padding) + 3px (line left) - 5px (half dot) + 1px (adjustment) */
+    left: calc(-20px + 3px - 5px + 1px);
+    left: -21px; /* Simplified */
+    top: 20px;
+    width: 10px;
+    height: 10px;
+    border-width: 2px;
+  }
+}
+
+/* Text colors for dark mode */
+body.dark-mode .timeline-item h4 {
+  color: var(--text-primary);
+}
+
+body.dark-mode .timeline-item h5 {
+  color: var(--secondary-color);
+}
+
+body.dark-mode .timeline-item p {
+  color: var(--text-secondary);
+}
+
+body.dark-mode .timeline-item .text-muted {
+  color: var(--text-muted) !important;
 }
 
 /* Contact sections */

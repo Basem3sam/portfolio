@@ -266,12 +266,13 @@ body.dark-mode .dark-mode-toggle {
     var(--dark-bg) 100%
   );
   color: white;
-  padding: 120px 0 80px;
+  padding: 140px 0 80px; /* Increased top padding to clear navbar */
   position: relative;
   overflow: hidden;
   min-height: 100vh;
   display: flex;
   align-items: center;
+  margin-top: 0; /* Ensure no negative margin */
 }
 
 .hero-section::before {
@@ -302,12 +303,73 @@ body.dark-mode .dark-mode-toggle {
 .hero-section .container {
   position: relative;
   z-index: 2;
+  padding-top: 20px; /* Additional spacing from navbar */
 }
 
 .hero-section h1,
 .hero-section h2,
 .hero-section p {
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Ensure profile image has proper spacing */
+.profile-img-container {
+  margin-top: 20px; /* Additional top margin */
+  margin-bottom: 20px;
+}
+
+/* ===================================
+   Responsive Hero Adjustments
+   =================================== */
+
+/* Large tablets and small desktops */
+@media (max-width: 991px) {
+  .hero-section {
+    padding: 120px 0 60px; /* Increased from 100px */
+    text-align: center !important;
+    min-height: auto;
+  }
+
+  .hero-section .container {
+    padding-top: 15px;
+  }
+}
+
+/* Tablets */
+@media (max-width: 767px) {
+  .hero-section {
+    padding: 100px 0 40px; /* Increased from 80px */
+  }
+
+  .hero-section .container {
+    padding-top: 10px;
+  }
+
+  .profile-img-container {
+    margin-top: 15px;
+  }
+}
+
+/* Mobile devices */
+@media (max-width: 575px) {
+  .hero-section {
+    padding: 90px 0 40px; /* Ensure navbar clearance on mobile */
+  }
+
+  .hero-section .container {
+    padding-top: 10px;
+  }
+
+  .profile-img-container {
+    margin-top: 10px;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 375px) {
+  .hero-section {
+    padding: 85px 0 35px;
+  }
 }
 
 /* ===================================
@@ -767,21 +829,22 @@ section {
   border-radius: var(--border-radius-sm);
 }
 
-/* Add this after the "Project Cards" section (around line 580) */
-
 /* ===================================
-   Timeline - PROPERLY ALIGNED
+   Timeline - PERFECTLY CENTERED (Light Mode)
+   Replace the timeline section in your style.css with this
    =================================== */
+
 .timeline {
   position: relative;
   padding-left: 40px;
   margin-top: var(--spacing-md);
 }
 
+/* Vertical line - perfectly centered */
 .timeline::before {
   content: '';
   position: absolute;
-  left: 20px; /* Center of the 40px padding */
+  left: 14px; /* Calculated: to center 3px line with 12px dots */
   top: 0;
   bottom: 0;
   width: 3px;
@@ -810,10 +873,11 @@ section {
   border-left-color: var(--secondary-color);
 }
 
+/* Dots - perfectly centered on the line */
 .timeline-item::before {
   content: '';
   position: absolute;
-  left: -26px;
+  left: -32.5px; /* Calculated: -(padding-left - line-left - dot-width/2 + line-width/2) */
   top: 30px;
   width: 12px;
   height: 12px;
@@ -853,6 +917,87 @@ section {
 .timeline-item .text-muted {
   color: var(--muted-text) !important;
   font-size: 0.9rem;
+}
+
+/* ===================================
+   Responsive Timeline Adjustments
+   =================================== */
+
+/* Large tablets and small desktops */
+@media (max-width: 991px) {
+  .timeline {
+    padding-left: 30px;
+  }
+
+  .timeline::before {
+    left: 11px; /* Proportional adjustment */
+  }
+
+  .timeline-item::before {
+    left: -24.5px; /* Recalculated for new padding */
+  }
+}
+
+/* Tablets */
+@media (max-width: 767px) {
+  .timeline {
+    padding-left: 25px;
+  }
+
+  .timeline::before {
+    left: 9px; /* Center the line in smaller padding */
+    width: 2px;
+  }
+
+  .timeline-item {
+    padding: 20px;
+  }
+
+  .timeline-item::before {
+    left: -21px; /* Recalculated: 25px padding - 9px line - 5px (half of 10px dot) */
+    top: 25px;
+    width: 10px;
+    height: 10px;
+    border-width: 2px;
+    box-shadow: 0 0 0 3px white;
+  }
+
+  .timeline-item:hover::before {
+    box-shadow: 0 0 0 5px white, 0 0 15px rgba(52, 152, 219, 0.5);
+  }
+}
+
+/* Mobile devices */
+@media (max-width: 575px) {
+  .timeline {
+    padding-left: 20px;
+  }
+
+  .timeline::before {
+    left: 8px; /* Center in 20px padding */
+    width: 2px;
+  }
+
+  .timeline-item {
+    padding: 15px;
+    margin-bottom: 25px;
+  }
+
+  .timeline-item::before {
+    left: -17px; /* Recalculated: 20px padding - 8px line - 5px (half dot) */
+    top: 20px;
+    width: 10px;
+    height: 10px;
+    border-width: 2px;
+  }
+
+  .timeline-item h4 {
+    font-size: 1.1rem;
+  }
+
+  .timeline-item h5 {
+    font-size: 1rem;
+  }
 }
 
 /* ===================================
@@ -1689,36 +1834,6 @@ footer::before {
     background: white !important;
     color: black !important;
   }
-}
-
-/* ===================================
-   Dark Mode Support (Optional)
-   =================================== */
-@media (prefers-color-scheme: dark) {
-  /*Uncomment to enable dark mode support*/
-  /*
-  :root {
-    --primary-color: #1a1a2e;
-    --dark-text: #e0e0e0;
-    --light-text: #b0b0b0;
-    --light-bg: #16213e;
-    --white: #0f3460;
-  }
-
-  body {
-    background-color: var(--primary-color);
-    color: var(--dark-text);
-  }
-
-  .skill-card,
-  .project-card,
-  .timeline-item,
-  .education-card,
-  .contact-info {
-    background-color: var(--white);
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-  */
 }
 
 /* ===================================
