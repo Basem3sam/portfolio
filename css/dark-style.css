@@ -395,3 +395,14 @@ body.dark-mode ::-moz-selection {
   background-color: var(--secondary-color) !important;
   color: white !important;
 }
+
+/* Quick fix for GitHub repo dates in dark mode */
+body.dark-mode .github-repo-card .text-muted,
+body.dark-mode .github-repo-card .small,
+body.dark-mode .github-repo-card [class*='text-'] {
+  color: var(--muted-text) !important;
+}
+
+body.dark-mode .github-repo-card .card-body {
+  color: var(--light-text) !important;
+}
