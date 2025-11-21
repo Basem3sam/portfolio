@@ -8,7 +8,7 @@
 
 **A modern, responsive portfolio showcasing my journey as a Backend Developer & Computer Science Student**
 
-[View Live Demo](#) • [Report Bug](mailto:basem.esam.omar@gmail.com) • [Request Feature](mailto:basem.esam.omar@gmail.com)
+[🌐 View Live Demo](https://basemesam.netlify.app/) • [📱 GitHub Pages](https://basem3sam.github.io/portfolio/) • [🐛 Report Bug](mailto:basem.esam.omar@gmail.com) • [💡 Request Feature](mailto:basem.esam.omar@gmail.com)
 
 </div>
 
@@ -21,28 +21,24 @@ This portfolio website represents my professional journey, technical skills, and
 ## ✨ Key Features
 
 ### 🎨 Design & UX
-
 - **Dual Theme System** - Seamlessly switch between light and dark modes with persistent user preference
 - **Fully Responsive** - Optimized for all devices from mobile to 4K displays
 - **Smooth Animations** - Intersection Observer API for elegant scroll-triggered animations
 - **Modern UI/UX** - Clean, professional design with intuitive navigation
 
 ### 🚀 Performance
-
 - **Optimized Loading** - Lazy loading for images and content
 - **Efficient Code** - Modular JavaScript architecture
 - **Fast Rendering** - CSS variables for instant theme switching
 - **SEO Ready** - Semantic HTML5 and meta tags
 
 ### ♿ Accessibility
-
 - **WCAG 2.1 Compliant** - Level AA standards
 - **Keyboard Navigation** - Full site accessibility via keyboard
 - **Screen Reader Support** - Proper ARIA labels and semantic markup
 - **High Contrast** - Optimized color ratios for readability
 
 ### 🔧 Technical Excellence
-
 - **GitHub Integration** - Live project showcase via GitHub API
 - **Progressive Enhancement** - Core functionality works without JavaScript
 - **Cross-browser Compatible** - Tested on Chrome, Firefox, Safari, Edge
@@ -76,7 +72,6 @@ This portfolio website represents my professional journey, technical skills, and
 </table>
 
 ### Libraries & Tools
-
 - **Font Awesome 6.4** - Comprehensive icon library
 - **Google Fonts** - Custom typography (Inter, Poppins)
 - **Bootstrap Icons** - Additional iconography
@@ -111,30 +106,28 @@ portfolio/
 ## 🚀 Getting Started
 
 ### Prerequisites
-
 - Modern web browser (Chrome, Firefox, Safari, Edge)
 - Local web server (for GitHub API functionality)
 
 ### Installation
 
 1. **Clone the repository**
-
    ```bash
    git clone https://github.com/basem3sam/portfolio.git
    cd portfolio
    ```
 
 2. **Run a local server**
-
+   
    Choose one of the following:
-
+   
    ```bash
    # Python 3
    python -m http.server 8000
-
+   
    # Node.js (using npx)
    npx serve .
-
+   
    # PHP
    php -S localhost:8000
    ```
@@ -145,7 +138,6 @@ portfolio/
    ```
 
 ### Quick Setup (No Server)
-
 Simply open `index.html` in your browser for basic functionality. Note: GitHub API features require a local server.
 
 ## ⚙️ Configuration
@@ -153,14 +145,12 @@ Simply open `index.html` in your browser for basic functionality. Note: GitHub A
 ### Personalization
 
 1. **Update GitHub Username**
-
    ```javascript
    // js/github-api.js
    const username = 'basem3sam'; // Change to your username
    ```
 
 2. **Customize Content**
-
    - Edit text in `index.html`
    - Replace images in `assets/images/`
    - Update contact information
@@ -181,7 +171,6 @@ Simply open `index.html` in your browser for basic functionality. Note: GitHub A
 ### Color Palette
 
 #### Light Mode
-
 ```css
 Primary:    #2c3e50  /* Dark Blue */
 Secondary:  #3498db  /* Blue */
@@ -191,7 +180,6 @@ Text:       #333333  /* Dark Gray */
 ```
 
 #### Dark Mode
-
 ```css
 Primary:    #0f172a  /* Deep Blue */
 Secondary:  #3b82f6  /* Bright Blue */
@@ -201,68 +189,59 @@ Text:       #f1f5f9  /* Light Gray */
 ```
 
 ### Typography
-
 - **Headings:** Poppins (600, 700)
 - **Body:** Inter (400, 500, 600)
 - **Monospace:** 'Courier New' (code blocks)
 
 ### Responsive Breakpoints
-
-| Device       | Breakpoint     |
-| ------------ | -------------- |
-| Extra Small  | < 375px        |
-| Small Mobile | 375px - 575px  |
-| Large Mobile | 576px - 767px  |
-| Tablet       | 768px - 991px  |
-| Laptop       | 992px - 1199px |
-| Desktop      | ≥ 1200px       |
+| Device | Breakpoint |
+|--------|-----------|
+| Extra Small | < 375px |
+| Small Mobile | 375px - 575px |
+| Large Mobile | 576px - 767px |
+| Tablet | 768px - 991px |
+| Laptop | 992px - 1199px |
+| Desktop | ≥ 1200px |
 
 ## 📦 Sections Overview
 
 ### 🏠 Hero Section
-
 - Dynamic greeting with profile image
 - Call-to-action buttons
 - Social media links
 - Animated scroll indicator
 
 ### 👤 About Me
-
 - Professional summary
 - Core values and approach
 - Skill highlights
 - Personal interests
 
 ### 💻 Technical Skills
-
 - **Backend:** Node.js, Express.js, RESTful APIs
 - **Databases:** MongoDB, MySQL, Redis
 - **DevOps:** Docker, Git, CI/CD
 - **Soft Skills:** Problem-solving, Team collaboration
 
 ### 💼 Experience
-
 - Interactive timeline
 - Role descriptions
 - Key achievements
 - Technology used
 
 ### 🎯 Projects
-
 - GitHub-integrated showcase
 - Live demos and repositories
 - Technology stack tags
 - Project descriptions
 
 ### 🎓 Education
-
 - Academic credentials
 - Relevant coursework
 - Certifications
 - Achievements
 
 ### 📧 Contact
-
 - Multiple contact methods
 - Social media integration
 - Interactive contact cards
@@ -271,28 +250,24 @@ Text:       #f1f5f9  /* Light Gray */
 ## 🔌 JavaScript Modules
 
 ### main.js
-
 - Application initialization
 - Performance monitoring
 - Navbar state management
 - Active section detection
 
 ### smooth-scroll.js
-
 - Enhanced smooth scrolling
 - Back-to-top button
 - Scroll progress indicator
 - Section navigation
 
 ### github-api.js
-
 - Fetches repositories via REST API
 - Dynamic project card generation
 - Error handling and fallbacks
 - Loading states
 
 ### dark-mode.js
-
 - Theme toggle functionality
 - localStorage persistence
 - System preference detection
@@ -301,7 +276,6 @@ Text:       #f1f5f9  /* Light Gray */
 ## 🚢 Deployment
 
 ### Netlify (Recommended)
-
 ```bash
 # Install Netlify CLI
 npm install -g netlify-cli
@@ -309,11 +283,9 @@ npm install -g netlify-cli
 # Deploy
 netlify deploy --prod
 ```
-
 Or drag and drop folder to [netlify.com](https://netlify.com)
 
 ### GitHub Pages
-
 ```bash
 # Push to GitHub
 git add .
@@ -324,7 +296,6 @@ git push origin main
 ```
 
 ### Vercel
-
 ```bash
 # Install Vercel CLI
 npm install -g vercel
@@ -335,18 +306,16 @@ vercel --prod
 
 ## 🐛 Troubleshooting
 
-| Issue                       | Solution                                                             |
-| --------------------------- | -------------------------------------------------------------------- |
-| GitHub projects not loading | Check username in `github-api.js`, ensure local server is running    |
-| Dark mode not persisting    | Verify localStorage permissions in browser settings                  |
-| Smooth scroll not working   | Check JavaScript console for errors, ensure jQuery isn't conflicting |
-| Images not displaying       | Verify file paths, check image formats (JPEG, PNG, WebP)             |
-| Slow performance            | Enable lazy loading, optimize images, check network tab              |
+| Issue | Solution |
+|-------|----------|
+| GitHub projects not loading | Check username in `github-api.js`, ensure local server is running |
+| Dark mode not persisting | Verify localStorage permissions in browser settings |
+| Smooth scroll not working | Check JavaScript console for errors, ensure jQuery isn't conflicting |
+| Images not displaying | Verify file paths, check image formats (JPEG, PNG, WebP) |
+| Slow performance | Enable lazy loading, optimize images, check network tab |
 
 ### Debug Mode
-
 Add `?debug=true` to URL for detailed console logging:
-
 ```
 http://localhost:8000/?debug=true
 ```
@@ -388,7 +357,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Built with ❤️ by Basem Esam**
 
-_Last Updated: November 2025_
+*Last Updated: November 2025*
 
 ⭐ Star this repo if you found it helpful!
 
