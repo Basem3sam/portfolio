@@ -406,3 +406,42 @@ body.dark-mode .github-repo-card [class*='text-'] {
 body.dark-mode .github-repo-card .card-body {
   color: var(--light-text) !important;
 }
+
+/* ===================================
+   Project Card Language Badges - Dark Mode Fix
+   =================================== */
+
+/* Fix language badge visibility in dark mode */
+body.dark-mode .project-card .badge {
+  background-color: #334155 !important;
+  color: #f1f5f9 !important;
+  border: 1px solid #475569 !important;
+}
+
+/* Language-specific badges with better contrast */
+body.dark-mode .project-card .badge[style*='background'] {
+  filter: brightness(0.8) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Stats badges (Stars, Forks, etc.) */
+body.dark-mode .project-card .badge-secondary {
+  background-color: #475569 !important;
+  color: #f1f5f9 !important;
+  border: 1px solid #64748b !important;
+}
+
+/* Topic badges */
+body.dark-mode .project-card .badge-info,
+body.dark-mode .project-card .badge-light {
+  background-color: #374151 !important;
+  color: #e5e7eb !important;
+  border: 1px solid #4b5563 !important;
+}
+
+/* Ensure text is always readable */
+body.dark-mode .project-card .badge * {
+  color: inherit !important;
+}

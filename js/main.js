@@ -834,8 +834,10 @@
 
     // Preload critical images
     const criticalImages = [
-      'assets/images/profile.jpg',
+      'assets/images/profile.png',
       'assets/images/projects/project1.jpeg',
+      'assets/images/projects/placeholder.png',
+      'assets/images/projects/github-placeholder.png',
     ];
 
     criticalImages.forEach((src) => {

@@ -61,6 +61,84 @@
 }
 
 /* ===================================
+   SURGICAL FIX: Timeline & Contact Overflow
+   Add this to the END of your style.css
+   =================================== */
+
+/* CRITICAL: Prevent body overflow without breaking layout */
+html,
+body {
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+}
+
+/* FIX 1: Timeline Item Overflow on Mobile ONLY */
+@media (max-width: 575px) {
+  .timeline-item {
+    /* Keep existing padding but ensure it doesn't overflow */
+    max-width: calc(
+      100vw - 40px
+    ) !important; /* viewport - timeline padding-left (20px) - margin (20px) */
+    box-sizing: border-box !important;
+  }
+}
+
+/* FIX 2: Contact Section - Main Culprit (744px overflow) */
+@media (max-width: 768px) {
+  #contact {
+    max-width: 100vw !important;
+    width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+
+  .contact-immersive {
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+
+  .contact-content {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Fix the grid that's causing 744px width */
+  .contact-grid-immersive {
+    grid-template-columns: 1fr !important; /* Force single column on mobile */
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .contact-card-immersive {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Hide floating elements on mobile - they extend beyond viewport */
+  .floating-element {
+    display: none !important;
+  }
+}
+
+/* FIX 3: Extra small devices */
+@media (max-width: 575px) {
+  .contact-main-title {
+    font-size: 2rem !important;
+    max-width: 100% !important;
+    word-break: break-word !important;
+  }
+
+  .contact-subtitle {
+    max-width: 100% !important;
+  }
+}
+
+/* FIX 4: Ensure all sections respect viewport */
+section {
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+}
+
+/* ===================================
    Base Styles & Resets
    =================================== */
 * {
@@ -821,6 +899,51 @@ section {
   border-radius: var(--border-radius-sm);
 }
 
+/* GitHub Stats Badges - Proper Wrapping */
+.project-card .d-flex.flex-wrap.gap-2 {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.5rem !important;
+  align-items: center !important;
+}
+
+/* Keep individual badges compact and prevent stretching */
+.project-card .d-flex.flex-wrap.gap-2 > * {
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+  white-space: nowrap !important;
+  width: auto !important;
+  max-width: fit-content !important;
+}
+
+/* Target badge elements */
+.project-card .badge,
+.project-card [class*='badge'] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  width: auto !important;
+  min-width: fit-content !important;
+  padding: 6px 12px !important;
+}
+
+/* Badge icons and text sizing */
+.project-card .badge i {
+  font-size: 0.85rem !important;
+  margin-right: 0.25rem !important;
+}
+
+/* If badges contain images */
+.project-card .badge img,
+.project-card [class*='badge'] img {
+  display: inline-block !important;
+  height: auto !important;
+  max-height: 18px !important;
+  width: auto !important;
+}
+
 /* ===================================
    Timeline - PERFECTLY CENTERED (Light Mode)
    Replace the timeline section in your style.css with this
@@ -1057,7 +1180,7 @@ section {
 }
 
 /* ===================================
-   Option 5: Full-Width Immersive Contact
+   Option 5: Full-Width Immersive Contact - FIXED
    =================================== */
 
 #contact {
@@ -1069,14 +1192,20 @@ section {
     var(--dark-bg) 100%
   );
   overflow: hidden;
+  width: 100%;
+  max-width: 100%;
 }
 
 .contact-immersive {
   position: relative;
-  min-height: 80vh;
+  min-height: auto;
   display: flex;
   align-items: center;
   color: white;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  padding: 80px 0;
 }
 
 /* Animated background */
@@ -1170,6 +1299,9 @@ section {
   z-index: 2;
   text-align: center;
   padding: 80px 20px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .contact-main-title {
@@ -1195,10 +1327,13 @@ section {
 /* Contact Cards Grid */
 .contact-grid-immersive {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 30px;
   max-width: 1000px;
   margin: 0 auto 50px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 20px;
 }
 
 .contact-card-immersive {
@@ -1211,6 +1346,9 @@ section {
   transition: all var(--transition-base) var(--transition-timing);
   position: relative;
   overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .contact-card-immersive::before {
@@ -1899,4 +2037,125 @@ footer::before {
 ::-moz-selection {
   background-color: var(--secondary-color);
   color: white;
+}
+
+/* ===================================
+   COMPLETE OVERFLOW FIX - Desktop + Mobile
+   Add this to the END of your style.css
+   =================================== */
+
+/* CRITICAL: Prevent overflow on ALL devices */
+html {
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+  width: 100% !important;
+}
+
+body {
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* FIX: All sections should span full width */
+section {
+  max-width: 100vw !important;
+  width: 100vw !important;
+  overflow-x: hidden !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* FIX: Hero section full width */
+.hero-section {
+  max-width: 100vw !important;
+  width: 100vw !important;
+  overflow-x: hidden !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* FIX: Contact section - causing overflow on both desktop and mobile */
+#contact {
+  max-width: 100vw !important;
+  width: 100vw !important;
+  overflow-x: hidden !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.contact-immersive {
+  max-width: 100vw !important;
+  width: 100vw !important;
+  overflow-x: hidden !important;
+}
+
+.contact-content {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* FIX: Contact grid causing desktop overflow */
+.contact-grid-immersive {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.contact-card-immersive {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* FIX: Floating elements extend beyond viewport */
+.floating-element {
+  max-width: 100vw !important;
+  overflow: hidden !important;
+}
+
+/* FIX: Background sections */
+.bg-light {
+  max-width: 100vw !important;
+  width: 100vw !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* FIX: Footer */
+footer {
+  max-width: 100vw !important;
+  width: 100vw !important;
+  overflow-x: hidden !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* MOBILE SPECIFIC FIXES */
+@media (max-width: 768px) {
+  /* Force single column on mobile */
+  .contact-grid-immersive {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Hide floating elements on mobile - they cause overflow */
+  .floating-element {
+    display: none !important;
+  }
+}
+
+/* Mobile timeline fix */
+@media (max-width: 575px) {
+  .timeline-item {
+    max-width: calc(100vw - 40px) !important;
+    box-sizing: border-box !important;
+  }
+
+  .contact-main-title {
+    font-size: 2rem !important;
+    max-width: 100% !important;
+    word-break: break-word !important;
+  }
 }

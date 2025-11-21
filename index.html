@@ -619,6 +619,157 @@
       <i class="fas fa-arrow-up"></i>
     </a>
 
+    <script>
+      /**
+       * Diagnose horizontal overflow issues on mobile
+       */
+      function diagnoseOverflow() {
+        window.addEventListener('load', function () {
+          setTimeout(function () {
+            const viewportWidth = window.innerWidth;
+            const bodyWidth = document.body.scrollWidth;
+
+            console.log('=== OVERFLOW DIAGNOSTIC ===');
+            console.log('Viewport Width:', viewportWidth);
+            console.log('Body Scroll Width:', bodyWidth);
+            console.log('Overflow Amount:', bodyWidth - viewportWidth, 'px');
+
+            if (bodyWidth > viewportWidth) {
+              console.warn('⚠️ HORIZONTAL OVERFLOW DETECTED!');
+
+              // Find culprits
+              document.querySelectorAll('*').forEach((el) => {
+                const rect = el.getBoundingClientRect();
+                if (rect.right > viewportWidth || rect.width > viewportWidth) {
+                  console.log('Overflow Element:', {
+                    tag: el.tagName,
+                    class: el.className,
+                    id: el.id,
+                    width: rect.width,
+                    right: rect.right,
+                    overflow: rect.right - viewportWidth,
+                  });
+                }
+              });
+            } else {
+              console.log('✓ No overflow detected');
+            }
+          }, 1500); // Wait 1.5s for everything to load
+        });
+      }
+
+      // Call the diagnostic function
+      diagnoseOverflow();
+    </script>
+
+    <script>
+      /**
+       * Enhanced Mobile Overflow Diagnostic
+       * Add this to your main.js or as a separate script tag
+       */
+      function diagnoseMobileOverflow() {
+        window.addEventListener('load', function () {
+          setTimeout(function () {
+            const viewportWidth = window.innerWidth;
+            const bodyWidth = document.body.scrollWidth;
+            const isMobile = viewportWidth <= 768;
+
+            console.log('=== MOBILE OVERFLOW DIAGNOSTIC ===');
+            console.log('📱 Device Type:', isMobile ? 'MOBILE' : 'DESKTOP');
+            console.log('📏 Viewport Width:', viewportWidth);
+            console.log('📐 Body Scroll Width:', bodyWidth);
+            console.log('🔍 Overflow Amount:', bodyWidth - viewportWidth, 'px');
+
+            if (bodyWidth > viewportWidth) {
+              console.error('⚠️ HORIZONTAL OVERFLOW DETECTED!');
+              console.log('Culprits found:');
+
+              const culprits = [];
+              document.querySelectorAll('*').forEach((el) => {
+                const rect = el.getBoundingClientRect();
+                const styles = window.getComputedStyle(el);
+
+                // Check if element extends beyond viewport
+                if (rect.right > viewportWidth + 1) {
+                  // +1 for rounding
+                  culprits.push({
+                    element: el,
+                    tag: el.tagName,
+                    class: el.className,
+                    id: el.id,
+                    width: Math.round(rect.width),
+                    right: Math.round(rect.right),
+                    overflow: Math.round(rect.right - viewportWidth),
+                    marginLeft: styles.marginLeft,
+                    marginRight: styles.marginRight,
+                    paddingLeft: styles.paddingLeft,
+                    paddingRight: styles.paddingRight,
+                  });
+                }
+              });
+
+              // Sort by overflow amount (worst first)
+              culprits.sort((a, b) => b.overflow - a.overflow);
+
+              // Show top 5 culprits
+              console.table(culprits.slice(0, 5));
+
+              // Highlight culprits visually (optional)
+              if (culprits.length > 0) {
+                console.log(
+                  '\n🎯 Top Culprit:',
+                  culprits[0].tag,
+                  culprits[0].class
+                );
+                // Uncomment to highlight on page:
+                // culprits[0].element.style.outline = '3px solid red';
+              }
+            } else {
+              console.log('✅ No overflow detected');
+            }
+
+            // Additional checks
+            console.log('\n📊 Element Widths:');
+            console.log('- html width:', document.documentElement.scrollWidth);
+            console.log('- body width:', document.body.scrollWidth);
+            console.log(
+              '- .container width:',
+              document.querySelector('.container')?.scrollWidth
+            );
+            console.log(
+              '- .row width:',
+              document.querySelector('.row')?.scrollWidth
+            );
+            console.log(
+              '- .hero-section width:',
+              document.querySelector('.hero-section')?.scrollWidth
+            );
+            console.log(
+              '- #contact width:',
+              document.querySelector('#contact')?.scrollWidth
+            );
+          }, 2000); // Wait 2s for all images/animations to load
+        });
+      }
+
+      // Run diagnostic
+      diagnoseMobileOverflow();
+
+      // Also run on resize (when switching to mobile view)
+      let resizeTimer;
+      window.addEventListener('resize', function () {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function () {
+          if (window.innerWidth <= 768) {
+            console.log(
+              '\n🔄 Viewport resized to mobile - Re-running diagnostic...'
+            );
+            diagnoseMobileOverflow();
+          }
+        }, 500);
+      });
+    </script>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="./js/dark-mode.js"></script>
