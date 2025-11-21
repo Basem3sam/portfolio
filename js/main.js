@@ -834,10 +834,11 @@
 
     // Preload critical images
     const criticalImages = [
-      'assets/images/profile.png',
-      'assets/images/projects/project1.jpeg',
-      'assets/images/projects/placeholder.png',
-      'assets/images/projects/github-placeholder.png',
+      'assets/images/profile_256.webp',
+      // 'assets/images/projects/project1.jpeg',
+      // 'assets/images/projects/placeholder.png',
+      // 'assets/images/projects/github-placeholder.png',
+      // Waste Bandwidth
     ];
 
     criticalImages.forEach((src) => {
