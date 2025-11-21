@@ -369,11 +369,10 @@
 
     let isVisible = false;
     let scrollTimeout;
+    let isScrollingToTop = false;
 
-    // Remove aria-hidden attribute completely - we'll use CSS for hiding
     backToTopButton.removeAttribute('aria-hidden');
 
-    // Simple scroll handler
     const scrollHandler = () => {
       if (scrollTimeout) {
         clearTimeout(scrollTimeout);
@@ -383,17 +382,18 @@
         const scrollY = window.pageYOffset;
         const shouldShow = scrollY > SCROLL_CONFIG.backToTopThreshold;
 
+        if (isScrollingToTop) {
+          return;
+        }
+
         if (shouldShow !== isVisible) {
           if (shouldShow && !isVisible) {
             backToTopButton.classList.add('show');
             isVisible = true;
-            console.log('🔼 Back to top button shown');
           } else if (!shouldShow && isVisible) {
             backToTopButton.classList.remove('show');
             isVisible = false;
-            console.log('🔽 Back to top button hidden');
 
-            // Ensure button loses focus when hidden
             if (document.activeElement === backToTopButton) {
               backToTopButton.blur();
             }
@@ -402,48 +402,82 @@
       }, 10);
     };
 
-    // Scroll listener
     window.addEventListener('scroll', scrollHandler, { passive: true });
 
-    // Click handler
-    backToTopButton.addEventListener('click', (e) => {
+    // ✅ MOBILE TOUCH FIX - Main handler function
+    const handleScrollToTop = (e) => {
       e.preventDefault();
+      e.stopPropagation();
 
-      // Hide button immediately when clicked
+      isScrollingToTop = true;
       backToTopButton.classList.remove('show');
       isVisible = false;
-
-      // Remove focus to prevent accessibility issues
       backToTopButton.blur();
 
       scrollToTop();
+
+      setTimeout(() => {
+        isScrollingToTop = false;
+        const scrollY = window.pageYOffset;
+        if (scrollY > SCROLL_CONFIG.backToTopThreshold) {
+          backToTopButton.classList.add('show');
+          isVisible = true;
+        }
+      }, 1000);
+    };
+
+    // ✅ DESKTOP: Click event
+    backToTopButton.addEventListener('click', handleScrollToTop);
+
+    // ✅ MOBILE: Touch events (PRIMARY FIX)
+    backToTopButton.addEventListener(
+      'touchstart',
+      (e) => {
+        backToTopButton.style.transform = 'scale(0.95)';
+      },
+      { passive: true }
+    );
+
+    backToTopButton.addEventListener('touchend', (e) => {
+      backToTopButton.style.transform = '';
+      handleScrollToTop(e);
     });
+
+    backToTopButton.addEventListener('touchcancel', (e) => {
+      backToTopButton.style.transform = '';
+    });
+
+    // ✅ MODERN: Pointer events
+    if ('PointerEvent' in window) {
+      backToTopButton.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'touch') {
+          backToTopButton.style.transform = 'scale(0.95)';
+        }
+      });
+
+      backToTopButton.addEventListener('pointerup', (e) => {
+        if (e.pointerType === 'touch') {
+          backToTopButton.style.transform = '';
+        }
+      });
+    }
 
     // Keyboard support
     backToTopButton.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-
-        // Hide button and remove focus
-        backToTopButton.classList.remove('show');
-        isVisible = false;
-
-        scrollToTop();
+        handleScrollToTop(e);
       }
     });
 
-    // Focus management - ensure button can't be focused when hidden
     backToTopButton.addEventListener('focus', () => {
       if (!backToTopButton.classList.contains('show')) {
-        // If somehow focused while hidden, blur immediately
         backToTopButton.blur();
       }
     });
 
-    // Initial check
     scrollHandler();
 
-    console.log('🔼 Back to top button initialized with proper accessibility');
+    console.log('🔼 Back to top button initialized with mobile touch support');
   }
 
   /**

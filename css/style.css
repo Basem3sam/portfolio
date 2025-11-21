@@ -2159,3 +2159,23 @@ footer {
     word-break: break-word !important;
   }
 }
+
+/* ===================================
+   Mobile Touch Fix for Back-to-Top Button
+   =================================== */
+.back-to-top {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+  cursor: pointer;
+}
+
+.back-to-top.show {
+  pointer-events: auto !important;
+}
+
+.back-to-top:active {
+  transform: translateY(-5px) scale(0.95) !important;
+}
