@@ -2703,6 +2703,8 @@ Screen Reader: Fully compatible
 - Contact section
 - Basic accessibility
 
+<!--
+
 ---
 
 ## 🎬 Demo & Screenshots
@@ -2722,6 +2724,8 @@ Screen Reader: Fully compatible
 ### Tablet View
 
 ![Tablet View](https://via.placeholder.com/800x600/3498db/ffffff?text=Tablet+View)
+
+-->
 
 ---
 
