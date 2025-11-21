@@ -266,13 +266,12 @@ body.dark-mode .dark-mode-toggle {
     var(--dark-bg) 100%
   );
   color: white;
-  padding: 140px 0 80px; /* Increased top padding to clear navbar */
+  padding: 120px 0 80px;
   position: relative;
   overflow: hidden;
   min-height: 100vh;
   display: flex;
   align-items: center;
-  margin-top: 0; /* Ensure no negative margin */
 }
 
 .hero-section::before {
@@ -303,19 +302,12 @@ body.dark-mode .dark-mode-toggle {
 .hero-section .container {
   position: relative;
   z-index: 2;
-  padding-top: 20px; /* Additional spacing from navbar */
 }
 
 .hero-section h1,
 .hero-section h2,
 .hero-section p {
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-}
-
-/* Ensure profile image has proper spacing */
-.profile-img-container {
-  margin-top: 20px; /* Additional top margin */
-  margin-bottom: 20px;
 }
 
 /* ===================================
