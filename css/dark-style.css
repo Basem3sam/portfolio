@@ -219,7 +219,7 @@ body.dark-mode .timeline-item:hover::before {
   }
 
   body.dark-mode .timeline::before {
-    left: 15px; /* Adjust proportionally */
+    left: 0px; /* Adjust proportionally */
   }
 
   body.dark-mode .timeline-item::before {
@@ -233,7 +233,7 @@ body.dark-mode .timeline-item:hover::before {
   }
 
   body.dark-mode .timeline::before {
-    left: 5px; /* SAME as light mode */
+    left: 0px; /* SAME as light mode */
     width: 2px;
   }
 
@@ -261,7 +261,7 @@ body.dark-mode .timeline-item:hover::before {
   }
 
   body.dark-mode .timeline::before {
-    left: 3px; /* SAME as light mode */
+    left: 4px; /* SAME as light mode */
     width: 2px;
   }
 
