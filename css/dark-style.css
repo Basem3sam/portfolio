@@ -106,6 +106,7 @@ body.dark-mode .education-card h4 {
 
 body.dark-mode .skill-card p,
 body.dark-mode .project-card .card-text,
+body.dark-mode .project-card .card-subtitle,
 body.dark-mode .timeline-item p,
 body.dark-mode .education-card p {
   color: var(--light-text) !important;
