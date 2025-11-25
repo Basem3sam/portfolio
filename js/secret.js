@@ -23,7 +23,30 @@ window.openTerminal = function () {
     if (output) {
       output.innerHTML = '';
 
-      const ASCII_LOGO = `
+      const isMobile = window.innerWidth <= 768;
+
+      const ASCII_LOGO = isMobile
+        ? `
+╔════════════════════════════════╗
+║                                ║
+║   ██████╗  █████╗ ███████╗     ║
+║   ██╔══██╗██╔══██╗██╔════╝     ║
+║   ██████╔╝███████║███████╗     ║
+║   ██╔══██╗██╔══██║╚════██║     ║
+║   ██████╔╝██║  ██║███████║     ║
+║   ╚═════╝ ╚═╝  ╚═╝╚══════╝     ║
+║          ███████╗███╗   ███╗   ║
+║          ██╔════╝████╗ ████║   ║
+║          █████╗  ██╔████╔██║   ║
+║          ██╔══╝  ██║╚██╔╝██║   ║
+║          ███████╗██║ ╚═╝ ██║   ║
+║          ╚══════╝╚═╝     ╚═╝   ║
+║                                ║
+║      SECRET DEV TERMINAL       ║
+║                                ║
+╚════════════════════════════════╝
+`
+        : `
 ╔═══════════════════════════════════════════════════════════╗
 ║                                                           ║
 ║        ██████╗  █████╗ ███████╗███████╗███╗   ███╗        ║
@@ -36,11 +59,12 @@ window.openTerminal = function () {
 ║                 SECRET DEVELOPER TERMINAL                 ║
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
-      `;
+`;
 
-      const line1 = document.createElement('div');
+      // Use <pre> tag for perfect monospace rendering
+      const line1 = document.createElement('pre');
       line1.className = 'terminal-line ascii-art';
-      line1.innerHTML = ASCII_LOGO;
+      line1.textContent = ASCII_LOGO; // Use textContent, not innerHTML
       output.appendChild(line1);
 
       const line2 = document.createElement('div');
