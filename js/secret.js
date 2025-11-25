@@ -1,3 +1,320 @@
+// ===================================
+// SHARED AUDIO CONTEXT (FIX #1)
+// ===================================
+// Create ONE audio context and reuse it
+let sharedAudioContext = null;
+let audioContextReady = false;
+
+function getAudioContext() {
+  if (!sharedAudioContext) {
+    try {
+      sharedAudioContext = new (window.AudioContext ||
+        window.webkitAudioContext)();
+      console.log('🔊 Audio context created');
+    } catch (e) {
+      console.error('Failed to create audio context:', e);
+      return null;
+    }
+  }
+
+  // Resume context if suspended (FIX #2)
+  if (sharedAudioContext.state === 'suspended') {
+    sharedAudioContext
+      .resume()
+      .then(() => {
+        console.log('🔊 Audio context resumed');
+        audioContextReady = true;
+      })
+      .catch((err) => {
+        console.error('Failed to resume audio context:', err);
+      });
+  } else if (sharedAudioContext.state === 'running') {
+    audioContextReady = true;
+  }
+
+  return sharedAudioContext;
+}
+
+// Initialize audio on first user interaction (FIX #3)
+function initAudioOnInteraction() {
+  const audioCtx = getAudioContext();
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+}
+
+// Add listeners for first interaction
+document.addEventListener('click', initAudioOnInteraction, { once: true });
+document.addEventListener('touchstart', initAudioOnInteraction, { once: true });
+document.addEventListener('keydown', initAudioOnInteraction, { once: true });
+
+// ===================================
+// FIXED KONAMI KEY SOUND (FIX #4)
+// ===================================
+function playKonamiKeySound(key, sequencePosition) {
+  // ONLY play sounds in mobile overlay
+  const specialOverlay = document.querySelector('.mobile-special-overlay');
+  if (!specialOverlay) return;
+
+  try {
+    const audioCtx = getAudioContext();
+    if (!audioCtx || audioCtx.state !== 'running') {
+      console.log('Audio context not ready, attempting to resume...');
+      if (audioCtx) {
+        audioCtx.resume().then(() => {
+          playKonamiKeySoundInternal(key, sequencePosition);
+        });
+      }
+      return;
+    }
+
+    playKonamiKeySoundInternal(key, sequencePosition);
+  } catch (e) {
+    console.error('Konami sound error:', e);
+    fallbackMobileSound(key, sequencePosition);
+  }
+}
+
+function playKonamiKeySoundInternal(key, sequencePosition) {
+  const audioCtx = getAudioContext();
+  if (!audioCtx) return;
+
+  const oscillator = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+
+  oscillator.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  const baseFrequencies = {
+    ArrowUp: [554.37, 659.25],
+    ArrowDown: [493.88, 587.33],
+    ArrowLeft: [440.0, 523.25],
+    ArrowRight: [587.33, 698.46],
+    b: [392.0, 493.88],
+    a: [440.0, 554.37],
+  };
+
+  const frequencies = baseFrequencies[key];
+  const frequency = frequencies[sequencePosition % frequencies.length];
+  const duration = 0.12 + sequencePosition * 0.008;
+
+  oscillator.type = 'sine';
+  const slightVariant = frequency * (0.998 + Math.random() * 0.004);
+  oscillator.frequency.setValueAtTime(slightVariant, audioCtx.currentTime);
+
+  gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+  gainNode.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.03);
+  gainNode.gain.exponentialRampToValueAtTime(
+    0.001,
+    audioCtx.currentTime + duration
+  );
+
+  oscillator.start(audioCtx.currentTime);
+  oscillator.stop(audioCtx.currentTime + duration);
+
+  // Disconnect after sound finishes
+  setTimeout(() => {
+    try {
+      oscillator.disconnect();
+      gainNode.disconnect();
+    } catch (e) {
+      // Already disconnected
+    }
+  }, duration * 1000 + 100);
+}
+
+// ===================================
+// FIXED SUCCESS SOUND (FIX #5)
+// ===================================
+function playSuccessSound() {
+  try {
+    const audioCtx = getAudioContext();
+    if (!audioCtx || audioCtx.state !== 'running') {
+      console.log('Success sound: Audio context not ready');
+      return;
+    }
+
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    // Success melody
+    const times = [0, 0.15, 0.3];
+    const frequencies = [523.25, 659.25, 783.99]; // C5, E5, G5
+
+    frequencies.forEach((freq, i) => {
+      oscillator.frequency.setValueAtTime(
+        freq,
+        audioCtx.currentTime + times[i]
+      );
+    });
+
+    gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(
+      0.01,
+      audioCtx.currentTime + 0.5
+    );
+
+    oscillator.start(audioCtx.currentTime);
+    oscillator.stop(audioCtx.currentTime + 0.5);
+
+    setTimeout(() => {
+      try {
+        oscillator.disconnect();
+        gainNode.disconnect();
+      } catch (e) {}
+    }, 600);
+  } catch (e) {
+    console.error('Success sound error:', e);
+  }
+}
+
+// ===================================
+// FIXED ERROR SOUND (FIX #6)
+// ===================================
+function playErrorSound() {
+  try {
+    const audioCtx = getAudioContext();
+    if (!audioCtx || audioCtx.state !== 'running') {
+      console.log('Error sound: Audio context not ready');
+      return;
+    }
+
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    oscillator.type = 'sawtooth';
+    oscillator.frequency.setValueAtTime(220.0, audioCtx.currentTime);
+    oscillator.frequency.setValueAtTime(174.61, audioCtx.currentTime + 0.1);
+
+    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(
+      0.01,
+      audioCtx.currentTime + 0.3
+    );
+
+    oscillator.start(audioCtx.currentTime);
+    oscillator.stop(audioCtx.currentTime + 0.3);
+
+    setTimeout(() => {
+      try {
+        oscillator.disconnect();
+        gainNode.disconnect();
+      } catch (e) {}
+    }, 400);
+  } catch (e) {
+    console.error('Error sound error:', e);
+  }
+}
+
+// ===================================
+// IMPROVED KONAMI SOUND (FIX #7)
+// ===================================
+function playKonamiSound(clickCount) {
+  try {
+    const audioCtx = getAudioContext();
+    if (!audioCtx || audioCtx.state !== 'running') {
+      console.log('Konami sound: Audio context not ready');
+      return;
+    }
+
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    const tones = [
+      523.25, 587.33, 659.25, 698.46, 783.99, 880.0, 987.77, 1046.5, 1174.66,
+      1318.51,
+    ];
+
+    oscillator.frequency.setValueAtTime(
+      tones[(clickCount - 1) % tones.length],
+      audioCtx.currentTime
+    );
+
+    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(
+      0.01,
+      audioCtx.currentTime + 0.3
+    );
+
+    oscillator.start(audioCtx.currentTime);
+    oscillator.stop(audioCtx.currentTime + 0.3);
+
+    setTimeout(() => {
+      try {
+        oscillator.disconnect();
+        gainNode.disconnect();
+      } catch (e) {}
+    }, 400);
+  } catch (e) {
+    console.error('Konami sound error:', e);
+  }
+}
+
+// ===================================
+// IMPROVED FALLBACK (FIX #8)
+// ===================================
+function fallbackMobileSound(key, sequencePosition) {
+  console.log(`📱 Fallback sound: ${key} at position ${sequencePosition}`);
+
+  // Try beep API if available
+  if (navigator.vibrate) {
+    navigator.vibrate(50);
+  }
+}
+
+// ===================================
+// AUDIO WARMUP (FIX #9)
+// ===================================
+function warmAudioContext() {
+  const audioCtx = getAudioContext();
+  if (!audioCtx) return;
+
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume().then(() => {
+      console.log('🔊 Audio context warmed and resumed');
+    });
+  }
+
+  // Play silent sound to initialize
+  try {
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    gainNode.gain.value = 0;
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    oscillator.start();
+    oscillator.stop(audioCtx.currentTime + 0.001);
+
+    console.log('🔊 Audio context warmed up');
+  } catch (e) {
+    console.error('Warmup failed:', e);
+  }
+}
+
+// Call warmup when mobile overlay opens
+function onMobileOverlayOpen() {
+  warmAudioContext();
+}
+
+// Export for use in your code
+window.playKonamiKeySound = playKonamiKeySound;
+window.playSuccessSound = playSuccessSound;
+window.playErrorSound = playErrorSound;
+window.playKonamiSound = playKonamiSound;
+window.warmAudioContext = warmAudioContext;
+window.onMobileOverlayOpen = onMobileOverlayOpen;
+
 window.openTerminal = function () {
   // Close any Konami master notification when opening terminal
   const masterNotification = document.querySelector(
@@ -179,183 +496,6 @@ function showMobileSecretPrompt() {
   });
 }
 
-function playKonamiKeySound(key, sequencePosition) {
-  // ONLY play sounds in mobile overlay
-  const specialOverlay = document.querySelector('.mobile-special-overlay');
-  if (!specialOverlay) return;
-
-  try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
-
-    oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
-
-    // Optimized for mobile - clearer frequencies, better timing
-    const baseFrequencies = {
-      ArrowUp: [554.37, 659.25], // C#5, E5 - more distinct
-      ArrowDown: [493.88, 587.33], // B4, D5
-      ArrowLeft: [440.0, 523.25], // A4, C5
-      ArrowRight: [587.33, 698.46], // D5, F5
-      b: [392.0, 493.88], // G4, B4 - higher for clarity
-      a: [440.0, 554.37], // A4, C#5 - more musical
-    };
-
-    const frequencies = baseFrequencies[key];
-    const frequency = frequencies[sequencePosition % frequencies.length];
-
-    // Mobile-optimized timing - slightly longer for better audio on small speakers
-    const duration = 0.12 + sequencePosition * 0.008; // Longer base duration
-
-    oscillator.type = 'sine'; // Cleaner sound for mobile speakers
-
-    // Set frequency with slight variation to prevent repetitive feel
-    const slightVariant = frequency * (0.998 + Math.random() * 0.004);
-    oscillator.frequency.setValueAtTime(slightVariant, audioCtx.currentTime);
-
-    // Smoother envelope for mobile - less harsh
-    gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.03); // Slightly louder
-    gainNode.gain.exponentialRampToValueAtTime(
-      0.001, // Lower end for cleaner fadeout
-      audioCtx.currentTime + duration
-    );
-
-    oscillator.start(audioCtx.currentTime);
-    oscillator.stop(audioCtx.currentTime + duration);
-
-    // Auto-cleanup to prevent memory issues on mobile
-    setTimeout(() => {
-      oscillator.disconnect();
-      gainNode.disconnect();
-    }, duration * 1000 + 100);
-  } catch (e) {
-    // Enhanced fallback for mobile
-    console.log(`🔊 Mobile Konami: ${key} at position ${sequencePosition}`);
-
-    // Fallback: Use browser audio if Web Audio API fails
-    fallbackMobileSound(key, sequencePosition);
-  }
-}
-
-// Fallback for mobile devices with Web Audio API issues
-function fallbackMobileSound(key, sequencePosition) {
-  try {
-    // Create a simple audio element fallback
-    const audio = new Audio();
-    const context = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = context.createOscillator();
-    const gainNode = context.createGain();
-
-    oscillator.connect(gainNode);
-    gainNode.connect(context.destination);
-
-    // Simple, reliable frequencies for fallback
-    const fallbackFreqs = {
-      ArrowUp: 600,
-      ArrowDown: 500,
-      ArrowLeft: 400,
-      ArrowRight: 700,
-      b: 350,
-      a: 450,
-    };
-
-    oscillator.frequency.value = fallbackFreqs[key];
-    gainNode.gain.value = 0.1;
-
-    oscillator.start();
-    setTimeout(() => oscillator.stop(), 100);
-  } catch (fallbackError) {
-    // Ultimate fallback - just log
-    console.log(`📱 Mobile sound: ${key}`);
-  }
-}
-
-// Optional: Pre-warm audio context for faster response on mobile
-let audioContextWarmed = false;
-
-function warmAudioContext() {
-  if (audioContextWarmed) return;
-
-  try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
-
-    gainNode.gain.value = 0;
-    oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
-
-    oscillator.start();
-    oscillator.stop(audioCtx.currentTime + 0.001);
-
-    audioContextWarmed = true;
-    console.log('🔊 Audio context warmed up for mobile');
-  } catch (e) {
-    // Silent fail
-  }
-}
-
-// Call this when the mobile overlay opens
-function onMobileOverlayOpen() {
-  warmAudioContext();
-}
-
-function playSuccessSound() {
-  try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
-
-    oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
-
-    // Success melody
-    oscillator.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
-    oscillator.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
-    oscillator.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2); // G5
-
-    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(
-      0.01,
-      audioCtx.currentTime + 0.5
-    );
-
-    oscillator.start(audioCtx.currentTime);
-    oscillator.stop(audioCtx.currentTime + 0.5);
-  } catch (e) {
-    // Silent fallback if audio context fails
-    console.log('🔊 Success sound played (silent fallback)');
-  }
-}
-
-function playErrorSound() {
-  try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
-
-    oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
-
-    oscillator.type = 'sawtooth';
-    oscillator.frequency.setValueAtTime(220.0, audioCtx.currentTime); // A3
-    oscillator.frequency.setValueAtTime(174.61, audioCtx.currentTime + 0.1); // F3
-
-    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(
-      0.01,
-      audioCtx.currentTime + 0.3
-    );
-
-    oscillator.start(audioCtx.currentTime);
-    oscillator.stop(audioCtx.currentTime + 0.3);
-  } catch (e) {
-    console.log('🔊 Error sound played');
-  }
-}
-
 function showSpecialKeyboardInput() {
   const overlay = document.createElement('div');
   overlay.className = 'mobile-special-overlay';
@@ -403,7 +543,10 @@ function showSpecialKeyboardInput() {
   `;
 
   // Pre-warm audio when overlay opens
-  setTimeout(() => warmAudioContext(), 100);
+  setTimeout(async () => {
+    await window.warmAudioContext();
+    console.log('✅ Audio ready for mobile overlay');
+  }, 100);
 
   document.body.appendChild(overlay);
 
@@ -456,7 +599,7 @@ function showSpecialKeyboardInput() {
         showAccessGranted();
         createCelebrationParticles();
         createConfettiBurst();
-        playSuccessSound();
+        window.playSuccessSound();
 
         // Store that user has unlocked it
         if (typeof sessionStorage !== 'undefined') {
@@ -464,7 +607,7 @@ function showSpecialKeyboardInput() {
         }
       } else {
         // WRONG - Shake and reset
-        playErrorSound();
+        window.playErrorSound();
 
         const tracker = overlay.querySelector('#tracker-display');
         tracker.classList.add('wrong-sequence');
@@ -503,7 +646,7 @@ function showSpecialKeyboardInput() {
       const key = btn.getAttribute('data-key');
 
       // Play sound for mobile button press
-      playKonamiKeySound(key, enteredSequence.length);
+      window.playKonamiKeySound(key, enteredSequence.length);
 
       enteredSequence.push(key);
 
@@ -692,7 +835,7 @@ function showEnhancedMasterNotification() {
   // Create celebration effects
   createCelebrationParticles();
   createConfettiBurst();
-  playSuccessSound();
+  window.playSuccessSound();
 
   // Auto-dismiss after 10 seconds
   const autoDismiss = setTimeout(() => {
@@ -1067,7 +1210,7 @@ let spamProtection = {
       createDirectionalParticles(element, clickCount);
     }
 
-    playKonamiSound(clickCount);
+    window.playKonamiSound(clickCount);
   }
 
   // UPDATED: Enhanced createDirectionalParticles with performance monitoring
@@ -1112,38 +1255,6 @@ let spamProtection = {
           performanceMonitor.removeElement(particle);
         }
       }, 1200);
-    }
-  }
-
-  function playKonamiSound(clickCount) {
-    try {
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const oscillator = audioCtx.createOscillator();
-      const gainNode = audioCtx.createGain();
-
-      oscillator.connect(gainNode);
-      gainNode.connect(audioCtx.destination);
-
-      // Extended Konami code melody-inspired tones for 10 clicks
-      const tones = [
-        523.25, 587.33, 659.25, 698.46, 783.99, 880.0, 987.77, 1046.5, 1174.66,
-        1318.51,
-      ];
-      oscillator.frequency.setValueAtTime(
-        tones[(clickCount - 1) % tones.length],
-        audioCtx.currentTime
-      );
-
-      gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(
-        0.01,
-        audioCtx.currentTime + 0.3
-      );
-
-      oscillator.start(audioCtx.currentTime);
-      oscillator.stop(audioCtx.currentTime + 0.3);
-    } catch (e) {
-      // Silent fallback
     }
   }
 

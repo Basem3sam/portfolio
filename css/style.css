@@ -2000,30 +2000,37 @@ footer::before {
 }
 
 /* ===================================
-   Custom Scrollbar (Webkit browsers)
+   Custom Scrollbar - ONLY show the thumb, hide the track completely
    =================================== */
+
+/* Webkit browsers (Chrome, Edge, Safari) */
 ::-webkit-scrollbar {
-  width: 12px;
+  width: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--light-bg);
+  background: rgba(0, 0, 0, 0);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--secondary-color);
-  border-radius: 6px;
-  border: 2px solid var(--light-bg);
+  background-color: rgba(52, 152, 219, 0.6);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #2980b9;
+  background-color: rgba(52, 152, 219, 0.9);
 }
 
-/* Firefox scrollbar */
+::-webkit-scrollbar-thumb:active {
+  background-color: #2980b9;
+}
+
+/* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--secondary-color) var(--light-bg);
+  scrollbar-color: rgba(52, 152, 219, 0.6) rgba(0, 0, 0, 0);
 }
 
 /* ===================================
