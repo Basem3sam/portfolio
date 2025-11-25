@@ -355,18 +355,36 @@ function showSpecialKeyboardInput() {
 }
 
 function showAccessGranted() {
+  // Remove any existing access granted notifications first
+  const existingNotification = document.querySelector(
+    '.access-granted-notification'
+  );
+  if (existingNotification) {
+    existingNotification.remove();
+  }
+
   const notification = document.createElement('div');
   notification.className = 'access-granted-notification';
   notification.innerHTML = `
     <i class="fas fa-unlock-alt"></i>
     <span>Access Granted! The terminal awaits... 🎉</span>
   `;
+
   document.body.appendChild(notification);
 
+  // Force reflow to ensure proper positioning
+  void notification.offsetWidth;
+
   setTimeout(() => notification.classList.add('show'), 10);
+
+  // Auto-dismiss
   setTimeout(() => {
     notification.classList.remove('show');
-    setTimeout(() => notification.remove(), 500);
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.remove();
+      }
+    }, 500);
   }, 3000);
 }
 
@@ -1740,13 +1758,20 @@ You are: Awesome! 🌟
 
   // Handle key press
   function handleKeyPress(e) {
+    // Don't detect Konami code if terminal is already open
+    const terminal = document.getElementById('secret-terminal');
+    if (terminal && terminal.classList.contains('active')) {
+      return; // Let normal typing happen in the terminal
+    }
+
     // Konami Code detection
     if (e.key === konamiCode[konamiIndex]) {
       konamiIndex++;
       if (konamiIndex === konamiCode.length) {
+        e.preventDefault(); // Stop the "A" from being typed
         window.openTerminal();
         konamiIndex = 0;
-        // Clear any potential input that might have been captured
+
         const input = document.getElementById('terminal-input');
         if (input) input.value = '';
       }
