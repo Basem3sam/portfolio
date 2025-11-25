@@ -1,4 +1,17 @@
 window.openTerminal = function () {
+  // Close any Konami master notification when opening terminal
+  const masterNotification = document.querySelector(
+    '.konami-master-notification'
+  );
+  if (masterNotification) {
+    masterNotification.classList.remove('show');
+    setTimeout(() => {
+      if (masterNotification.parentNode) {
+        masterNotification.remove();
+      }
+    }, 300);
+  }
+
   const terminal = document.getElementById('secret-terminal');
   const backdrop = document.getElementById('terminal-backdrop');
   if (terminal && backdrop) {
@@ -66,6 +79,290 @@ window.closeTerminal = function () {
   if (terminal) terminal.classList.remove('active');
   if (backdrop) backdrop.classList.remove('active');
 };
+
+function showMobileSecretPrompt() {
+  const overlay = document.createElement('div');
+  overlay.className = 'mobile-secret-overlay';
+  overlay.innerHTML = `
+    <div class="mobile-secret-container">
+      <div class="mobile-secret-header">
+        <h3>🔒 Secret Terminal Access</h3>
+        <button class="mobile-secret-close">&times;</button>
+      </div>
+      
+      <div class="mobile-secret-content">
+        <div class="secret-icon">🎮</div>
+        <p class="secret-message">
+          Enter the legendary Konami Code to unlock the developer terminal
+        </p>
+        <p class="secret-hint">
+          <em>A classic gaming sequence holds the key...</em>
+        </p>
+        
+        <div class="secret-progress">
+          <div class="progress-hint">
+            <span class="hint-text">The code is hidden in gaming history</span>
+          </div>
+        </div>
+        
+        <div class="mobile-secret-buttons">
+          <button class="secret-btn try-sequence" id="try-sequence">
+            <i class="fas fa-keyboard"></i>
+            Enter Konami Code
+          </button>
+          <button class="secret-btn exit-secret" id="exit-secret">
+            <i class="fas fa-times"></i>
+            Cancel
+          </button>
+        </div>
+        
+        <div class="secret-footer">
+          <small>💡 Hint: Click profile image repeatedly for clues</small>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  // Enter Code button - goes to special keyboard input
+  overlay.querySelector('#try-sequence').addEventListener('click', (e) => {
+    e.stopPropagation();
+    overlay.remove();
+    showSpecialKeyboardInput();
+  });
+
+  // Cancel button
+  overlay.querySelector('#exit-secret').addEventListener('click', (e) => {
+    e.stopPropagation();
+    overlay.remove();
+  });
+
+  // Close X button
+  overlay
+    .querySelector('.mobile-secret-close')
+    .addEventListener('click', (e) => {
+      e.stopPropagation();
+      overlay.remove();
+    });
+
+  // Prevent clicks inside container from closing
+  overlay
+    .querySelector('.mobile-secret-container')
+    .addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
+  // Click outside to close
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      overlay.remove();
+    }
+  });
+}
+
+function showSpecialKeyboardInput() {
+  const overlay = document.createElement('div');
+  overlay.className = 'mobile-special-overlay';
+  overlay.innerHTML = `
+    <div class="mobile-special-container">
+      <div class="mobile-special-header">
+        <h3>⚡ Enter Konami Code</h3>
+        <button class="mobile-special-close">&times;</button>
+      </div>
+      
+      <div class="mobile-special-content">
+        <p class="special-message">
+          Tap the buttons in the correct sequence
+        </p>
+        
+        <div class="sequence-tracker">
+          <div class="tracker-display" id="tracker-display">
+            <span class="tracker-placeholder">Tap to begin...</span>
+          </div>
+          <div class="tracker-actions">
+            <button id="clear-tracker">Clear</button>
+          </div>
+        </div>
+        
+        <div class="special-input-buttons">
+          <button class="special-btn direction-btn" data-key="ArrowUp">↑</button>
+          <button class="special-btn direction-btn" data-key="ArrowDown">↓</button>
+          <button class="special-btn direction-btn" data-key="ArrowLeft">←</button>
+          <button class="special-btn direction-btn" data-key="ArrowRight">→</button>
+          <button class="special-btn letter-btn" data-key="b">B</button>
+          <button class="special-btn letter-btn" data-key="a">A</button>
+        </div>
+        
+        <div class="special-hint">
+          <small>💡 A legendary gaming sequence from the 80s</small>
+        </div>
+        
+        <div class="special-back">
+          <button class="special-btn back-btn" id="back-to-start">
+            <i class="fas fa-arrow-left"></i> Back
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  const konamiCode = [
+    'ArrowUp',
+    'ArrowUp',
+    'ArrowDown',
+    'ArrowDown',
+    'ArrowLeft',
+    'ArrowRight',
+    'ArrowLeft',
+    'ArrowRight',
+    'b',
+    'a',
+  ];
+  let enteredSequence = [];
+
+  function updateTracker() {
+    const tracker = overlay.querySelector('#tracker-display');
+
+    if (enteredSequence.length === 0) {
+      tracker.innerHTML =
+        '<span class="tracker-placeholder">Tap to begin...</span>';
+    } else {
+      const display = {
+        ArrowUp: '↑',
+        ArrowDown: '↓',
+        ArrowLeft: '←',
+        ArrowRight: '→',
+        b: 'B',
+        a: 'A',
+      };
+      tracker.innerHTML = enteredSequence
+        .map((key) => `<span class="tracked-key">${display[key]}</span>`)
+        .join(' ');
+    }
+  }
+
+  function checkSpecialSequence() {
+    if (enteredSequence.length === konamiCode.length) {
+      const isCorrect = enteredSequence.every(
+        (key, index) => key === konamiCode[index]
+      );
+
+      if (isCorrect) {
+        // SUCCESS - Open terminal!
+        overlay.remove();
+        window.openTerminal();
+        showAccessGranted();
+        createCelebrationParticles();
+        createConfettiBurst();
+        playSuccessSound();
+
+        // Store that user has unlocked it
+        if (typeof sessionStorage !== 'undefined') {
+          sessionStorage.setItem('konamiUnlocked', 'true');
+        }
+      } else {
+        // WRONG - Shake and reset
+        const tracker = overlay.querySelector('#tracker-display');
+        tracker.classList.add('wrong-sequence');
+
+        // Show error feedback
+        const feedback = document.createElement('div');
+        feedback.className = 'sequence-feedback error';
+        feedback.textContent = '❌ Incorrect sequence!';
+        overlay.querySelector('.sequence-tracker').appendChild(feedback);
+
+        setTimeout(() => {
+          tracker.classList.remove('wrong-sequence');
+          if (feedback.parentNode) {
+            feedback.remove();
+          }
+        }, 1000);
+
+        setTimeout(() => {
+          enteredSequence = [];
+          updateTracker();
+        }, 1500);
+      }
+    }
+  }
+
+  // Button handlers for arrow keys and letters
+  overlay.querySelectorAll('.direction-btn, .letter-btn').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const key = btn.getAttribute('data-key');
+      enteredSequence.push(key);
+
+      // Visual feedback
+      btn.style.transform = 'scale(0.9)';
+      setTimeout(() => {
+        btn.style.transform = 'scale(1)';
+      }, 100);
+
+      updateTracker();
+
+      // Auto-check when sequence is complete
+      if (enteredSequence.length === konamiCode.length) {
+        setTimeout(() => checkSpecialSequence(), 500);
+      }
+    });
+  });
+
+  // Clear button
+  overlay.querySelector('#clear-tracker').addEventListener('click', (e) => {
+    e.stopPropagation();
+    enteredSequence = [];
+    updateTracker();
+  });
+
+  // Back button
+  overlay.querySelector('#back-to-start').addEventListener('click', (e) => {
+    e.stopPropagation();
+    overlay.remove();
+    showMobileSecretPrompt();
+  });
+
+  // Close X button
+  overlay
+    .querySelector('.mobile-special-close')
+    .addEventListener('click', (e) => {
+      e.stopPropagation();
+      overlay.remove();
+    });
+
+  // Prevent clicks inside container from closing
+  overlay
+    .querySelector('.mobile-special-container')
+    .addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
+  // Click outside to close
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      overlay.remove();
+    }
+  });
+}
+
+function showAccessGranted() {
+  const notification = document.createElement('div');
+  notification.className = 'access-granted-notification';
+  notification.innerHTML = `
+    <i class="fas fa-unlock-alt"></i>
+    <span>Access Granted! The terminal awaits... 🎉</span>
+  `;
+  document.body.appendChild(notification);
+
+  setTimeout(() => notification.classList.add('show'), 10);
+  setTimeout(() => {
+    notification.classList.remove('show');
+    setTimeout(() => notification.remove(), 500);
+  }, 3000);
+}
 
 // Helper function to create celebration particles
 function createCelebrationParticles() {
@@ -480,6 +777,19 @@ let spamProtection = {
     });
 
     function unlockKonamiSecret(secretClue) {
+      // Remove any existing Konami hint notifications
+      const existingNotifications = document.querySelectorAll(
+        '.konami-hint-notification'
+      );
+      existingNotifications.forEach((notification) => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.remove();
+          }
+        }, 300);
+      });
+
       secretClue.classList.add('revealed');
       secretClue.style.animation = 'konamiCelebration 2s ease';
 
@@ -487,10 +797,10 @@ let spamProtection = {
       showEnhancedMasterNotification();
       createEpicCelebration();
 
-      // FIX: Check if seStorage exists
-      if (typeof seStorage !== 'undefined') {
-        seStorage.setItem('secretClueRevealed', 'true');
-        seStorage.setItem('konamiMaster', 'true');
+      // FIX: Check if sessionStorage exists (corrected typo)
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem('secretClueRevealed', 'true');
+        sessionStorage.setItem('konamiMaster', 'true');
       }
 
       console.log('🎉 KONAMI MASTER ACHIEVED! 10-click sequence complete!');
@@ -502,14 +812,20 @@ let spamProtection = {
 
     // Secret clue click handler
     secretClue.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const existingOverlay = document.querySelector(
+        '.mobile-secret-overlay, .mobile-cryptic-overlay, .mobile-special-overlay'
+      );
+
+      if (existingOverlay) {
+        return;
+      }
+
       if (window.innerWidth <= 768) {
-        e.preventDefault();
-        e.stopPropagation();
-        // Directly call the global function
-        window.openTerminal();
+        showMobileSecretPrompt();
       } else {
-        e.preventDefault();
-        e.stopPropagation();
         showKonamiReminder();
       }
     });
@@ -740,22 +1056,88 @@ let spamProtection = {
     const level = HINT_LEVELS[hintLevel];
     if (!level.showNotification) return;
 
+    // Remove any existing notification
+    const existingNotification = document.querySelector(
+      '.konami-hint-notification'
+    );
+    if (existingNotification) {
+      existingNotification.remove();
+    }
+
     const notification = document.createElement('div');
-    notification.className = 'konami-hint-notification';
+    notification.className = `konami-hint-notification level-${hintLevel}`;
+
+    // Simple progress indicator without revealing too much
+    const progressPercent = Math.min((profileClickCount / 10) * 100, 90);
 
     notification.innerHTML = `
+    <button class="konami-hint-close" aria-label="Close notification">&times;</button>
     <i class="fas fa-${getKonamiIcon(hintLevel)}"></i>
     <span>${level.notification}</span>
-    <small>Progress: ${profileClickCount}/${CLICKS_NEEDED}</small>
+    
+    ${
+      hintLevel >= 1 && hintLevel <= 4
+        ? `
+      <div class="konami-progress">
+        <span>Exploring...</span>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: ${progressPercent}%"></div>
+        </div>
+      </div>
+    `
+        : ''
+    }
+    
+    ${
+      hintLevel === 5
+        ? `
+      <small>Almost there! One more step...</small>
+    `
+        : ''
+    }
   `;
 
     document.body.appendChild(notification);
 
+    // Close button functionality
+    notification
+      .querySelector('.konami-hint-close')
+      .addEventListener('click', (e) => {
+        e.stopPropagation();
+        notification.classList.remove('show');
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.remove();
+          }
+        }, 300);
+      });
+
+    // Auto-show
     setTimeout(() => notification.classList.add('show'), 10);
-    setTimeout(() => {
+
+    // Auto-dismiss after appropriate time (shorter on mobile)
+    const dismissTime = window.innerWidth <= 768 ? 3500 : 4000;
+    const autoDismiss = setTimeout(() => {
       notification.classList.remove('show');
-      setTimeout(() => notification.remove(), 400);
-    }, 3000);
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.remove();
+        }
+      }, 300);
+    }, dismissTime);
+
+    // Allow clicking to dismiss early (except on the close button)
+    notification.addEventListener('click', (e) => {
+      if (!e.target.closest('.konami-hint-close')) {
+        clearTimeout(autoDismiss);
+        notification.classList.remove('show');
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.remove();
+          }
+        }, 300);
+      }
+    });
   }
 
   function getKonamiIcon(level) {
