@@ -415,62 +415,108 @@ window.closeTerminal = function () {
   if (backdrop) backdrop.classList.remove('active');
 };
 
+// ===================================
+// ENHANCED MOBILE SECRET PROMPT WITH ANIMATIONS
+// ===================================
+
 function showMobileSecretPrompt() {
   const overlay = document.createElement('div');
   overlay.className = 'mobile-secret-overlay';
   overlay.innerHTML = `
     <div class="mobile-secret-container">
       <div class="mobile-secret-header">
-        <h3>🔒 Secret Terminal Access</h3>
-        <button class="mobile-secret-close">&times;</button>
+        <div class="header-glow"></div>
+        <h3>
+          <span class="lock-icon">🔒</span>
+          <span class="header-text">Secret Terminal Access</span>
+        </h3>
+        <button class="mobile-secret-close" aria-label="Close">&times;</button>
       </div>
       
       <div class="mobile-secret-content">
-        <div class="secret-icon">🎮</div>
-        <p class="secret-message">
-          Enter the legendary Konami Code to unlock the developer terminal
-        </p>
-        <p class="secret-hint">
-          <em>A classic gaming sequence holds the key...</em>
-        </p>
+        <div class="secret-icon-wrapper">
+          <div class="icon-glow-ring"></div>
+          <div class="secret-icon">🎮</div>
+          <div class="icon-particles"></div>
+        </div>
+        
+        <div class="message-container">
+          <p class="secret-message">
+            <span class="message-highlight">Enter the legendary</span>
+            <span class="message-emphasis">Konami Code</span>
+            <span class="message-highlight">to unlock the developer terminal</span>
+          </p>
+          <p class="secret-hint">
+            <span class="hint-icon">✨</span>
+            <em>A classic gaming sequence holds the key...</em>
+          </p>
+        </div>
         
         <div class="secret-progress">
           <div class="progress-hint">
+            <span class="hint-icon-small">🕹️</span>
             <span class="hint-text">The code is hidden in gaming history</span>
+          </div>
+          <div class="mystery-dots">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
           </div>
         </div>
         
         <div class="mobile-secret-buttons">
-          <button class="secret-btn try-sequence" id="try-sequence">
-            <i class="fas fa-keyboard"></i>
-            Enter Konami Code
+          <button class="secret-btn try-sequence gradient-btn" id="try-sequence">
+            <span class="btn-icon">⚡</span>
+            <span class="btn-text">Enter Konami Code</span>
+            <span class="btn-shimmer"></span>
           </button>
           <button class="secret-btn exit-secret" id="exit-secret">
-            <i class="fas fa-times"></i>
-            Cancel
+            <span class="btn-icon">✕</span>
+            <span class="btn-text">Cancel</span>
           </button>
         </div>
         
         <div class="secret-footer">
-          <small>💡 Hint: Click profile image repeatedly for clues</small>
+          <div class="footer-divider"></div>
+          <small>
+            <span class="footer-icon">💡</span>
+            <span class="footer-text">Hint: Click profile image repeatedly for clues</span>
+          </small>
         </div>
       </div>
+      
+      <div class="matrix-rain"></div>
     </div>
   `;
 
   document.body.appendChild(overlay);
 
-  // Enter Code button - goes to special keyboard input
+  // Create matrix rain effect
+  createMatrixRain(overlay.querySelector('.matrix-rain'));
+
+  // Animate entrance
+  requestAnimationFrame(() => {
+    overlay.classList.add('show');
+    setTimeout(() => {
+      overlay.querySelector('.mobile-secret-container').classList.add('show');
+    }, 100);
+  });
+
+  // Enter Code button
   overlay.querySelector('#try-sequence').addEventListener('click', (e) => {
     e.stopPropagation();
-    overlay.remove();
-    showSpecialKeyboardInput();
+    overlay.classList.add('exit');
+    setTimeout(() => {
+      overlay.remove();
+      showSpecialKeyboardInput();
+    }, 300);
   });
 
   // Cancel button
   overlay.querySelector('#exit-secret').addEventListener('click', (e) => {
     e.stopPropagation();
-    overlay.remove();
+    overlay.classList.add('exit');
+    setTimeout(() => overlay.remove(), 300);
   });
 
   // Close X button
@@ -478,7 +524,8 @@ function showMobileSecretPrompt() {
     .querySelector('.mobile-secret-close')
     .addEventListener('click', (e) => {
       e.stopPropagation();
-      overlay.remove();
+      overlay.classList.add('exit');
+      setTimeout(() => overlay.remove(), 300);
     });
 
   // Prevent clicks inside container from closing
@@ -491,10 +538,15 @@ function showMobileSecretPrompt() {
   // Click outside to close
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) {
-      overlay.remove();
+      overlay.classList.add('exit');
+      setTimeout(() => overlay.remove(), 300);
     }
   });
 }
+
+// ===================================
+// ENHANCED SPECIAL KEYBOARD INPUT
+// ===================================
 
 function showSpecialKeyboardInput() {
   const overlay = document.createElement('div');
@@ -502,43 +554,80 @@ function showSpecialKeyboardInput() {
   overlay.innerHTML = `
     <div class="mobile-special-container">
       <div class="mobile-special-header">
-        <h3>⚡ Enter Konami Code</h3>
-        <button class="mobile-special-close">&times;</button>
+        <div class="header-glow"></div>
+        <h3>
+          <span class="thunder-icon">⚡</span>
+          <span class="header-text">Enter Konami Code</span>
+        </h3>
+        <button class="mobile-special-close" aria-label="Close">&times;</button>
       </div>
       
       <div class="mobile-special-content">
-        <p class="special-message">
-          Tap the buttons in the correct sequence
-        </p>
+        <div class="message-wrapper">
+          <p class="special-message">
+            <span class="pulse-icon">🎯</span>
+            <span>Tap the buttons in the correct sequence</span>
+          </p>
+        </div>
         
         <div class="sequence-tracker">
+          <div class="tracker-header">
+            <span class="tracker-title">Your Sequence</span>
+            <span class="tracker-count">0/10</span>
+          </div>
           <div class="tracker-display" id="tracker-display">
             <span class="tracker-placeholder">Tap to begin...</span>
           </div>
           <div class="tracker-actions">
-            <button id="clear-tracker">Clear</button>
+            <button id="clear-tracker" class="clear-btn">
+              <span class="btn-icon">↺</span>
+              <span>Clear</span>
+            </button>
           </div>
         </div>
         
         <div class="special-input-buttons">
-          <button class="special-btn direction-btn" data-key="ArrowUp">↑</button>
-          <button class="special-btn direction-btn" data-key="ArrowLeft">←</button>
-          <button class="special-btn direction-btn" data-key="ArrowRight">→</button>
-          <button class="special-btn direction-btn" data-key="ArrowDown">↓</button>
-          <button class="special-btn letter-btn" data-key="b">B</button>
-          <button class="special-btn letter-btn" data-key="a">A</button>
+          <button class="special-btn direction-btn" data-key="ArrowUp">
+            <span class="btn-glow"></span>
+            <span class="btn-content">↑</span>
+          </button>
+          <button class="special-btn direction-btn" data-key="ArrowLeft">
+            <span class="btn-glow"></span>
+            <span class="btn-content">←</span>
+          </button>
+          <button class="special-btn direction-btn" data-key="ArrowRight">
+            <span class="btn-glow"></span>
+            <span class="btn-content">→</span>
+          </button>
+          <button class="special-btn direction-btn" data-key="ArrowDown">
+            <span class="btn-glow"></span>
+            <span class="btn-content">↓</span>
+          </button>
+          <button class="special-btn letter-btn" data-key="b">
+            <span class="btn-glow"></span>
+            <span class="btn-content">B</span>
+          </button>
+          <button class="special-btn letter-btn" data-key="a">
+            <span class="btn-glow"></span>
+            <span class="btn-content">A</span>
+          </button>
         </div>
         
         <div class="special-hint">
-          <small>💡 A legendary gaming sequence from the 80s</small>
+          <div class="hint-pulse"></div>
+          <span class="hint-icon">🕹️</span>
+          <small>A legendary gaming sequence from the 80s</small>
         </div>
         
         <div class="special-back">
-          <button class="special-btn back-btn" id="back-to-start">
-            <i class="fas fa-arrow-left"></i> Back
+          <button class="secret-btn back-btn" id="back-to-start">
+            <span class="btn-icon">←</span>
+            <span class="btn-text">Back</span>
           </button>
         </div>
       </div>
+      
+      <div class="konami-pattern-bg"></div>
     </div>
   `;
 
@@ -549,6 +638,17 @@ function showSpecialKeyboardInput() {
   }, 100);
 
   document.body.appendChild(overlay);
+
+  // Create animated background pattern
+  createKonamiPattern(overlay.querySelector('.konami-pattern-bg'));
+
+  // Animate entrance
+  requestAnimationFrame(() => {
+    overlay.classList.add('show');
+    setTimeout(() => {
+      overlay.querySelector('.mobile-special-container').classList.add('show');
+    }, 100);
+  });
 
   const konamiCode = [
     'ArrowUp',
@@ -563,10 +663,14 @@ function showSpecialKeyboardInput() {
     'a',
   ];
   let enteredSequence = [];
-  let sequencePosition = 0;
 
   function updateTracker() {
     const tracker = overlay.querySelector('#tracker-display');
+    const counter = overlay.querySelector('.tracker-count');
+
+    counter.textContent = `${enteredSequence.length}/10`;
+    counter.classList.add('update');
+    setTimeout(() => counter.classList.remove('update'), 300);
 
     if (enteredSequence.length === 0) {
       tracker.innerHTML =
@@ -581,7 +685,12 @@ function showSpecialKeyboardInput() {
         a: 'A',
       };
       tracker.innerHTML = enteredSequence
-        .map((key) => `<span class="tracked-key">${display[key]}</span>`)
+        .map((key, index) => {
+          const isCorrect = key === konamiCode[index];
+          return `<span class="tracked-key ${
+            isCorrect ? 'correct' : 'wrong'
+          }">${display[key]}</span>`;
+        })
         .join(' ');
     }
   }
@@ -593,36 +702,39 @@ function showSpecialKeyboardInput() {
       );
 
       if (isCorrect) {
-        // SUCCESS - Open terminal!
-        overlay.remove();
-        window.openTerminal();
-        showAccessGranted();
-        createCelebrationParticles();
-        createConfettiBurst();
-        window.playSuccessSound();
+        // SUCCESS
+        const tracker = overlay.querySelector('#tracker-display');
+        tracker.classList.add('success-sequence');
 
-        // Store that user has unlocked it
-        if (typeof sessionStorage !== 'undefined') {
-          sessionStorage.setItem('konamiUnlocked', 'true');
-        }
+        setTimeout(() => {
+          overlay.classList.add('exit');
+          setTimeout(() => {
+            overlay.remove();
+            window.openTerminal();
+            showAccessGranted();
+            createCelebrationParticles();
+            createConfettiBurst();
+            window.playSuccessSound();
+            if (typeof sessionStorage !== 'undefined') {
+              sessionStorage.setItem('konamiUnlocked', 'true');
+            }
+          }, 300);
+        }, 800);
       } else {
-        // WRONG - Shake and reset
+        // WRONG
         window.playErrorSound();
-
         const tracker = overlay.querySelector('#tracker-display');
         tracker.classList.add('wrong-sequence');
 
-        // Show error feedback
         const feedback = document.createElement('div');
         feedback.className = 'sequence-feedback error';
-        feedback.textContent = '❌ Incorrect sequence!';
+        feedback.innerHTML =
+          '<span class="feedback-icon">❌</span><span>Incorrect sequence!</span>';
         overlay.querySelector('.sequence-tracker').appendChild(feedback);
 
         setTimeout(() => {
           tracker.classList.remove('wrong-sequence');
-          if (feedback.parentNode) {
-            feedback.remove();
-          }
+          if (feedback.parentNode) feedback.remove();
         }, 1000);
 
         setTimeout(() => {
@@ -633,32 +745,24 @@ function showSpecialKeyboardInput() {
     }
   }
 
-  // Button handlers for arrow keys and letters
+  // Button handlers
   overlay.querySelectorAll('.direction-btn, .letter-btn').forEach((btn) => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
 
-      // Prevent adding more than 10 keys
-      if (enteredSequence.length >= konamiCode.length) {
-        return; // Stop if sequence is already complete
-      }
+      if (enteredSequence.length >= konamiCode.length) return;
 
       const key = btn.getAttribute('data-key');
 
-      // Play sound for mobile button press
+      // Visual and audio feedback
+      btn.classList.add('pressed');
       window.playKonamiKeySound(key, enteredSequence.length);
 
+      setTimeout(() => btn.classList.remove('pressed'), 200);
+
       enteredSequence.push(key);
-
-      // Visual feedback
-      btn.style.transform = 'scale(0.9)';
-      setTimeout(() => {
-        btn.style.transform = 'scale(1)';
-      }, 100);
-
       updateTracker();
 
-      // Auto-check when sequence is complete
       if (enteredSequence.length === konamiCode.length) {
         setTimeout(() => checkSpecialSequence(), 500);
       }
@@ -675,16 +779,20 @@ function showSpecialKeyboardInput() {
   // Back button
   overlay.querySelector('#back-to-start').addEventListener('click', (e) => {
     e.stopPropagation();
-    overlay.remove();
-    showMobileSecretPrompt();
+    overlay.classList.add('exit');
+    setTimeout(() => {
+      overlay.remove();
+      showMobileSecretPrompt();
+    }, 300);
   });
 
-  // Close X button
+  // Close button
   overlay
     .querySelector('.mobile-special-close')
     .addEventListener('click', (e) => {
       e.stopPropagation();
-      overlay.remove();
+      overlay.classList.add('exit');
+      setTimeout(() => overlay.remove(), 300);
     });
 
   // Prevent clicks inside container from closing
@@ -697,10 +805,45 @@ function showSpecialKeyboardInput() {
   // Click outside to close
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) {
-      overlay.remove();
+      overlay.classList.add('exit');
+      setTimeout(() => overlay.remove(), 300);
     }
   });
 }
+
+// ===================================
+// HELPER FUNCTIONS FOR EFFECTS
+// ===================================
+
+function createMatrixRain(container) {
+  const chars = '01アイウエオカキクケコサシスセソタチツテト';
+  for (let i = 0; i < 15; i++) {
+    const col = document.createElement('div');
+    col.className = 'matrix-column';
+    col.style.left = `${Math.random() * 100}%`;
+    col.style.animationDelay = `${Math.random() * 2}s`;
+    col.textContent = chars[Math.floor(Math.random() * chars.length)];
+    container.appendChild(col);
+  }
+}
+
+function createKonamiPattern(container) {
+  const pattern = ['↑', '↑', '↓', '↓', '←', '→', '←', '→', 'B', 'A'];
+  for (let i = 0; i < 20; i++) {
+    const symbol = document.createElement('div');
+    symbol.className = 'konami-symbol';
+    symbol.textContent = pattern[Math.floor(Math.random() * pattern.length)];
+    symbol.style.left = `${Math.random() * 100}%`;
+    symbol.style.top = `${Math.random() * 100}%`;
+    symbol.style.animationDelay = `${Math.random() * 3}s`;
+    symbol.style.fontSize = `${20 + Math.random() * 20}px`;
+    container.appendChild(symbol);
+  }
+}
+
+// Export functions
+window.showMobileSecretPrompt = showMobileSecretPrompt;
+window.showSpecialKeyboardInput = showSpecialKeyboardInput;
 
 function showAccessGranted() {
   // Remove any existing access granted notifications first
