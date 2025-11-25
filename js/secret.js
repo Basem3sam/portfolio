@@ -25,28 +25,36 @@ window.openTerminal = function () {
 
       const isMobile = window.innerWidth <= 768;
 
-      const ASCII_LOGO = isMobile
-        ? `
-╔════════════════════════════════╗
-║                                ║
-║   ██████╗  █████╗ ███████╗     ║
-║   ██╔══██╗██╔══██╗██╔════╝     ║
-║   ██████╔╝███████║███████╗     ║
-║   ██╔══██╗██╔══██║╚════██║     ║
-║   ██████╔╝██║  ██║███████║     ║
-║   ╚═════╝ ╚═╝  ╚═╝╚══════╝     ║
-║          ███████╗███╗   ███╗   ║
-║          ██╔════╝████╗ ████║   ║
-║          █████╗  ██╔████╔██║   ║
-║          ██╔══╝  ██║╚██╔╝██║   ║
-║          ███████╗██║ ╚═╝ ██║   ║
-║          ╚══════╝╚═╝     ╚═╝   ║
-║                                ║
-║      SECRET DEV TERMINAL       ║
-║                                ║
-╚════════════════════════════════╝
-`
-        : `
+      if (isMobile) {
+        // Mobile version - compact and properly aligned
+        const line1 = document.createElement('pre');
+        line1.className = 'terminal-line mobile-logo-container';
+        line1.textContent = `
+╔═══════════════════════════════╗
+║                               ║
+║   ██████╗  █████╗ ███████╗    ║
+║   ██╔══██╗██╔══██╗██╔════╝    ║
+║   ██████╔╝███████║███████╗    ║
+║   ██╔══██╗██╔══██║╚════██║    ║
+║   ██████╔╝██║  ██║███████║    ║
+║   ╚═════╝ ╚═╝  ╚═╝╚══════╝    ║
+║          ███████╗███╗   ███╗  ║
+║          ██╔════╝████╗ ████║  ║
+║          █████╗  ██╔████╔██║  ║
+║          ██╔══╝  ██║╚██╔╝██║  ║
+║          ███████╗██║ ╚═╝ ██║  ║
+║          ╚══════╝╚═╝     ╚═╝  ║
+║                               ║
+║    SECRET DEVELOPER TERMINAL  ║
+║                               ║
+╚═══════════════════════════════╝
+`;
+        output.appendChild(line1);
+      } else {
+        // Desktop version - full width
+        const line1 = document.createElement('pre');
+        line1.className = 'terminal-line ascii-art';
+        line1.textContent = `
 ╔═══════════════════════════════════════════════════════════╗
 ║                                                           ║
 ║        ██████╗  █████╗ ███████╗███████╗███╗   ███╗        ║
@@ -60,12 +68,8 @@ window.openTerminal = function () {
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
 `;
-
-      // Use <pre> tag for perfect monospace rendering
-      const line1 = document.createElement('pre');
-      line1.className = 'terminal-line ascii-art';
-      line1.textContent = ASCII_LOGO; // Use textContent, not innerHTML
-      output.appendChild(line1);
+        output.appendChild(line1);
+      }
 
       const line2 = document.createElement('div');
       line2.className = 'terminal-line terminal-success';
