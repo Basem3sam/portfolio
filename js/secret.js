@@ -161,6 +161,183 @@ function showMobileSecretPrompt() {
   });
 }
 
+function playKonamiKeySound(key, sequencePosition) {
+  // ONLY play sounds in mobile overlay
+  const specialOverlay = document.querySelector('.mobile-special-overlay');
+  if (!specialOverlay) return;
+
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    // Optimized for mobile - clearer frequencies, better timing
+    const baseFrequencies = {
+      ArrowUp: [554.37, 659.25], // C#5, E5 - more distinct
+      ArrowDown: [493.88, 587.33], // B4, D5
+      ArrowLeft: [440.0, 523.25], // A4, C5
+      ArrowRight: [587.33, 698.46], // D5, F5
+      b: [392.0, 493.88], // G4, B4 - higher for clarity
+      a: [440.0, 554.37], // A4, C#5 - more musical
+    };
+
+    const frequencies = baseFrequencies[key];
+    const frequency = frequencies[sequencePosition % frequencies.length];
+
+    // Mobile-optimized timing - slightly longer for better audio on small speakers
+    const duration = 0.12 + sequencePosition * 0.008; // Longer base duration
+
+    oscillator.type = 'sine'; // Cleaner sound for mobile speakers
+
+    // Set frequency with slight variation to prevent repetitive feel
+    const slightVariant = frequency * (0.998 + Math.random() * 0.004);
+    oscillator.frequency.setValueAtTime(slightVariant, audioCtx.currentTime);
+
+    // Smoother envelope for mobile - less harsh
+    gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.03); // Slightly louder
+    gainNode.gain.exponentialRampToValueAtTime(
+      0.001, // Lower end for cleaner fadeout
+      audioCtx.currentTime + duration
+    );
+
+    oscillator.start(audioCtx.currentTime);
+    oscillator.stop(audioCtx.currentTime + duration);
+
+    // Auto-cleanup to prevent memory issues on mobile
+    setTimeout(() => {
+      oscillator.disconnect();
+      gainNode.disconnect();
+    }, duration * 1000 + 100);
+  } catch (e) {
+    // Enhanced fallback for mobile
+    console.log(`🔊 Mobile Konami: ${key} at position ${sequencePosition}`);
+
+    // Fallback: Use browser audio if Web Audio API fails
+    fallbackMobileSound(key, sequencePosition);
+  }
+}
+
+// Fallback for mobile devices with Web Audio API issues
+function fallbackMobileSound(key, sequencePosition) {
+  try {
+    // Create a simple audio element fallback
+    const audio = new Audio();
+    const context = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = context.createOscillator();
+    const gainNode = context.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(context.destination);
+
+    // Simple, reliable frequencies for fallback
+    const fallbackFreqs = {
+      ArrowUp: 600,
+      ArrowDown: 500,
+      ArrowLeft: 400,
+      ArrowRight: 700,
+      b: 350,
+      a: 450,
+    };
+
+    oscillator.frequency.value = fallbackFreqs[key];
+    gainNode.gain.value = 0.1;
+
+    oscillator.start();
+    setTimeout(() => oscillator.stop(), 100);
+  } catch (fallbackError) {
+    // Ultimate fallback - just log
+    console.log(`📱 Mobile sound: ${key}`);
+  }
+}
+
+// Optional: Pre-warm audio context for faster response on mobile
+let audioContextWarmed = false;
+
+function warmAudioContext() {
+  if (audioContextWarmed) return;
+
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    gainNode.gain.value = 0;
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    oscillator.start();
+    oscillator.stop(audioCtx.currentTime + 0.001);
+
+    audioContextWarmed = true;
+    console.log('🔊 Audio context warmed up for mobile');
+  } catch (e) {
+    // Silent fail
+  }
+}
+
+// Call this when the mobile overlay opens
+function onMobileOverlayOpen() {
+  warmAudioContext();
+}
+
+function playSuccessSound() {
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    // Success melody
+    oscillator.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+    oscillator.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+    oscillator.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2); // G5
+
+    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(
+      0.01,
+      audioCtx.currentTime + 0.5
+    );
+
+    oscillator.start(audioCtx.currentTime);
+    oscillator.stop(audioCtx.currentTime + 0.5);
+  } catch (e) {
+    // Silent fallback if audio context fails
+    console.log('🔊 Success sound played (silent fallback)');
+  }
+}
+
+function playErrorSound() {
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    oscillator.type = 'sawtooth';
+    oscillator.frequency.setValueAtTime(220.0, audioCtx.currentTime); // A3
+    oscillator.frequency.setValueAtTime(174.61, audioCtx.currentTime + 0.1); // F3
+
+    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(
+      0.01,
+      audioCtx.currentTime + 0.3
+    );
+
+    oscillator.start(audioCtx.currentTime);
+    oscillator.stop(audioCtx.currentTime + 0.3);
+  } catch (e) {
+    console.log('🔊 Error sound played');
+  }
+}
+
 function showSpecialKeyboardInput() {
   const overlay = document.createElement('div');
   overlay.className = 'mobile-special-overlay';
@@ -187,9 +364,9 @@ function showSpecialKeyboardInput() {
         
         <div class="special-input-buttons">
           <button class="special-btn direction-btn" data-key="ArrowUp">↑</button>
-          <button class="special-btn direction-btn" data-key="ArrowDown">↓</button>
           <button class="special-btn direction-btn" data-key="ArrowLeft">←</button>
           <button class="special-btn direction-btn" data-key="ArrowRight">→</button>
+          <button class="special-btn direction-btn" data-key="ArrowDown">↓</button>
           <button class="special-btn letter-btn" data-key="b">B</button>
           <button class="special-btn letter-btn" data-key="a">A</button>
         </div>
@@ -207,6 +384,9 @@ function showSpecialKeyboardInput() {
     </div>
   `;
 
+  // Pre-warm audio when overlay opens
+  setTimeout(() => warmAudioContext(), 100);
+
   document.body.appendChild(overlay);
 
   const konamiCode = [
@@ -222,6 +402,7 @@ function showSpecialKeyboardInput() {
     'a',
   ];
   let enteredSequence = [];
+  let sequencePosition = 0;
 
   function updateTracker() {
     const tracker = overlay.querySelector('#tracker-display');
@@ -265,6 +446,8 @@ function showSpecialKeyboardInput() {
         }
       } else {
         // WRONG - Shake and reset
+        playErrorSound();
+
         const tracker = overlay.querySelector('#tracker-display');
         tracker.classList.add('wrong-sequence');
 
@@ -300,6 +483,10 @@ function showSpecialKeyboardInput() {
       }
 
       const key = btn.getAttribute('data-key');
+
+      // Play sound for mobile button press
+      playKonamiKeySound(key, enteredSequence.length);
+
       enteredSequence.push(key);
 
       // Visual feedback
@@ -447,34 +634,6 @@ function createConfettiBurst() {
       // Remove after animation
       setTimeout(() => confetti.remove(), 5000);
     }, i * 30);
-  }
-}
-
-function playSuccessSound() {
-  try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
-
-    oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
-
-    // Success melody
-    oscillator.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
-    oscillator.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
-    oscillator.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2); // G5
-
-    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(
-      0.01,
-      audioCtx.currentTime + 0.5
-    );
-
-    oscillator.start(audioCtx.currentTime);
-    oscillator.stop(audioCtx.currentTime + 0.5);
-  } catch (e) {
-    // Silent fallback if audio context fails
-    console.log('🔊 Success sound played (silent fallback)');
   }
 }
 
@@ -1775,7 +1934,7 @@ You are: Awesome! 🌟
         const input = document.getElementById('terminal-input');
         if (input) input.value = '';
       }
-    } else {
+    } else if (konamiIndex > 0) {
       konamiIndex = 0;
     }
 
