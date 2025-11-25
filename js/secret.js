@@ -293,6 +293,12 @@ function showSpecialKeyboardInput() {
   overlay.querySelectorAll('.direction-btn, .letter-btn').forEach((btn) => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
+
+      // Prevent adding more than 10 keys
+      if (enteredSequence.length >= konamiCode.length) {
+        return; // Stop if sequence is already complete
+      }
+
       const key = btn.getAttribute('data-key');
       enteredSequence.push(key);
 
