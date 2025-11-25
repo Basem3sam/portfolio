@@ -1740,6 +1740,9 @@ You are: Awesome! 🌟
       if (konamiIndex === konamiCode.length) {
         window.openTerminal();
         konamiIndex = 0;
+        // Clear any potential input that might have been captured
+        const input = document.getElementById('terminal-input');
+        if (input) input.value = '';
       }
     } else {
       konamiIndex = 0;
