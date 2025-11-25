@@ -26,28 +26,18 @@ window.openTerminal = function () {
       const isMobile = window.innerWidth <= 768;
 
       if (isMobile) {
-        // Mobile version - compact and properly aligned
-        const line1 = document.createElement('pre');
-        line1.className = 'terminal-line mobile-logo-container';
-        line1.textContent = `
-╔═══════════════════════════════╗
-║                               ║
-║   ██████╗  █████╗ ███████╗    ║
-║   ██╔══██╗██╔══██╗██╔════╝    ║
-║   ██████╔╝███████║███████╗    ║
-║   ██╔══██╗██╔══██║╚════██║    ║
-║   ██████╔╝██║  ██║███████║    ║
-║   ╚═════╝ ╚═╝  ╚═╝╚══════╝    ║
-║          ███████╗███╗   ███╗  ║
-║          ██╔════╝████╗ ████║  ║
-║          █████╗  ██╔████╔██║  ║
-║          ██╔══╝  ██║╚██╔╝██║  ║
-║          ███████╗██║ ╚═╝ ██║  ║
-║          ╚══════╝╚═╝     ╚═╝  ║
-║                               ║
-║    SECRET DEVELOPER TERMINAL  ║
-║                               ║
-╚═══════════════════════════════╝
+        // Mobile version - clean and simple
+        const line1 = document.createElement('div');
+        line1.className = 'terminal-line mobile-logo';
+        line1.innerHTML = `
+<div class="mobile-terminal-banner">
+  <div class="mobile-banner-icon">⚡</div>
+  <div class="mobile-banner-text">
+    <strong>BASEM</strong>
+    <span>Secret Terminal</span>
+  </div>
+  <div class="mobile-banner-icon">⚡</div>
+</div>
 `;
         output.appendChild(line1);
       } else {
