@@ -538,6 +538,12 @@ function showMobileSecretPrompt() {
     overlay.classList.add('exit');
     setTimeout(() => {
       overlay.remove();
+      const scrollY = document.body.style.top;
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.top = '';
+      window.scrollTo(0, parseInt(scrollY || '0') * -1);
       showSpecialKeyboardInput();
     }, 300);
   });
@@ -750,6 +756,12 @@ function showSpecialKeyboardInput() {
           overlay.classList.add('exit');
           setTimeout(() => {
             overlay.remove();
+            const scrollY = document.body.style.top;
+            document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.width = '';
+            document.body.style.top = '';
+            window.scrollTo(0, parseInt(scrollY || '0') * -1);
             window.openTerminal();
             showAccessGranted();
             createCelebrationParticles();
