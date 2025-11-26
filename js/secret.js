@@ -7,9 +7,10 @@ let audioContextReady = false;
 
 function initAudioOnFirstInteraction() {
   if (!sharedAudioContext) {
-    sharedAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+    sharedAudioContext = new (window.AudioContext ||
+      window.webkitAudioContext)();
   }
-  
+
   if (sharedAudioContext.state === 'suspended') {
     sharedAudioContext.resume().then(() => {
       audioContextReady = true;
@@ -19,8 +20,12 @@ function initAudioOnFirstInteraction() {
 }
 
 document.addEventListener('click', initAudioOnFirstInteraction, { once: true });
-document.addEventListener('touchstart', initAudioOnFirstInteraction, { once: true });
-document.addEventListener('keydown', initAudioOnFirstInteraction, { once: true });
+document.addEventListener('touchstart', initAudioOnFirstInteraction, {
+  once: true,
+});
+document.addEventListener('keydown', initAudioOnFirstInteraction, {
+  once: true,
+});
 
 function getAudioContext() {
   if (!sharedAudioContext) {
@@ -500,6 +505,11 @@ function showMobileSecretPrompt() {
 
   document.body.appendChild(overlay);
 
+  document.body.style.overflow = 'hidden';
+  document.body.style.position = 'fixed';
+  document.body.style.width = '100%';
+  document.body.style.top = `-${window.scrollY}px`;
+
   // Create matrix rain effect
   createMatrixRain(overlay.querySelector('.matrix-rain'));
 
@@ -535,6 +545,12 @@ function showMobileSecretPrompt() {
       e.stopPropagation();
       overlay.classList.add('exit');
       setTimeout(() => overlay.remove(), 300);
+      const scrollY = document.body.style.top;
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.top = '';
+      window.scrollTo(0, parseInt(scrollY || '0') * -1);
     });
 
   // Prevent clicks inside container from closing
@@ -549,6 +565,12 @@ function showMobileSecretPrompt() {
     if (e.target === overlay) {
       overlay.classList.add('exit');
       setTimeout(() => overlay.remove(), 300);
+      const scrollY = document.body.style.top;
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.top = '';
+      window.scrollTo(0, parseInt(scrollY || '0') * -1);
     }
   });
 }
@@ -804,6 +826,12 @@ function showSpecialKeyboardInput() {
       e.stopPropagation();
       overlay.classList.add('exit');
       setTimeout(() => overlay.remove(), 300);
+      const scrollY = document.body.style.top;
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.top = '';
+      window.scrollTo(0, parseInt(scrollY || '0') * -1);
     });
 
   // Prevent clicks inside container from closing
@@ -818,6 +846,12 @@ function showSpecialKeyboardInput() {
     if (e.target === overlay) {
       overlay.classList.add('exit');
       setTimeout(() => overlay.remove(), 300);
+      const scrollY = document.body.style.top;
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.top = '';
+      window.scrollTo(0, parseInt(scrollY || '0') * -1);
     }
   });
 }
