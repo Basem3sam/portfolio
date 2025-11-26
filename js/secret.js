@@ -536,6 +536,12 @@ function showMobileSecretPrompt() {
     e.stopPropagation();
     overlay.classList.add('exit');
     setTimeout(() => overlay.remove(), 300);
+    const scrollY = document.body.style.top;
+    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.width = '';
+    document.body.style.top = '';
+    window.scrollTo(0, parseInt(scrollY || '0') * -1);
   });
 
   // Close X button
