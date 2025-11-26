@@ -92,9 +92,16 @@ function playKonamiKeySoundInternal(key, sequencePosition) {
     ArrowRight: [587.33, 698.46],
     b: [392.0, 493.88],
     a: [440.0, 554.37],
+    backspace: [330.0, 293.66],
   };
 
   const frequencies = baseFrequencies[key];
+
+  if (!frequencies || !Array.isArray(frequencies)) {
+    console.warn(`Unknown key: ${key}`);
+    return;
+  }
+
   const frequency = frequencies[sequencePosition % frequencies.length];
   const duration = 0.12 + sequencePosition * 0.008;
 
@@ -112,14 +119,11 @@ function playKonamiKeySoundInternal(key, sequencePosition) {
   oscillator.start(audioCtx.currentTime);
   oscillator.stop(audioCtx.currentTime + duration);
 
-  // Disconnect after sound finishes
   setTimeout(() => {
     try {
       oscillator.disconnect();
       gainNode.disconnect();
-    } catch (e) {
-      // Already disconnected
-    }
+    } catch (e) {}
   }, duration * 1000 + 100);
 }
 
@@ -466,7 +470,7 @@ function showMobileSecretPrompt() {
         
         <div class="mobile-secret-buttons">
           <button class="secret-btn try-sequence gradient-btn" id="try-sequence">
-            <span class="btn-icon">⚡</span>
+            <span class="btn-icon">⌨️</span>
             <span class="btn-text">Enter Konami Code</span>
             <span class="btn-shimmer"></span>
           </button>
@@ -556,32 +560,24 @@ function showSpecialKeyboardInput() {
       <div class="mobile-special-header">
         <div class="header-glow"></div>
         <h3>
-          <span class="thunder-icon">⚡</span>
-          <span class="header-text">Enter Konami Code</span>
+          <span class="thunder-icon">👾</span>
+          <span class="header-text">Konami Code</span>
         </h3>
         <button class="mobile-special-close" aria-label="Close">&times;</button>
       </div>
       
       <div class="mobile-special-content">
-        <div class="message-wrapper">
-          <p class="special-message">
-            <span class="pulse-icon">🎯</span>
-            <span>Tap the buttons in the correct sequence</span>
-          </p>
-        </div>
-        
         <div class="sequence-tracker">
-          <div class="tracker-header">
-            <span class="tracker-title">Your Sequence</span>
-            <span class="tracker-count">0/10</span>
-          </div>
           <div class="tracker-display" id="tracker-display">
             <span class="tracker-placeholder">Tap to begin...</span>
           </div>
-          <div class="tracker-actions">
-            <button id="clear-tracker" class="clear-btn">
-              <span class="btn-icon">↺</span>
-              <span>Clear</span>
+          <div class="tracker-footer">
+            <span class="tracker-count">0/10</span>
+            <button id="backspace-btn" class="backspace-btn" disabled>
+              <span>⌫</span>
+            </button>
+            <button id="clear-tracker" class="clear-btn" disabled>
+              <span>↺</span>
             </button>
           </div>
         </div>
@@ -611,12 +607,6 @@ function showSpecialKeyboardInput() {
             <span class="btn-glow"></span>
             <span class="btn-content">A</span>
           </button>
-        </div>
-        
-        <div class="special-hint">
-          <div class="hint-pulse"></div>
-          <span class="hint-icon">🕹️</span>
-          <small>A legendary gaming sequence from the 80s</small>
         </div>
         
         <div class="special-back">
@@ -667,6 +657,8 @@ function showSpecialKeyboardInput() {
   function updateTracker() {
     const tracker = overlay.querySelector('#tracker-display');
     const counter = overlay.querySelector('.tracker-count');
+    const backspaceBtn = overlay.querySelector('#backspace-btn');
+    const clearBtn = overlay.querySelector('#clear-tracker');
 
     counter.textContent = `${enteredSequence.length}/10`;
     counter.classList.add('update');
@@ -675,7 +667,11 @@ function showSpecialKeyboardInput() {
     if (enteredSequence.length === 0) {
       tracker.innerHTML =
         '<span class="tracker-placeholder">Tap to begin...</span>';
+      backspaceBtn.disabled = true;
+      clearBtn.disabled = true;
     } else {
+      backspaceBtn.disabled = false;
+      clearBtn.disabled = false;
       const display = {
         ArrowUp: '↑',
         ArrowDown: '↓',
@@ -767,6 +763,16 @@ function showSpecialKeyboardInput() {
         setTimeout(() => checkSpecialSequence(), 500);
       }
     });
+  });
+
+  // backspace button
+  overlay.querySelector('#backspace-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (enteredSequence.length > 0) {
+      enteredSequence.pop();
+      updateTracker();
+      window.playKonamiKeySound('backspace', 0);
+    }
   });
 
   // Clear button
