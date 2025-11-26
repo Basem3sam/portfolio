@@ -343,6 +343,11 @@ window.openTerminal = function () {
     }, 300);
   }
 
+  document.body.style.overflow = 'hidden';
+  document.body.style.position = 'fixed';
+  document.body.style.width = '100%';
+  document.body.style.top = `-${window.scrollY}px`;
+
   const terminal = document.getElementById('secret-terminal');
   const backdrop = document.getElementById('terminal-backdrop');
   if (terminal && backdrop) {
@@ -427,6 +432,12 @@ window.closeTerminal = function () {
 
   if (terminal) terminal.classList.remove('active');
   if (backdrop) backdrop.classList.remove('active');
+  const scrollY = document.body.style.top;
+  document.body.style.overflow = '';
+  document.body.style.position = '';
+  document.body.style.width = '';
+  document.body.style.top = '';
+  window.scrollTo(0, parseInt(scrollY || '0') * -1);
 };
 
 // ===================================
