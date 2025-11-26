@@ -5,16 +5,26 @@
 let sharedAudioContext = null;
 let audioContextReady = false;
 
+function initAudioOnFirstInteraction() {
+  if (!sharedAudioContext) {
+    sharedAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  
+  if (sharedAudioContext.state === 'suspended') {
+    sharedAudioContext.resume().then(() => {
+      audioContextReady = true;
+      console.log('🔊 Audio context ready');
+    });
+  }
+}
+
+document.addEventListener('click', initAudioOnFirstInteraction, { once: true });
+document.addEventListener('touchstart', initAudioOnFirstInteraction, { once: true });
+document.addEventListener('keydown', initAudioOnFirstInteraction, { once: true });
+
 function getAudioContext() {
   if (!sharedAudioContext) {
-    try {
-      sharedAudioContext = new (window.AudioContext ||
-        window.webkitAudioContext)();
-      console.log('🔊 Audio context created');
-    } catch (e) {
-      console.error('Failed to create audio context:', e);
-      return null;
-    }
+    return null;
   }
 
   // Resume context if suspended (FIX #2)
@@ -42,11 +52,6 @@ function initAudioOnInteraction() {
     audioCtx.resume();
   }
 }
-
-// Add listeners for first interaction
-document.addEventListener('click', initAudioOnInteraction, { once: true });
-document.addEventListener('touchstart', initAudioOnInteraction, { once: true });
-document.addEventListener('keydown', initAudioOnInteraction, { once: true });
 
 // ===================================
 // FIXED KONAMI KEY SOUND (FIX #4)
