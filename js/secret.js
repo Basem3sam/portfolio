@@ -2247,18 +2247,8 @@ You are: Awesome! 🌟
     // Backdrop click to close
     const backdrop = document.getElementById('terminal-backdrop');
     if (backdrop) {
-      backdrop.addEventListener('click', closeTerminal);
+      backdrop.addEventListener('click', window.closeTerminal);
     }
-
-    // Make closeTerminal globally accessible
-    window.closeTerminal = function () {
-      terminalActive = false;
-      const terminal = document.getElementById('secret-terminal');
-      const backdrop = document.getElementById('terminal-backdrop');
-
-      if (terminal) terminal.classList.remove('active');
-      if (backdrop) backdrop.classList.remove('active');
-    };
   }
 
   // Handle key press
