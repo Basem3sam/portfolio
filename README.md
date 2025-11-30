@@ -242,104 +242,110 @@ I'm a Backend Developer and Computer Science student at Suez Canal University, s
 
 </div>
 
-🎮 Easter Egg Hunt
+### 🎯 The Challenge:
 
-There's a secret hidden in this portfolio. Can you find it? 🔍
+This portfolio contains a **hidden developer terminal** that only the most curious will discover. Finding it proves you think like a true developer - always exploring, questioning, and going beyond the surface.
 
-🎯 The Challenge:
-This portfolio contains a hidden developer terminal that only the most curious will discover. Finding it proves you think like a true developer - always exploring, questioning, and going beyond the surface.
-💡 Hints (No Spoilers):
+### 💡 Hints (No Spoilers):
 
-Look closely at interactive elements - sometimes clicking reveals more than you expect
-Classic gamers might recognize a legendary pattern from the 1980s
-Keyboard warriors know that certain key combinations unlock secret powers
-The profile section might be more interactive than it appears...
+1. **Look closely** at interactive elements - sometimes clicking reveals more than you expect
+2. **Classic gamers** might recognize a legendary pattern from the 1980s
+3. **Keyboard warriors** know that certain key combinations unlock secret powers
+4. **The profile section** might be more interactive than it appears...
 
-🏆 What Awaits:
+### 🏆 What Awaits:
+
 Those who discover the secret will unlock:
+- A fully functional **interactive terminal**
+- Multiple **hidden commands** to explore
+- **Celebration effects** and achievements
+- Proof that you're a **true developer** at heart
 
-A fully functional interactive terminal
-Multiple hidden commands to explore
-Celebration effects and achievements
-Proof that you're a true developer at heart
+### 🤔 Stuck? Here's Help:
 
-🤔 Stuck? Here's Help:
 <details>
 <summary>Click for Progressive Hints (Mild Spoilers)</summary>
-Hint 1: Try interacting with the profile image in the hero section. Persistence pays off!
-Hint 2: There's a famous gaming code from the 1980s that still works today. Gamers know it well.
-Hint 3: Keyboard shortcut lovers: Try combining Ctrl, Shift, and a letter that starts "Backend"...
-Hint 4: On mobile? The profile image is your gateway. Keep exploring!
+
+**Hint 1:** Try interacting with the profile image in the hero section. Persistence pays off!
+
+**Hint 2:** There's a famous gaming code from the 1980s that still works today. Gamers know it well.
+
+**Hint 3:** Keyboard shortcut lovers: Try combining Ctrl, Shift, and a letter that starts "Backend"...
+
+**Hint 4:** On mobile? The profile image is your gateway. Keep exploring!
+
 </details>
+
 <details>
 <summary>🎬 Full Solution & Behind the Scenes (Major Spoilers!)</summary>
-🔓 How to Unlock:
-Method 1: The Discovery Journey (Recommended for first-timers)
 
-Click the profile image multiple times (10 clicks total)
-Watch as progressive hints reveal themselves
-Follow the clues to discover the legendary Konami Code
-Enter the sequence: ↑ ↑ ↓ ↓ ← → ← → B A
-Unlock the terminal and celebrate! 🎉
+### 🔓 How to Unlock:
 
-Method 2: Quick Access (For those who know)
+**Method 1: The Discovery Journey** (Recommended for first-timers)
+1. Click the profile image multiple times (10 clicks total)
+2. Watch as progressive hints reveal themselves
+3. Follow the clues to discover the legendary Konami Code
+4. Enter the sequence: `↑ ↑ ↓ ↓ ← → ← → B A`
+5. Unlock the terminal and celebrate! 🎉
 
-Press Ctrl + Shift + B to instantly open the terminal
+**Method 2: Quick Access** (For those who know)
+- Press `Ctrl + Shift + B` to instantly open the terminal
 
-Method 3: Classic Konami Code
+**Method 3: Classic Konami Code**
+- Just type the legendary sequence: `↑ ↑ ↓ ↓ ← → ← → B A`
 
-Just type the legendary sequence: ↑ ↑ ↓ ↓ ← → ← → B A
+### 🎨 What's Inside:
 
-🎨 What's Inside:
-Interactive Terminal Commands:
+**Interactive Terminal Commands:**
+- `help` - See all available commands
+- `about` - Learn about me beyond the resume
+- `skills` - View technical skills with progress bars
+- `projects` - Explore featured projects
+- `contact` - Get contact information
+- `secret` - Unlock the ultimate secret message
+- `matrix` - Activate Matrix mode with glitch effects
+- `hack` - Run a humorous hacking simulation
+- `coffee` - Get a virtual coffee break ☕
+- `whoami` - Display your hacker status
+- And more!
 
-help - See all available commands
-about - Learn about me beyond the resume
-skills - View technical skills with progress bars
-projects - Explore featured projects
-contact - Get contact information
-secret - Unlock the ultimate secret message
-matrix - Activate Matrix mode with glitch effects
-hack - Run a humorous hacking simulation
-coffee - Get a virtual coffee break ☕
-whoami - Display your hacker status
-And more!
+**Special Features:**
+- 🎨 ASCII art animations
+- 🎵 Interactive sound effects (Web Audio API)
+- ✨ Celebration confetti and particles
+- 🏆 Achievement system
+- 📱 Mobile-optimized interface
+- 🎭 Matrix-style glitch effects
 
-Special Features:
+### 🛠️ Technical Implementation:
 
-🎨 ASCII art animations
-🎵 Interactive sound effects (Web Audio API)
-✨ Celebration confetti and particles
-🏆 Achievement system
-📱 Mobile-optimized interface
-🎭 Matrix-style glitch effects
+**Built With:**
+- Pure Vanilla JavaScript (700+ lines)
+- Web Audio API for real-time sound synthesis
+- Custom Konami code state machine
+- Performance-monitored particle system
+- Anti-spam protection with rate limiting
+- SessionStorage for progress persistence
 
-🛠️ Technical Implementation:
-Built With:
+**Code Stats:**
+- 15+ interactive terminal commands
+- 10 progressive hint levels
+- 50+ particles per celebration
+- 8 unique sound frequencies
+- 3 different unlock methods
 
-Pure Vanilla JavaScript (700+ lines)
-Web Audio API for real-time sound synthesis
-Custom Konami code state machine
-Performance-monitored particle system
-Anti-spam protection with rate limiting
-SessionStorage for progress persistence
+### 💭 Why This Easter Egg?
 
-Code Stats:
-
-15+ interactive terminal commands
-10 progressive hint levels
-50+ particles per celebration
-8 unique sound frequencies
-3 different unlock methods
-
-💭 Why This Easter Egg?
 This hidden feature demonstrates:
+- **Attention to Detail** - Every interaction carefully crafted
+- **Technical Creativity** - Custom audio, animations, state management
+- **User Experience Focus** - Delightful and responsive
+- **Passion for Craft** - Going beyond requirements
+- **Problem-Solving Skills** - Complex event handling
 
-Attention to Detail - Every interaction carefully crafted
-Technical Creativity - Custom audio, animations, state management
-User Experience Focus - Delightful and responsive
-Passion for Craft - Going beyond requirements
-Problem-Solving Skills - Complex event handling
+*The easter egg took nearly as long to build as the portfolio itself - because the best experiences are in the details! 😄
+*</details>
 
-The easter egg took nearly as long to build as the portfolio itself - because the best experiences are in the details! 😄
-</details>
+---
+
+**Ready to explore?** Visit the [live site](https://basemesam.netlify.app/) and start your journey! 🎯
