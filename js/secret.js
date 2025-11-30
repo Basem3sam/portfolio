@@ -2075,7 +2075,7 @@ But that was cool, right?
     },
     hack: {
       desc: 'Initialize hacking sequence',
-      action: async () => {
+      action: () => {
         const messages = [
           '<span class="terminal-warning">Initializing hack sequence...</span>',
           'Connecting to mainframe...',
