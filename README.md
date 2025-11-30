@@ -244,29 +244,54 @@ I'm a Backend Developer and Computer Science student at Suez Canal University, s
 
 🎮 Easter Egg Hunt
 
-Hidden Feature Alert! There's a secret developer terminal hidden in this portfolio. Can you find it? 🔍
+There's a secret hidden in this portfolio. Can you find it? 🔍
 
-🎯 Multiple Ways to Unlock:
-Method 1: The Classic Konami Code ⭐ (10-Click Challenge)
+🎯 The Challenge:
+This portfolio contains a hidden developer terminal that only the most curious will discover. Finding it proves you think like a true developer - always exploring, questioning, and going beyond the surface.
+💡 Hints (No Spoilers):
 
-Click the profile image 10 times to discover progressive hints
-Each click reveals more about the legendary gaming sequence
-Complete the journey to become a "Konami Code Master"
-Final unlock: Enter the classic code ↑ ↑ ↓ ↓ ← → ← → B A
+Look closely at interactive elements - sometimes clicking reveals more than you expect
+Classic gamers might recognize a legendary pattern from the 1980s
+Keyboard warriors know that certain key combinations unlock secret powers
+The profile section might be more interactive than it appears...
 
-Method 2: Keyboard Shortcut ⚡
+🏆 What Awaits:
+Those who discover the secret will unlock:
+
+A fully functional interactive terminal
+Multiple hidden commands to explore
+Celebration effects and achievements
+Proof that you're a true developer at heart
+
+🤔 Stuck? Here's Help:
+<details>
+<summary>Click for Progressive Hints (Mild Spoilers)</summary>
+Hint 1: Try interacting with the profile image in the hero section. Persistence pays off!
+Hint 2: There's a famous gaming code from the 1980s that still works today. Gamers know it well.
+Hint 3: Keyboard shortcut lovers: Try combining Ctrl, Shift, and a letter that starts "Backend"...
+Hint 4: On mobile? The profile image is your gateway. Keep exploring!
+</details>
+<details>
+<summary>🎬 Full Solution & Behind the Scenes (Major Spoilers!)</summary>
+🔓 How to Unlock:
+Method 1: The Discovery Journey (Recommended for first-timers)
+
+Click the profile image multiple times (10 clicks total)
+Watch as progressive hints reveal themselves
+Follow the clues to discover the legendary Konami Code
+Enter the sequence: ↑ ↑ ↓ ↓ ← → ← → B A
+Unlock the terminal and celebrate! 🎉
+
+Method 2: Quick Access (For those who know)
 
 Press Ctrl + Shift + B to instantly open the terminal
-Works on both desktop and mobile devices
 
-Method 3: Direct Konami Code 🎮
+Method 3: Classic Konami Code
 
-Type the legendary sequence: ↑ ↑ ↓ ↓ ← → ← → B A
-Desktop only - Mobile users use Method 1 instead!
+Just type the legendary sequence: ↑ ↑ ↓ ↓ ← → ← → B A
 
-🎨 What You'll Discover:
-Once unlocked, you'll access a fully functional developer terminal with:
-Interactive Commands:
+🎨 What's Inside:
+Interactive Terminal Commands:
 
 help - See all available commands
 about - Learn about me beyond the resume
@@ -278,71 +303,43 @@ matrix - Activate Matrix mode with glitch effects
 hack - Run a humorous hacking simulation
 coffee - Get a virtual coffee break ☕
 whoami - Display your hacker status
-clear - Clear terminal output
-exit - Close the terminal
+And more!
 
 Special Features:
 
-🎨 ASCII art logo and animations
+🎨 ASCII art animations
 🎵 Interactive sound effects (Web Audio API)
-✨ Celebration animations with confetti & particles
-🏆 Achievement system for completionists
-📱 Fully responsive mobile interface with custom keyboard
-💾 Progress persistence with sessionStorage
+✨ Celebration confetti and particles
+🏆 Achievement system
+📱 Mobile-optimized interface
 🎭 Matrix-style glitch effects
-🔊 Directional particle effects synced to clicks
 
-🏆 Achievement System:
-Terminal Explorer - Find and open the terminal
-Konami Master - Complete the 10-click discovery journey
-Command Specialist - Use 5+ different terminal commands
-Curious Developer - Discover all hidden features
-🛡️ Anti-Spam Protection:
-The easter egg includes intelligent rate-limiting to prevent spam:
+🛠️ Technical Implementation:
+Built With:
 
-Maximum 3 clicks per second
-Automatic sequence reset after 5 seconds of inactivity
-Friendly warnings if clicking too fast
-Performance monitoring to maintain smooth experience
-
-💡 Why This Easter Egg?
-This hidden terminal demonstrates:
-
-Attention to Detail - Every interaction is carefully crafted
-Technical Creativity - Custom audio, animations, and state management
-User Experience Focus - Smooth, delightful, and responsive
-Problem-Solving Skills - Complex event handling and edge cases
-Passion for Craft - Going beyond requirements to create memorable experiences
-
-<details>
-<summary>🎬 Behind the Scenes (Spoiler Alert!)</summary>
-Technical Implementation:
-
-Pure Vanilla JavaScript (no frameworks)
+Pure Vanilla JavaScript (700+ lines)
 Web Audio API for real-time sound synthesis
-Intersection Observer for animations
-LocalStorage/SessionStorage for persistence
-Custom Konami code detector with state machine
-Mobile-optimized overlay system
+Custom Konami code state machine
 Performance-monitored particle system
-Anti-spam protection with intelligent rate limiting
+Anti-spam protection with rate limiting
+SessionStorage for progress persistence
 
-Code Highlights:
+Code Stats:
 
-700+ lines of easter egg code
 15+ interactive terminal commands
-Custom audio synthesis for each key press
-Responsive mobile keyboard interface
-Smart caching and state management
-Accessible and keyboard-navigable
+10 progressive hint levels
+50+ particles per celebration
+8 unique sound frequencies
+3 different unlock methods
 
-Fun Stats:
+💭 Why This Easter Egg?
+This hidden feature demonstrates:
 
-🎮 Inspired by 1980s Konami games
-🎨 50+ particles per celebration
-⚡ 10 progressive hint levels
-🔊 8 unique sound frequencies
-🎯 3 different unlock methods
+Attention to Detail - Every interaction carefully crafted
+Technical Creativity - Custom audio, animations, state management
+User Experience Focus - Delightful and responsive
+Passion for Craft - Going beyond requirements
+Problem-Solving Skills - Complex event handling
 
-This easter egg took almost as long to build as the portfolio itself - because the best experiences are in the details! 😄
+The easter egg took nearly as long to build as the portfolio itself - because the best experiences are in the details! 😄
 </details>
