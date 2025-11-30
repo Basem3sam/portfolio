@@ -242,27 +242,107 @@ I'm a Backend Developer and Computer Science student at Suez Canal University, s
 
 </div>
 
-## 🎁 Easter Egg
+🎮 Easter Egg Hunt
 
-> **Secret Hint:** Look for the hidden message in the console when you visit the live site. Type `portfolio.secret()` in the browser console for a surprise! 🎉
+Hidden Feature Alert! There's a secret developer terminal hidden in this portfolio. Can you find it? 🔍
+
+🎯 Multiple Ways to Unlock:
+Method 1: The Classic Konami Code ⭐ (10-Click Challenge)
+
+Click the profile image 10 times to discover progressive hints
+Each click reveals more about the legendary gaming sequence
+Complete the journey to become a "Konami Code Master"
+Final unlock: Enter the classic code ↑ ↑ ↓ ↓ ← → ← → B A
+
+Method 2: Keyboard Shortcut ⚡
+
+Press Ctrl + Shift + B to instantly open the terminal
+Works on both desktop and mobile devices
+
+Method 3: Direct Konami Code 🎮
+
+Type the legendary sequence: ↑ ↑ ↓ ↓ ← → ← → B A
+Desktop only - Mobile users use Method 1 instead!
+
+🎨 What You'll Discover:
+Once unlocked, you'll access a fully functional developer terminal with:
+Interactive Commands:
+
+help - See all available commands
+about - Learn about me beyond the resume
+skills - View technical skills with progress bars
+projects - Explore featured projects
+contact - Get contact information
+secret - Unlock the ultimate secret message
+matrix - Activate Matrix mode with glitch effects
+hack - Run a humorous hacking simulation
+coffee - Get a virtual coffee break ☕
+whoami - Display your hacker status
+clear - Clear terminal output
+exit - Close the terminal
+
+Special Features:
+
+🎨 ASCII art logo and animations
+🎵 Interactive sound effects (Web Audio API)
+✨ Celebration animations with confetti & particles
+🏆 Achievement system for completionists
+📱 Fully responsive mobile interface with custom keyboard
+💾 Progress persistence with sessionStorage
+🎭 Matrix-style glitch effects
+🔊 Directional particle effects synced to clicks
+
+🏆 Achievement System:
+Terminal Explorer - Find and open the terminal
+Konami Master - Complete the 10-click discovery journey
+Command Specialist - Use 5+ different terminal commands
+Curious Developer - Discover all hidden features
+🛡️ Anti-Spam Protection:
+The easter egg includes intelligent rate-limiting to prevent spam:
+
+Maximum 3 clicks per second
+Automatic sequence reset after 5 seconds of inactivity
+Friendly warnings if clicking too fast
+Performance monitoring to maintain smooth experience
+
+💡 Why This Easter Egg?
+This hidden terminal demonstrates:
+
+Attention to Detail - Every interaction is carefully crafted
+Technical Creativity - Custom audio, animations, and state management
+User Experience Focus - Smooth, delightful, and responsive
+Problem-Solving Skills - Complex event handling and edge cases
+Passion for Craft - Going beyond requirements to create memorable experiences
 
 <details>
-<summary>🔍 Want to know what it is?</summary>
+<summary>🎬 Behind the Scenes (Spoiler Alert!)</summary>
+Technical Implementation:
 
-The portfolio includes a hidden interactive terminal-style console game that showcases my personality and technical skills. It's a fun way for recruiters and fellow developers to discover more about me beyond the traditional resume format!
+Pure Vanilla JavaScript (no frameworks)
+Web Audio API for real-time sound synthesis
+Intersection Observer for animations
+LocalStorage/SessionStorage for persistence
+Custom Konami code detector with state machine
+Mobile-optimized overlay system
+Performance-monitored particle system
+Anti-spam protection with intelligent rate limiting
 
-**How to unlock:**
-1. Visit the live site
-2. Open browser DevTools (F12)
-3. Type `portfolio.secret()` in the Console
-4. Follow the prompts and enjoy!
+Code Highlights:
 
-Features include:
-- ASCII art greeting
-- Interactive commands (`help`, `about`, `skills`, `projects`, `joke`)
-- Hidden achievements system
-- Konami code easter egg
-- Terminal-style interface
+700+ lines of easter egg code
+15+ interactive terminal commands
+Custom audio synthesis for each key press
+Responsive mobile keyboard interface
+Smart caching and state management
+Accessible and keyboard-navigable
 
-*This demonstrates my attention to detail and ability to create engaging user experiences, even in unexpected places!*
+Fun Stats:
+
+🎮 Inspired by 1980s Konami games
+🎨 50+ particles per celebration
+⚡ 10 progressive hint levels
+🔊 8 unique sound frequencies
+🎯 3 different unlock methods
+
+This easter egg took almost as long to build as the portfolio itself - because the best experiences are in the details! 😄
 </details>
