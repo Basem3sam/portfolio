@@ -1,87 +1,156 @@
-// dark-mode.js - Dark Mode Toggle Functionality
+/**
+ * Unified Dark Mode System
+ * Works for both index.html and links.html
+ */
 (function () {
   'use strict';
 
-  const darkModeToggle = document.getElementById('darkModeToggle');
-  const icon = darkModeToggle.querySelector('i');
+  const CONFIG = {
+    storageKey: 'theme',
+    darkClass: 'dark-mode',
+    faviconPaths: {
+      dark: {
+        png32: './assets/icons/dark/favicon-32x32.png',
+        png16: './assets/icons/dark/favicon-16x16.png',
+        appleTouchIcon: './assets/icons/dark/apple-touch-icon.png',
+      },
+      light: {
+        png32: './assets/icons/light/favicon-32x32.png',
+        png16: './assets/icons/light/favicon-16x16.png',
+        appleTouchIcon: './assets/icons/light/apple-touch-icon.png',
+      },
+    },
+  };
 
-  // Function to update favicon based on theme
-  function updateFavicon(theme) {
-    const favicon = document.querySelector("link[rel*='icon']");
-    if (!favicon) return;
-
-    if (theme === 'dark') {
-      // Use your dark mode favicon
-      favicon.href = './assets/icons/dark/favicon.ico';
-      // Also update other favicon sizes if needed
-      document.querySelector("link[sizes='32x32']").href =
-        './assets/icons/dark/favicon-32x32.png';
-      document.querySelector("link[sizes='16x16']").href =
-        './assets/icons/dark/favicon-16x16.png';
-    } else {
-      // Use your light mode favicon
-      favicon.href = './assets/icons/light/favicon.ico';
-      document.querySelector("link[sizes='32x32']").href =
-        './assets/icons/light/favicon-32x32.png';
-      document.querySelector("link[sizes='16x16']").href =
-        './assets/icons/light/favicon-16x16.png';
-    }
-  }
-
-  // Check for user preference
   function getPreferredTheme() {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      return savedTheme;
-    }
+    const saved = localStorage.getItem(CONFIG.storageKey);
+    if (saved) return saved;
     return window.matchMedia('(prefers-color-scheme: dark)').matches
       ? 'dark'
       : 'light';
   }
 
-  // Apply theme
-  function applyTheme(theme) {
-    if (theme === 'dark') {
-      document.body.classList.add('dark-mode');
-      icon.classList.replace('fa-moon', 'fa-sun');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.body.classList.remove('dark-mode');
-      icon.classList.replace('fa-sun', 'fa-moon');
-      localStorage.setItem('theme', 'light');
-    }
+  function updateFavicons(theme) {
+    const paths = CONFIG.faviconPaths[theme];
+    const favicon32 = document.querySelector("link[sizes='32x32']");
+    const favicon16 = document.querySelector("link[sizes='16x16']");
+    const appleIcon = document.querySelector("link[rel='apple-touch-icon']");
 
-    // Update favicon when theme changes
-    updateFavicon(theme);
+    if (favicon32) favicon32.href = paths.png32;
+    if (favicon16) favicon16.href = paths.png16;
+    if (appleIcon) appleIcon.href = paths.appleTouchIcon;
   }
 
-  // Initialize
-  function initDarkMode() {
-    const preferredTheme = getPreferredTheme();
-    applyTheme(preferredTheme);
+  function updateToggleButton(theme) {
+    // For index.html (navbar)
+    const navToggle = document.getElementById('darkModeToggle');
+    if (navToggle) {
+      const icon = navToggle.querySelector('i');
+      if (icon) {
+        icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+      }
+      navToggle.setAttribute(
+        'aria-label',
+        `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`
+      );
+    }
 
-    // Toggle on click
-    darkModeToggle.addEventListener('click', () => {
-      const isDark = document.body.classList.contains('dark-mode');
-      applyTheme(isDark ? 'light' : 'dark');
-    });
+    // For links.html (floating button)
+    const linksToggle = document.getElementById('themeToggle');
+    if (linksToggle) {
+      const icon = linksToggle.querySelector('i');
+      if (icon) {
+        icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+      }
+      linksToggle.setAttribute(
+        'aria-label',
+        `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`
+      );
+    }
+  }
 
-    // Listen for system theme changes
+  function applyTheme(theme) {
+    if (theme === 'dark') {
+      document.body.classList.add(CONFIG.darkClass);
+    } else {
+      document.body.classList.remove(CONFIG.darkClass);
+    }
+
+    updateToggleButton(theme);
+    updateFavicons(theme);
+    localStorage.setItem(CONFIG.storageKey, theme);
+
+    document.dispatchEvent(
+      new CustomEvent('themeChange', { detail: { theme } })
+    );
+  }
+
+  function toggleTheme() {
+    const current = document.body.classList.contains(CONFIG.darkClass)
+      ? 'dark'
+      : 'light';
+    applyTheme(current === 'dark' ? 'light' : 'dark');
+  }
+
+  function init() {
+    const theme = getPreferredTheme();
+    applyTheme(theme);
+
+    // Initialize all toggle buttons
+    document
+      .querySelectorAll('#darkModeToggle, #themeToggle')
+      .forEach((btn) => {
+        if (btn) {
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleTheme();
+          });
+
+          btn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              toggleTheme();
+            }
+          });
+        }
+      });
+
+    // System theme listener
     window
       .matchMedia('(prefers-color-scheme: dark)')
       .addEventListener('change', (e) => {
-        if (!localStorage.getItem('theme')) {
+        if (!localStorage.getItem(CONFIG.storageKey)) {
           applyTheme(e.matches ? 'dark' : 'light');
         }
       });
 
+    // Keyboard shortcut: Ctrl/Cmd + Shift + D
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'D') {
+        e.preventDefault();
+        toggleTheme();
+      }
+    });
+
     console.log('🌓 Dark mode initialized');
   }
 
-  // Initialize when DOM is ready
+  // Prevent flash - apply immediately
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initDarkMode);
+    const theme = getPreferredTheme();
+    if (theme === 'dark') {
+      document.documentElement.classList.add(CONFIG.darkClass);
+    }
+    document.addEventListener('DOMContentLoaded', init);
   } else {
-    initDarkMode();
+    init();
   }
+
+  // Public API
+  window.darkModeAPI = {
+    toggle: toggleTheme,
+    setTheme: applyTheme,
+    getTheme: () =>
+      document.body.classList.contains(CONFIG.darkClass) ? 'dark' : 'light',
+  };
 })();

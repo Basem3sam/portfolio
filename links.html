@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Basem Esam - All My Links</title>
+    <meta
+      name="description"
+      content="All my important links in one place - Basem Esam, Backend Developer & CS Student"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Favicon Links -->
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="./assets/icons/light/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="./assets/icons/light/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="./assets/icons/light/favicon-16x16.png"
+    />
+
+    <!-- Stylesheets in correct order -->
+    <link rel="stylesheet" href="css/bootstrap-custom.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/dark-style.css" />
+
+    <!-- Links Page Specific Styles -->
+    <style>
+      /* Override body background for links page */
+      body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+      }
+
+      body.dark-mode {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      }
+
+      /* Links Page Layout */
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 80px 20px 40px;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* Profile Section */
+      .profile-section {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+
+      .profile-img-container {
+        width: 250x;
+        height: 250x;
+        margin: 0 auto 20px;
+      }
+
+      .profile-name {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        letter-spacing: -0.5px;
+      }
+
+      .profile-bio {
+        font-size: 1rem;
+        margin-bottom: 10px;
+        line-height: 1.6;
+      }
+
+      .profile-location {
+        font-size: 0.9rem;
+      }
+
+      .profile-location i {
+        margin-right: 5px;
+      }
+
+      .profile-img {
+        width: 100%;
+        height: 100%;
+        border-radius: var(--border-radius-full);
+        border: 3px solid white;
+        object-fit: cover;
+        display: block;
+        user-select: none;
+      }
+
+      /* Links Container */
+      .links-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 40px;
+      }
+
+      /* Link Cards */
+      .link-card {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 20px;
+        background: white;
+        border-radius: var(--border-radius-md);
+        text-decoration: none;
+        color: var(--dark-text);
+        transition: all var(--transition-base) var(--transition-timing);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .link-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(52, 152, 219, 0.1),
+          transparent
+        );
+        transition: left 0.5s ease;
+      }
+
+      .link-card:hover::before {
+        left: 100%;
+      }
+
+      .link-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-xl);
+        border-color: var(--secondary-color);
+      }
+
+      /* Link Icons */
+      .link-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+        transition: all 0.3s ease;
+        color: white;
+      }
+
+      .link-card:hover .link-icon {
+        transform: scale(1.1) rotate(5deg);
+      }
+
+      /* Icon Colors */
+      .icon-portfolio {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+      .icon-github {
+        background: linear-gradient(135deg, #24292e 0%, #000000 100%);
+      }
+      .icon-linkedin {
+        background: linear-gradient(135deg, #0077b5 0%, #00a0dc 100%);
+      }
+      .icon-email {
+        background: linear-gradient(135deg, #ea4335 0%, #e94057 100%);
+      }
+      .icon-trosc {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      }
+      .icon-resume {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      }
+
+      /* Link Content */
+      .link-content {
+        flex: 1;
+      }
+
+      .link-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 3px;
+      }
+
+      .link-description {
+        font-size: 0.9rem;
+        color: var(--light-text);
+      }
+
+      .link-arrow {
+        font-size: 1.2rem;
+        color: var(--secondary-color);
+        transition: transform 0.3s ease;
+        flex-shrink: 0;
+      }
+
+      .link-card:hover .link-arrow {
+        transform: translateX(5px);
+      }
+
+      /* Navigation Buttons */
+      .back-button,
+      .theme-toggle {
+        position: fixed;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: white;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--dark-text);
+        box-shadow: var(--shadow-md);
+        transition: all 0.3s ease;
+        z-index: 100;
+        cursor: pointer;
+        text-decoration: none;
+      }
+
+      .back-button {
+        top: 30px;
+        left: 30px;
+      }
+
+      .theme-toggle {
+        top: 30px;
+        right: 30px;
+      }
+
+      .back-button:hover,
+      .theme-toggle:hover {
+        transform: scale(1.1);
+        background: var(--secondary-color);
+        color: white;
+        border-color: var(--secondary-color);
+      }
+
+      .back-button i,
+      .theme-toggle i {
+        font-size: 1.2rem;
+      }
+
+      /* Footer */
+      .footer {
+        text-align: center;
+        padding: 30px 20px;
+        color: var(--light-text);
+        font-size: 0.9rem;
+        margin-top: auto;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .container {
+          padding: 70px 15px 30px;
+        }
+
+        .profile-name {
+          font-size: 1.75rem;
+        }
+
+        .profile-img-container {
+          width: 100px;
+          height: 100px;
+        }
+
+        .back-button,
+        .theme-toggle {
+          width: 45px;
+          height: 45px;
+          top: 20px;
+        }
+
+        .back-button {
+          left: 20px;
+        }
+
+        .theme-toggle {
+          right: 20px;
+        }
+
+        .floating-element {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Floating elements -->
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+
+    <!-- Back button -->
+    <a href="index.html" class="back-button" aria-label="Back to portfolio">
+      <i class="fas fa-arrow-left"></i>
+    </a>
+
+    <!-- Theme toggle -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+      <i class="fas fa-moon"></i>
+    </button>
+
+    <div class="container">
+      <!-- Profile -->
+      <div class="profile-section">
+        <div class="profile-img-container">
+          <img
+            src="assets/images/profile_256.webp"
+            alt="Basem Esam"
+            class="profile-img"
+          />
+        </div>
+        <h1 class="profile-name">Basem Esam</h1>
+        <p class="profile-bio">
+          Backend Developer & CS Student<br />
+          Building scalable systems with Node.js & Express
+        </p>
+        <p class="profile-location">
+          <i class="fas fa-map-marker-alt"></i>
+          Port Said, Egypt
+        </p>
+      </div>
+
+      <!-- Links -->
+      <div class="links-container">
+        <a href="index.html" class="link-card">
+          <div class="link-icon icon-portfolio">
+            <i class="fas fa-briefcase"></i>
+          </div>
+          <div class="link-content">
+            <div class="link-title">Portfolio Website</div>
+            <div class="link-description">
+              View my full portfolio and projects
+            </div>
+          </div>
+          <i class="fas fa-arrow-right link-arrow"></i>
+        </a>
+
+        <a
+          href="https://github.com/basem3sam"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="link-card"
+        >
+          <div class="link-icon icon-github">
+            <i class="fab fa-github"></i>
+          </div>
+          <div class="link-content">
+            <div class="link-title">GitHub</div>
+            <div class="link-description">Check out my code and projects</div>
+          </div>
+          <i class="fas fa-arrow-right link-arrow"></i>
+        </a>
+
+        <a
+          href="https://linkedin.com/in/BasemEsam"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="link-card"
+        >
+          <div class="link-icon icon-linkedin">
+            <i class="fab fa-linkedin-in"></i>
+          </div>
+          <div class="link-content">
+            <div class="link-title">LinkedIn</div>
+            <div class="link-description">Let's connect professionally</div>
+          </div>
+          <i class="fas fa-arrow-right link-arrow"></i>
+        </a>
+
+        <a href="mailto:basem.esam.omar@gmail.com" class="link-card">
+          <div class="link-icon icon-email">
+            <i class="fas fa-envelope"></i>
+          </div>
+          <div class="link-content">
+            <div class="link-title">Email Me</div>
+            <div class="link-description">basem.esam.omar@gmail.com</div>
+          </div>
+          <i class="fas fa-arrow-right link-arrow"></i>
+        </a>
+
+        <a
+          href="https://trosc-scu.netlify.app/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="link-card"
+        >
+          <div class="link-icon icon-trosc">
+            <i class="fas fa-globe"></i>
+          </div>
+          <div class="link-content">
+            <div class="link-title">Trosc Club Website</div>
+            <div class="link-description">Backend development project</div>
+          </div>
+          <i class="fas fa-arrow-right link-arrow"></i>
+        </a>
+
+        <a href="#" class="link-card">
+          <div class="link-icon icon-resume">
+            <i class="fas fa-file-pdf"></i>
+          </div>
+          <div class="link-content">
+            <div class="link-title">Download Resume</div>
+            <div class="link-description">View my CV and experience</div>
+          </div>
+          <i class="fas fa-arrow-right link-arrow"></i>
+        </a>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p>&copy; 2025 Basem Esam. All rights reserved.</p>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/dark-mode.js"></script>
+  </body>
+</html>

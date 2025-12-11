@@ -488,3 +488,93 @@ body.dark-mode .project-card .badge-light {
 body.dark-mode .project-card .badge * {
   color: inherit !important;
 }
+
+/* ===================================
+   Links Page Dark Mode Styles
+   ADD THIS TO END OF dark-style.css
+   =================================== */
+
+/* Links Page Container */
+body.dark-mode .container {
+  color: var(--dark-text);
+}
+
+/* Profile Section */
+body.dark-mode .profile-name {
+  color: #f1f5f9;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .profile-bio {
+  color: var(--light-text);
+}
+
+body.dark-mode .profile-location {
+  color: var(--muted-text);
+}
+
+/* Link Cards */
+body.dark-mode .link-card {
+  background: rgba(30, 41, 59, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  color: var(--dark-text);
+}
+
+body.dark-mode .link-card:hover {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: var(--secondary-color);
+  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.3);
+}
+
+body.dark-mode .link-card::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(59, 130, 246, 0.15),
+    transparent
+  );
+}
+
+/* Link Card Text */
+body.dark-mode .link-title {
+  color: var(--dark-text);
+}
+
+body.dark-mode .link-description {
+  color: var(--light-text);
+}
+
+body.dark-mode .link-arrow {
+  color: var(--secondary-color);
+}
+
+/* Navigation Buttons */
+body.dark-mode .back-button,
+body.dark-mode .theme-toggle {
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  color: var(--dark-text);
+  backdrop-filter: blur(20px);
+}
+
+body.dark-mode .back-button:hover,
+body.dark-mode .theme-toggle:hover {
+  background: var(--secondary-color);
+  border-color: var(--secondary-color);
+  color: white;
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+}
+
+/* Floating Elements */
+body.dark-mode .floating-element {
+  background: rgba(59, 130, 246, 0.05);
+  border: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+/* Footer */
+body.dark-mode .footer {
+  color: var(--light-text);
+  border-top-color: rgba(100, 116, 139, 0.3);
+}
