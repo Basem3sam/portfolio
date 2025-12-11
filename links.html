@@ -244,6 +244,15 @@
         text-decoration: none;
       }
 
+      .back-button,
+      .theme-toggle {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+        touch-action: manipulation;
+      }
+
       .back-button:focus,
       .theme-toggle:focus {
         -webkit-tap-highlight-color: transparent;
@@ -442,14 +451,15 @@
           <i class="fas fa-arrow-right link-arrow"></i>
         </a>
       </div>
-
-      <!-- Footer -->
-      <div class="footer">
-        <p>&copy; 2025 Basem Esam. All rights reserved.</p>
-      </div>
+    </div>
+    <!-- Footer -->
+    <div class="footer">
+      <p>&copy; 2025 Basem Esam. All rights reserved.</p>
     </div>
 
     <!-- Scripts -->
+    <script src="js/smooth-scroll.js"></script>
+    <script src="js/main.js"></script>
     <script src="js/dark-mode.js"></script>
   </body>
 </html>
