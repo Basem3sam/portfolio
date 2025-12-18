@@ -343,8 +343,8 @@ This hidden feature demonstrates:
 - **Passion for Craft** - Going beyond requirements
 - **Problem-Solving Skills** - Complex event handling
 
-*The easter egg took nearly as long to build as the portfolio itself - because the best experiences are in the details! 😄
-*</details>
+*The easter egg took nearly as long to build as the portfolio itself - because the best experiences are in the details! 😄*
+</details>
 
 ---
 
