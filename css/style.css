@@ -189,7 +189,7 @@ body {
 
 .skip-link {
   position: absolute;
-  top: -100px;
+  top: -100%;
   left: 0;
   background: var(--secondary-color);
   color: white;
@@ -199,25 +199,12 @@ body {
   border-radius: 0 0 6px 0;
   font-weight: 600;
   transition: top 0.3s ease;
-  border: 2px solid transparent;
 }
 
 .skip-link:focus {
   top: 0;
   outline: 3px solid var(--accent-color);
   outline-offset: 2px;
-}
-
-/* Hide skip links when not focused */
-.skip-link:not(:focus) {
-  clip: rect(1px, 1px, 1px, 1px);
-  clip-path: inset(50%);
-  height: 1px;
-  width: 1px;
-  margin: -1px;
-  overflow: hidden;
-  padding: 0;
-  position: absolute;
 }
 
 /* Only show first skip link to avoid clutter */
@@ -529,6 +516,31 @@ body.dark-mode .dark-mode-toggle {
   justify-content: center;
   gap: var(--spacing-sm);
   flex-wrap: wrap;
+  padding-left: 10px;
+}
+
+.hero-actions {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* On mobile center the whole block */
+@media (max-width: 991px) {
+  .hero-actions {
+    width: 100%;
+    align-items: center;
+  }
+  .social-links {
+    padding-left: 0;
+  }
 }
 
 .social-links a {
@@ -661,6 +673,12 @@ body.dark-mode .dark-mode-toggle {
   width: 100%;
   position: relative;
   z-index: 2; /* Ensure content stays above hover effects */
+}
+
+.hero-buttons .btn {
+  min-width: 180px;
+  text-align: center;
+  justify-content: center;
 }
 
 /* Fix for disabled buttons */
@@ -1007,7 +1025,9 @@ section {
 .timeline-item:hover::before {
   transform: scale(1.4);
   background-color: var(--secondary-color);
-  box-shadow: 0 0 0 6px white, 0 0 20px rgba(52, 152, 219, 0.5);
+  box-shadow:
+    0 0 0 6px white,
+    0 0 20px rgba(52, 152, 219, 0.5);
 }
 
 .timeline-item h4 {
@@ -1078,7 +1098,9 @@ section {
   }
 
   .timeline-item:hover::before {
-    box-shadow: 0 0 0 5px white, 0 0 15px rgba(52, 152, 219, 0.5);
+    box-shadow:
+      0 0 0 5px white,
+      0 0 15px rgba(52, 152, 219, 0.5);
   }
 }
 
@@ -1216,7 +1238,8 @@ section {
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(
+  background:
+    radial-gradient(
       circle at 20% 80%,
       rgba(52, 152, 219, 0.1) 0%,
       transparent 50%

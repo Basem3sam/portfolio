@@ -216,68 +216,6 @@
     // Enhanced scroll handler with debouncing
     const scrollHandler = () => {
       const scrollY = window.pageYOffset;
-      const shouldShow = scrollY > 100; // Adjust threshold as needed
-
-      if (shouldShow !== isVisible) {
-        // Clear existing timeouts
-        clearTimeout(showTimeout);
-        clearTimeout(hideTimeout);
-
-        if (shouldShow) {
-          // Show with delay
-          showTimeout = setTimeout(() => {
-            backToTopButton.classList.add('show');
-            backToTopButton.setAttribute('aria-hidden', 'false');
-            isVisible = true;
-          }, 100);
-        } else {
-          // Hide with delay
-          hideTimeout = setTimeout(() => {
-            backToTopButton.classList.remove('show');
-            backToTopButton.setAttribute('aria-hidden', 'true');
-            isVisible = false;
-          }, 300);
-        }
-      }
-    };
-
-    // Throttled scroll listener
-    window.addEventListener('scroll', scrollHandler, { passive: true });
-
-    // Enhanced click handler
-    backToTopButton.addEventListener('click', (e) => {
-      e.preventDefault();
-      scrollToTop();
-    });
-
-    // Keyboard and touch support
-    backToTopButton.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        scrollToTop();
-      }
-    });
-
-    console.log('🔼 Back to top button initialized');
-  }
-
-  /**
-   * Initialize back-to-top button functionality
-   */
-  function initBackToTop() {
-    const backToTopButton = document.querySelector('.back-to-top');
-
-    if (!backToTopButton) {
-      console.warn('⚠️ Back to top button not found');
-      return;
-    }
-
-    let isVisible = false;
-    let showTimeout, hideTimeout;
-
-    // Enhanced scroll handler with debouncing
-    const scrollHandler = () => {
-      const scrollY = window.pageYOffset;
       const shouldShow = scrollY > 100;
 
       if (shouldShow !== isVisible) {
@@ -423,7 +361,7 @@
       {
         threshold: 0,
         rootMargin: `-${CONFIG.headerHeight}px 0px 0px 0px`,
-      }
+      },
     );
 
     // Observe the first section after header
@@ -455,7 +393,7 @@
     window.addEventListener(
       'scroll',
       throttle(scrollHandler, CONFIG.throttleDelay),
-      { passive: true }
+      { passive: true },
     );
   }
 
@@ -522,7 +460,7 @@
         rootMargin: `-${CONFIG.scrollBuffer}px 0px -${
           window.innerHeight - CONFIG.scrollBuffer
         }px 0px`,
-      }
+      },
     );
 
     sections.forEach((section) => sectionObserver.observe(section));
@@ -555,7 +493,7 @@
     window.addEventListener(
       'scroll',
       throttle(scrollHandler, CONFIG.throttleDelay),
-      { passive: true }
+      { passive: true },
     );
   }
 
@@ -580,7 +518,7 @@
   function initCriticalAnimations() {
     // Animate hero section elements
     const heroElements = document.querySelectorAll(
-      '.hero-section .profile-img, .hero-section h1, .hero-section h2'
+      '.hero-section .profile-img, .hero-section h1, .hero-section h2',
     );
 
     heroElements.forEach((el, index) => {
@@ -593,10 +531,13 @@
                               index * 0.2
                             }s`;
 
-      setTimeout(() => {
-        el.style.opacity = '1';
-        el.style.transform = 'translateY(0)';
-      }, 100 + index * 200);
+      setTimeout(
+        () => {
+          el.style.opacity = '1';
+          el.style.transform = 'translateY(0)';
+        },
+        100 + index * 200,
+      );
     });
   }
 
@@ -710,7 +651,7 @@
     if (!('ontouchstart' in window)) return;
 
     const interactiveElements = document.querySelectorAll(
-      '.skill-card, .project-card, .btn, .social-links a'
+      '.skill-card, .project-card, .btn, .social-links a',
     );
 
     interactiveElements.forEach((el) => {
@@ -720,7 +661,7 @@
         function () {
           this.classList.add('touch-active');
         },
-        { passive: true }
+        { passive: true },
       );
 
       el.addEventListener(
@@ -728,7 +669,7 @@
         function () {
           this.classList.remove('touch-active');
         },
-        { passive: true }
+        { passive: true },
       );
 
       // Prevent double-tap zoom
@@ -739,7 +680,7 @@
             e.preventDefault();
           }
         },
-        { passive: false }
+        { passive: false },
       );
     });
   }
@@ -793,7 +734,7 @@
           list.getEntries().forEach((entry) => {
             console.log(
               '📊 FID:',
-              (entry.processingStart - entry.startTime).toFixed(2)
+              (entry.processingStart - entry.startTime).toFixed(2),
             );
           });
         });

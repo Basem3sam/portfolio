@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -12,6 +12,32 @@
       content="Backend Developer, Node.js, Express, MongoDB, Web Development"
     />
     <meta name="author" content="Basem Esam" />
+
+    <!-- Open Graph / Social Preview -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://basemesam.netlify.app/" />
+    <meta property="og:title" content="Basem Esam | Backend Developer" />
+    <meta
+      property="og:description"
+      content="Backend Developer & CS Student specializing in Node.js, Express, and scalable systems."
+    />
+    <meta
+      property="og:image"
+      content="https://basemesam.netlify.app/assets/images/profile_256.webp"
+    />
+
+    <!-- Twitter/X card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Basem Esam | Backend Developer" />
+    <meta
+      name="twitter:description"
+      content="Backend Developer & CS Student specializing in Node.js, Express, and scalable systems."
+    />
+    <meta
+      name="twitter:image"
+      content="https://basemesam.netlify.app/assets/images/profile_256.webp"
+    />
+
     <title>Basem Esam | Backend Developer</title>
 
     <!-- Bootstrap CSS -->
@@ -107,7 +133,15 @@
             <li class="nav-item">
               <a class="nav-link" href="links.html">All My Links</a>
             </li>
-            <!-- Add this button to your navigation -->
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                href="./assets/files/basem-esam-cv.pdf"
+                download
+              >
+                <i class="fas fa-file-pdf me-1" aria-hidden="true"></i>Resume
+              </a>
+            </li>
             <li class="nav-item">
               <button
                 id="darkModeToggle"
@@ -155,41 +189,53 @@
                 architecture.
               </p>
 
-              <div
-                class="social-links mb-4"
-                role="list"
-                aria-label="Social media links"
-              >
-                <a
-                  href="https://linkedin.com/in/BasemEsam"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="social-link"
-                  aria-label="LinkedIn Profile"
+              <div class="mt-3 hero-actions">
+                <div
+                  class="social-links mb-3"
+                  role="list"
+                  aria-label="Social media links"
                 >
-                  <i class="fab fa-linkedin-in" aria-hidden="true"></i>
-                </a>
-                <a
-                  href="https://github.com/basem3sam"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="social-link"
-                  aria-label="GitHub Profile"
-                >
-                  <i class="fab fa-github" aria-hidden="true"></i>
-                </a>
-                <a
-                  href="mailto:basem.esam.omar@gmail.com"
-                  class="social-link"
-                  aria-label="Email Basem Esam"
-                >
-                  <i class="fas fa-envelope" aria-hidden="true"></i>
-                </a>
+                  <a
+                    href="https://linkedin.com/in/BasemEsam"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="social-link"
+                    aria-label="LinkedIn Profile"
+                  >
+                    <i class="fab fa-linkedin-in" aria-hidden="true"></i>
+                  </a>
+                  <a
+                    href="https://github.com/basem3sam"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="social-link"
+                    aria-label="GitHub Profile"
+                  >
+                    <i class="fab fa-github" aria-hidden="true"></i>
+                  </a>
+                  <a
+                    href="mailto:basem.esam.omar@gmail.com"
+                    class="social-link"
+                    aria-label="Email Basem Esam"
+                  >
+                    <i class="fas fa-envelope" aria-hidden="true"></i>
+                  </a>
+                </div>
+                <div class="hero-buttons">
+                  <a href="#projects" class="btn btn-light btn-lg">
+                    <i class="fas fa-code me-2" aria-hidden="true"></i>View My
+                    Work
+                  </a>
+                  <a
+                    href="./assets/files/basem-esam-cv.pdf"
+                    download
+                    class="btn btn-outline-light btn-lg"
+                  >
+                    <i class="fas fa-file-pdf me-2" aria-hidden="true"></i
+                    >Download CV
+                  </a>
+                </div>
               </div>
-
-              <a href="#projects" class="btn btn-light btn-lg mt-3">
-                <i class="fas fa-code me-2" aria-hidden="true"></i>View My Work
-              </a>
             </div>
           </div>
         </div>
@@ -371,7 +417,10 @@
                   class="card-img-top project-img"
                   alt="Trosc Club Website - Backend development project"
                   loading="lazy"
-                  onerror="this.src='https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=500&q=80'"
+                  onerror="
+                    this.src =
+                      'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=500&q=80'
+                  "
                 />
                 <div class="card-body">
                   <h5 class="card-title">Trosc Club Website</h5>
@@ -410,7 +459,10 @@
                   class="card-img-top project-img"
                   alt="REST API Project with authentication"
                   loading="lazy"
-                  onerror="this.src='https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=500&q=80'"
+                  onerror="
+                    this.src =
+                      'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=500&q=80'
+                  "
                 />
                 <div class="card-body">
                   <h5 class="card-title">REST API Project</h5>
@@ -439,7 +491,10 @@
                   class="card-img-top project-img"
                   alt="Laravel E-commerce platform project"
                   loading="lazy"
-                  onerror="this.src='https://images.unsplash.com/photo-1557821552-17105176677c?auto=format&fit=crop&w=500&q=80'"
+                  onerror="
+                    this.src =
+                      'https://images.unsplash.com/photo-1557821552-17105176677c?auto=format&fit=crop&w=500&q=80'
+                  "
                 />
                 <div class="card-body">
                   <h5 class="card-title">Laravel E-commerce</h5>

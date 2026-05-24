@@ -5,10 +5,22 @@
 let sharedAudioContext = null;
 let audioContextReady = false;
 
+function isLowEndDevice() {
+  // Check for low memory (under 2GB)
+  if (navigator.deviceMemory && navigator.deviceMemory < 2) return true;
+  // Check for slow CPU (less than 4 logical cores)
+  if (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4)
+    return true;
+  // Check for data saver mode
+  if (navigator.connection && navigator.connection.saveData) return true;
+  return false;
+}
+
 function initAudioOnFirstInteraction() {
   if (!sharedAudioContext) {
-    sharedAudioContext = new (window.AudioContext ||
-      window.webkitAudioContext)();
+    sharedAudioContext = new (
+      window.AudioContext || window.webkitAudioContext
+    )();
   }
 
   if (sharedAudioContext.state === 'suspended') {
@@ -123,18 +135,21 @@ function playKonamiKeySoundInternal(key, sequencePosition) {
   gainNode.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.03);
   gainNode.gain.exponentialRampToValueAtTime(
     0.001,
-    audioCtx.currentTime + duration
+    audioCtx.currentTime + duration,
   );
 
   oscillator.start(audioCtx.currentTime);
   oscillator.stop(audioCtx.currentTime + duration);
 
-  setTimeout(() => {
-    try {
-      oscillator.disconnect();
-      gainNode.disconnect();
-    } catch (e) {}
-  }, duration * 1000 + 100);
+  setTimeout(
+    () => {
+      try {
+        oscillator.disconnect();
+        gainNode.disconnect();
+      } catch (e) {}
+    },
+    duration * 1000 + 100,
+  );
 }
 
 // ===================================
@@ -161,14 +176,14 @@ function playSuccessSound() {
     frequencies.forEach((freq, i) => {
       oscillator.frequency.setValueAtTime(
         freq,
-        audioCtx.currentTime + times[i]
+        audioCtx.currentTime + times[i],
       );
     });
 
     gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(
       0.01,
-      audioCtx.currentTime + 0.5
+      audioCtx.currentTime + 0.5,
     );
 
     oscillator.start(audioCtx.currentTime);
@@ -209,7 +224,7 @@ function playErrorSound() {
     gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(
       0.01,
-      audioCtx.currentTime + 0.3
+      audioCtx.currentTime + 0.3,
     );
 
     oscillator.start(audioCtx.currentTime);
@@ -250,13 +265,13 @@ function playKonamiSound(clickCount) {
 
     oscillator.frequency.setValueAtTime(
       tones[(clickCount - 1) % tones.length],
-      audioCtx.currentTime
+      audioCtx.currentTime,
     );
 
     gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(
       0.01,
-      audioCtx.currentTime + 0.3
+      audioCtx.currentTime + 0.3,
     );
 
     oscillator.start(audioCtx.currentTime);
@@ -332,7 +347,7 @@ window.onMobileOverlayOpen = onMobileOverlayOpen;
 window.openTerminal = function () {
   // Close any Konami master notification when opening terminal
   const masterNotification = document.querySelector(
-    '.konami-master-notification'
+    '.konami-master-notification',
   );
   if (masterNotification) {
     masterNotification.classList.remove('show');
@@ -744,7 +759,7 @@ function showSpecialKeyboardInput() {
   function checkSpecialSequence() {
     if (enteredSequence.length === konamiCode.length) {
       const isCorrect = enteredSequence.every(
-        (key, index) => key === konamiCode[index]
+        (key, index) => key === konamiCode[index],
       );
 
       if (isCorrect) {
@@ -922,7 +937,7 @@ window.showSpecialKeyboardInput = showSpecialKeyboardInput;
 function showAccessGranted() {
   // Remove any existing access granted notifications first
   const existingNotification = document.querySelector(
-    '.access-granted-notification'
+    '.access-granted-notification',
   );
   if (existingNotification) {
     existingNotification.remove();
@@ -994,9 +1009,9 @@ function createConfettiBurst() {
     '#ff9ff3',
     '#4ecdc4',
   ];
-  const confettiCount = 50;
+  const count = isLowEndDevice() ? 15 : 50;
 
-  for (let i = 0; i < confettiCount; i++) {
+  for (let i = 0; i < count; i++) {
     setTimeout(() => {
       const confetti = document.createElement('div');
       confetti.className = 'confetti';
@@ -1090,7 +1105,7 @@ let spamProtection = {
   checkSpam() {
     const now = Date.now();
     this.clickTimestamps = this.clickTimestamps.filter(
-      (time) => now - time < 1000
+      (time) => now - time < 1000,
     );
     this.clickTimestamps.push(now);
 
@@ -1340,7 +1355,7 @@ let spamProtection = {
     function unlockKonamiSecret(secretClue) {
       // Remove any existing Konami hint notifications
       const existingNotifications = document.querySelectorAll(
-        '.konami-hint-notification'
+        '.konami-hint-notification',
       );
       existingNotifications.forEach((notification) => {
         notification.classList.remove('show');
@@ -1377,7 +1392,7 @@ let spamProtection = {
       e.stopPropagation();
 
       const existingOverlay = document.querySelector(
-        '.mobile-secret-overlay, .mobile-cryptic-overlay, .mobile-special-overlay'
+        '.mobile-secret-overlay, .mobile-cryptic-overlay, .mobile-special-overlay',
       );
 
       if (existingOverlay) {
@@ -1496,7 +1511,7 @@ let spamProtection = {
     }
 
     console.log(
-      `🎮 Konami hint level: ${oldHintLevel} -> ${hintLevel} (Click ${profileClickCount})`
+      `🎮 Konami hint level: ${oldHintLevel} -> ${hintLevel} (Click ${profileClickCount})`,
     );
 
     const secretClue = document.querySelector('.secret-clue');
@@ -1587,7 +1602,7 @@ let spamProtection = {
 
     // Remove any existing notification
     const existingNotification = document.querySelector(
-      '.konami-hint-notification'
+      '.konami-hint-notification',
     );
     if (existingNotification) {
       existingNotification.remove();
@@ -1719,8 +1734,10 @@ let spamProtection = {
       '#f368e0',
     ];
 
+    fireworkCount = isLowEndDevice() ? 15 : 50;
+
     // Create massive explosion of characters
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < fireworkCount; i++) {
       setTimeout(() => {
         const firework = document.createElement('div');
         firework.className = 'konami-firework';
@@ -1782,8 +1799,9 @@ let spamProtection = {
       '#1dd1a1',
       '#f368e0',
     ];
+    const count = isLowEndDevice() ? 30 : 150;
 
-    for (let i = 0; i < 150; i++) {
+    for (let i = 0; i < count; i++) {
       setTimeout(() => {
         const confetti = document.createElement('div');
         confetti.className = 'confetti';
@@ -2183,15 +2201,15 @@ You are: Awesome! 🌟
     setupEventListeners();
     console.log(
       '%c🎮 SECRET TERMINAL AVAILABLE!',
-      'color: #00ff41; font-size: 16px; font-weight: bold;'
+      'color: #00ff41; font-size: 16px; font-weight: bold;',
     );
     console.log(
       '%cPress Ctrl + Shift + B to open the terminal',
-      'color: #00d9ff; font-size: 12px;'
+      'color: #00d9ff; font-size: 12px;',
     );
     console.log(
       '%cOr try the Konami Code: ↑ ↑ ↓ ↓ ← → ← → B A',
-      'color: #ffa502; font-size: 12px;'
+      'color: #ffa502; font-size: 12px;',
     );
   }
 
