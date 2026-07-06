@@ -1,6 +1,6 @@
 # 💼 Basem Esam - Portfolio
 
-[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge)](https://basemesam.netlify.app/)
+[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge)](https://basemesam.vercel.app/)
 [![GitHub](https://img.shields.io/badge/GitHub-Pages-181717?style=for-the-badge&logo=github)](https://basem3sam.github.io/portfolio/)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
@@ -115,7 +115,7 @@ const GITHUB_CONFIG = {
 
 ### Netlify (Recommended)
 1. Push to GitHub
-2. Connect repository on [Netlify](https://netlify.com)
+2. Connect repository on [Netlify](https://vercel.com)
 3. Deploy automatically
 
 ### GitHub Pages
@@ -226,7 +226,7 @@ I'm a Backend Developer and Computer Science student at Suez Canal University, s
 [![Email](https://img.shields.io/badge/Email-basem.esam.omar%40gmail.com-red?style=for-the-badge&logo=gmail&logoColor=white)](mailto:basem.esam.omar@gmail.com)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Basem%20Esam-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/BasemEsam)
 [![GitHub](https://img.shields.io/badge/GitHub-basem3sam-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/basem3sam)
-[![Portfolio](https://img.shields.io/badge/Portfolio-Live%20Site-brightgreen?style=for-the-badge&logo=google-chrome&logoColor=white)](https://basemesam.netlify.app/)
+[![Portfolio](https://img.shields.io/badge/Portfolio-Live%20Site-brightgreen?style=for-the-badge&logo=google-chrome&logoColor=white)](https://basemesam.vercel.app/)
 
 **📍 Location:** Port Said, Egypt | **💼 Status:** Open to opportunities
 
@@ -348,4 +348,4 @@ This hidden feature demonstrates:
 
 ---
 
-**Ready to explore?** Visit the [live site](https://basemesam.netlify.app/) and start your journey! 🎯
+**Ready to explore?** Visit the [live site](https://basemesam.vercel.app/) and start your journey! 🎯
