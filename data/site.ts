@@ -1,0 +1,8 @@
+export const SITE_URL = "https://basemesam.vercel.app/";
+export const PROFILE_IMAGE = "/assets/images/profile_256.webp";
+export const CV_PATH = "/assets/documents/basem-esam-cv.pdf";
+export const LINKEDIN_URL = "https://linkedin.com/in/BasemEsam";
+export const GITHUB_URL = "https://github.com/basem3sam";
+export const EMAIL = "basem.esam.omar@gmail.com";
+export const MAILTO = `mailto:${EMAIL}`;
+export const TROSC_URL = "https://trosc.vercel.app/";

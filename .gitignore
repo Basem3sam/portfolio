@@ -1,3 +1,22 @@
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+next-env.d.ts
+
+# typescript
+*.tsbuildinfo
+
+# env files
+.env*
+
+# misc
+.DS_Store
+npm-debug.log*
+
+# kept from the original project's .gitignore (migration-package artifacts)
 make_migration_package.py
 nextjs-migration-context.md
 portfolio-for-migration.zip
