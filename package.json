@@ -1,0 +1,32 @@
+{
+  "name": "basem-esam-portfolio",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "export": "node scripts/export.mjs",
+    "export:design": "node scripts/export.mjs design",
+    "export:full": "node scripts/export.mjs full"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "6.4.0",
+    "next": "16.3.8",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.0",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "postcss": "^8.5.0",
+    "tailwindcss": "^4.1.0",
+    "typescript": "~5.9.3"
+  }
+}
