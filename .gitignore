@@ -16,7 +16,7 @@ next-env.d.ts
 .DS_Store
 npm-debug.log*
 
-# kept from the original project's .gitignore (migration-package artifacts)
-make_migration_package.py
-nextjs-migration-context.md
-portfolio-for-migration.zip
+# export output
+/export/
+scripts/
+commit-message.txt

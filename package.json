@@ -9,7 +9,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "export": "node scripts/export.mjs",
+    "export:design": "node scripts/export.mjs design",
+    "export:full": "node scripts/export.mjs full"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "6.4.0",
