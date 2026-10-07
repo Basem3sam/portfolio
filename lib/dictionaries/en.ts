@@ -18,6 +18,7 @@ const en = {
     contact: 'Contact',
     allLinks: 'All My Links',
     resume: 'Resume',
+    backToTop: 'Back to top',
     skipToContent: 'Skip to main content',
     toggleNavigation: 'Toggle navigation',
     mainNavigation: 'Main navigation',

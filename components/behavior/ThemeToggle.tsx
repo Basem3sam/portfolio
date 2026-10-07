@@ -1,6 +1,7 @@
 'use client';
 
 import { useSyncExternalStore } from 'react';
+import Icon from '@/components/ui/Icon';
 import { getCurrentTheme, subscribeToTheme, toggleTheme } from '@/lib/theme';
 
 type ThemeToggleLabels = {
@@ -42,7 +43,10 @@ export default function ThemeToggle({
       aria-label={dark ? labels.toLight : labels.toDark}
       onClick={toggleTheme}
     >
-      <i className={`fas ${dark ? 'fa-sun' : 'fa-moon'} ${iconClassName}`}></i>
+      <Icon
+        name={dark ? 'sun' : 'moon'}
+        className={`size-5 ${iconClassName}`}
+      />
     </button>
   );
 }

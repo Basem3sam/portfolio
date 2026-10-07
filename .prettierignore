@@ -1,0 +1,9 @@
+.next
+node_modules
+out
+export
+scripts
+public
+package-lock.json
+next-env.d.ts
+commit-message.txt

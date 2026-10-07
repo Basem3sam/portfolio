@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
+import Icon from '@/components/ui/Icon';
 import { scrollBehavior } from '@/lib/scroll';
 
 const THRESHOLD = 300;
@@ -8,7 +9,11 @@ const THRESHOLD = 300;
 const hidden = 'pointer-events-none invisible translate-y-5 opacity-0';
 const shown = 'translate-y-0 opacity-100';
 
-export default function BackToTop() {
+type BackToTopProps = {
+  label?: string;
+};
+
+export default function BackToTop({ label = 'Back to top' }: BackToTopProps) {
   const [visible, setVisible] = useState(false);
   const linkRef = useRef<HTMLAnchorElement>(null);
   const scrollingToTop = useRef(false);
@@ -58,11 +63,14 @@ export default function BackToTop() {
     <a
       ref={linkRef}
       href="#"
-      className={`group fixed end-[30px] bottom-[30px] z-[1030] flex size-[50px] cursor-pointer items-center justify-center rounded-full border-2 border-transparent bg-secondary text-on-secondary no-underline shadow-md transition-all duration-300 select-none [-webkit-tap-highlight-color:transparent] [touch-action:manipulation] hover:-translate-y-[5px] hover:border-white/30 hover:bg-secondary/90 hover:shadow-xl max-md:end-5 max-md:bottom-5 max-md:size-[45px] pointer-coarse:active:scale-95 print:hidden ${visible ? shown : hidden}`}
-      aria-label="Back to top"
+      className={`group fixed end-5 bottom-5 z-[1030] flex size-11 cursor-pointer items-center justify-center rounded-full border border-hairline bg-surface text-dark-text no-underline shadow-md transition-all duration-300 select-none [-webkit-tap-highlight-color:transparent] [touch-action:manipulation] hover:border-secondary hover:text-secondary hover:shadow-lg md:end-8 md:bottom-8 pointer-coarse:active:scale-95 print:hidden ${visible ? shown : hidden}`}
+      aria-label={label}
       onClick={handleClick}
     >
-      <i className="fas fa-arrow-up text-[1.2rem] transition-transform duration-300 group-hover:-translate-y-0.5"></i>
+      <Icon
+        name="arrowUp"
+        className="size-5 transition-transform duration-300 group-hover:-translate-y-0.5"
+      />
     </a>
   );
 }

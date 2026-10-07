@@ -20,6 +20,7 @@ const ar: Dictionary = {
     contact: 'تواصل معي',
     allLinks: 'كل روابطي',
     resume: 'السيرة الذاتية',
+    backToTop: 'العودة إلى الأعلى',
     skipToContent: 'تخطَّ إلى المحتوى الرئيسي',
     toggleNavigation: 'إظهار / إخفاء القائمة',
     mainNavigation: 'التنقّل الرئيسي',

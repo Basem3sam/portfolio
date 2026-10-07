@@ -20,6 +20,10 @@ export default async function SiteLayout({
   const { lang } = await params;
   const locale: Locale = isLocale(lang) ? lang : 'en';
   const dict = getDictionary(locale);
+  const languageSwitch =
+    locale === 'en'
+      ? { href: '/ar', hrefLang: 'ar', label: 'العربية' }
+      : { href: '/', hrefLang: 'en', label: 'English' };
 
   preconnect('https://api.github.com', { crossOrigin: 'anonymous' });
   preload(PROFILE_IMAGE, { as: 'image', fetchPriority: 'high' });
@@ -27,10 +31,15 @@ export default async function SiteLayout({
   return (
     <>
       <SkipLink label={dict.nav.skipToContent} />
-      <Navbar labels={dict.nav} theme={dict.theme} locale={locale} />
+      <Navbar
+        labels={dict.nav}
+        theme={dict.theme}
+        locale={locale}
+        languageSwitch={languageSwitch}
+      />
       {children}
       <Footer locale={locale} />
-      <BackToTop />
+      <BackToTop label={dict.nav.backToTop} />
       <EasterEgg />
     </>
   );
