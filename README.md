@@ -89,7 +89,7 @@ portfolio/
 │   ├── i18n.ts                  # Locale helpers and dictionary loader
 │   ├── dictionaries/            # en.ts and ar.ts UI strings
 │   ├── theme.ts / scroll.ts / github.ts / sounds.ts / effects.ts / ...
-├── middleware.ts                # Rewrites "/" and "/links" to "/en/..." (URL stays clean)
+├── proxy.ts                     # Rewrites "/" and "/links" to "/en/..." (URL stays clean)
 ├── public/assets/               # Images, icons (light/dark), CV
 ├── eslint.config.mjs            # ESLint 9 flat config (eslint-config-next)
 ├── .prettierrc.json             # Prettier + Tailwind class sorting
@@ -103,7 +103,7 @@ portfolio/
 
 English lives at `/` and Arabic at `/ar` (and `/links` / `/ar/links`).
 
-The URL never shows `/en`: `middleware.ts` internally rewrites unprefixed paths to the English routes, so every existing link to `basemesam.vercel.app/` keeps working with zero redirects.
+the URL never shows `/en`: `proxy.ts` internally rewrites unprefixed paths to the English routes, so every existing link to `basemesam.vercel.app/` keeps working with zero redirects.
 
 `next.config.ts` still redirects the legacy URLs `/index.html` → `/` and `/links.html` → `/links`, and adds security headers:
 
@@ -230,7 +230,7 @@ npm run build
 
 ### `/` returns 404 in development
 
-The middleware rewrite may not have run correctly.
+The proxy rewrite may not have run correctly.
 
 Restart the development server:
 
