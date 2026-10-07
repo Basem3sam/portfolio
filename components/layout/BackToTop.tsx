@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useState, type MouseEvent } from "react";
-import { scrollBehavior } from "@/lib/scroll";
+import { useEffect, useRef, useState, type MouseEvent } from 'react';
+import { scrollBehavior } from '@/lib/scroll';
 
 const THRESHOLD = 300;
 
-const hidden = "pointer-events-none invisible translate-y-5 opacity-0";
-const shown = "translate-y-0 opacity-100";
+const hidden = 'pointer-events-none invisible translate-y-5 opacity-0';
+const shown = 'translate-y-0 opacity-100';
 
 export default function BackToTop() {
   const [visible, setVisible] = useState(false);
@@ -33,10 +33,10 @@ export default function BackToTop() {
     };
 
     update();
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener('scroll', handleScroll);
       window.clearTimeout(timeout);
     };
   }, []);
@@ -58,7 +58,7 @@ export default function BackToTop() {
     <a
       ref={linkRef}
       href="#"
-      className={`group fixed right-[30px] bottom-[30px] z-[1030] flex size-[50px] cursor-pointer items-center justify-center rounded-full border-2 border-transparent bg-secondary text-white no-underline shadow-md transition-all duration-300 select-none [-webkit-tap-highlight-color:transparent] [touch-action:manipulation] hover:-translate-y-[5px] hover:border-white/30 hover:bg-[#2980b9] hover:shadow-xl max-md:right-5 max-md:bottom-5 max-md:size-[45px] pointer-coarse:active:scale-95 print:hidden ${visible ? shown : hidden}`}
+      className={`group fixed end-[30px] bottom-[30px] z-[1030] flex size-[50px] cursor-pointer items-center justify-center rounded-full border-2 border-transparent bg-secondary text-on-secondary no-underline shadow-md transition-all duration-300 select-none [-webkit-tap-highlight-color:transparent] [touch-action:manipulation] hover:-translate-y-[5px] hover:border-white/30 hover:bg-secondary/90 hover:shadow-xl max-md:end-5 max-md:bottom-5 max-md:size-[45px] pointer-coarse:active:scale-95 print:hidden ${visible ? shown : hidden}`}
       aria-label="Back to top"
       onClick={handleClick}
     >

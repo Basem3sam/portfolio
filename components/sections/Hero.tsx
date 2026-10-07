@@ -1,21 +1,21 @@
-import ProfileImage from "@/components/ui/ProfileImage";
-import { buttonStyles } from "@/components/ui/buttonStyles";
-import { CV_PATH, GITHUB_URL, LINKEDIN_URL, MAILTO } from "@/data/site";
+import ProfileImage from '@/components/ui/ProfileImage';
+import { buttonStyles } from '@/components/ui/buttonStyles';
+import { CV_PATH, GITHUB_URL, LINKEDIN_URL, MAILTO } from '@/data/site';
 
-const shadow = "[text-shadow:0_2px_10px_rgba(0,0,0,0.2)]";
+const shadow = '[text-shadow:0_2px_10px_rgba(0,0,0,0.2)]';
 
 const socialLink =
-  "group inline-flex size-[45px] items-center justify-center rounded-full border-2 border-transparent bg-white/10 text-white no-underline backdrop-blur-[10px] transition-all duration-300 hover:-translate-y-[5px] hover:scale-110 hover:border-white/30 hover:bg-secondary hover:shadow-[0_10px_25px_rgba(52,152,219,0.4)] max-md:mx-[5px] max-md:size-10 max-sm:size-[38px] dark:border dark:border-[#475569] dark:bg-[#334155] dark:text-dark-text dark:hover:border-secondary";
+  'group inline-flex size-[45px] items-center justify-center rounded-full border-2 border-transparent bg-white/10 text-white no-underline backdrop-blur-[10px] transition-all duration-300 hover:-translate-y-[5px] hover:scale-110 hover:border-white/30 hover:bg-secondary hover:text-on-secondary hover:shadow-[0_10px_25px_rgba(160,74,7,0.35)] max-md:mx-[5px] max-md:size-10 max-sm:size-[38px] dark:border dark:border-[#3d4046] dark:bg-[#26292f] dark:text-dark-text dark:hover:border-secondary dark:hover:text-on-secondary';
 
 const socialIcon =
-  "text-[1.2rem] transition-transform duration-150 group-hover:scale-110 max-sm:text-[1rem]";
+  'text-[1.2rem] transition-transform duration-150 group-hover:scale-110 max-sm:text-[1rem]';
 
 export default function Hero() {
   return (
     <section
       id="hero"
       aria-labelledby="hero-title"
-      className="relative flex min-h-screen w-full items-center overflow-hidden bg-hero-gradient pt-[120px] pb-20 text-white before:pointer-events-none before:absolute before:inset-0 before:animate-wave before:bg-(image:--wave-image) before:bg-cover before:bg-center before:opacity-30 before:content-[''] max-lg:min-h-0 max-lg:pt-[100px] max-lg:pb-[60px] max-lg:text-center max-md:pt-20 max-md:pb-10"
+      className="relative flex min-h-screen w-full items-center overflow-hidden bg-hero-gradient pt-[120px] pb-20 text-white before:pointer-events-none before:absolute before:inset-0 before:animate-wave before:bg-(image:--wave-image) before:bg-cover before:bg-center before:opacity-30 before:content-[''] max-lg:min-h-0 max-lg:pt-[100px] max-lg:pb-[60px] max-lg:text-center max-md:pt-80 max-md:pb-10"
     >
       <div className="container relative z-[2] max-lg:pt-[15px] max-md:pt-2.5">
         <div className="-mx-3 flex flex-wrap items-center">
@@ -40,8 +40,8 @@ export default function Hero() {
               Backend Developer & CS Student
             </h2>
             <p className={`mb-6 text-[1.25rem] font-light ${shadow}`}>
-              Focused on building reliable, scalable backend systems using strong
-              foundations in system design, OOP, and clean architecture.
+              Focused on building reliable, scalable backend systems using
+              strong foundations in system design, OOP, and clean architecture.
             </p>
 
             <div className="mt-4 inline-flex flex-col items-center max-lg:w-full">
@@ -57,7 +57,10 @@ export default function Hero() {
                   className={socialLink}
                   aria-label="LinkedIn Profile"
                 >
-                  <i className={`fab fa-linkedin-in ${socialIcon}`} aria-hidden="true"></i>
+                  <i
+                    className={`fab fa-linkedin-in ${socialIcon}`}
+                    aria-hidden="true"
+                  ></i>
                 </a>
                 <a
                   href={GITHUB_URL}
@@ -66,22 +69,37 @@ export default function Hero() {
                   className={socialLink}
                   aria-label="GitHub Profile"
                 >
-                  <i className={`fab fa-github ${socialIcon}`} aria-hidden="true"></i>
+                  <i
+                    className={`fab fa-github ${socialIcon}`}
+                    aria-hidden="true"
+                  ></i>
                 </a>
-                <a href={MAILTO} className={socialLink} aria-label="Email Basem Esam">
-                  <i className={`fas fa-envelope ${socialIcon}`} aria-hidden="true"></i>
+                <a
+                  href={MAILTO}
+                  className={socialLink}
+                  aria-label="Email Basem Esam"
+                >
+                  <i
+                    className={`fas fa-envelope ${socialIcon}`}
+                    aria-hidden="true"
+                  ></i>
                 </a>
               </div>
               <div className="flex flex-wrap justify-center gap-4">
-                <a href="#projects" className={`${buttonStyles("light", "lg")} min-w-[180px]`}>
-                  <i className="fas fa-code mr-2" aria-hidden="true"></i>View My Work
+                <a
+                  href="#projects"
+                  className={`${buttonStyles('light', 'lg')} min-w-[180px]`}
+                >
+                  <i className="fas fa-code mr-2" aria-hidden="true"></i>View My
+                  Work
                 </a>
                 <a
                   href={CV_PATH}
                   download
-                  className={`${buttonStyles("outlineLight", "lg")} min-w-[180px]`}
+                  className={`${buttonStyles('outlineLight', 'lg')} min-w-[180px]`}
                 >
-                  <i className="fas fa-file-pdf mr-2" aria-hidden="true"></i>Download CV
+                  <i className="fas fa-file-pdf mr-2" aria-hidden="true"></i>
+                  Download CV
                 </a>
               </div>
             </div>
