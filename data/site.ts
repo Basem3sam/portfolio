@@ -9,6 +9,7 @@ export const TROSC_URL = "https://trosc.vercel.app/";
 export const PHONE_DISPLAY = "+20 112 350 5981";
 export const PHONE_TEL = "tel:+201123505981";
 export const TROSC_REPO_URL = "https://github.com/Basem3sam/trosc-backend";
+export const TROSC_API_DOCS_URL = "https://github.com/Basem3sam/trosc-backend/blob/HEAD/API.md";
 export const LARAVEL_REPO_URL = "https://github.com/Basem3sam/laravel-ecommerce-app";
 export const NEUROSCAN_REPO_URL = "https://github.com/Basem3sam/neuroscan-ai";
 export const ZABTHALAHAK_URL = "https://zabthalahak.vercel.app/";

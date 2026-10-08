@@ -59,7 +59,13 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
 
   useEffect(() => {
     const hero = document.getElementById("hero");
-    if (!hero) return;
+
+    if (!hero) {
+      const update = () => setScrolled(window.scrollY > 24);
+      update();
+      window.addEventListener("scroll", update, { passive: true });
+      return () => window.removeEventListener("scroll", update);
+    }
 
     const observer = new IntersectionObserver(([entry]) => setScrolled(!entry.isIntersecting), {
       threshold: 0,

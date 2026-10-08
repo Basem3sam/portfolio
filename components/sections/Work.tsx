@@ -1,6 +1,7 @@
 import GitHubProjects from "@/components/github/GitHubProjects";
 import Icon from "@/components/ui/Icon";
 import SectionHeader from "@/components/ui/SectionHeader";
+import Link from "next/link";
 import {
   LARAVEL_REPO_URL,
   NEUROSCAN_REPO_URL,
@@ -33,11 +34,14 @@ const statusDot: Record<string, string> = {
   academic: "bg-muted-text",
 };
 
+const caseStudyLink =
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-secondary px-4 text-sm font-semibold text-on-secondary no-underline transition-colors duration-200 hover:bg-[#8a3f06] dark:hover:bg-[#fcd34d]";
+
 const repoLink =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-hairline bg-surface px-4 text-sm font-medium text-dark-text no-underline transition-colors duration-200 hover:border-secondary hover:text-secondary";
 
 const liveLink =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-secondary px-4 text-sm font-semibold text-on-secondary no-underline transition-colors duration-200 hover:bg-[#8a3f06] dark:hover:bg-[#fcd34d]";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-hairline bg-surface px-4 text-sm font-medium text-dark-text no-underline transition-colors duration-200 hover:border-secondary hover:text-secondary";
 
 export default function Work({ dict, github, locale }: WorkProps) {
   return (
@@ -48,6 +52,8 @@ export default function Work({ dict, github, locale }: WorkProps) {
         <div className="space-y-4">
           {dict.projects.map((project, index) => {
             const links = projectLinks[project.id];
+            const showLinks =
+              project.id === "trosc" || Boolean(links && (links.repo || links.live));
             return (
               <article
                 key={project.id}
@@ -88,9 +94,18 @@ export default function Work({ dict, github, locale }: WorkProps) {
                   ))}
                 </div>
 
-                {links && (links.repo || links.live) && (
+                {showLinks && (
                   <div className="mt-5 flex flex-wrap gap-3">
-                    {links.repo && (
+                    {project.id === "trosc" && (
+                      <Link
+                        href={locale === "ar" ? "/ar/work/trosc" : "/work/trosc"}
+                        className={caseStudyLink}
+                      >
+                        {dict.caseStudy}
+                        <Icon name="arrowRight" className="size-4 rtl:rotate-180" />
+                      </Link>
+                    )}
+                    {links?.repo && (
                       <a
                         href={links.repo}
                         target="_blank"
@@ -101,7 +116,7 @@ export default function Work({ dict, github, locale }: WorkProps) {
                         {dict.viewRepo}
                       </a>
                     )}
-                    {links.live && (
+                    {links?.live && (
                       <a
                         href={links.live}
                         target="_blank"

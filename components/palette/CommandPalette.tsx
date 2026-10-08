@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   createContext,
   useContext,
@@ -10,6 +11,7 @@ import {
   useRef,
   useState,
   type KeyboardEvent,
+  type MouseEvent,
   type ReactNode,
 } from "react";
 import Icon, { type IconName } from "@/components/ui/Icon";
@@ -118,12 +120,15 @@ function PaletteDialog({
   onClose,
   items,
   labels,
+  locale,
 }: {
   open: boolean;
   onClose: () => void;
   items: PaletteItem[];
   labels: PaletteLabels;
+  locale: Locale;
 }) {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -172,6 +177,14 @@ function PaletteDialog({
       return;
     }
     optionRefs.current[index]?.click();
+  };
+
+  const handleHashLinkClick = (event: MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (!href.startsWith("#")) return;
+    if (document.querySelector(href)) return;
+
+    event.preventDefault();
+    router.push(locale === "ar" ? `/ar${href}` : href);
   };
 
   const handleInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -319,7 +332,10 @@ function PaletteDialog({
                           target={item.external ? "_blank" : undefined}
                           rel={item.external ? "noopener noreferrer" : undefined}
                           className={optionClass(index)}
-                          onClick={() => onClose()}
+                          onClick={(event) => {
+                            if (item.href) handleHashLinkClick(event, item.href);
+                            onClose();
+                          }}
                         >
                           <Icon name={item.icon} className={iconClass} />
                           <span className="flex-1">{item.label}</span>
@@ -413,7 +429,13 @@ export default function CommandPaletteProvider({
   return (
     <PaletteContext.Provider value={{ openPalette: () => setOpen(true) }}>
       {children}
-      <PaletteDialog open={open} onClose={() => setOpen(false)} items={items} labels={labels} />
+      <PaletteDialog
+        open={open}
+        onClose={() => setOpen(false)}
+        items={items}
+        labels={labels}
+        locale={locale}
+      />
     </PaletteContext.Provider>
   );
 }

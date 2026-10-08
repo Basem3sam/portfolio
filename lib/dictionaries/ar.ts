@@ -66,6 +66,7 @@ const ar: Dictionary = {
     liveLabel: "مباشر من GitHub",
     viewRepo: "عرض المستودع",
     viewLive: "الموقع الحيّ",
+    caseStudy: "دراسة الحالة",
     status: {
       production: "إنتاج",
       development: "قيد التطوير",

@@ -126,6 +126,7 @@ const en = {
     liveLabel: "live from github",
     viewRepo: "View repository",
     viewLive: "Live site",
+    caseStudy: "Case study",
     status: {
       production: "production",
       development: "in development",
