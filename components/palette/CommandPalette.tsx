@@ -272,7 +272,11 @@ function PaletteDialog({
       className={`fixed inset-0 z-[1080] flex items-start justify-center p-4 pt-[10vh] print:hidden ${open ? "" : "pointer-events-none"}`}
       inert={!open}
     >
-      <div className="absolute inset-0 bg-black/40" onClick={handleClose} aria-hidden="true"></div>
+      <div
+        className={`absolute inset-0 bg-black/40 transition-opacity duration-200 motion-reduce:transition-none ${open ? "opacity-100" : "opacity-0"}`}
+        onClick={handleClose}
+        aria-hidden="true"
+      ></div>
       <div
         role="dialog"
         aria-modal="true"
