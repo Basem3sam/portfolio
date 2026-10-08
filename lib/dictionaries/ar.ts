@@ -31,6 +31,7 @@ const ar: Dictionary = {
   },
   footer: {
     rights: "جميع الحقوق محفوظة.",
+    openterminal: "افتح الطرفية السرية",
   },
   notFound: {
     label: "HTTP 404",
@@ -296,6 +297,7 @@ const ar: Dictionary = {
     },
     items: {
       theme: "تبديل المظهر",
+      terminal: "الطرفية السرية",
       languageToAr: "التبديل إلى العربية",
       languageToEn: "Switch to English",
       cv: "تحميل السيرة الذاتية",

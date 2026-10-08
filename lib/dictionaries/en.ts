@@ -91,6 +91,7 @@ const en = {
   },
   footer: {
     rights: "All rights reserved.",
+    openTerminal: "Open the secret terminal",
   },
   notFound: {
     label: "HTTP 404",
@@ -315,6 +316,7 @@ const en = {
     },
     items: {
       theme: "Toggle theme",
+      terminal: "Secret terminal",
       languageToAr: "التبديل إلى العربية",
       languageToEn: "Switch to English",
       cv: "Download CV",
