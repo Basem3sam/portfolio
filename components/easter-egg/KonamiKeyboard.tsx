@@ -25,8 +25,6 @@ const DISPLAY: Record<string, string> = {
 
 const PATTERN = ["↑", "↑", "↓", "↓", "←", "→", "←", "→", "B", "A"];
 
-const mono = "font-[Courier_New,monospace]";
-
 const keys = [
   { key: "ArrowUp", kind: "direction", position: "col-start-2 row-start-1" },
   { key: "ArrowLeft", kind: "direction", position: "col-start-1 row-start-2" },
@@ -38,16 +36,16 @@ const keys = [
 
 const keyStyles = {
   direction: {
-    idle: "border-[rgba(0,255,65,0.3)] shadow-[0_4px_15px_rgba(0,255,65,0.2)]",
-    pressed: "scale-90 border-[rgba(0,255,65,0.8)] shadow-[0_0_25px_rgba(0,255,65,0.6)]",
-    color: "bg-[rgba(0,255,65,0.1)] text-[#00ff41]",
-    glow: "bg-[radial-gradient(circle_at_center,rgba(0,255,65,0.2)_0%,transparent_70%)]",
+    idle: "border-[rgba(251,191,36,0.3)] shadow-[0_4px_15px_rgba(251,191,36,0.15)]",
+    pressed: "scale-90 border-[rgba(251,191,36,0.8)] shadow-[0_0_25px_rgba(251,191,36,0.5)]",
+    color: "bg-[rgba(251,191,36,0.08)] text-[#fbbf24]",
+    glow: "bg-[radial-gradient(circle_at_center,rgba(251,191,36,0.2)_0%,transparent_70%)]",
   },
   letter: {
-    idle: "border-[rgba(255,107,107,0.3)] shadow-[0_4px_15px_rgba(255,107,107,0.2)]",
-    pressed: "scale-90 border-[rgba(255,107,107,0.8)] shadow-[0_0_25px_rgba(255,107,107,0.6)]",
-    color: "bg-[rgba(255,107,107,0.1)] text-[#ff6b6b]",
-    glow: "bg-[radial-gradient(circle_at_center,rgba(255,107,107,0.2)_0%,transparent_70%)]",
+    idle: "border-[rgba(248,113,113,0.3)] shadow-[0_4px_15px_rgba(248,113,113,0.15)]",
+    pressed: "scale-90 border-[rgba(248,113,113,0.8)] shadow-[0_0_25px_rgba(248,113,113,0.5)]",
+    color: "bg-[rgba(248,113,113,0.08)] text-[#f87171]",
+    glow: "bg-[radial-gradient(circle_at_center,rgba(248,113,113,0.2)_0%,transparent_70%)]",
   },
 };
 
@@ -125,7 +123,7 @@ export default function KonamiKeyboard({ onClose, onBack, onSuccess }: KonamiKey
           {pattern.map((item, index) => (
             <div
               key={index}
-              className="absolute animate-symbol-float font-black text-[#00ff41] [text-shadow:0_0_10px_rgba(0,255,65,0.5)]"
+              className="absolute animate-symbol-float font-black text-[#fbbf24] [text-shadow:0_0_10px_rgba(251,191,36,0.5)]"
               style={{
                 left: `${item.left}%`,
                 top: `${item.top}%`,
@@ -139,22 +137,22 @@ export default function KonamiKeyboard({ onClose, onBack, onSuccess }: KonamiKey
         </div>
       }
     >
-      <div className="p-5 max-[481px]:p-3.5">
-        <div className="mb-4 rounded-xl border-2 border-[rgba(0,255,65,0.2)] bg-black/60 p-3 shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)]">
+      <div className="p-5 max-[481px]:p-3.5 font-mono">
+        <div className="mb-4 rounded-xl border-2 border-[rgba(251,191,36,0.2)] bg-black/60 p-3 shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)]">
           <div
             className={`mb-2.5 flex min-h-[45px] flex-wrap items-center justify-center gap-1.5 rounded-lg bg-black/30 p-2 ${status === "wrong" ? "animate-shake" : ""}`}
           >
             {empty ? (
-              <span className="text-[12px] text-[#666] italic">Tap to begin...</span>
+              <span className="text-[12px] text-[#78716c] italic">Tap to begin...</span>
             ) : (
               sequence.map((key, index) => {
                 const correct = key === KONAMI_CODE[index];
                 const tone = correct
-                  ? "border-[rgba(0,255,65,0.6)] bg-[rgba(0,255,65,0.15)] text-[#00ff41] shadow-[0_0_20px_rgba(0,255,65,0.5)]"
-                  : "border-[rgba(255,71,87,0.6)] bg-[rgba(255,71,87,0.15)] text-[#ff4757] shadow-[0_0_20px_rgba(255,71,87,0.5)]";
+                  ? "border-[rgba(251,191,36,0.6)] bg-[rgba(251,191,36,0.15)] text-[#fbbf24] shadow-[0_0_20px_rgba(251,191,36,0.5)]"
+                  : "border-[rgba(248,113,113,0.6)] bg-[rgba(248,113,113,0.15)] text-[#f87171] shadow-[0_0_20px_rgba(248,113,113,0.5)]";
                 const effect =
                   status === "success"
-                    ? "animate-success-pulse border-[rgba(0,255,65,0.8)] shadow-[0_0_30px_rgba(0,255,65,0.8)]"
+                    ? "animate-success-pulse border-[rgba(251,191,36,0.8)] shadow-[0_0_30px_rgba(251,191,36,0.8)]"
                     : "animate-key-appear";
 
                 return (
@@ -169,13 +167,13 @@ export default function KonamiKeyboard({ onClose, onBack, onSuccess }: KonamiKey
             )}
           </div>
           <div className="flex items-center justify-between gap-2">
-            <span className="flex-1 rounded-lg border border-[rgba(0,217,255,0.3)] bg-[rgba(0,217,255,0.1)] px-3 py-1.5 text-center text-[14px] font-bold text-[#00d9ff]">
+            <span className="flex-1 rounded-lg border border-[rgba(253,230,138,0.3)] bg-[rgba(253,230,138,0.1)] px-3 py-1.5 text-center text-[14px] font-bold text-[#fde68a]">
               <span key={sequence.length} className="inline-block animate-success-pulse">
                 {sequence.length}/10
               </span>
             </span>
             <button
-              className="cursor-pointer rounded-lg border border-[rgba(255,165,2,0.3)] bg-[rgba(255,165,2,0.1)] px-3 py-1.5 font-bold text-[#ffa502] transition-all duration-200 active:scale-90 disabled:cursor-not-allowed disabled:opacity-30"
+              className="cursor-pointer rounded-lg border border-[rgba(251,146,60,0.3)] bg-[rgba(251,146,60,0.1)] px-3 py-1.5 font-bold text-[#fb923c] transition-all duration-200 active:scale-90 disabled:cursor-not-allowed disabled:opacity-30"
               aria-label="Backspace"
               disabled={empty}
               onClick={backspace}
@@ -183,7 +181,7 @@ export default function KonamiKeyboard({ onClose, onBack, onSuccess }: KonamiKey
               ⌫
             </button>
             <button
-              className="cursor-pointer rounded-lg border border-[rgba(255,107,107,0.3)] bg-[rgba(255,107,107,0.1)] px-3 py-1.5 font-bold text-[#ff6b6b] transition-all duration-200 active:scale-90 disabled:cursor-not-allowed disabled:opacity-30"
+              className="cursor-pointer rounded-lg border border-[rgba(248,113,113,0.3)] bg-[rgba(248,113,113,0.1)] px-3 py-1.5 font-bold text-[#f87171] transition-all duration-200 active:scale-90 disabled:cursor-not-allowed disabled:opacity-30"
               aria-label="Clear"
               disabled={empty}
               onClick={() => setSequence([])}
@@ -192,7 +190,7 @@ export default function KonamiKeyboard({ onClose, onBack, onSuccess }: KonamiKey
             </button>
           </div>
           {status === "wrong" && (
-            <div className="mt-2.5 flex animate-feedback-slide items-center justify-center gap-2 rounded-lg border border-[rgba(255,71,87,0.4)] bg-[rgba(255,71,87,0.15)] p-2.5 text-[13px] font-bold text-[#ff4757] shadow-[0_0_20px_rgba(255,71,87,0.3)]">
+            <div className="mt-2.5 flex animate-feedback-slide items-center justify-center gap-2 rounded-lg border border-[rgba(248,113,113,0.4)] bg-[rgba(248,113,113,0.15)] p-2.5 text-[13px] font-bold text-[#f87171] shadow-[0_0_20px_rgba(248,113,113,0.3)]">
               <span>❌</span>
               <span>Incorrect sequence!</span>
             </div>
@@ -200,7 +198,7 @@ export default function KonamiKeyboard({ onClose, onBack, onSuccess }: KonamiKey
         </div>
 
         <div className="mb-4 grid grid-cols-3 gap-2">
-          <div className="col-start-2 row-start-2 flex animate-center-pulse items-center justify-center text-[28px] text-[#00ff41] [text-shadow:0_0_20px_rgba(0,255,65,0.8)]">
+          <div className="col-start-2 row-start-2 flex animate-center-pulse items-center justify-center text-[28px] text-[#fbbf24] [text-shadow:0_0_20px_rgba(251,191,36,0.8)]">
             ●
           </div>
           {keys.map(({ key, kind, position }) => {
@@ -221,9 +219,9 @@ export default function KonamiKeyboard({ onClose, onBack, onSuccess }: KonamiKey
           })}
         </div>
 
-        <div className="border-t border-[rgba(0,255,65,0.2)] pt-3">
+        <div className="border-t border-[rgba(251,191,36,0.2)] pt-3">
           <button
-            className={`flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-[rgba(149,165,166,0.3)] bg-[rgba(149,165,166,0.1)] p-2.5 text-[13px] font-bold text-[#95a5a6] transition-all duration-300 active:scale-95 ${mono}`}
+            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-[rgba(168,162,158,0.3)] bg-[rgba(168,162,158,0.1)] p-2.5 text-[13px] font-bold text-[#a8a29e] transition-all duration-300 active:scale-95"
             onClick={() => leave(onBack)}
           >
             <span>←</span>

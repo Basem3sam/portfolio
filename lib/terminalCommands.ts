@@ -135,7 +135,7 @@ You are one of the few who think like a developer.
 Curiosity and exploration are the hallmarks of
 great engineers.
 
-<span class="my-2.5 inline-block animate-badge-pulse rounded-sm border-2 border-[#00ff41] bg-[linear-gradient(135deg,#667eea_0%,#764ba2_100%)] px-4 py-2 font-bold tracking-[1px] uppercase shadow-[0_0_20px_rgba(0,255,65,0.5)]">🏆 Achievement Unlocked: Terminal Hacker</span>
+<span class="my-2.5 inline-block animate-badge-pulse rounded-sm border-2 border-[#fbbf24] bg-[#14110a] px-4 py-2 font-bold tracking-[1px] text-[#fbbf24] uppercase shadow-[0_0_20px_rgba(251,191,36,0.4)]">🏆 Achievement Unlocked: Terminal Hacker</span>
 
 Secret Message:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -165,7 +165,7 @@ Knock, knock, Neo.
 01010111 01100001 01101011 01100101
 01010101 01110000
 
-<span class="text-[#00ff41]">System Status: Reality.exe has stopped working</span>
+<span class="text-[#fbbf24]">System Status: Reality.exe has stopped working</span>
 <span class="text-[#ffa502] [text-shadow:0_0_5px_rgba(255,165,2,0.5)]">WARNING: You are now in the Matrix</span>
 
 Would you like to take the red pill or blue pill?
@@ -176,13 +176,13 @@ But that was cool, right?
   hack: `<span class="text-[#ffa502] [text-shadow:0_0_5px_rgba(255,165,2,0.5)]">Initializing hack sequence...</span>
 Connecting to mainframe...
 Bypassing firewall...
-<span class="text-[#00ff41]">Access granted!</span>
+<span class="text-[#fbbf24]">Access granted!</span>
 Downloading files...
 portfolio_secrets.zip [████████] 100%
 cool_developer_facts.txt [████████] 100%
-<span class="text-[#ff4757] [text-shadow:0_0_5px_rgba(255,71,87,0.5)]">ERROR: Nice try, hacker! 😄</span>
+<span class="text-[#f87171] [text-shadow:0_0_5px_rgba(248,113,113,0.5)]">ERROR: Nice try, hacker! 😄</span>
 
-<span class="text-[#00d9ff] [text-shadow:0_0_5px_rgba(0,217,255,0.5)]">Just kidding! There's nothing to hack here.</span>
+<span class="text-[#fde68a] [text-shadow:0_0_5px_rgba(251,191,36,0.5)]">Just kidding! There's nothing to hack here.</span>
 But I appreciate your spirit! 🚀
 
 Real hacking is about building, not breaking.
@@ -204,7 +204,7 @@ Check out my GitHub: github.com/basem3sam
 
 Here's a virtual coffee! ☕
 
-<span class="text-[#00ff41]">Coffee.exe is brewing...</span>
+<span class="text-[#fbbf24]">Coffee.exe is brewing...</span>
 
 Fun fact: Developers run on coffee and semicolons.
 

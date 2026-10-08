@@ -165,7 +165,7 @@ export function createDirectionalParticles(element: HTMLElement, clickCount: num
     const x = (Math.random() - 0.5) * 2;
     const y = (Math.random() - 0.5) * 2;
     const particle = spawn(
-      "pointer-events-none fixed z-[10002] font-bold text-[#4ecdc4]",
+      "pointer-events-none fixed z-[10002] font-bold text-[#fbbf24]",
       {
         left: `${rect.left + rect.width / 2}px`,
         top: `${rect.top + rect.height / 2}px`,
