@@ -375,25 +375,25 @@
 }
 
 :root {
-  --c-page: #fbfaf6;
-  --c-primary: #191a1e;
+  --c-page: #faf5ea;
+  --c-primary: #241c11;
   --c-secondary: #a34809;
   --c-on-secondary: #ffffff;
-  --c-signal: #1d4ed8;
+  --c-signal: #0e7490;
   --c-accent: #b3261e;
-  --c-hairline: #e7e5de;
+  --c-hairline: #e7dcc4;
   --c-status: #166534;
-  --c-light-bg: #f3f1ea;
+  --c-light-bg: #f1eada;
   --c-surface: #ffffff;
-  --c-dark-bg: #f3f1ea;
-  --c-dark-text: #1b1d23;
-  --c-light-text: #4b4b55;
-  --c-muted-text: #64626c;
-  --sh-xs: 0 1px 2px rgba(25, 26, 30, 0.06);
-  --sh-sm: 0 1px 3px rgba(25, 26, 30, 0.08), 0 1px 2px rgba(25, 26, 30, 0.06);
-  --sh-md: 0 4px 12px rgba(25, 26, 30, 0.1);
-  --sh-lg: 0 10px 26px rgba(25, 26, 30, 0.12);
-  --sh-xl: 0 18px 42px rgba(25, 26, 30, 0.16);
+  --c-dark-bg: #f1eada;
+  --c-dark-text: #241c11;
+  --c-light-text: #574a38;
+  --c-muted-text: #6f6149;
+  --sh-xs: 0 1px 2px rgba(36, 28, 17, 0.07);
+  --sh-sm: 0 1px 3px rgba(36, 28, 17, 0.09), 0 1px 2px rgba(36, 28, 17, 0.07);
+  --sh-md: 0 4px 12px rgba(36, 28, 17, 0.11);
+  --sh-lg: 0 10px 26px rgba(36, 28, 17, 0.13);
+  --sh-xl: 0 18px 42px rgba(36, 28, 17, 0.17);
   --font-body: var(--font-plex-sans, "Segoe UI"), "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   --font-mono-body: var(--font-plex-mono, "Courier New"), "Courier New", monospace;
 }
@@ -461,6 +461,20 @@ html[lang="ar"] {
   background-size: 40px 40px;
 }
 
+@utility bg-ember-glow {
+  background-image:
+    radial-gradient(
+      42% 38% at 18% 22%,
+      color-mix(in srgb, var(--c-secondary) 9%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      40% 36% at 82% 78%,
+      color-mix(in srgb, var(--c-signal) 7%, transparent),
+      transparent 70%
+    );
+}
+
 @utility stagger-60 {
   --stagger: 60ms;
 }
@@ -488,7 +502,7 @@ html[lang="ar"] {
 
   a:focus,
   button:focus {
-    outline: 3px solid var(--c-secondary);
+    outline: 3px solid var(--c-signal);
     outline-offset: 2px;
   }
 
@@ -504,11 +518,11 @@ html[lang="ar"] {
 
   * {
     scrollbar-width: thin;
-    scrollbar-color: rgba(25, 26, 30, 0.4) transparent;
+    scrollbar-color: rgba(36, 28, 17, 0.4) transparent;
   }
 
   .dark-mode * {
-    scrollbar-color: #4a4640 transparent;
+    scrollbar-color: #4a4032 transparent;
   }
 
   ::-webkit-scrollbar {
@@ -574,7 +588,7 @@ html[lang="ar"] {
       --c-primary: #ffffff;
       --c-secondary: #7a3705;
       --c-on-secondary: #ffffff;
-      --c-signal: #1d4ed8;
+      --c-signal: #0e7490;
       --c-accent: #7a3705;
       --c-hairline: #d4d4d0;
       --c-status: #15803d;

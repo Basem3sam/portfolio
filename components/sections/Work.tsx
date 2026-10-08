@@ -27,16 +27,29 @@ const projectLinks: Record<string, { repo?: string; live?: string }> = {
   neuroscan: { repo: NEUROSCAN_REPO_URL },
 };
 
+const statusPill: Record<string, string> = {
+  production:
+    "bg-[rgba(22,101,52,0.1)] text-[#166534] dark:bg-[rgba(74,222,128,0.12)] dark:text-[#4ade80]",
+  development:
+    "bg-[rgba(163,72,9,0.08)] text-[#a34809] dark:bg-[rgba(251,191,36,0.1)] dark:text-[#fbbf24]",
+  complete:
+    "bg-[rgba(163,72,9,0.14)] text-[#7e3907] dark:bg-[rgba(251,191,36,0.16)] dark:text-[#fde68a]",
+  research:
+    "bg-[rgba(111,97,73,0.12)] text-[#574a38] dark:bg-[rgba(170,156,130,0.12)] dark:text-[#aa9c82]",
+  academic:
+    "bg-[rgba(111,97,73,0.12)] text-[#574a38] dark:bg-[rgba(170,156,130,0.12)] dark:text-[#aa9c82]",
+};
+
 const statusDot: Record<string, string> = {
   production: "bg-status",
-  development: "bg-secondary animate-pulse motion-reduce:animate-none",
-  complete: "bg-secondary",
-  research: "bg-muted-text",
-  academic: "bg-muted-text",
+  development: "animate-pulse motion-reduce:animate-none",
+  complete: "",
+  research: "",
+  academic: "",
 };
 
 const caseStudyLink =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-secondary px-4 text-sm font-semibold text-on-secondary no-underline shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#8a3f06] hover:shadow-md dark:hover:bg-[#fcd34d]";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-secondary px-4 text-sm font-semibold text-on-secondary no-underline shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#7e3907] hover:shadow-md dark:hover:bg-[#fcd34d]";
 
 const repoLink =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-hairline bg-surface px-4 text-sm font-medium text-dark-text no-underline shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:text-signal hover:shadow-md";
@@ -65,9 +78,11 @@ export default function Work({ dict, github, locale }: WorkProps) {
                   <h3 className="font-mono text-lg font-semibold break-all text-dark-text">
                     {project.name}
                   </h3>
-                  <p className="inline-flex items-center gap-1.5 font-mono text-xs font-medium tracking-wide text-light-text uppercase">
+                  <p
+                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono text-[11px] font-semibold tracking-wide uppercase ${statusPill[project.status]}`}
+                  >
                     <span
-                      className={`size-2 rounded-full ${statusDot[project.status]}`}
+                      className={`size-1.5 rounded-full bg-current ${statusDot[project.status]}`}
                       aria-hidden="true"
                     ></span>
                     {dict.status[project.status]}
@@ -87,7 +102,7 @@ export default function Work({ dict, github, locale }: WorkProps) {
                   {project.tech.map((tech) => (
                     <span
                       key={tech}
-                      className="rounded-md border border-hairline px-2.5 py-1 text-sm text-light-text"
+                      className="rounded-md border border-hairline px-2.5 py-1 text-sm text-light-text transition-colors duration-200 hover:border-signal hover:text-signal"
                     >
                       {tech}
                     </span>

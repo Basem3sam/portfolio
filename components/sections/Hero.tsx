@@ -12,13 +12,13 @@ const socialLink =
   "flex size-11 items-center justify-center rounded-md border border-hairline bg-surface text-light-text no-underline transition-colors duration-200 hover:border-signal hover:text-signal";
 
 const primaryCta =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-secondary px-5 text-sm font-semibold text-on-secondary no-underline shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#8a3f06] hover:shadow-md active:translate-y-0 max-sm:w-full dark:hover:bg-[#fcd34d]";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-secondary px-5 text-sm font-semibold text-on-secondary no-underline shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#7e3907] hover:shadow-md active:translate-y-0 max-sm:w-full dark:hover:bg-[#fcd34d]";
 
 const ghostCta =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-hairline bg-surface px-5 text-sm font-semibold text-dark-text no-underline shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:text-signal hover:shadow-md active:translate-y-0 max-sm:w-full";
 
 const statusPill =
-  "inline-flex items-center gap-1.5 rounded-full border border-hairline bg-surface px-3 py-1 font-mono text-[11px] font-semibold tracking-wide text-status uppercase";
+  "inline-flex items-center gap-1.5 rounded-full border border-hairline bg-surface px-3 py-1 font-mono text-[11px] font-semibold tracking-wide text-status uppercase shadow-xs";
 
 type Social = {
   href: string;
@@ -39,9 +39,11 @@ export default function Hero({ dict }: HeroProps) {
     <section
       id="hero"
       aria-labelledby="hero-title"
-      className="border-b border-hairline bg-grid pt-28 pb-14 md:pt-32 md:pb-20"
+      className="relative border-b border-hairline bg-grid pt-28 pb-14 md:pt-32 md:pb-20"
     >
-      <div className="container">
+      <div className="pointer-events-none absolute inset-0 bg-ember-glow" aria-hidden="true"></div>
+
+      <div className="container relative z-[1]">
         <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-16">
           <div className="max-lg:order-2 text-center lg:order-1 lg:text-start">
             <p className="font-mono text-sm font-medium text-secondary motion-safe:animate-hero-in-1">

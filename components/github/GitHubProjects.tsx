@@ -30,7 +30,7 @@ const toneIcons: Record<FallbackTone, string> = {
 };
 
 const retryButton =
-  "mt-2 inline-flex min-h-11 cursor-pointer items-center justify-center rounded-md bg-secondary px-5 text-sm font-semibold text-on-secondary transition-colors duration-200 hover:bg-[#8a3f06] dark:hover:bg-[#fcd34d]";
+  "mt-2 inline-flex min-h-11 cursor-pointer items-center justify-center rounded-md bg-secondary px-5 text-sm font-semibold text-on-secondary transition-colors duration-200 hover:bg-[#7e3907] dark:hover:bg-[#fcd34d]";
 
 export default function GitHubProjects({ locale, dict }: GitHubProjectsProps) {
   const [state, setState] = useState<State>({ status: "loading" });
