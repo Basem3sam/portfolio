@@ -166,6 +166,24 @@ export default function Terminal({ open, onClose }: TerminalProps) {
     return () => pending.forEach((timer) => window.clearTimeout(timer));
   }, []);
 
+  useEffect(() => {
+    if (!open) return;
+
+    const handleGlobalKeys = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        finishTyping();
+        onClose();
+      } else if (event.key === "Tab") {
+        event.preventDefault();
+        inputRef.current?.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleGlobalKeys);
+    return () => document.removeEventListener("keydown", handleGlobalKeys);
+  }, [open, onClose]);
+
   const run = (input: string) => {
     const command = COMMAND_ALIASES[input] ?? input;
 
@@ -203,13 +221,18 @@ export default function Terminal({ open, onClose }: TerminalProps) {
     const input = event.currentTarget;
 
     if (event.key === "Enter") {
-      const command = input.value.trim().toLowerCase();
+      const raw = input.value.trim();
 
-      if (command) {
-        history.current.push(command);
+      if (raw) {
+        history.current.push(raw);
         historyIndex.current = history.current.length;
-        append([{ tone: "plain", html: `${PROMPT_HTML} <span class="font-bold text-[#fde68a]">${escapeHtml(command)}</span>` }]);
-        run(command);
+        append([
+          {
+            tone: "plain",
+            html: `${PROMPT_HTML} <span class="font-bold text-[#fde68a]">${escapeHtml(raw)}</span>`,
+          },
+        ]);
+        run(raw.toLowerCase());
       }
 
       input.value = "";
@@ -245,8 +268,9 @@ export default function Terminal({ open, onClose }: TerminalProps) {
       <div
         id="secret-terminal"
         dir="ltr"
-        className={`fixed z-[10000] flex flex-col overflow-hidden rounded-xl border-2 border-[#fbbf24] bg-[#131007] [font-family:var(--font-terminal),var(--font-mono-body),monospace] shadow-[0_0_70px_rgba(251,191,36,0.3),inset_0_0_60px_rgba(251,191,36,0.05)] transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] after:pointer-events-none after:absolute after:inset-0 after:z-[5] after:rounded-xl after:bg-[radial-gradient(ellipse_at_center,transparent_65%,rgba(0,0,0,0.35)_100%)] after:content-[''] top-1/2 left-1/2 h-[600px] w-[90%] max-w-[800px] -translate-x-1/2 -translate-y-1/2 max-md:h-auto max-md:min-h-[50dvh] max-md:max-h-[calc(100dvh_-_6rem)] max-md:w-[calc(100%_-_2rem)] max-md:max-w-none max-md:rounded-2xl ${open ? "scale-100 opacity-100" : "pointer-events-none scale-0 opacity-0"}`}
+        className={`fixed z-[10000] flex flex-col overflow-hidden rounded-xl border-2 border-[#fbbf24] bg-[#131007] [font-family:var(--font-terminal),var(--font-mono-body),monospace] shadow-[0_0_70px_rgba(251,191,36,0.3),inset_0_0_60px_rgba(251,191,36,0.05)] transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] after:pointer-events-none after:absolute after:inset-0 after:z-[5] after:rounded-[inherit] after:bg-[radial-gradient(ellipse_at_center,transparent_65%,rgba(0,0,0,0.35)_100%)] after:content-[''] top-1/2 left-1/2 h-[600px] w-[90%] max-w-[800px] -translate-x-1/2 -translate-y-1/2 max-md:h-auto max-md:min-h-[50dvh] max-md:max-h-[calc(100dvh_-_6rem)] max-md:w-[calc(100%_-_2rem)] max-md:max-w-none max-md:rounded-2xl ${open ? "scale-100 opacity-100" : "pointer-events-none scale-0 opacity-0"}`}
         role="dialog"
+        aria-modal="true"
         aria-label="Secret terminal"
         inert={!open}
       >
@@ -254,10 +278,15 @@ export default function Terminal({ open, onClose }: TerminalProps) {
           className="pointer-events-none absolute inset-x-0 top-0 z-[2] h-12 animate-crt-sweep bg-gradient-to-b from-transparent via-[rgba(251,191,36,0.06)] to-transparent"
           aria-hidden="true"
         ></div>
+        <div
+          className="pointer-events-none absolute inset-0 z-[2] animate-scanline bg-[linear-gradient(transparent_50%,rgba(251,191,36,0.06)_50%)] bg-[length:100%_4px]"
+          aria-hidden="true"
+        ></div>
 
         <div className="relative z-[3] flex shrink-0 items-center justify-between border-b border-[#fbbf24] bg-[linear-gradient(135deg,#1a150b_0%,#0e0b07_100%)] px-5 py-3 shadow-[0_2px_10px_rgba(251,191,36,0.2)] max-md:px-4">
           <div className="text-[14px] font-bold tracking-[2px] text-[#fbbf24] uppercase [text-shadow:0_0_12px_rgba(251,191,36,0.6)] max-[481px]:text-[12px]">
-            <Icon name="terminal" className="inline size-[1em]" /> BASEM_TERMINAL v1.0.0
+            <Icon name="terminal" className="inline size-[1em]" /> BASEM_TERMINAL
+            <span className="font-medium text-[rgba(251,191,36,0.5)]"> v1.0.0</span>
           </div>
           <div className="flex items-center gap-1.5">
             <button
@@ -281,7 +310,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
         <div
           ref={bodyRef}
           onClick={finishTyping}
-          className={`relative z-[1] min-h-0 flex-auto overflow-y-auto bg-[rgba(19,16,10,0.95)] p-5 before:pointer-events-none before:absolute before:inset-0 before:z-[2] before:animate-scanline before:bg-[linear-gradient(transparent_50%,rgba(251,191,36,0.06)_50%)] before:bg-[length:100%_4px] before:content-[''] ${glitch ? "animate-glitch" : ""}`}
+          className={`relative z-[1] min-h-0 flex-auto overflow-y-auto bg-[rgba(19,16,10,0.95)] p-5 ${glitch ? "animate-glitch" : ""}`}
         >
           <div
             className="relative z-[1] text-[14px] leading-[1.6] whitespace-pre-wrap text-[#fbbf24] [text-shadow:0_0_7px_rgba(251,191,36,0.45)] max-md:p-2"

@@ -20,7 +20,7 @@
   --animate-github-card: githubCard 0.6s cubic-bezier(0.4, 0, 0.2, 1) backwards;
   --animate-scanline: scanline 8s linear infinite;
   --animate-crt-sweep: crtSweep 7s linear infinite;
-  --animate-terminal-line: terminalLine 0.3s ease-in;
+  --animate-terminal-line: terminalLine 0.3s ease-in both;
   --animate-glitch: glitch 0.3s infinite;
   --animate-badge-pulse: badgePulse 2s infinite;
   --animate-header-sweep: headerSweep 3s ease-in-out infinite;

@@ -148,7 +148,7 @@ the hallmarks of great engineers.
 <span class="my-2.5 inline-block animate-badge-pulse rounded-sm border-2 border-[#fbbf24] bg-[#14110a] px-4 py-2 font-bold tracking-[1px] text-[#fbbf24] uppercase shadow-[0_0_20px_rgba(251,191,36,0.4)]">ACHIEVEMENT UNLOCKED: TERMINAL HACKER</span>
 
 Secret Message:
-----------------------------------------
+----------------------------------
 "The best developers are those who never
 stop exploring, questioning, and learning.
 You've proven you belong in that elite
@@ -161,7 +161,7 @@ React, TypeScript, and Tailwind CSS -
 12 commands and counting!
 
 Try typing: matrix, hack, or coffee
-----------------------------------------
+----------------------------------
 `,
   matrix: `
 ${box("MATRIX MODE ACTIVATED")}
