@@ -50,8 +50,8 @@ function buildItems(palette: PaletteLabels, nav: NavLabels, locale: Locale): Pal
   const languageHref = locale === "ar" ? "/" : "/ar";
 
   return [
+    { id: "stack", label: nav.stack, group: "navigate", icon: "arrowRight", href: "#stack" },
     { id: "about", label: nav.about, group: "navigate", icon: "arrowRight", href: "#about" },
-    { id: "skills", label: nav.skills, group: "navigate", icon: "arrowRight", href: "#skills" },
     {
       id: "experience",
       label: nav.experience,
@@ -60,18 +60,18 @@ function buildItems(palette: PaletteLabels, nav: NavLabels, locale: Locale): Pal
       href: "#experience",
     },
     {
-      id: "projects",
-      label: nav.projects,
-      group: "navigate",
-      icon: "arrowRight",
-      href: "#projects",
-    },
-    {
       id: "education",
       label: nav.education,
       group: "navigate",
       icon: "arrowRight",
       href: "#education",
+    },
+    {
+      id: "projects",
+      label: nav.projects,
+      group: "navigate",
+      icon: "arrowRight",
+      href: "#projects",
     },
     { id: "contact", label: nav.contact, group: "navigate", icon: "arrowRight", href: "#contact" },
     { id: "links", label: nav.allLinks, group: "navigate", icon: "externalLink", href: linksHref },

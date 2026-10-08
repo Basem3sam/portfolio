@@ -13,7 +13,7 @@ const ar: Dictionary = {
     home: "باسم عصام",
     ariaHome: "باسم عصام — الرئيسية",
     about: "نبذة عني",
-    skills: "المهارات",
+    stack: "التقنيات",
     experience: "الخبرة",
     projects: "المشاريع",
     education: "التعليم",
@@ -61,6 +61,46 @@ const ar: Dictionary = {
       phone: "الاتصال بباسم عصام",
     },
   },
+  stack: {
+    title: "التقنيات",
+    groups: [
+      {
+        label: "الواجهة الخلفية",
+        items: [
+          "Node.js",
+          "Express",
+          "REST API design",
+          "Authentication & authorization",
+          "PHP",
+          "Laravel",
+        ],
+      },
+      {
+        label: "البيانات",
+        items: ["MongoDB (Mongoose)", "MySQL", "Redis"],
+      },
+      {
+        label: "التشغيل والأدوات",
+        items: ["Docker", "Kubernetes", "Git & GitHub", "Linux administration", "Bash scripting"],
+      },
+      {
+        label: "الواجهة الأمامية",
+        items: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Responsive design"],
+      },
+      {
+        label: "الممارسات",
+        items: ["OOP", "Clean architecture", "Design patterns", "Scalable systems"],
+      },
+      {
+        label: "خارج الكود",
+        items: [
+          "التدريس والإرشاد — GDG SCU",
+          "قيادة الفريق — Trosc IT",
+          "حل المشكلات التنافسي — ICPC",
+        ],
+      },
+    ],
+  },
   about: {
     title: "نبذة عني",
     intro:
@@ -79,6 +119,53 @@ const ar: Dictionary = {
       { label: "متاح لـ", value: "التدريب · الوظائف المبتدئة · العمل الحر" },
     ],
   },
+  experience: {
+    title: "الخبرة",
+    entries: [
+      {
+        role: "رئيس قسم IT وقائد فريق Backend",
+        org: "Trosc Student Club",
+        period: "2025 – حتى الآن",
+        text: "أتولّى الـ Backend الإنتاجي للنادي: API بـ Express و MongoDB يضم أكثر من 85 نقطة نهاية و6 نماذج و9 خدمات — مع 7 طبقات أمان و11 مضيف وسائط موثوقًا، ويخدم أكثر من 200 عضو. وأقود فريق IT.",
+      },
+      {
+        role: "مدرّس البرمجة الكائنية (OOP)",
+        org: "Google Developer Groups on Campus — SCU",
+        period: "أبريل – مايو 2025",
+        text: "درّست C++ والبرمجة الكائنية لأكثر من 50 طالبًا على مدى 8 أسابيع — من الأصناف والوراثة إلى عادات التصميم النظيف.",
+      },
+      {
+        role: "منسّق موارد بشرية وعضو",
+        org: "Mech Hackers Community",
+        period: "فترتان",
+        text: "نسّقت عمل الموارد البشرية خلال فترتين وبقيت عضوًا فاعلًا في المجتمع — هاكاثونات وفعاليات ومشاركة معرفية.",
+      },
+    ],
+  },
+  education: {
+    title: "التعليم",
+    facts: [
+      { label: "الجامعة", value: "جامعة قناة السويس" },
+      { label: "البرنامج", value: "بكالوريوس علوم الحاسب" },
+      { label: "الدفعة", value: "2027 · السنة الرابعة" },
+      { label: "المعدل", value: "3.48 / 4.0" },
+    ],
+    courseworkHeading: "مقررات ذات صلة",
+    coursework: [
+      "البرمجة الكائنية",
+      "أساسيات تطوير الـ Backend",
+      "إدارة Linux",
+      "تطوير PHP / Laravel",
+      "أساسيات Node.js",
+    ],
+    achievementsHeading: "إنجازات",
+    achievements: [
+      "مشارك برمجة تنافسية ICPC",
+      "رئيس قسم IT وقائد Backend في Trosc Student Club",
+      "درّست OOP لأكثر من 50 طالبًا في GDG SCU",
+      "عضو فاعل في مجتمع Mech Hackers",
+    ],
+  },
   palette: {
     trigger: "البحث والأوامر",
     placeholder: "اكتب أمرًا أو ابحث…",
@@ -92,8 +179,8 @@ const ar: Dictionary = {
       connect: "تواصل",
     },
     items: {
+      stack: "التقنيات",
       about: "نبذة عني",
-      skills: "المهارات",
       experience: "الخبرة",
       projects: "المشاريع",
       education: "التعليم",

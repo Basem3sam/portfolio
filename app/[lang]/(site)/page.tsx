@@ -5,7 +5,7 @@ import Education from "@/components/sections/Education";
 import Experience from "@/components/sections/Experience";
 import Hero from "@/components/sections/Hero";
 import Projects from "@/components/sections/Projects";
-import Skills from "@/components/sections/Skills";
+import Stack from "@/components/sections/Stack";
 import { getDictionary, isLocale } from "@/lib/i18n";
 
 type HomePageProps = {
@@ -21,11 +21,11 @@ export default async function HomePage({ params }: HomePageProps) {
   return (
     <main id="main-content">
       <Hero dict={dict.hero} />
+      <Stack dict={dict.stack} />
       <About dict={dict.about} />
-      <Skills />
-      <Experience />
+      <Experience dict={dict.experience} />
+      <Education dict={dict.education} />
       <Projects />
-      <Education />
       <Contact />
     </main>
   );

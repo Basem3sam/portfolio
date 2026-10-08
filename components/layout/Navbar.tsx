@@ -19,11 +19,11 @@ type NavbarProps = {
 };
 
 const sections: { href: string; labelKey: keyof Dictionary["nav"] }[] = [
+  { href: "#stack", labelKey: "stack" },
   { href: "#about", labelKey: "about" },
-  { href: "#skills", labelKey: "skills" },
   { href: "#experience", labelKey: "experience" },
-  { href: "#projects", labelKey: "projects" },
   { href: "#education", labelKey: "education" },
+  { href: "#projects", labelKey: "projects" },
   { href: "#contact", labelKey: "contact" },
 ];
 

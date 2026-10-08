@@ -11,7 +11,7 @@ const en = {
     home: "Basem Esam",
     ariaHome: "Basem Esam - Home",
     about: "About",
-    skills: "Skills",
+    stack: "Stack",
     experience: "Experience",
     projects: "Projects",
     education: "Education",
@@ -60,6 +60,46 @@ const en = {
       phone: "Call Basem Esam",
     },
   },
+  stack: {
+    title: "Stack",
+    groups: [
+      {
+        label: "backend",
+        items: [
+          "Node.js",
+          "Express",
+          "REST API design",
+          "Authentication & authorization",
+          "PHP",
+          "Laravel",
+        ],
+      },
+      {
+        label: "data",
+        items: ["MongoDB (Mongoose)", "MySQL", "Redis"],
+      },
+      {
+        label: "ops & tools",
+        items: ["Docker", "Kubernetes", "Git & GitHub", "Linux administration", "Bash scripting"],
+      },
+      {
+        label: "frontend",
+        items: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Responsive design"],
+      },
+      {
+        label: "practice",
+        items: ["OOP", "Clean architecture", "Design patterns", "Scalable systems"],
+      },
+      {
+        label: "beyond code",
+        items: [
+          "Teaching & mentoring — GDG SCU",
+          "Team leadership — Trosc IT",
+          "Competitive problem solving — ICPC",
+        ],
+      },
+    ],
+  },
   about: {
     title: "About",
     intro:
@@ -85,6 +125,53 @@ const en = {
       { label: "Availability", value: "Internships · Junior roles · Freelance" },
     ],
   },
+  experience: {
+    title: "Experience",
+    entries: [
+      {
+        role: "IT Head & Backend Lead",
+        org: "Trosc Student Club",
+        period: "2025 – Present",
+        text: "Own the club's production backend: an Express + MongoDB API with 85+ endpoints, 6 models, and 9 services — 7 security layers, 11 trusted media hosts, serving 200+ members. Lead the IT team.",
+      },
+      {
+        role: "OOP Instructor",
+        org: "Google Developer Groups on Campus — SCU",
+        period: "Apr – May 2025",
+        text: "Taught C++ and object-oriented programming to 50+ students over 8 weeks — from classes and inheritance to clean design habits.",
+      },
+      {
+        role: "HR Coordinator & Member",
+        org: "Mech Hackers Community",
+        period: "2 terms",
+        text: "Coordinated HR across two terms and stayed an active community member — hackathons, events, and knowledge sharing.",
+      },
+    ],
+  },
+  education: {
+    title: "Education",
+    facts: [
+      { label: "institution", value: "Suez Canal University" },
+      { label: "program", value: "B.Sc. Computer Science" },
+      { label: "class", value: "2027 · 4th year" },
+      { label: "gpa", value: "3.48 / 4.0" },
+    ],
+    courseworkHeading: "Relevant coursework",
+    coursework: [
+      "Object-Oriented Programming",
+      "Backend Development Fundamentals",
+      "Linux Administration",
+      "PHP / Laravel Development",
+      "Node.js Basics",
+    ],
+    achievementsHeading: "Highlights",
+    achievements: [
+      "ICPC competitive programmer",
+      "IT Head & Backend Lead at Trosc Student Club",
+      "Taught OOP to 50+ students at GDG SCU",
+      "Active in the Mech Hackers community",
+    ],
+  },
   palette: {
     trigger: "Search & commands",
     placeholder: "Type a command or search…",
@@ -98,8 +185,8 @@ const en = {
       connect: "Connect",
     },
     items: {
+      stack: "Stack",
       about: "About",
-      skills: "Skills",
       experience: "Experience",
       projects: "Projects",
       education: "Education",
