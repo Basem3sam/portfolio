@@ -6,3 +6,5 @@ export const GITHUB_URL = "https://github.com/basem3sam";
 export const EMAIL = "basem.esam.omar@gmail.com";
 export const MAILTO = `mailto:${EMAIL}`;
 export const TROSC_URL = "https://trosc.vercel.app/";
+export const PHONE_DISPLAY = "+20 112 350 5981";
+export const PHONE_TEL = "tel:+201123505981";

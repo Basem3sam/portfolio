@@ -1,108 +1,125 @@
-import ProfileImage from '@/components/ui/ProfileImage';
-import { buttonStyles } from '@/components/ui/buttonStyles';
-import { CV_PATH, GITHUB_URL, LINKEDIN_URL, MAILTO } from '@/data/site';
+import CountUp from "@/components/ui/CountUp";
+import Icon, { type IconName } from "@/components/ui/Icon";
+import ProfileImage from "@/components/ui/ProfileImage";
+import { CV_PATH, GITHUB_URL, LINKEDIN_URL, MAILTO, PHONE_TEL } from "@/data/site";
+import type { Dictionary } from "@/lib/dictionaries/en";
 
-const shadow = '[text-shadow:0_2px_10px_rgba(0,0,0,0.2)]';
+type HeroProps = {
+  dict: Dictionary["hero"];
+};
 
 const socialLink =
-  'group inline-flex size-[45px] items-center justify-center rounded-full border-2 border-transparent bg-white/10 text-white no-underline backdrop-blur-[10px] transition-all duration-300 hover:-translate-y-[5px] hover:scale-110 hover:border-white/30 hover:bg-secondary hover:text-on-secondary hover:shadow-[0_10px_25px_rgba(160,74,7,0.35)] max-md:mx-[5px] max-md:size-10 max-sm:size-[38px] dark:border dark:border-[#3d4046] dark:bg-[#26292f] dark:text-dark-text dark:hover:border-secondary dark:hover:text-on-secondary';
+  "flex size-11 items-center justify-center rounded-md border border-hairline bg-surface text-light-text no-underline transition-colors duration-200 hover:border-secondary hover:text-secondary";
 
-const socialIcon =
-  'text-[1.2rem] transition-transform duration-150 group-hover:scale-110 max-sm:text-[1rem]';
+const primaryCta =
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-secondary px-5 text-sm font-semibold text-on-secondary no-underline transition-colors duration-200 hover:bg-[#8a3f06] dark:hover:bg-[#fcd34d]";
 
-export default function Hero() {
+const ghostCta =
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-hairline bg-surface px-5 text-sm font-semibold text-dark-text no-underline transition-colors duration-200 hover:border-secondary hover:text-secondary";
+
+type Social = {
+  href: string;
+  icon: IconName;
+  label: string;
+  external?: boolean;
+};
+
+export default function Hero({ dict }: HeroProps) {
+  const socials: Social[] = [
+    { href: LINKEDIN_URL, icon: "linkedIn", label: dict.socials.linkedin, external: true },
+    { href: GITHUB_URL, icon: "github", label: dict.socials.github, external: true },
+    { href: MAILTO, icon: "mail", label: dict.socials.email },
+    { href: PHONE_TEL, icon: "phone", label: dict.socials.phone },
+  ];
+
   return (
     <section
       id="hero"
       aria-labelledby="hero-title"
-      className="relative flex min-h-screen w-full items-center overflow-hidden bg-hero-gradient pt-[120px] pb-20 text-white before:pointer-events-none before:absolute before:inset-0 before:animate-wave before:bg-(image:--wave-image) before:bg-cover before:bg-center before:opacity-30 before:content-[''] max-lg:min-h-0 max-lg:pt-[100px] max-lg:pb-[60px] max-lg:text-center max-md:pt-80 max-md:pb-10"
+      className="border-b border-hairline pt-28 pb-14 md:pt-32 md:pb-20"
     >
-      <div className="container relative z-[2] max-lg:pt-[15px] max-md:pt-2.5">
-        <div className="-mx-3 flex flex-wrap items-center">
-          <div className="mb-12 w-full shrink-0 px-3 text-center lg:mb-0 lg:w-1/3">
-            <ProfileImage
-              alt="Basem Esam - Backend Developer"
-              lazy
-              className="max-md:mt-[15px] max-sm:mt-2.5"
-              imgClassName="size-[250px] border-[5px] max-lg:size-[200px] max-md:size-[180px] max-sm:size-[150px] max-sm:border-[3px] max-xs:size-[130px] motion-safe:animate-hero-in-1"
-            />
-          </div>
-          <div className="w-full shrink-0 px-3 text-center lg:w-2/3 lg:text-left">
+      <div className="container">
+        <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-16">
+          <div className="max-lg:order-1 text-center lg:order-1 lg:text-start">
+            <p className="font-mono text-sm font-medium text-secondary motion-safe:animate-hero-in-1">
+              <span dir="ltr">{dict.whoami}</span>
+              <span
+                className="ms-1 inline-block h-4 w-2 animate-pulse bg-secondary align-middle motion-reduce:animate-none"
+                aria-hidden="true"
+              ></span>
+            </p>
             <h1
               id="hero-title"
-              className={`mb-4 text-[calc(1.525rem_+_3.3vw)] leading-[1.2] font-bold xl:text-[4rem] max-md:text-[2.5rem] max-sm:text-[2rem] max-xs:text-[1.75rem] motion-safe:animate-hero-in-2 ${shadow}`}
+              className="mt-4 text-4xl leading-tight font-bold tracking-tight text-dark-text sm:text-5xl motion-safe:animate-hero-in-2"
             >
-              Basem Esam
+              {dict.name}
             </h1>
-            <h2
-              className={`mb-6 text-[calc(1.325rem_+_0.9vw)] leading-[1.2] font-medium text-[#4ecdc4] xl:text-[2rem] max-md:text-[1.5rem] max-sm:text-[1.25rem] motion-safe:animate-hero-in-3 ${shadow}`}
-            >
-              Backend Developer & CS Student
-            </h2>
-            <p className={`mb-6 text-[1.25rem] font-light ${shadow}`}>
-              Focused on building reliable, scalable backend systems using
-              strong foundations in system design, OOP, and clean architecture.
+            <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-light-text sm:text-xl lg:mx-0 motion-safe:animate-hero-in-3">
+              {dict.lead}
             </p>
 
-            <div className="mt-4 inline-flex flex-col items-center max-lg:w-full">
-              <div
-                className="mb-4 flex flex-wrap justify-center gap-4 pl-2.5 max-lg:pl-0 max-sm:gap-3"
-                role="list"
-                aria-label="Social media links"
-              >
-                <a
-                  href={LINKEDIN_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={socialLink}
-                  aria-label="LinkedIn Profile"
-                >
-                  <i
-                    className={`fab fa-linkedin-in ${socialIcon}`}
-                    aria-hidden="true"
-                  ></i>
-                </a>
-                <a
-                  href={GITHUB_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={socialLink}
-                  aria-label="GitHub Profile"
-                >
-                  <i
-                    className={`fab fa-github ${socialIcon}`}
-                    aria-hidden="true"
-                  ></i>
-                </a>
-                <a
-                  href={MAILTO}
-                  className={socialLink}
-                  aria-label="Email Basem Esam"
-                >
-                  <i
-                    className={`fas fa-envelope ${socialIcon}`}
-                    aria-hidden="true"
-                  ></i>
-                </a>
-              </div>
-              <div className="flex flex-wrap justify-center gap-4">
-                <a
-                  href="#projects"
-                  className={`${buttonStyles('light', 'lg')} min-w-[180px]`}
-                >
-                  <i className="fas fa-code mr-2" aria-hidden="true"></i>View My
-                  Work
-                </a>
-                <a
-                  href={CV_PATH}
-                  download
-                  className={`${buttonStyles('outlineLight', 'lg')} min-w-[180px]`}
-                >
-                  <i className="fas fa-file-pdf mr-2" aria-hidden="true"></i>
-                  Download CV
-                </a>
-              </div>
+            <dl className="mx-auto mt-8 grid max-w-lg grid-cols-2 gap-px overflow-hidden rounded-lg border border-hairline bg-hairline sm:grid-cols-4 lg:mx-0 motion-safe:animate-hero-in-3">
+              {dict.metrics.map((metric) => (
+                <div key={metric.label} className="flex flex-col-reverse bg-surface p-4 text-center">
+                  <dt className="mt-1 text-xs leading-snug text-light-text">{metric.label}</dt>
+                  <dd className="font-mono text-2xl font-semibold text-dark-text" dir="ltr">
+                    <CountUp value={metric.value} suffix={metric.suffix} />
+                  </dd>
+                </div>
+              ))}
+            </dl>
+
+            <p className="mt-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm text-light-text lg:justify-start">
+              <span className="inline-flex items-center gap-1.5 font-mono text-xs font-semibold tracking-wide text-status uppercase">
+                <span
+                  className="size-2 animate-pulse rounded-full bg-status motion-reduce:animate-none"
+                  aria-hidden="true"
+                ></span>
+                {dict.status}
+              </span>
+              <span aria-hidden="true" className="text-muted-text">
+                —
+              </span>
+              <span>{dict.statusDetail}</span>
+            </p>
+
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
+              <a href="#projects" className={primaryCta}>
+                {dict.viewWork}
+                <Icon name="arrowRight" className="size-4 rtl:rotate-180" />
+              </a>
+              <a href={CV_PATH} download className={ghostCta}>
+                <Icon name="fileDown" className="size-4" />
+                {dict.downloadCv}
+              </a>
             </div>
+
+            <div
+              className="mt-8 flex items-center justify-center gap-2 lg:justify-start"
+              role="list"
+              aria-label={dict.socialsAria}
+            >
+              {socials.map((social) => (
+                <a
+                  key={social.href}
+                  href={social.href}
+                  role="listitem"
+                  aria-label={social.label}
+                  target={social.external ? "_blank" : undefined}
+                  rel={social.external ? "noopener noreferrer" : undefined}
+                  className={socialLink}
+                >
+                  <Icon name={social.icon} className="size-5" />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <div className="justify-self-center motion-safe:animate-hero-in-1 max-lg:order-1 lg:order-2">
+            <ProfileImage
+              alt="Basem Esam — Backend Developer"
+              imgClassName="size-[240px] max-lg:size-[200px] max-md:size-[160px] max-xs:size-[132px]"
+            />
           </div>
         </div>
       </div>

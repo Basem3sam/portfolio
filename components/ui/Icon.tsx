@@ -1,29 +1,30 @@
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 
 export type IconName =
-  | 'alertCircle'
-  | 'arrowLeft'
-  | 'arrowRight'
-  | 'arrowUp'
-  | 'briefcase'
-  | 'calendar'
-  | 'clock'
-  | 'code'
-  | 'externalLink'
-  | 'eye'
-  | 'fileDown'
-  | 'gitBranch'
-  | 'github'
-  | 'globe'
-  | 'linkedIn'
-  | 'mail'
-  | 'mapPin'
-  | 'menu'
-  | 'moon'
-  | 'phone'
-  | 'star'
-  | 'sun'
-  | 'x';
+  | "alertCircle"
+  | "arrowLeft"
+  | "arrowRight"
+  | "arrowUp"
+  | "briefcase"
+  | "calendar"
+  | "clock"
+  | "code"
+  | "externalLink"
+  | "eye"
+  | "fileDown"
+  | "gitBranch"
+  | "github"
+  | "globe"
+  | "linkedIn"
+  | "mail"
+  | "mapPin"
+  | "menu"
+  | "moon"
+  | "phone"
+  | "search"
+  | "star"
+  | "sun"
+  | "x";
 
 const ICONS: Record<IconName, ReactNode> = {
   alertCircle: (
@@ -146,6 +147,12 @@ const ICONS: Record<IconName, ReactNode> = {
   phone: (
     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
   ),
+  search: (
+    <>
+      <circle cx="11" cy="11" r="8" />
+      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </>
+  ),
   star: (
     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
   ),
@@ -176,11 +183,7 @@ type IconProps = {
   strokeWidth?: number;
 };
 
-export default function Icon({
-  name,
-  className = 'size-5',
-  strokeWidth = 2,
-}: IconProps) {
+export default function Icon({ name, className = "size-5", strokeWidth = 2 }: IconProps) {
   return (
     <svg
       viewBox="0 0 24 24"

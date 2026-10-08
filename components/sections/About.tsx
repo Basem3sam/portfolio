@@ -1,61 +1,51 @@
-import { Fragment } from "react";
 import Badge from "@/components/ui/Badge";
-import Section from "@/components/ui/Section";
-import SectionTitle from "@/components/ui/SectionTitle";
+import SectionHeader from "@/components/ui/SectionHeader";
+import type { Dictionary } from "@/lib/dictionaries/en";
 
-const badges = [
-  "Backend Development",
-  "Node.js",
-  "Express",
-  "MongoDB",
-  "REST APIs",
-  "Competitive Programming",
-];
+type AboutProps = {
+  dict: Dictionary["about"];
+};
 
-export default function About() {
+export default function About({ dict }: AboutProps) {
   return (
-    <Section id="about" className="bg-light-bg">
+    <section id="about" className="border-b border-hairline py-16 md:py-24">
       <div className="container">
-        <SectionTitle>About Me</SectionTitle>
-        <div className="-mx-3 flex flex-wrap">
-          <div className="mx-auto w-full shrink-0 px-3 lg:w-2/3">
-            <p className="mb-4 text-[1.25rem] font-light">
-              A passionate backend developer and ICPC competitive programmer with a
-              strong foundation in system design, OOP, and clean architecture
-              principles.
-            </p>
+        <SectionHeader number="03" title={dict.title} />
 
-            <p className="mb-4">
-              My journey in technology started early, inspired by a teacher&apos;s
-              encouragement of my first website at age 11. Growing up in a family
-              electronics repair shop gave me a unique, hands-on perspective on
-              technology that continues to influence my approach to software
-              development.
-            </p>
-
-            <p className="mb-4">
-              Currently in my 3rd year at Suez Canal University, I&apos;ve been
-              focused on programming since 2022. Beyond coding, I&apos;m passionate
-              about knowledge sharing, having served as an OOP instructor at GDG and
-              as an active member of the Mech Hackers community.
-            </p>
-
-            <p className="mb-4">
-              Currently, I serve as the Vice IT Head at Trosc Student Club, leading
-              the backend development for the club&apos;s website.
-            </p>
-
-            <div className="mt-6">
-              {badges.map((badge, index) => (
-                <Fragment key={badge}>
-                  {index > 0 && " "}
-                  <Badge variant="primary">{badge}</Badge>
-                </Fragment>
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-16">
+          <div
+            className="max-w-2xl space-y-4 data-[revealed=false]:opacity-0 data-[revealed=true]:animate-reveal-up"
+            data-reveal
+          >
+            <p className="text-lg leading-relaxed text-dark-text">{dict.intro}</p>
+            <p className="leading-relaxed text-light-text">{dict.story}</p>
+            <p className="leading-relaxed text-light-text">{dict.community}</p>
+            <p className="leading-relaxed text-light-text">{dict.today}</p>
+            <div className="flex flex-wrap gap-2 pt-2">
+              {dict.chips.map((chip) => (
+                <Badge variant="primary" key={chip}>
+                  {chip}
+                </Badge>
               ))}
             </div>
           </div>
+
+          <dl
+            className="grid grid-cols-2 gap-px self-start overflow-hidden rounded-lg border border-hairline bg-hairline data-[revealed=false]:opacity-0 data-[revealed=true]:animate-reveal-up lg:grid-cols-1"
+            data-reveal
+            style={{ animationDelay: "100ms" }}
+          >
+            {dict.facts.map((fact) => (
+              <div key={fact.label} className="bg-surface p-4">
+                <dt className="font-mono text-xs font-medium tracking-wide text-muted-text uppercase">
+                  {fact.label}
+                </dt>
+                <dd className="mt-1 text-sm font-medium text-dark-text">{fact.value}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </div>
-    </Section>
+    </section>
   );
 }
