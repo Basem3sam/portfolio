@@ -292,6 +292,8 @@ const en = {
   contact: {
     title: "Contact",
     lead: "Open to internships, junior backend roles, and freelance work. Email is the fastest way to reach me — I typically reply within hours.",
+    sendEmail: "Send an email",
+    status: "operational",
     emailLabel: "email",
     phoneLabel: "phone",
     locationLabel: "location",

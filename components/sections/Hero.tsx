@@ -41,7 +41,10 @@ export default function Hero({ dict }: HeroProps) {
       aria-labelledby="hero-title"
       className="relative border-b border-hairline bg-grid pt-28 pb-14 md:pt-32 md:pb-20"
     >
-      <div className="pointer-events-none absolute inset-0 bg-ember-glow" aria-hidden="true"></div>
+      <div
+        className="pointer-events-none absolute inset-0 bg-ember-glow motion-safe:animate-glow-breathe"
+        aria-hidden="true"
+      ></div>
 
       <div className="container relative z-[1]">
         <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-16">
