@@ -10,7 +10,7 @@ import {
   getHintLevel,
   isMobileViewport,
 } from "@/components/easter-egg/constants";
-import type { locale } from "@/lib/i18n";
+import type { Locale } from "@/lib/i18n";
 import KonamiKeyboard from "@/components/easter-egg/KonamiKeyboard";
 import MobileSecretPrompt from "@/components/easter-egg/MobileSecretPrompt";
 import Toasts, { type ToastData } from "@/components/easter-egg/Notifications";
