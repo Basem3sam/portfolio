@@ -17,6 +17,7 @@
   --animate-reveal-up: revealUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) backwards;
   --animate-github-card: githubCard 0.6s cubic-bezier(0.4, 0, 0.2, 1) backwards;
   --animate-scanline: scanline 8s linear infinite;
+  --animate-crt-sweep: crtSweep 7s linear infinite;
   --animate-terminal-line: terminalLine 0.3s ease-in;
   --animate-glitch: glitch 0.3s infinite;
   --animate-badge-pulse: badgePulse 2s infinite;
@@ -76,6 +77,15 @@
   @keyframes scanline {
     to {
       background-position: 0 100%;
+    }
+  }
+
+  @keyframes crtSweep {
+    from {
+      top: -12%;
+    }
+    to {
+      top: 112%;
     }
   }
 
@@ -355,19 +365,19 @@
 }
 
 :root {
-  --c-page: #ffffff;
+  --c-page: #fbfaf6;
   --c-primary: #191a1e;
   --c-secondary: #b45309;
   --c-on-secondary: #ffffff;
   --c-accent: #b3261e;
-  --c-hairline: #e9e7e1;
+  --c-hairline: #e7e5de;
   --c-status: #166534;
-  --c-light-bg: #f7f6f2;
+  --c-light-bg: #f3f1ea;
   --c-surface: #ffffff;
-  --c-dark-bg: #f7f6f2;
-  --c-dark-text: #191a1e;
-  --c-light-text: #474750;
-  --c-muted-text: #5f5d66;
+  --c-dark-bg: #f3f1ea;
+  --c-dark-text: #1b1d23;
+  --c-light-text: #4b4b55;
+  --c-muted-text: #64626c;
   --sh-xs: 0 1px 2px rgba(25, 26, 30, 0.06);
   --sh-sm: 0 1px 3px rgba(25, 26, 30, 0.08), 0 1px 2px rgba(25, 26, 30, 0.06);
   --sh-md: 0 4px 12px rgba(25, 26, 30, 0.1);
@@ -382,19 +392,19 @@ html[lang="ar"] {
 }
 
 .dark-mode {
-  --c-page: #262524;
-  --c-primary: #262524;
+  --c-page: #1e1c1a;
+  --c-primary: #1e1c1a;
   --c-secondary: #fbbf24;
-  --c-on-secondary: #262524;
+  --c-on-secondary: #1e1c1a;
   --c-accent: #f87171;
-  --c-hairline: #45413b;
+  --c-hairline: #3e3a34;
   --c-status: #4ade80;
-  --c-light-bg: #35322e;
-  --c-surface: #302d2a;
-  --c-dark-bg: #1f1e1c;
-  --c-dark-text: #f1eee9;
-  --c-light-text: #bdb9b2;
-  --c-muted-text: #a19c94;
+  --c-light-bg: #2f2c29;
+  --c-surface: #292724;
+  --c-dark-bg: #171614;
+  --c-dark-text: #f2efe9;
+  --c-light-text: #c2beb6;
+  --c-muted-text: #a5a099;
   --sh-xs: 0 1px 2px rgba(0, 0, 0, 0.25);
   --sh-sm: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.25);
   --sh-md: 0 4px 12px rgba(0, 0, 0, 0.35);

@@ -35,7 +35,7 @@ export default function GitHubRepoCard({ repo, index, locale, dict }: GitHubRepo
       className="mb-4 w-full shrink-0 animate-github-card px-3 md:w-1/2 lg:w-1/3"
       style={{ animationDelay: `${300 + index * 100}ms` }}
     >
-      <div className="flex h-full flex-col rounded-lg border border-hairline bg-surface p-5 transition-colors duration-200 hover:border-secondary">
+      <div className="flex h-full flex-col rounded-lg border border-hairline bg-surface p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-secondary hover:shadow-md">
         <h3 className="font-mono text-base font-semibold break-words text-dark-text">{name}</h3>
 
         <p className="mt-2 grow text-sm leading-relaxed text-light-text">

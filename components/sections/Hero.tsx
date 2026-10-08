@@ -69,7 +69,7 @@ export default function Hero({ dict }: HeroProps) {
                 <div
                   key={metric.label}
                   style={{ animationDelay: `${900 + index * 120}ms` }}
-                  className="flex flex-col-reverse items-center justify-center gap-1 bg-surface p-4 text-center motion-safe:animate-hero-in-1"
+                  className="flex flex-col-reverse items-center justify-center gap-1 bg-surface p-4 text-center transition-colors duration-200 hover:bg-light-bg motion-safe:animate-hero-in-1"
                 >
                   <dt className="font-mono text-[11px] leading-snug tracking-wide text-light-text uppercase">
                     {metric.label}

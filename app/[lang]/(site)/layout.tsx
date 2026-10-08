@@ -4,6 +4,7 @@ import EasterEgg from "@/components/easter-egg/EasterEgg";
 import BackToTop from "@/components/layout/BackToTop";
 import Footer from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
+import ScrollProgress from "@/components/layout/ScrollProgress";
 import SkipLink from "@/components/layout/SkipLink";
 import CommandPaletteProvider from "@/components/palette/CommandPalette";
 import { PROFILE_IMAGE } from "@/data/site";
@@ -36,6 +37,7 @@ export default async function SiteLayout({ children, params }: SiteLayoutProps) 
         languageSwitch={languageSwitch}
         palette={dict.palette}
       />
+      <ScrollProgress />
       {children}
       <Footer locale={locale} />
       <BackToTop label={dict.nav.backToTop} />

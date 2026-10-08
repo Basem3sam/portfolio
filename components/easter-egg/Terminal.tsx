@@ -14,6 +14,7 @@ type Line = {
   text?: string;
   html?: string;
   kind?: "ascii" | "banner";
+  delay?: number;
 };
 
 type NewLine = Omit<Line, "id">;
@@ -22,8 +23,8 @@ const toneClasses: Record<Tone, string> = {
   plain: "",
   prompt: "font-bold text-[#fbbf24]",
   success: "text-[#fbbf24]",
-  info: "text-[#fde68a] [text-shadow:0_0_5px_rgba(251,191,36,0.5)]",
-  error: "text-[#f87171] [text-shadow:0_0_5px_rgba(248,113,113,0.5)]",
+  info: "text-[#fde68a] [text-shadow:0_0_6px_rgba(251,191,36,0.55)]",
+  error: "text-[#f87171] [text-shadow:0_0_6px_rgba(248,113,113,0.55)]",
 };
 
 const lineClass = "mb-2 animate-terminal-line max-md:text-[13px] max-md:leading-[1.5]";
@@ -38,11 +39,11 @@ export default function Terminal({ open, onClose }: TerminalProps) {
     const mobile = isMobileViewport();
     return [
       mobile
-        ? { id: 0, tone: "plain", kind: "banner" }
-        : { id: 0, tone: "plain", kind: "ascii", text: ASCII_BANNER },
-      { id: 1, tone: "success", text: "Welcome to Basem's Secret Developer Terminal!" },
-      { id: 2, tone: "info", text: 'Type "help" to see available commands.' },
-      { id: 3, tone: "plain", text: "" },
+        ? { id: 0, tone: "plain", kind: "banner", delay: 0 }
+        : { id: 0, tone: "plain", kind: "ascii", text: ASCII_BANNER, delay: 0 },
+      { id: 1, tone: "success", text: "Welcome to Basem's Secret Developer Terminal!", delay: 250 },
+      { id: 2, tone: "info", text: 'Type "help" to see available commands.', delay: 500 },
+      { id: 3, tone: "plain", text: "", delay: 700 },
     ];
   });
   const [glitch, setGlitch] = useState(false);
@@ -146,13 +147,18 @@ export default function Terminal({ open, onClose }: TerminalProps) {
       ></div>
       <div
         id="secret-terminal"
-        className={`fixed top-1/2 left-1/2 z-[10000] h-[600px] w-[90%] max-w-[800px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-lg border-2 border-[#fbbf24] bg-[#131007] font-mono shadow-[0_0_50px_rgba(251,191,36,0.25),inset_0_0_50px_rgba(251,191,36,0.04)] transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)] max-md:h-[80vh] max-md:w-[95%] ${open ? "scale-100 opacity-100" : "pointer-events-none scale-0 opacity-0"}`}
+        className={`fixed top-1/2 left-1/2 z-[10000] h-[600px] w-[90%] max-w-[800px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-lg border-2 border-[#fbbf24] bg-[#131007] font-mono shadow-[0_0_70px_rgba(251,191,36,0.3),inset_0_0_60px_rgba(251,191,36,0.05)] transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)] after:pointer-events-none after:absolute after:inset-0 after:z-[5] after:rounded-lg after:bg-[radial-gradient(ellipse_at_center,transparent_65%,rgba(0,0,0,0.35)_100%)] after:content-[''] max-md:h-[80vh] max-md:w-[95%] ${open ? "scale-100 opacity-100" : "pointer-events-none scale-0 opacity-0"}`}
         role="dialog"
         aria-label="Secret terminal"
         inert={!open}
       >
-        <div className="flex items-center justify-between border-b border-[#fbbf24] bg-[linear-gradient(135deg,#1a150b_0%,#0e0b07_100%)] px-5 py-3 shadow-[0_2px_10px_rgba(251,191,36,0.2)]">
-          <div className="text-[14px] font-bold tracking-[2px] text-[#fbbf24] uppercase [text-shadow:0_0_10px_rgba(251,191,36,0.5)] max-[481px]:text-[12px]">
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 z-[2] h-12 animate-crt-sweep bg-gradient-to-b from-transparent via-[rgba(251,191,36,0.06)] to-transparent"
+          aria-hidden="true"
+        ></div>
+
+        <div className="relative z-[3] flex items-center justify-between border-b border-[#fbbf24] bg-[linear-gradient(135deg,#1a150b_0%,#0e0b07_100%)] px-5 py-3 shadow-[0_2px_10px_rgba(251,191,36,0.2)]">
+          <div className="text-[14px] font-bold tracking-[2px] text-[#fbbf24] uppercase [text-shadow:0_0_12px_rgba(251,191,36,0.6)] max-[481px]:text-[12px]">
             <Icon name="terminal" className="inline size-[1em]" /> BASEM_TERMINAL v1.0.0
           </div>
           <div className="flex items-center gap-2">
@@ -161,26 +167,29 @@ export default function Terminal({ open, onClose }: TerminalProps) {
               aria-label="Close terminal"
               onClick={onClose}
             >
-              <span className="size-3 rounded-full bg-[#ff5f56] transition-transform duration-200 hover:scale-125"></span>
+              <span className="size-3 rounded-full bg-[#ff5f56] shadow-[0_0_8px_rgba(255,95,86,0.7)] transition-transform duration-200 hover:scale-125"></span>
             </button>
-            <span className="size-3 rounded-full bg-[#ffbd2e]"></span>
-            <span className="size-3 rounded-full bg-[#27c93f]"></span>
+            <span className="size-3 rounded-full bg-[#ffbd2e] shadow-[0_0_8px_rgba(255,189,46,0.6)]"></span>
+            <span className="size-3 rounded-full bg-[#27c93f] shadow-[0_0_8px_rgba(39,201,63,0.6)]"></span>
           </div>
         </div>
         <div
           ref={bodyRef}
-          className={`relative h-[calc(100%-100px)] overflow-y-auto bg-[rgba(19,16,10,0.95)] p-5 before:pointer-events-none before:absolute before:inset-0 before:animate-scanline before:bg-[linear-gradient(transparent_50%,rgba(251,191,36,0.03)_50%)] before:bg-[length:100%_4px] before:content-[''] ${glitch ? "animate-glitch" : ""}`}
+          className={`relative z-[1] h-[calc(100%-100px)] overflow-y-auto bg-[rgba(19,16,10,0.95)] p-5 before:pointer-events-none before:absolute before:inset-0 before:z-[2] before:animate-scanline before:bg-[linear-gradient(transparent_50%,rgba(251,191,36,0.06)_50%)] before:bg-[length:100%_4px] before:content-[''] ${glitch ? "animate-glitch" : ""}`}
         >
           <div
-            className="text-[14px] leading-[1.6] whitespace-pre-wrap text-[#fbbf24] [text-shadow:0_0_5px_rgba(251,191,36,0.4)] max-md:p-2.5"
+            className="relative z-[1] text-[14px] leading-[1.6] whitespace-pre-wrap text-[#fbbf24] [text-shadow:0_0_7px_rgba(251,191,36,0.45)] max-md:p-2.5"
             id="terminal-output"
           >
             {lines.map((line) => {
+              const style = line.delay ? { animationDelay: `${line.delay}ms` } : undefined;
+
               if (line.kind === "ascii") {
                 return (
                   <pre
                     key={line.id}
-                    className={`my-5 animate-terminal-line text-[10px] leading-none text-[#fbbf24] [text-shadow:0_0_10px_rgba(251,191,36,0.3)] max-md:text-[8px]`}
+                    style={style}
+                    className={`my-5 animate-terminal-line text-[10px] leading-none text-[#fbbf24] [text-shadow:2px_0_rgba(248,113,113,0.35),-2px_0_rgba(103,232,249,0.35),0_0_12px_rgba(251,191,36,0.35)] max-md:text-[8px]`}
                   >
                     {line.text}
                   </pre>
@@ -191,7 +200,8 @@ export default function Terminal({ open, onClose }: TerminalProps) {
                 return (
                   <div
                     key={line.id}
-                    className="mt-[5px] mb-[15px] flex animate-banner-glow items-center justify-center gap-[15px] rounded-lg border-2 border-[rgba(251,191,36,0.3)] bg-[linear-gradient(135deg,rgba(251,191,36,0.1)_0%,rgba(253,230,138,0.08)_100%)] px-2.5 py-5"
+                    style={style}
+                    className="mt-[5px] mb-[15px] flex animate-terminal-line items-center justify-center gap-[15px] rounded-lg border-2 border-[rgba(251,191,36,0.3)] bg-[linear-gradient(135deg,rgba(251,191,36,0.1)_0%,rgba(253,230,138,0.08)_100%)] px-2.5 py-5"
                   >
                     <div className="animate-banner-icon text-[20px]">⚡</div>
                     <div className="flex flex-col items-center gap-0.5">
@@ -210,23 +220,28 @@ export default function Terminal({ open, onClose }: TerminalProps) {
               const className = `${lineClass} ${toneClasses[line.tone]}`;
 
               return line.html !== undefined ? (
-                <div key={line.id} className={className} dangerouslySetInnerHTML={{ __html: line.html }} />
+                <div
+                  key={line.id}
+                  style={style}
+                  className={className}
+                  dangerouslySetInnerHTML={{ __html: line.html }}
+                />
               ) : (
-                <div key={line.id} className={className}>
+                <div key={line.id} style={style} className={className}>
                   {line.text}
                 </div>
               );
             })}
           </div>
         </div>
-        <div className="absolute right-0 bottom-0 left-0 flex items-center gap-2.5 border-t border-[#fbbf24] bg-[rgba(26,22,14,0.95)] px-5 py-[15px]">
-          <span className="text-[14px] font-bold whitespace-nowrap text-[#fbbf24] [text-shadow:0_0_5px_rgba(251,191,36,0.5)] max-md:text-[12px]">
+        <div className="absolute right-0 bottom-0 left-0 z-[3] flex items-center gap-2.5 border-t border-[#fbbf24] bg-[rgba(26,22,14,0.95)] px-5 py-[15px]">
+          <span className="text-[14px] font-bold whitespace-nowrap text-[#fbbf24] [text-shadow:0_0_6px_rgba(251,191,36,0.55)] max-md:text-[12px]">
             guest@basem:~$           </span>
           <input
             ref={inputRef}
             id="terminal-input"
             type="text"
-            className="flex-1 bg-transparent text-[14px] text-[#fde68a] outline-none [text-shadow:0_0_5px_rgba(251,191,36,0.4)] placeholder:text-[rgba(251,191,36,0.35)] max-md:text-[12px]"
+            className="flex-1 bg-transparent text-[14px] text-[#fde68a] caret-[#fbbf24] outline-none [text-shadow:0_0_5px_rgba(251,191,36,0.4)] placeholder:text-[rgba(251,191,36,0.35)] max-md:text-[12px]"
             placeholder="Type 'help' for available commands..."
             autoComplete="off"
             autoCapitalize="off"

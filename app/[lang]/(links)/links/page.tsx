@@ -116,10 +116,10 @@ export default async function LinksPage({ params }: LinksPageProps) {
   ];
 
   const floatingButton =
-    "fixed top-4 z-[1030] flex size-11 items-center justify-center rounded-md border border-hairline bg-surface text-light-text no-underline shadow-xs transition-colors duration-200 hover:border-secondary hover:text-secondary print:hidden";
+    "fixed top-4 z-[1030] flex size-11 items-center justify-center rounded-full border border-hairline bg-surface text-light-text no-underline shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-secondary hover:text-secondary hover:shadow-md print:hidden";
 
   return (
-    <main className="flex min-h-screen flex-col">
+    <main className="relative flex min-h-screen flex-col bg-grid">
       <Link
         href={homeHref}
         className={`${floatingButton} start-4`}
@@ -131,12 +131,20 @@ export default async function LinksPage({ params }: LinksPageProps) {
       <ThemeToggle id="themeToggle" className={`${floatingButton} end-4`} labels={dict.theme} />
 
       <div className="container flex flex-1 flex-col items-center justify-center py-24 text-center">
-        <ProfileImage alt={t.name} imgClassName="size-[140px] max-xs:size-[110px]" />
+        <ProfileImage alt={t.name} imgClassName="size-[144px] max-xs:size-[116px]" />
 
-        <h1 className="mt-6 text-3xl font-bold tracking-tight text-dark-text">{t.name}</h1>
-        <p className="mt-2 text-light-text">{t.role}</p>
-        <p className="mt-1 text-sm text-muted-text">{t.tagline}</p>
-        <p className="mt-4 flex flex-wrap items-center justify-center gap-2 text-sm text-light-text">
+        <h1 className="mt-6 text-3xl font-bold tracking-tight text-dark-text">
+          {t.name}
+          <span className="text-secondary" aria-hidden="true">
+            .
+          </span>
+        </h1>
+        <p className="mt-2 font-mono text-xs font-semibold tracking-[0.2em] text-secondary uppercase">
+          {t.role}
+        </p>
+        <p className="mt-1.5 text-sm text-muted-text">{t.tagline}</p>
+
+        <p className="mt-5 inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-hairline bg-surface px-4 py-1.5 text-sm text-light-text">
           <Icon name="mapPin" className="size-4" />
           {t.location}
           <span aria-hidden="true" className="text-muted-text">
@@ -146,8 +154,8 @@ export default async function LinksPage({ params }: LinksPageProps) {
         </p>
 
         <div className="mt-10 flex w-full max-w-md flex-col gap-3">
-          {links.map((link) => (
-            <LinkCard key={link.title} {...link} />
+          {links.map((link, index) => (
+            <LinkCard key={link.title} {...link} index={index} />
           ))}
         </div>
       </div>
