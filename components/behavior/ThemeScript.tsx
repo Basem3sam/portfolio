@@ -4,6 +4,8 @@ export default function ThemeScript() {
   return (
     <script
       id="theme-init"
+      type={typeof window === "undefined" ? undefined : "application/json"}
+      suppressHydrationWarning
       dangerouslySetInnerHTML={{ __html: themeScript }}
     />
   );
