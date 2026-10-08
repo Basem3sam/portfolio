@@ -87,9 +87,6 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       addToast({ kind: "access" });
     }
 
-    setToasts((current) =>
-      current.map((toast) => (toast.kind === "master" ? { ...toast, closing: true } : toast)),
-    );
     setTerminalOpen(true);
   }, [addToast]);
 
@@ -166,6 +163,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
   useEffect(() => {
     const image = document.querySelector<HTMLElement>("#hero picture img");
     if (!image) return;
+    if (game.current.unlocked) return;
 
     const state = game.current;
     const syncClue = () => setClue({ revealed: state.revealed, level: state.level });
@@ -200,11 +198,15 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       addToast({ kind: "master" });
       createEpicCelebration();
 
-      // The discovery journey IS solving it: after the achievement lands,
-      // the terminal opens on its own. The master toast already announced
-      // the unlock, so the separate access toast is suppressed this session.
+      // The discovery journey IS solving it: the achievement lands first,
+      // then the terminal opens on its own. The master toast is this path's
+      // granted message and stays for its full duration - the terminal
+      // renders above it, it is not closed early.
       accessAnnounced.current = true;
-      window.setTimeout(() => openTerminal(), 1400);
+      window.setTimeout(() => {
+        terminalOpenRef.current = true;
+        setTerminalOpen(true);
+      }, 1400);
     };
 
     const handleClick = (event: MouseEvent) => {
@@ -268,7 +270,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       window.clearTimeout(state.resetTimer);
       image.classList.remove("cursor-pointer");
     };
-  }, [addToast]);
+  }, [addToast, unlocked]);
 
   const showHint = () => {
     if (overlay !== "none") return;
