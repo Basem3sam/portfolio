@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { KONAMI_CODE } from "@/components/easter-egg/constants";
+import type { Locale } from "@/lib/i18n";
 
 const EasterEggCore = dynamic(() => import("./EasterEggCore"), { ssr: false });
 
@@ -12,7 +13,7 @@ const MIN_CLICK_INTERVAL = 300;
 
 type LoadState = { autoOpen: boolean; clicks: number };
 
-export default function EasterEgg() {
+export default function EasterEgg({ locale }: { locale: Locale }) {
   const [load, setLoad] = useState<LoadState | null>(null);
   const clicks = useRef(0);
   const lastClick = useRef(0);
@@ -107,5 +108,5 @@ export default function EasterEgg() {
 
   if (!load) return null;
 
-  return <EasterEggCore autoOpen={load.autoOpen} initialClicks={load.clicks} />;
+  return <EasterEggCore autoOpen={load.autoOpen} initialClicks={load.clicks} locale={locale} />;
 }

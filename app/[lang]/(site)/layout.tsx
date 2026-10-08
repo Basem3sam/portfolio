@@ -41,7 +41,7 @@ export default async function SiteLayout({ children, params }: SiteLayoutProps) 
       {children}
       <Footer locale={locale} />
       <BackToTop label={dict.nav.backToTop} />
-      <EasterEgg />
+      <EasterEgg locale={locale} />
     </CommandPaletteProvider>
   );
 }

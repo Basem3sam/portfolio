@@ -10,6 +10,7 @@ import {
   getHintLevel,
   isMobileViewport,
 } from "@/components/easter-egg/constants";
+import type { locale } from "@/lib/i18n";
 import KonamiKeyboard from "@/components/easter-egg/KonamiKeyboard";
 import MobileSecretPrompt from "@/components/easter-egg/MobileSecretPrompt";
 import Toasts, { type ToastData } from "@/components/easter-egg/Notifications";
@@ -39,9 +40,10 @@ const UNLOCKED_KEY = "terminal_unlocked";
 type EasterEggCoreProps = {
   autoOpen: boolean;
   initialClicks: number;
+  locale: Locale;
 };
 
-export default function EasterEggCore({ autoOpen, initialClicks }: EasterEggCoreProps) {
+export default function EasterEggCore({ autoOpen, initialClicks, locale }: EasterEggCoreProps) {
   const [toasts, setToasts] = useState<ToastData[]>([]);
   const [terminalOpen, setTerminalOpen] = useState(false);
   const [overlay, setOverlay] = useState<Overlay>("none");
@@ -241,7 +243,7 @@ export default function EasterEggCore({ autoOpen, initialClicks }: EasterEggCore
     };
   }, [addToast]);
 
-  const activateClue = () => {
+  const showHint = () => {
     if (overlay !== "none") return;
 
     if (isMobileViewport()) {
@@ -253,6 +255,11 @@ export default function EasterEggCore({ autoOpen, initialClicks }: EasterEggCore
       kind: "reminder",
       text: REMINDERS[Math.floor(Math.random() * REMINDERS.length)],
     });
+  };
+
+  const openFromClue = () => {
+    if (overlay !== "none") return;
+    openTerminal();
   };
 
   const handleKeyboardSuccess = () => {
@@ -269,8 +276,9 @@ export default function EasterEggCore({ autoOpen, initialClicks }: EasterEggCore
       <SecretClue
         buttonRef={clueRef}
         revealed={clue.revealed}
-        level={clue.level}
-        onActivate={activateClue}
+        locale={locale}
+        onHint={showHint}
+        onOpen={openFromClue}
       />
       <Terminal key={terminalOpen ? "open" : "closed"} open={terminalOpen} onClose={closeTerminal} />
       {overlay === "prompt" && (
