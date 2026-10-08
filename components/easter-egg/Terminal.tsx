@@ -146,7 +146,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
       ></div>
       <div
         id="secret-terminal"
-        className={`fixed top-1/2 left-1/2 z-[10000] h-[600px] w-[90%] max-w-[800px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-lg border-2 border-[#fbbf24] bg-[#0c0a06] font-mono shadow-[0_0_50px_rgba(251,191,36,0.25),inset_0_0_50px_rgba(251,191,36,0.04)] transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)] max-md:h-[80vh] max-md:w-[95%] ${open ? "scale-100 opacity-100" : "pointer-events-none scale-0 opacity-0"}`}
+        className={`fixed top-1/2 left-1/2 z-[10000] h-[600px] w-[90%] max-w-[800px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-lg border-2 border-[#fbbf24] bg-[#131007] font-mono shadow-[0_0_50px_rgba(251,191,36,0.25),inset_0_0_50px_rgba(251,191,36,0.04)] transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)] max-md:h-[80vh] max-md:w-[95%] ${open ? "scale-100 opacity-100" : "pointer-events-none scale-0 opacity-0"}`}
         role="dialog"
         aria-label="Secret terminal"
         inert={!open}
@@ -169,7 +169,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
         </div>
         <div
           ref={bodyRef}
-          className={`relative h-[calc(100%-100px)] overflow-y-auto bg-[rgba(12,10,6,0.95)] p-5 before:pointer-events-none before:absolute before:inset-0 before:animate-scanline before:bg-[linear-gradient(transparent_50%,rgba(251,191,36,0.03)_50%)] before:bg-[length:100%_4px] before:content-[''] ${glitch ? "animate-glitch" : ""}`}
+          className={`relative h-[calc(100%-100px)] overflow-y-auto bg-[rgba(19,16,10,0.95)] p-5 before:pointer-events-none before:absolute before:inset-0 before:animate-scanline before:bg-[linear-gradient(transparent_50%,rgba(251,191,36,0.03)_50%)] before:bg-[length:100%_4px] before:content-[''] ${glitch ? "animate-glitch" : ""}`}
         >
           <div
             className="text-[14px] leading-[1.6] whitespace-pre-wrap text-[#fbbf24] [text-shadow:0_0_5px_rgba(251,191,36,0.4)] max-md:p-2.5"
@@ -219,7 +219,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
             })}
           </div>
         </div>
-        <div className="absolute right-0 bottom-0 left-0 flex items-center gap-2.5 border-t border-[#fbbf24] bg-[rgba(20,17,10,0.95)] px-5 py-[15px]">
+        <div className="absolute right-0 bottom-0 left-0 flex items-center gap-2.5 border-t border-[#fbbf24] bg-[rgba(26,22,14,0.95)] px-5 py-[15px]">
           <span className="text-[14px] font-bold whitespace-nowrap text-[#fbbf24] [text-shadow:0_0_5px_rgba(251,191,36,0.5)] max-md:text-[12px]">
             guest@basem:~$           </span>
           <input

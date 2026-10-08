@@ -87,7 +87,7 @@ export default async function TroscCaseStudyPage({ params }: CaseStudyPageProps)
 
   return (
     <main id="main-content">
-      <div className="container pt-28 pb-4 md:pt-32">
+      <div className="container bg-grid pt-28 pb-4 md:pt-32">
         <Link
           href={backHref}
           className="inline-flex min-h-11 items-center gap-1.5 font-mono text-sm text-light-text no-underline transition-colors duration-200 hover:text-secondary"

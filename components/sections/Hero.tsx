@@ -12,10 +12,13 @@ const socialLink =
   "flex size-11 items-center justify-center rounded-md border border-hairline bg-surface text-light-text no-underline transition-colors duration-200 hover:border-secondary hover:text-secondary";
 
 const primaryCta =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-secondary px-5 text-sm font-semibold text-on-secondary no-underline transition-colors duration-200 hover:bg-[#8a3f06] dark:hover:bg-[#fcd34d]";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-secondary px-5 text-sm font-semibold text-on-secondary no-underline shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#8a3f06] hover:shadow-md max-sm:w-full dark:hover:bg-[#fcd34d]";
 
 const ghostCta =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-hairline bg-surface px-5 text-sm font-semibold text-dark-text no-underline transition-colors duration-200 hover:border-secondary hover:text-secondary";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-hairline bg-surface px-5 text-sm font-semibold text-dark-text no-underline shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-secondary hover:text-secondary hover:shadow-md max-sm:w-full";
+
+const statusPill =
+  "inline-flex items-center gap-1.5 rounded-full border border-hairline bg-surface px-3 py-1 font-mono text-[11px] font-semibold tracking-wide text-status uppercase";
 
 type Social = {
   href: string;
@@ -36,11 +39,11 @@ export default function Hero({ dict }: HeroProps) {
     <section
       id="hero"
       aria-labelledby="hero-title"
-      className="border-b border-hairline pt-28 pb-14 md:pt-32 md:pb-20"
+      className="border-b border-hairline bg-grid pt-28 pb-14 md:pt-32 md:pb-20"
     >
       <div className="container">
         <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-16">
-          <div className="max-lg:order-1 text-center lg:order-1 lg:text-start">
+          <div className="max-lg:order-2 text-center lg:order-1 lg:text-start">
             <p className="font-mono text-sm font-medium text-secondary motion-safe:animate-hero-in-1">
               <span dir="ltr">{dict.whoami}</span>
               <span
@@ -65,7 +68,7 @@ export default function Hero({ dict }: HeroProps) {
                   className="flex flex-col-reverse bg-surface p-4 text-center"
                 >
                   <dt className="mt-1 text-xs leading-snug text-light-text">{metric.label}</dt>
-                  <dd className="font-mono text-2xl font-semibold text-dark-text" dir="ltr">
+                  <dd className="font-mono text-2xl font-semibold text-secondary" dir="ltr">
                     <CountUp value={metric.value} suffix={metric.suffix} />
                   </dd>
                 </div>
@@ -73,9 +76,9 @@ export default function Hero({ dict }: HeroProps) {
             </dl>
 
             <p className="mt-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm text-light-text lg:justify-start">
-              <span className="inline-flex items-center gap-1.5 font-mono text-xs font-semibold tracking-wide text-status uppercase">
+              <span className={statusPill}>
                 <span
-                  className="size-2 animate-pulse rounded-full bg-status motion-reduce:animate-none"
+                  className="size-1.5 animate-pulse rounded-full bg-status motion-reduce:animate-none"
                   aria-hidden="true"
                 ></span>
                 {dict.status}
@@ -120,7 +123,7 @@ export default function Hero({ dict }: HeroProps) {
           <div className="justify-self-center motion-safe:animate-hero-in-1 max-lg:order-1 lg:order-2">
             <ProfileImage
               alt="Basem Esam — Backend Developer"
-              imgClassName="size-[240px] max-lg:size-[200px] max-md:size-[160px] max-xs:size-[132px]"
+              imgClassName="size-[240px] max-lg:size-[184px] max-md:size-[168px] max-xs:size-[140px]"
             />
           </div>
         </div>

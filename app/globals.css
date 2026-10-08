@@ -350,14 +350,14 @@
 :root {
   --c-page: #fafaf8;
   --c-primary: #1a1d21;
-  --c-secondary: #a04a07;
+  --c-secondary: #b45309;
   --c-on-secondary: #ffffff;
   --c-accent: #b3261e;
   --c-hairline: #e4e4e1;
   --c-status: #166534;
   --c-light-bg: #f1f0ec;
   --c-surface: #ffffff;
-  --c-dark-bg: #0f1215;
+  --c-dark-bg: #f1f0ec;
   --c-dark-text: #1a1d21;
   --c-light-text: #52525b;
   --c-muted-text: #6e6b66;
@@ -375,24 +375,24 @@ html[lang="ar"] {
 }
 
 .dark-mode {
-  --c-page: #0f1215;
-  --c-primary: #0f1215;
+  --c-page: #15181e;
+  --c-primary: #15181e;
   --c-secondary: #fbbf24;
-  --c-on-secondary: #0f1215;
+  --c-on-secondary: #15181e;
   --c-accent: #f87171;
-  --c-hairline: #26292f;
+  --c-hairline: #2b303a;
   --c-status: #4ade80;
-  --c-light-bg: #15181d;
-  --c-surface: #16191e;
-  --c-dark-bg: #0b0d10;
-  --c-dark-text: #e8e6e1;
-  --c-light-text: #a1a1aa;
-  --c-muted-text: #a6a39d;
-  --sh-xs: 0 1px 2px rgba(0, 0, 0, 0.35);
-  --sh-sm: 0 1px 3px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.35);
-  --sh-md: 0 4px 10px rgba(0, 0, 0, 0.5);
-  --sh-lg: 0 10px 24px rgba(0, 0, 0, 0.55);
-  --sh-xl: 0 18px 40px rgba(0, 0, 0, 0.65);
+  --c-light-bg: #1b2027;
+  --c-surface: #1a1e25;
+  --c-dark-bg: #10131a;
+  --c-dark-text: #eceae6;
+  --c-light-text: #aba9a4;
+  --c-muted-text: #93909a;
+  --sh-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --sh-sm: 0 1px 3px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --sh-md: 0 4px 10px rgba(0, 0, 0, 0.4);
+  --sh-lg: 0 10px 24px rgba(0, 0, 0, 0.45);
+  --sh-xl: 0 18px 40px rgba(0, 0, 0, 0.55);
 }
 
 @utility container {
@@ -415,6 +415,21 @@ html[lang="ar"] {
   @media (width >= 1400px) {
     max-width: 1320px;
   }
+}
+
+@utility bg-grid {
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in srgb, var(--c-hairline) 50%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--c-hairline) 50%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 40px 40px;
 }
 
 @layer base {
@@ -456,7 +471,7 @@ html[lang="ar"] {
   }
 
   .dark-mode * {
-    scrollbar-color: #3a3e45 transparent;
+    scrollbar-color: #3a3f48 transparent;
   }
 
   ::-webkit-scrollbar {
@@ -487,12 +502,12 @@ html[lang="ar"] {
   }
 
   .dark-mode ::-webkit-scrollbar-thumb {
-    background: #3a3e45;
+    background: #3a3f48;
     border: 2px solid var(--c-light-bg);
   }
 
   .dark-mode ::-webkit-scrollbar-thumb:hover {
-    background: #4a4f57;
+    background: #4a4f58;
   }
 
   @media (prefers-reduced-motion: reduce) {

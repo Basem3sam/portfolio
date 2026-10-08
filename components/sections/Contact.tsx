@@ -32,7 +32,7 @@ const cvButton =
 
 export default function Contact({ dict }: ContactProps) {
   return (
-    <section id="contact" className="py-16 md:py-24">
+    <section id="contact" className="bg-light-bg py-16 md:py-24">
       <div className="container">
         <SectionHeader number="06" title={dict.title} />
 

@@ -45,7 +45,7 @@ const auxLink =
   "flex min-h-11 items-center gap-1.5 px-2.5 text-sm font-medium text-light-text no-underline transition-colors duration-200 hover:text-dark-text";
 
 const themeButton =
-  "flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md border border-hairline bg-surface/50 text-light-text transition-colors duration-200 hover:border-secondary hover:text-secondary max-lg:self-start";
+  "flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md border border-hairline bg-surface/50 text-light-text transition-colors duration-200 hover:border-secondary hover:text-secondary max-lg:w-full";
 
 const paletteButton =
   "hidden min-h-11 cursor-pointer items-center gap-2 rounded-md border border-hairline bg-surface/50 px-3 text-sm font-medium text-light-text transition-colors duration-200 hover:border-secondary hover:text-secondary lg:inline-flex";
@@ -187,7 +187,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                 );
               })}
 
-              <li className="max-lg:mt-1 max-lg:border-t max-lg:border-hairline max-lg:pt-1 lg:ms-2">
+              <li className="max-lg:mt-1 max-lg:border-t max-lg:border-hairline max-lg:pt-2 lg:ms-2">
                 <div className="flex flex-col gap-1 lg:flex-row lg:items-center lg:gap-2">
                   <button
                     type="button"
@@ -208,13 +208,15 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                     <Icon name="fileDown" className="size-4" />
                     {labels.resume}
                   </a>
-                  <LanguageSwitcher {...languageSwitch} />
-                  <ThemeToggle
-                    id="darkModeToggle"
-                    labels={theme}
-                    className={themeButton}
-                    iconClassName="size-5"
-                  />
+                  <div className="grid grid-cols-2 gap-2 lg:flex lg:items-center lg:gap-2">
+                    <LanguageSwitcher {...languageSwitch} className="max-lg:w-full" />
+                    <ThemeToggle
+                      id="darkModeToggle"
+                      labels={theme}
+                      className={themeButton}
+                      iconClassName="size-5"
+                    />
+                  </div>
                 </div>
               </li>
             </ul>

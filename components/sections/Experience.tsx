@@ -7,7 +7,7 @@ type ExperienceProps = {
 
 export default function Experience({ dict }: ExperienceProps) {
   return (
-    <section id="experience" className="border-b border-hairline py-16 md:py-24">
+    <section id="experience" className="border-b border-hairline bg-light-bg py-16 md:py-24">
       <div className="container">
         <SectionHeader number="04" title={dict.title} />
 

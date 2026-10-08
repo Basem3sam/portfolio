@@ -7,7 +7,7 @@ type StackProps = {
 
 export default function Stack({ dict }: StackProps) {
   return (
-    <section id="stack" className="border-b border-hairline py-16 md:py-24">
+    <section id="stack" className="border-b border-hairline bg-light-bg py-16 md:py-24">
       <div className="container">
         <SectionHeader number="02" title={dict.title} />
 
