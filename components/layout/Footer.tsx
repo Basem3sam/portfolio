@@ -15,6 +15,9 @@ const quickLinks = [
   { href: "#contact", key: "contact" },
 ] as const;
 
+const linkClass =
+  "inline-flex min-h-11 items-center justify-center rounded-md px-3 font-mono text-sm text-light-text no-underline transition-colors duration-200 hover:text-signal";
+
 export default function Footer({ locale = "en" }: FooterProps) {
   const dict = getDictionary(locale);
   const host = new URL(SITE_URL).host;
@@ -23,10 +26,11 @@ export default function Footer({ locale = "en" }: FooterProps) {
 
   return (
     <footer className="w-full bg-light-bg print:bg-white">
-      <div className="container pt-10 pb-24">
-        <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-6">
+      <div className="container pt-10 pb-24 md:pb-10">
+        {/* Mobile: one centered column. Desktop: brand left, links right. */}
+        <div className="flex flex-col items-center gap-x-10 gap-y-6 text-center md:flex-row md:items-end md:justify-between md:text-start">
           <div>
-            <p className="flex items-center gap-2 font-mono text-base font-semibold text-dark-text">
+            <p className="flex items-center justify-center gap-2 font-mono text-base font-semibold text-dark-text md:justify-start">
               <span className="size-2 rounded-full bg-status" aria-hidden="true"></span>
               basem.esam
             </p>
@@ -35,13 +39,12 @@ export default function Footer({ locale = "en" }: FooterProps) {
             </p>
           </div>
 
-          <nav className="flex flex-wrap items-center gap-x-6 gap-y-2">
+          <nav
+            aria-label={dict.nav.mainNavigation}
+            className="grid w-full grid-cols-3 gap-1.5 sm:grid-cols-6 md:w-auto md:grid-cols-none md:flex md:flex-wrap md:items-center md:gap-x-6 md:gap-y-2"
+          >
             {quickLinks.map(({ href, key }) => (
-              <a
-                key={href}
-                href={href}
-                className="font-mono text-sm text-light-text no-underline transition-colors duration-200 hover:text-signal"
-              >
+              <a key={href} href={href} className={linkClass}>
                 {nav[key]}
               </a>
             ))}
@@ -56,11 +59,11 @@ export default function Footer({ locale = "en" }: FooterProps) {
           ></span>
         </p>
 
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t border-hairline pt-6">
-          <p className="text-sm text-light-text">
+        <div className="mt-4 flex flex-col items-center gap-3 border-t border-hairline pt-6 md:flex-row md:justify-between">
+          <p className="order-2 text-sm text-light-text md:order-1">
             &copy; {new Date().getFullYear()} Basem Esam. {dict.footer.rights}
           </p>
-          <div className="flex items-center gap-4">
+          <div className="order-1 flex items-center gap-3 md:order-2">
             <TerminalButton label={dict.footer.openTerminal} />
             <p className="font-mono text-xs text-muted-text">
               {host} · {buildLabel}
