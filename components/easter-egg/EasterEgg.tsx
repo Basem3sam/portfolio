@@ -7,6 +7,7 @@ import { KONAMI_CODE } from "@/components/easter-egg/constants";
 const EasterEggCore = dynamic(() => import("./EasterEggCore"), { ssr: false });
 
 const UNLOCKED_KEY = "terminal_unlocked";
+const OPEN_TERMINAL_EVENT = "open-secret-terminal";
 const MIN_CLICK_INTERVAL = 300;
 
 type LoadState = { autoOpen: boolean; clicks: number };
@@ -72,6 +73,13 @@ export default function EasterEgg() {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [arm]);
+
+  useEffect(() => {
+    const openFromUI = () => arm(true);
+
+    window.addEventListener(OPEN_TERMINAL_EVENT, openFromUI);
+    return () => window.removeEventListener(OPEN_TERMINAL_EVENT, openFromUI);
   }, [arm]);
 
   useEffect(() => {

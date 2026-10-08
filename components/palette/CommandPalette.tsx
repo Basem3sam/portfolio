@@ -81,6 +81,14 @@ function buildItems(palette: PaletteLabels, nav: NavLabels, locale: Locale): Pal
       keywords: "dark light appearance mode",
     },
     {
+      id: "terminal",
+      label: palette.items.terminal,
+      group: "actions",
+      icon: "terminal",
+      action: () => window.dispatchEvent(new CustomEvent("open-secret-terminal")),
+      keywords: "secret hidden konami easter egg game",
+    },
+    {
       id: "language",
       label: locale === "en" ? palette.items.languageToAr : palette.items.languageToEn,
       group: "actions",
@@ -172,8 +180,6 @@ function PaletteDialog({
     return undefined;
   }, [open]);
 
-  // Safety net: Escape closes the palette even when focus never entered
-  // the dialog (for example right after opening via the keyboard shortcut).
   useEffect(() => {
     if (!open) return;
 

@@ -206,7 +206,7 @@ export default function KonamiKeyboard({ onClose, onBack, onSuccess }: KonamiKey
             return (
               <button
                 key={key}
-                className={`group relative cursor-pointer overflow-hidden rounded-xl border-2 p-4 text-[24px] font-black transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-90 max-[481px]:p-3.5 max-[481px]:text-[22px] ${position} ${style.color} ${pressed === key ? style.pressed : style.idle}`}
+                className={`group relative cursor-pointer overflow-hidden rounded-xl border-2 p-5 text-[26px] font-black transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-90 max-[481px]:p-4 max-[481px]:text-[24px] ${position} ${style.color} ${pressed === key ? style.pressed : style.idle}`}
                 aria-label={DISPLAY[key]}
                 onClick={() => press(key)}
               >

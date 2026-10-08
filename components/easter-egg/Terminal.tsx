@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { isMobileViewport } from "@/components/easter-egg/constants";
 import Icon from "@/components/ui/Icon";
 import { lockScroll, unlockScroll } from "@/lib/scrollLock";
+import { prefersReducedMotion } from "@/lib/scroll";
 import { ASCII_BANNER, COMMAND_NAMES, COMMAND_OUTPUT } from "@/lib/terminalCommands";
 
 type Tone = "plain" | "prompt" | "success" | "info" | "error";
@@ -29,6 +30,11 @@ const toneClasses: Record<Tone, string> = {
 
 const lineClass = "mb-2 animate-terminal-line max-md:text-[13px] max-md:leading-[1.5]";
 
+const TYPE_CHUNK = 4;
+const TYPE_INTERVAL = 12;
+
+type QueueEntry = { id: number; full: string; shown: number };
+
 type TerminalProps = {
   open: boolean;
   onClose: () => void;
@@ -53,11 +59,81 @@ export default function Terminal({ open, onClose }: TerminalProps) {
   const historyIndex = useRef(0);
   const nextId = useRef(4);
   const timers = useRef<number[]>([]);
+  const typingQueue = useRef<QueueEntry[]>([]);
+  const typingTimer = useRef(0);
 
   const withIds = (items: NewLine[]): Line[] =>
     items.map((item) => ({ ...item, id: nextId.current++ }));
 
-  const append = (items: NewLine[]) => setLines((current) => [...current, ...withIds(items)]);
+  const renderLine = (id: number, text: string) => {
+    setLines((current) => current.map((line) => (line.id === id ? { ...line, text } : line)));
+  };
+
+  const stopTyping = () => {
+    window.clearInterval(typingTimer.current);
+    typingTimer.current = 0;
+  };
+
+  const startTyping = () => {
+    if (typingTimer.current) return;
+
+    typingTimer.current = window.setInterval(() => {
+      const entry = typingQueue.current[0];
+
+      if (!entry) {
+        stopTyping();
+        return;
+      }
+
+      entry.shown = Math.min(entry.shown + TYPE_CHUNK, entry.full.length);
+      renderLine(entry.id, entry.full.slice(0, entry.shown));
+
+      if (entry.shown >= entry.full.length) {
+        typingQueue.current.shift();
+      }
+    }, TYPE_INTERVAL);
+  };
+
+  const finishTyping = () => {
+    const queue = typingQueue.current;
+    if (queue.length === 0 && typingTimer.current === 0) return;
+
+    const completes = new Map(queue.map((entry) => [entry.id, entry.full] as const));
+    typingQueue.current = [];
+    stopTyping();
+
+    if (completes.size === 0) return;
+    setLines((current) =>
+      current.map((line) => {
+        const full = completes.get(line.id);
+        return full !== undefined ? { ...line, text: full } : line;
+      }),
+    );
+  };
+
+  const append = (items: NewLine[]) => {
+    const canType = !prefersReducedMotion();
+
+    const entries = items.map((item) => ({
+      item,
+      types: canType && item.html === undefined && Boolean(item.text),
+    }));
+
+    const added = withIds(
+      entries.map(({ item, types }) => (types ? { ...item, text: "" } : item)),
+    );
+
+    setLines((current) => [...current, ...added]);
+
+    if (!canType) return;
+
+    entries.forEach((entry, index) => {
+      if (!entry.types) return;
+      typingQueue.current.push({ id: added[index].id, full: entry.item.text ?? "", shown: 0 });
+    });
+
+    startTyping();
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -65,7 +141,10 @@ export default function Terminal({ open, onClose }: TerminalProps) {
     lockScroll();
     if (!isMobileViewport()) inputRef.current?.focus();
 
-    return () => unlockScroll();
+    return () => {
+      unlockScroll();
+      stopTyping();
+    };
   }, [open]);
 
   useEffect(() => {
@@ -80,6 +159,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
 
   const run = (command: string) => {
     if (command === "clear") {
+      finishTyping();
       setLines([]);
       return;
     }
@@ -108,6 +188,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    finishTyping();
     const input = event.currentTarget;
 
     if (event.key === "Enter") {
@@ -139,15 +220,20 @@ export default function Terminal({ open, onClose }: TerminalProps) {
     }
   };
 
+  const close = () => {
+    finishTyping();
+    onClose();
+  };
+
   return (
     <>
       <div
         className={`fixed inset-0 z-[9999] bg-black/85 backdrop-blur-[5px] transition-opacity duration-300 ${open ? "opacity-100" : "pointer-events-none opacity-0"}`}
-        onClick={onClose}
+        onClick={close}
       ></div>
       <div
         id="secret-terminal"
-        className={`fixed top-1/2 left-1/2 z-[10000] h-[600px] w-[90%] max-w-[800px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-lg border-2 border-[#fbbf24] bg-[#131007] font-mono shadow-[0_0_70px_rgba(251,191,36,0.3),inset_0_0_60px_rgba(251,191,36,0.05)] transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)] after:pointer-events-none after:absolute after:inset-0 after:z-[5] after:rounded-lg after:bg-[radial-gradient(ellipse_at_center,transparent_65%,rgba(0,0,0,0.35)_100%)] after:content-[''] max-md:h-[80vh] max-md:w-[95%] ${open ? "scale-100 opacity-100" : "pointer-events-none scale-0 opacity-0"}`}
+        className={`fixed top-1/2 left-1/2 z-[10000] h-[600px] w-[90%] max-w-[800px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-lg border-2 border-[#fbbf24] bg-[#131007] font-mono shadow-[0_0_70px_rgba(251,191,36,0.3),inset_0_0_60px_rgba(251,191,36,0.05)] transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)] after:pointer-events-none after:absolute after:inset-0 after:z-[5] after:rounded-lg after:bg-[radial-gradient(ellipse_at_center,transparent_65%,rgba(0,0,0,0.35)_100%)] after:content-[''] max-md:top-auto max-md:bottom-0 max-md:left-0 max-md:h-[85vh] max-md:w-full max-md:max-w-none max-md:origin-bottom max-md:translate-x-0 max-md:translate-y-0 max-md:rounded-t-2xl max-md:rounded-b-none max-md:border-x-0 max-md:border-b-0 ${open ? "scale-100 opacity-100" : "pointer-events-none scale-0 opacity-0"}`}
         role="dialog"
         aria-label="Secret terminal"
         inert={!open}
@@ -166,7 +252,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
               type="button"
               className="flex size-11 cursor-pointer items-center justify-end"
               aria-label="Close terminal"
-              onClick={onClose}
+              onClick={close}
             >
               <span className="size-3 rounded-full bg-[#ff5f56] shadow-[0_0_8px_rgba(255,95,86,0.7)] transition-transform duration-200 hover:scale-125"></span>
             </button>
@@ -176,6 +262,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
         </div>
         <div
           ref={bodyRef}
+          onClick={finishTyping}
           className={`relative z-[1] h-[calc(100%-100px)] overflow-y-auto bg-[rgba(19,16,10,0.95)] p-5 before:pointer-events-none before:absolute before:inset-0 before:z-[2] before:animate-scanline before:bg-[linear-gradient(transparent_50%,rgba(251,191,36,0.06)_50%)] before:bg-[length:100%_4px] before:content-[''] ${glitch ? "animate-glitch" : ""}`}
         >
           <div

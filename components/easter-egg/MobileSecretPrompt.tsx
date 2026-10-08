@@ -52,11 +52,17 @@ export default function MobileSecretPrompt({ onClose, onTry }: MobileSecretPromp
         </div>
       }
     >
-      <div className="px-5 py-[25px]">
-        <div className="relative mx-auto mb-[25px] flex size-20 items-center justify-center">
-          <div className="absolute size-full animate-ring-pulse rounded-full border-2 border-[rgba(251,191,36,0.3)]"></div>
-          <div className="relative z-[2] animate-icon-bounce text-[50px] [filter:drop-shadow(0_0_20px_rgba(251,191,36,0.4))]">
-            🎮
+      <div className="px-5 py-[25px] max-[481px]:px-4">
+        <div className="mx-auto mb-[25px] flex w-full max-w-[360px] flex-col items-center">
+          <div
+            className="mb-6 h-1.5 w-16 rounded-full bg-[rgba(251,191,36,0.3)]"
+            aria-hidden="true"
+          ></div>
+          <div className="relative mx-auto flex size-20 items-center justify-center">
+            <div className="absolute size-full animate-ring-pulse rounded-full border-2 border-[rgba(251,191,36,0.3)]"></div>
+            <div className="relative z-[2] animate-icon-bounce text-[50px] [filter:drop-shadow(0_0_20px_rgba(251,191,36,0.4))]">
+              🎮
+            </div>
           </div>
         </div>
 
@@ -88,16 +94,18 @@ export default function MobileSecretPrompt({ onClose, onTry }: MobileSecretPromp
           </div>
         </div>
 
-        <div className="mb-5 flex gap-3">
+        <div className="mb-5 flex flex-col gap-3 max-[481px]:gap-2.5">
           <button
-            className={`group min-h-[50px] cursor-pointer border border-[rgba(251,191,36,0.5)] bg-[linear-gradient(135deg,#1c1508_0%,#0f0c06_100%)] text-[#fbbf24] shadow-[0_4px_15px_rgba(0,0,0,0.4)] before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_center,rgba(251,191,36,0.15)_0%,transparent_70%)] before:opacity-0 before:transition-opacity before:duration-300 before:content-[''] hover:-translate-y-0.5 hover:border-[rgba(251,191,36,0.8)] hover:shadow-[0_6px_25px_rgba(251,191,36,0.3)] hover:before:opacity-80 ${secretButton}`}
+            className={`group min-h-14 w-full cursor-pointer border border-[rgba(251,191,36,0.5)] bg-[linear-gradient(135deg,#1c1508_0%,#0f0c06_100%)] text-[#fbbf24] shadow-[0_4px_15px_rgba(0,0,0,0.4)] before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_center,rgba(251,191,36,0.15)_0%,transparent_70%)] before:opacity-0 before:transition-opacity before:duration-300 before:content-[''] hover:-translate-y-0.5 hover:border-[rgba(251,191,36,0.8)] hover:shadow-[0_6px_25px_rgba(251,191,36,0.3)] hover:before:opacity-80 ${secretButton}`}
             onClick={() => leave(onTry)}
           >
             <span className="relative text-[22px]">⌨️</span>
-            <span className="relative tracking-[1px] group-hover:text-[#fde68a]">Enter Konami Code</span>
+            <span className="relative tracking-[1px] group-hover:text-[#fde68a]">
+              Enter Konami Code
+            </span>
           </button>
           <button
-            className={`cursor-pointer border border-[rgba(248,113,113,0.3)] bg-[rgba(248,113,113,0.1)] text-[#f87171] ${secretButton}`}
+            className={`min-h-14 w-full cursor-pointer border border-[rgba(248,113,113,0.3)] bg-[rgba(248,113,113,0.1)] text-[#f87171] ${secretButton}`}
             onClick={() => leave(onClose)}
           >
             <span>✕</span>
