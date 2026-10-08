@@ -15,6 +15,8 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "lighthouse": "lhci autorun",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
     "export": "node scripts/export.mjs",
     "export:design": "node scripts/export.mjs design",
     "export:full": "node scripts/export.mjs full"
@@ -25,7 +27,9 @@
     "react-dom": "19.3.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.0",
     "@lhci/cli": "^0.14.0",
+    "@playwright/test": "^1.55.0",
     "@tailwindcss/postcss": "^4.1.0",
     "@types/node": "^22",
     "@types/react": "^19",
