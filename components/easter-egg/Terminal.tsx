@@ -34,13 +34,23 @@ type TerminalProps = {
 };
 
 export default function Terminal({ open, onClose }: TerminalProps) {
-  const [lines, setLines] = useState<Line[]>([]);
+  const [lines, setLines] = useState<Line[]>(() => {
+    const mobile = isMobileViewport();
+    return [
+      mobile
+        ? { id: 0, tone: "plain", kind: "banner" }
+        : { id: 0, tone: "plain", kind: "ascii", text: ASCII_BANNER },
+      { id: 1, tone: "success", text: "Welcome to Basem's Secret Developer Terminal!" },
+      { id: 2, tone: "info", text: 'Type "help" to see available commands.' },
+      { id: 3, tone: "plain", text: "" },
+    ];
+  });
   const [glitch, setGlitch] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const history = useRef<string[]>([]);
   const historyIndex = useRef(0);
-  const nextId = useRef(0);
+  const nextId = useRef(4);
   const timers = useRef<number[]>([]);
 
   const withIds = (items: NewLine[]): Line[] =>
@@ -51,20 +61,8 @@ export default function Terminal({ open, onClose }: TerminalProps) {
   useEffect(() => {
     if (!open) return;
 
-    const mobile = isMobileViewport();
-
-    setLines(
-      withIds([
-        mobile
-          ? { tone: "plain", kind: "banner" }
-          : { tone: "plain", kind: "ascii", text: ASCII_BANNER },
-        { tone: "success", text: "Welcome to Basem's Secret Developer Terminal!" },
-        { tone: "info", text: 'Type "help" to see available commands.' },
-        { tone: "plain", text: "" },
-      ]),
-    );
     lockScroll();
-    if (!mobile) inputRef.current?.focus();
+    if (!isMobileViewport()) inputRef.current?.focus();
 
     return () => unlockScroll();
   }, [open]);

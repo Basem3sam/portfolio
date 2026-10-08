@@ -49,7 +49,7 @@ if (!Array.isArray(nextConfigs) && base.length === 0) {
   );
 }
 
-export default [
+const config = [
   {
     ignores: [
       ".next/**",
@@ -71,3 +71,5 @@ export default [
     },
   },
 ];
+
+export default config;

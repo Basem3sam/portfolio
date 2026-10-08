@@ -272,7 +272,7 @@ export default function EasterEggCore({ autoOpen, initialClicks }: EasterEggCore
         level={clue.level}
         onActivate={activateClue}
       />
-      <Terminal open={terminalOpen} onClose={closeTerminal} />
+      <Terminal key={terminalOpen ? "open" : "closed"} open={terminalOpen} onClose={closeTerminal} />
       {overlay === "prompt" && (
         <MobileSecretPrompt
           onClose={() => setOverlay("none")}

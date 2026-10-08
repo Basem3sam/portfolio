@@ -18,6 +18,11 @@ type NavbarProps = {
   palette: Dictionary["palette"];
 };
 
+function getModKey() {
+  if (typeof navigator === "undefined") return "⌘";
+  return /mac/i.test(navigator.userAgent) ? "⌘" : "Ctrl";
+}
+
 const sections: { href: string; labelKey: keyof Dictionary["nav"] }[] = [
   { href: "#work", labelKey: "work" },
   { href: "#stack", labelKey: "stack" },
@@ -50,12 +55,8 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [modKey, setModKey] = useState("⌘");
+  const [modKey] = useState(getModKey);
   const linksHref = locale === "ar" ? "/ar/links" : "/links";
-
-  useEffect(() => {
-    if (!/mac/i.test(navigator.userAgent)) setModKey("Ctrl");
-  }, []);
 
   useEffect(() => {
     const hero = document.getElementById("hero");
@@ -195,7 +196,9 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                     className={paletteButton}
                   >
                     <Icon name="search" className="size-4" />
-                    <span className="font-mono text-xs text-muted-text">{modKey} K</span>
+                    <span className="font-mono text-xs text-muted-text" suppressHydrationWarning>
+                      {modKey} K
+                    </span>
                   </button>
                   <Link href={linksHref} className={auxLink}>
                     <Icon name="externalLink" className="size-4" />

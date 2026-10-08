@@ -39,8 +39,6 @@ export default function GitHubProjects({ locale, dict }: GitHubProjectsProps) {
   useEffect(() => {
     const controller = new AbortController();
 
-    setState({ status: "loading" });
-
     loadRepositories(controller.signal)
       .then((repos) => {
         if (controller.signal.aborted) return;
@@ -65,6 +63,11 @@ export default function GitHubProjects({ locale, dict }: GitHubProjectsProps) {
 
     return () => controller.abort();
   }, [attempt, dict]);
+
+  const retry = () => {
+    setState({ status: "loading" });
+    setAttempt((value) => value + 1);
+  };
 
   return (
     <div className="w-full max-w-full overflow-x-hidden">
@@ -95,7 +98,7 @@ export default function GitHubProjects({ locale, dict }: GitHubProjectsProps) {
             {dict.errors[state.error.code] ?? state.error.message}
           </p>
           {state.error.retryable && (
-            <button className={retryButton} onClick={() => setAttempt((value) => value + 1)}>
+            <button className={retryButton} onClick={retry}>
               {dict.tryAgain}
             </button>
           )}

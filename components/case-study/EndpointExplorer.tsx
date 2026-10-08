@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import Icon from "@/components/ui/Icon";
-import { EXPLORER_ENDPOINTS, type ExplorerEndpoint, type HttpMethod } from "@/data/trosc";
+import { EXPLORER_ENDPOINTS, type EndpointId, type ExplorerEndpoint, type HttpMethod } from "@/data/trosc";
 import type { TroscDictionary } from "@/lib/dictionaries/trosc";
 import { prefersReducedMotion } from "@/lib/scroll";
 
@@ -44,7 +44,9 @@ function renderJson(value: unknown, indent: number): ReactNode {
     return <span className={jsonClass.punc}>{String(value)}</span>;
   }
   if (typeof value === "number") return <span className={jsonClass.num}>{value}</span>;
-  if (typeof value === "string") return <span className={jsonClass.str}>"{value}"</span>;
+  if (typeof value === "string") {
+    return <span className={jsonClass.str}>&quot;{value}&quot;</span>;
+  }
 
   if (Array.isArray(value)) {
     if (value.length === 0) return <span className={jsonClass.punc}>[]</span>;
@@ -75,7 +77,7 @@ function renderJson(value: unknown, indent: number): ReactNode {
       {entries.map(([key, val], index) => (
         <span key={key}>
           {padInner}
-          <span className={jsonClass.key}>"{key}"</span>
+          <span className={jsonClass.key}>&quot;{key}&quot;</span>
           <span className={jsonClass.punc}>: </span>
           {renderJson(val, indent + 1)}
           {index < entries.length - 1 && <span className={jsonClass.punc}>,</span>}
@@ -99,10 +101,7 @@ export default function EndpointExplorer({ dict }: EndpointExplorerProps) {
     EXPLORER_ENDPOINTS.find((endpoint) => endpoint.id === selectedId) ??
     EXPLORER_ENDPOINTS[0];
 
-  useEffect(() => {
-    setRunState({ status: "idle", ms: 0 });
-    return () => window.clearTimeout(timer.current);
-  }, [selectedId]);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
 
   const run = () => {
     window.clearTimeout(timer.current);
@@ -121,6 +120,13 @@ export default function EndpointExplorer({ dict }: EndpointExplorerProps) {
     );
   };
 
+  const select = (id: EndpointId) => {
+    if (id === selectedId) return;
+    window.clearTimeout(timer.current);
+    setRunState({ status: "idle", ms: 0 });
+    setSelectedId(id);
+  };
+
   const rowClass = (active: boolean) =>
     `flex w-full min-h-11 cursor-pointer items-center gap-2.5 border-b border-hairline px-3 py-2.5 text-start transition-colors duration-100 last:border-b-0 ${
       active ? "bg-light-bg" : "hover:bg-light-bg"
@@ -137,7 +143,7 @@ export default function EndpointExplorer({ dict }: EndpointExplorerProps) {
                 key={endpoint.id}
                 type="button"
                 aria-pressed={active}
-                onClick={() => setSelectedId(endpoint.id)}
+                onClick={() => select(endpoint.id)}
                 className={rowClass(active)}
               >
                 <MethodBadge method={endpoint.method} />

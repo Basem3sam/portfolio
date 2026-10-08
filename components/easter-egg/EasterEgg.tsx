@@ -9,8 +9,10 @@ const EasterEggCore = dynamic(() => import("./EasterEggCore"), { ssr: false });
 const UNLOCKED_KEY = "terminal_unlocked";
 const MIN_CLICK_INTERVAL = 300;
 
+type LoadState = { autoOpen: boolean; clicks: number };
+
 export default function EasterEgg() {
-  const [load, setLoad] = useState<{ autoOpen: boolean } | null>(null);
+  const [load, setLoad] = useState<LoadState | null>(null);
   const clicks = useRef(0);
   const lastClick = useRef(0);
   const konamiIndex = useRef(0);
@@ -19,7 +21,7 @@ export default function EasterEgg() {
   const arm = useCallback((autoOpen: boolean) => {
     if (armed.current) return;
     armed.current = true;
-    setLoad({ autoOpen });
+    setLoad({ autoOpen, clicks: clicks.current });
   }, []);
 
   useEffect(() => {
@@ -97,5 +99,5 @@ export default function EasterEgg() {
 
   if (!load) return null;
 
-  return <EasterEggCore autoOpen={load.autoOpen} initialClicks={clicks.current} />;
+  return <EasterEggCore autoOpen={load.autoOpen} initialClicks={load.clicks} />;
 }

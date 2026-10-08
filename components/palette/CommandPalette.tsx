@@ -145,12 +145,16 @@ function PaletteDialog({
     );
   }, [items, query]);
 
+  const handleClose = () => {
+    setQuery("");
+    setActive(0);
+    onClose();
+  };
+
   useEffect(() => {
     if (open) {
       restoreFocus.current =
         document.activeElement instanceof HTMLElement ? document.activeElement : null;
-      setQuery("");
-      setActive(0);
       lockScroll();
       const frame = requestAnimationFrame(() => inputRef.current?.focus());
       return () => cancelAnimationFrame(frame);
@@ -171,7 +175,7 @@ function PaletteDialog({
     const item = filtered[index];
     if (!item) return;
 
-    onClose();
+    handleClose();
     if (item.action) {
       item.action();
       return;
@@ -190,7 +194,7 @@ function PaletteDialog({
   const handleInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Escape") {
       event.preventDefault();
-      onClose();
+      handleClose();
       return;
     }
     if (event.key === "ArrowDown") {
@@ -222,7 +226,7 @@ function PaletteDialog({
   const handleDialogKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "Escape") {
       event.preventDefault();
-      onClose();
+      handleClose();
       return;
     }
     if (event.key === "Tab") {
@@ -245,7 +249,7 @@ function PaletteDialog({
       className={`fixed inset-0 z-[1080] flex items-start justify-center p-4 pt-[10vh] print:hidden ${open ? "" : "pointer-events-none"}`}
       inert={!open}
     >
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true"></div>
+      <div className="absolute inset-0 bg-black/40" onClick={handleClose} aria-hidden="true"></div>
       <div
         role="dialog"
         aria-modal="true"
@@ -282,7 +286,7 @@ function PaletteDialog({
           <button
             ref={closeRef}
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             aria-label={labels.close}
             className="flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md text-light-text transition-colors duration-200 hover:text-dark-text"
           >
@@ -334,7 +338,7 @@ function PaletteDialog({
                           className={optionClass(index)}
                           onClick={(event) => {
                             if (item.href) handleHashLinkClick(event, item.href);
-                            onClose();
+                            handleClose();
                           }}
                         >
                           <Icon name={item.icon} className={iconClass} />
@@ -347,7 +351,7 @@ function PaletteDialog({
                           }}
                           href={item.href}
                           className={optionClass(index)}
-                          onClick={() => onClose()}
+                          onClick={() => handleClose()}
                         >
                           <Icon name={item.icon} className={iconClass} />
                           <span className="flex-1">{item.label}</span>
@@ -361,7 +365,7 @@ function PaletteDialog({
                         type="button"
                         className={optionClass(index)}
                         onClick={() => {
-                          onClose();
+                          handleClose();
                           item.action?.();
                         }}
                       >
