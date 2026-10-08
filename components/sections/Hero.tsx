@@ -100,9 +100,12 @@ export default function Hero({ dict }: HeroProps) {
             </p>
 
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
-              <a href="#work" className={primaryCta}>
+              <a href="#work" className={`${primaryCta} group`}>
                 {dict.viewWork}
-                <Icon name="arrowRight" className="size-4 rtl:rotate-180" />
+                <Icon
+                  name="arrowRight"
+                  className="size-4 transition-transform duration-200 group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5"
+                />
               </a>
               <a href={CV_PATH} download className={ghostCta}>
                 <Icon name="fileDown" className="size-4" />

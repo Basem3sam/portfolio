@@ -452,6 +452,14 @@ html[lang="ar"] {
   background-size: 40px 40px;
 }
 
+@utility stagger-60 {
+  --stagger: 60ms;
+}
+
+@utility stagger-80 {
+  --stagger: 80ms;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -530,6 +538,15 @@ html[lang="ar"] {
     background: #5a554d;
   }
 
+  [data-reveal][data-stagger][data-revealed="false"] > * {
+    opacity: 0;
+  }
+
+  [data-reveal][data-stagger][data-revealed="true"] > * {
+    animation: revealUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+    animation-delay: calc(var(--stagger) * var(--stagger-index));
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     ::before,
@@ -548,7 +565,7 @@ html[lang="ar"] {
       --c-primary: #ffffff;
       --c-secondary: #7a3705;
       --c-on-secondary: #ffffff;
-  --c-signal: #1d4ed8;
+      --c-signal: #1d4ed8;
       --c-accent: #7a3705;
       --c-hairline: #d4d4d0;
       --c-status: #15803d;
@@ -576,6 +593,11 @@ html[lang="ar"] {
 
     [data-reveal] {
       opacity: 1 !important;
+    }
+
+    [data-reveal][data-stagger] > * {
+      opacity: 1 !important;
+      animation: none !important;
     }
 
     h1,

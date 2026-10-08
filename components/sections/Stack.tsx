@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import SectionHeader from "@/components/ui/SectionHeader";
 import type { Dictionary } from "@/lib/dictionaries/en";
 
@@ -12,11 +13,16 @@ export default function Stack({ dict }: StackProps) {
         <SectionHeader number="02" title={dict.title} />
 
         <dl
-          className="divide-y divide-hairline overflow-hidden rounded-lg border border-hairline bg-surface data-[revealed=false]:opacity-0 data-[revealed=true]:animate-reveal-up"
+          className="divide-y divide-hairline overflow-hidden rounded-lg border border-hairline bg-surface stagger-60"
           data-reveal
+          data-stagger
         >
-          {dict.groups.map((group) => (
-            <div key={group.label} className="grid gap-3 p-5 md:grid-cols-[170px_1fr] md:gap-6 md:p-6">
+          {dict.groups.map((group, index) => (
+            <div
+              key={group.label}
+              style={{ "--stagger-index": index } as CSSProperties}
+              className="grid gap-3 p-5 transition-colors duration-200 hover:bg-light-bg md:grid-cols-[170px_1fr] md:gap-6 md:p-6"
+            >
               <dt className="font-mono text-xs font-medium tracking-wide text-muted-text uppercase">
                 {group.label}
               </dt>

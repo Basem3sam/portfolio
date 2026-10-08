@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import GitHubProjects from "@/components/github/GitHubProjects";
 import Icon from "@/components/ui/Icon";
 import SectionHeader from "@/components/ui/SectionHeader";
@@ -49,7 +50,7 @@ export default function Work({ dict, github, locale }: WorkProps) {
       <div className="container">
         <SectionHeader number="01" title={dict.title} />
 
-        <div className="space-y-4">
+        <div className="space-y-4 stagger-80" data-reveal data-stagger>
           {dict.projects.map((project, index) => {
             const links = projectLinks[project.id];
             const showLinks =
@@ -57,9 +58,8 @@ export default function Work({ dict, github, locale }: WorkProps) {
             return (
               <article
                 key={project.id}
-                data-reveal
-                style={{ animationDelay: `${index * 100}ms` }}
-                className="rounded-lg border border-hairline bg-surface p-6 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:shadow-md md:p-7 data-[revealed=false]:opacity-0 data-[revealed=true]:animate-reveal-up"
+                style={{ "--stagger-index": index } as CSSProperties}
+                className="rounded-lg border border-hairline bg-surface p-6 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:shadow-md md:p-7"
               >
                 <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
                   <h3 className="font-mono text-lg font-semibold break-all text-dark-text">

@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import SectionHeader from "@/components/ui/SectionHeader";
 import type { Dictionary } from "@/lib/dictionaries/en";
 
@@ -11,13 +12,12 @@ export default function Experience({ dict }: ExperienceProps) {
       <div className="container">
         <SectionHeader number="04" title={dict.title} />
 
-        <ol className="divide-y divide-hairline">
+        <ol className="divide-y divide-hairline stagger-80" data-reveal data-stagger>
           {dict.entries.map((entry, index) => (
             <li
               key={entry.role}
-              className="grid gap-2 py-8 md:grid-cols-[170px_1fr] md:gap-6 data-[revealed=false]:opacity-0 data-[revealed=true]:animate-reveal-up"
-              data-reveal
-              style={{ animationDelay: `${index * 100}ms` }}
+              style={{ "--stagger-index": index } as CSSProperties}
+              className="grid gap-2 py-8 md:grid-cols-[170px_1fr] md:gap-6"
             >
               <p className="font-mono text-sm font-medium text-secondary">{entry.period}</p>
               <div>

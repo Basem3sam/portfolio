@@ -35,10 +35,10 @@ const sections: { href: string; labelKey: keyof Dictionary["nav"] }[] = [
 const sectionIds = sections.map((section) => section.href.slice(1));
 
 const sectionLink = (active: boolean) =>
-  `relative flex min-h-11 items-center px-2.5 text-sm font-medium transition-colors duration-200 after:absolute after:inset-x-2.5 after:bottom-2 after:h-0.5 after:rounded-sm after:bg-secondary after:transition-transform after:duration-200 max-lg:after:hidden ${
+  `relative flex min-h-11 items-center px-2.5 text-sm font-medium transition-colors duration-200 after:absolute after:inset-x-2.5 after:bottom-2 after:h-0.5 after:rounded-full after:transition-transform after:duration-200 after:content-[''] max-lg:after:hidden ${
     active
-      ? "text-secondary after:scale-x-100"
-      : "text-light-text hover:text-signal after:scale-x-0"
+      ? "text-secondary after:scale-x-100 after:bg-secondary"
+      : "text-light-text hover:text-signal after:scale-x-0 after:bg-signal hover:after:scale-x-100"
   }`;
 
 const auxLink =
