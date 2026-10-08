@@ -116,12 +116,15 @@ export default async function TroscCaseStudyPage({ params }: CaseStudyPageProps)
         <p className="mt-6 max-w-3xl text-lg leading-relaxed text-light-text">{t.brief}</p>
 
         <dl
-          className={`mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-hairline bg-hairline sm:grid-cols-3 lg:grid-cols-6 ${revealClass}`}
+          className={`mt-10 grid auto-rows-fr grid-cols-2 gap-px overflow-hidden rounded-lg border border-hairline bg-hairline sm:grid-cols-3 lg:grid-cols-6 ${revealClass}`}
           data-reveal
         >
           {t.metrics.map((metric) => (
-            <div key={metric.label} className="flex flex-col-reverse bg-surface p-4 text-center">
-              <dt className="mt-1 text-xs leading-snug text-light-text">{metric.label}</dt>
+            <div
+              key={metric.label}
+              className="flex flex-col-reverse items-center justify-between gap-1 bg-surface p-4 text-center"
+            >
+              <dt className="text-xs leading-snug text-light-text">{metric.label}</dt>
               <dd className="font-mono text-2xl font-semibold text-dark-text" dir="ltr">
                 <CountUp value={metric.value} suffix={metric.suffix} />
               </dd>

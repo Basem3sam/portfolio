@@ -147,3 +147,45 @@ test("print emulation forces light colors in dark mode", async ({ page }) => {
   const bgColor = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
   await expect(bgColor).toBe("rgb(255, 255, 255)");
 });
+
+test("scroll progress bar reaches exactly 100% at the bottom", async ({ page }) => {
+  await page.goto("/");
+  await page.waitForLoadState("networkidle");
+
+  // Scroll to the bottom repeatedly: the GitHub feed settles asynchronously
+  // and changes page height, so the last pass lands at the true bottom.
+  for (let i = 0; i < 3; i += 1) {
+    await page.evaluate(() =>
+      window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" }),
+    );
+    await page.waitForTimeout(500);
+  }
+
+  const width = await page
+    .locator('[data-testid="scroll-progress"]')
+    .evaluate((el) => el.style.width);
+  expect(width).toBe("100%");
+});
+
+test("hero metric values align on one line at every width", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+
+  const expectRowAligned = async (perRow: number) => {
+    const tops = await page.locator('[data-testid="metric-value"]').evaluateAll((els) =>
+      els.map((el) => el.getBoundingClientRect().top),
+    );
+    expect(tops).toHaveLength(4);
+    for (let i = 0; i < tops.length; i += perRow) {
+      for (let j = 1; j < perRow; j += 1) {
+        expect(Math.abs(tops[i + j] - tops[i])).toBeLessThanOrEqual(1);
+      }
+    }
+  };
+
+  await expectRowAligned(4);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expectRowAligned(2);
+  await page.setViewportSize({ width: 320, height: 568 });
+  await expectRowAligned(2);
+});

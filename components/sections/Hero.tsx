@@ -64,17 +64,21 @@ export default function Hero({ dict }: HeroProps) {
               {dict.lead}
             </p>
 
-            <dl className="mx-auto mt-8 grid max-w-lg grid-cols-2 gap-px overflow-hidden rounded-lg border border-hairline bg-hairline sm:grid-cols-4 lg:mx-0">
+            <dl className="mx-auto mt-8 grid max-w-lg auto-rows-fr grid-cols-2 gap-px overflow-hidden rounded-lg border border-hairline bg-hairline sm:grid-cols-4 lg:mx-0">
               {dict.metrics.map((metric, index) => (
                 <div
                   key={metric.label}
                   style={{ animationDelay: `${900 + index * 120}ms` }}
-                  className="flex flex-col-reverse items-center justify-center gap-1 bg-surface p-4 text-center transition-colors duration-200 hover:bg-light-bg motion-safe:animate-hero-in-1"
+                  className="flex flex-col-reverse items-center justify-between gap-1 bg-surface p-4 text-center transition-colors duration-200 hover:bg-light-bg motion-safe:animate-hero-in-1"
                 >
                   <dt className="font-mono text-[11px] leading-snug tracking-wide text-light-text uppercase">
                     {metric.label}
                   </dt>
-                  <dd className="font-mono text-2xl font-semibold text-secondary" dir="ltr">
+                  <dd
+                    data-testid="metric-value"
+                    className="font-mono text-2xl font-semibold text-secondary"
+                    dir="ltr"
+                  >
                     <CountUp value={metric.value} suffix={metric.suffix} />
                   </dd>
                 </div>

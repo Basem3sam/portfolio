@@ -161,9 +161,10 @@ export default function Terminal({ open, onClose }: TerminalProps) {
           <div className="text-[14px] font-bold tracking-[2px] text-[#fbbf24] uppercase [text-shadow:0_0_12px_rgba(251,191,36,0.6)] max-[481px]:text-[12px]">
             <Icon name="terminal" className="inline size-[1em]" /> BASEM_TERMINAL v1.0.0
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <button
-              className="-my-3 flex size-11 cursor-pointer items-center justify-center"
+              type="button"
+              className="flex size-11 cursor-pointer items-center justify-end"
               aria-label="Close terminal"
               onClick={onClose}
             >

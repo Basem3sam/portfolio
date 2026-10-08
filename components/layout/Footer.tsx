@@ -1,5 +1,5 @@
-import { getDictionary, type Locale } from '@/lib/i18n';
-import { SITE_URL } from '@/data/site';
+import { getDictionary, type Locale } from "@/lib/i18n";
+import { SITE_URL } from "@/data/site";
 
 type FooterProps = {
   locale?: Locale;
@@ -7,13 +7,13 @@ type FooterProps = {
 
 const commitSha = process.env.VERCEL_GIT_COMMIT_SHA;
 
-export default function Footer({ locale = 'en' }: FooterProps) {
+export default function Footer({ locale = "en" }: FooterProps) {
   const dict = getDictionary(locale);
   const host = new URL(SITE_URL).host;
-  const buildLabel = commitSha ? `build ${commitSha.slice(0, 7)}` : 'build dev';
+  const buildLabel = commitSha ? `build ${commitSha.slice(0, 7)}` : "build dev";
 
   return (
-    <footer className="w-full border-t border-hairline bg-(--c-page) py-8">
+    <footer className="w-full bg-light-bg py-8 print:bg-white">
       <div className="container flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm text-light-text">
         <p>&copy; {new Date().getFullYear()} Basem Esam. {dict.footer.rights}</p>
         <p className="font-mono text-xs text-muted-text">

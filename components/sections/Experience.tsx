@@ -11,7 +11,7 @@ export default function Experience({ dict }: ExperienceProps) {
       <div className="container">
         <SectionHeader number="04" title={dict.title} />
 
-        <ol className="divide-y divide-hairline border-t border-hairline">
+        <ol className="divide-y divide-hairline">
           {dict.entries.map((entry, index) => (
             <li
               key={entry.role}
