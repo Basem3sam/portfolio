@@ -12,10 +12,10 @@ const socialLink =
   "flex size-11 items-center justify-center rounded-md border border-hairline bg-surface text-light-text no-underline transition-colors duration-200 hover:border-secondary hover:text-secondary";
 
 const primaryCta =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-secondary px-5 text-sm font-semibold text-on-secondary no-underline shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#8a3f06] hover:shadow-md max-sm:w-full dark:hover:bg-[#fcd34d]";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-secondary px-5 text-sm font-semibold text-on-secondary no-underline shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#8a3f06] hover:shadow-md active:translate-y-0 max-sm:w-full dark:hover:bg-[#fcd34d]";
 
 const ghostCta =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-hairline bg-surface px-5 text-sm font-semibold text-dark-text no-underline shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-secondary hover:text-secondary hover:shadow-md max-sm:w-full";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-hairline bg-surface px-5 text-sm font-semibold text-dark-text no-underline shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-secondary hover:text-secondary hover:shadow-md active:translate-y-0 max-sm:w-full";
 
 const statusPill =
   "inline-flex items-center gap-1.5 rounded-full border border-hairline bg-surface px-3 py-1 font-mono text-[11px] font-semibold tracking-wide text-status uppercase";
@@ -56,18 +56,24 @@ export default function Hero({ dict }: HeroProps) {
               className="mt-4 text-4xl leading-tight font-bold tracking-tight text-dark-text sm:text-5xl motion-safe:animate-hero-in-2"
             >
               {dict.name}
+              <span className="text-secondary" aria-hidden="true">
+                .
+              </span>
             </h1>
             <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-light-text sm:text-xl lg:mx-0 motion-safe:animate-hero-in-3">
               {dict.lead}
             </p>
 
-            <dl className="mx-auto mt-8 grid max-w-lg grid-cols-2 gap-px overflow-hidden rounded-lg border border-hairline bg-hairline sm:grid-cols-4 lg:mx-0 motion-safe:animate-hero-in-3">
-              {dict.metrics.map((metric) => (
+            <dl className="mx-auto mt-8 grid max-w-lg grid-cols-2 gap-px overflow-hidden rounded-lg border border-hairline bg-hairline sm:grid-cols-4 lg:mx-0">
+              {dict.metrics.map((metric, index) => (
                 <div
                   key={metric.label}
-                  className="flex flex-col-reverse bg-surface p-4 text-center"
+                  style={{ animationDelay: `${900 + index * 120}ms` }}
+                  className="flex flex-col-reverse items-center justify-center gap-1 bg-surface p-4 text-center motion-safe:animate-hero-in-1"
                 >
-                  <dt className="mt-1 text-xs leading-snug text-light-text">{metric.label}</dt>
+                  <dt className="font-mono text-[11px] leading-snug tracking-wide text-light-text uppercase">
+                    {metric.label}
+                  </dt>
                   <dd className="font-mono text-2xl font-semibold text-secondary" dir="ltr">
                     <CountUp value={metric.value} suffix={metric.suffix} />
                   </dd>

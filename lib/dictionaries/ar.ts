@@ -2,12 +2,12 @@ import type { Dictionary } from "@/lib/dictionaries/en";
 
 const ar: Dictionary = {
   metadata: {
-    title: "باسم عصام | مطوّر Backend",
+    title: "باسم عصام | مهندس Backend",
     description:
-      "باسم عصام — مطوّر Backend وطالب علوم حاسب، متخصص في Node.js و Express وبناء الأنظمة القابلة للتوسع",
-    keywords: "مطوّر Backend, Node.js, Express, MongoDB, تطوير الويب",
+      "باسم عصام — مهندس Backend وطالب علوم حاسب، متخصص في Node.js و Express وبناء الأنظمة القابلة للتوسع",
+    keywords: "مهندس Backend, مطوّر Backend, Node.js, Express, MongoDB, تطوير الويب",
     shareDescription:
-      "مطوّر Backend وطالب علوم حاسب — متخصص في Node.js و Express وبناء الأنظمة القابلة للتوسع.",
+      "مهندس Backend وطالب علوم حاسب — متخصص في Node.js و Express وبناء الأنظمة القابلة للتوسع.",
   },
   nav: {
     home: "باسم عصام",
@@ -199,7 +199,7 @@ const ar: Dictionary = {
   about: {
     title: "نبذة عني",
     intro:
-      "أنا باسم — مطوّر Backend من بورسعيد، مصر، في سنتي الرابعة من دراسة علوم الحاسب بجامعة قناة السويس (دفعة 2027). أبني وأشغّل الـ Backend الإنتاجي لموقع Trosc: API بـ Express و MongoDB يضم أكثر من 85 نقطة نهاية ويخدم أكثر من 200 عضو.",
+      "أنا باسم — مهندس Backend من بورسعيد، مصر، في سنتي الرابعة من دراسة علوم الحاسب بجامعة قناة السويس (دفعة 2027). أبني وأشغّل الـ Backend الإنتاجي لموقع Trosc: API بـ Express و MongoDB يضم أكثر من 85 نقطة نهاية ويخدم أكثر من 200 عضو.",
     story:
       "بدأ طريقي مع البرمجيات مبكرًا: تشجيعُ معلّم قادني إلى أول موقع ويب أبنيه في الحادية عشرة، ونشأتي في ورشة عائلية لإصلاح الإلكترونيات علّمتني أن أتعامل مع التقنية من الداخل — أن أفهمها أولًا، ثم أجعلها تعمل من أجلي.",
     community:
@@ -327,10 +327,10 @@ const ar: Dictionary = {
   links: {
     metadataTitle: "باسم عصام — كل روابطي",
     metadataDescription:
-      "كل روابطي المهمة في مكان واحد — باسم عصام، مطوّر Backend وطالب علوم حاسب",
+      "كل روابطي المهمة في مكان واحد — باسم عصام، مهندس Backend وطالب علوم حاسب",
     backToPortfolio: "العودة إلى الموقع",
     name: "باسم عصام",
-    role: "مطوّر Backend وطالب علوم حاسب",
+    role: "مهندس Backend وطالب علوم حاسب",
     tagline: "أبني أنظمة قابلة للتوسع بـ Node.js و Express",
     location: "بورسعيد، مصر",
     cards: {

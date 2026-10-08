@@ -61,12 +61,13 @@ const projects: WorkProject[] = [
 
 const en = {
   metadata: {
-    title: "Basem Esam | Backend Developer",
+    title: "Basem Esam | Backend Engineer",
     description:
-      "Basem Esam - Backend Developer & CS Student specializing in Node.js, Express, and scalable systems",
-    keywords: "Backend Developer, Node.js, Express, MongoDB, Web Development",
+      "Basem Esam - Backend Engineer & CS Student specializing in Node.js, Express, and scalable systems",
+    keywords:
+      "Backend Engineer, Backend Developer, Node.js, Express, MongoDB, Web Development",
     shareDescription:
-      "Backend Developer & CS Student specializing in Node.js, Express, and scalable systems.",
+      "Backend Engineer & CS Student specializing in Node.js, Express, and scalable systems.",
   },
   nav: {
     home: "Basem Esam",
@@ -210,7 +211,7 @@ const en = {
   about: {
     title: "About",
     intro:
-      "I'm Basem — a backend developer from Port Said, Egypt, in my fourth year of Computer Science at Suez Canal University (class of 2027). I build and run the production backend that powers Trosc Student Club: an Express + MongoDB API with 85+ endpoints serving 200+ members.",
+      "I'm Basem — a backend engineer from Port Said, Egypt, in my fourth year of Computer Science at Suez Canal University (class of 2027). I build and run the production backend that powers Trosc Student Club: an Express + MongoDB API with 85+ endpoints serving 200+ members.",
     story:
       "My path into software started early: a teacher's encouragement led to my first website at age 11, and growing up around a family electronics repair shop taught me to treat technology from the inside out — understand it first, then make it work for you.",
     community:
@@ -345,10 +346,10 @@ const en = {
   links: {
     metadataTitle: "Basem Esam - All My Links",
     metadataDescription:
-      "All my important links in one place - Basem Esam, Backend Developer & CS Student",
+      "All my important links in one place - Basem Esam, Backend Engineer & CS Student",
     backToPortfolio: "Back to portfolio",
     name: "Basem Esam",
-    role: "Backend Developer & CS Student",
+    role: "Backend Engineer & CS Student",
     tagline: "Building scalable systems with Node.js & Express",
     location: "Port Said, Egypt",
     cards: {

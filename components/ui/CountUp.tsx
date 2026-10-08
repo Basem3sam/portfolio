@@ -36,7 +36,7 @@ export default function CountUp({ value, suffix = "", duration = 900 }: CountUpP
   }, [value, suffix, duration]);
 
   return (
-    <span ref={ref} className="inline-block min-w-[4ch]">
+    <span ref={ref} className="inline-block min-w-[4ch] text-center tabular-nums">
       {`${value}${suffix}`}
     </span>
   );

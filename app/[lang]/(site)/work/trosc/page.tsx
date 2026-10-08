@@ -72,6 +72,10 @@ function CaseSection({
       <h2 className="mt-1.5 text-2xl font-semibold tracking-tight text-dark-text md:text-3xl">
         {title}
       </h2>
+      <div className="mt-3 flex items-center gap-2" aria-hidden="true">
+        <span className="h-0.5 w-12 rounded-full bg-secondary motion-safe:animate-rule-grow"></span>
+        <span className="h-px flex-1 bg-hairline"></span>
+      </div>
       <div className="mt-6">{children}</div>
     </section>
   );
