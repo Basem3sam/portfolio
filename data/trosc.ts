@@ -2,8 +2,24 @@ export type HttpMethod = "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
 
 export type EndpointAccess = "public" | "protected" | "admin";
 
+export type EndpointId =
+  | "health"
+  | "login"
+  | "me"
+  | "tracks"
+  | "popular"
+  | "enroll"
+  | "session"
+  | "progress"
+  | "submit"
+  | "grade"
+  | "trustedHosts"
+  | "feed"
+  | "liveStats"
+  | "activityMe";
+
 export type ExplorerEndpoint = {
-  id: string;
+  id: EndpointId;
   method: HttpMethod;
   path: string;
   access: EndpointAccess;
