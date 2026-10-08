@@ -89,7 +89,7 @@ export default function GitHubProjects({ locale, dict }: GitHubProjectsProps) {
       )}
 
       {state.status === "error" && (
-        <div className="rounded-lg border border-dashed border-hairline p-8 text-center">
+        <div role="alert" className="rounded-lg border border-dashed border-hairline p-8 text-center">
           <Icon name="github" className={`mx-auto size-8 ${toneIcons[state.error.tone]}`} />
           <p className="mt-4 text-light-text">
             {dict.errors[state.error.code] ?? state.error.message}

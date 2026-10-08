@@ -61,10 +61,20 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
     const hero = document.getElementById("hero");
 
     if (!hero) {
-      const update = () => setScrolled(window.scrollY > 24);
+      let frame = 0;
+      const update = () => {
+        frame = 0;
+        setScrolled(window.scrollY > 24);
+      };
+      const schedule = () => {
+        if (!frame) frame = requestAnimationFrame(update);
+      };
       update();
-      window.addEventListener("scroll", update, { passive: true });
-      return () => window.removeEventListener("scroll", update);
+      window.addEventListener("scroll", schedule, { passive: true });
+      return () => {
+        window.removeEventListener("scroll", schedule);
+        if (frame) cancelAnimationFrame(frame);
+      };
     }
 
     const observer = new IntersectionObserver(([entry]) => setScrolled(!entry.isIntersecting), {

@@ -19,7 +19,7 @@ export default function SecretClue({ buttonRef, revealed, level, onActivate }: S
     <button
       ref={buttonRef}
       type="button"
-      className={`group fixed bottom-[30px] start-[30px] z-[1000] flex size-10 items-center justify-center rounded-full bg-[#fbbf24] text-[#0c0a06] shadow-[0_0_20px_rgba(251,191,36,0.5)] transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)] max-[481px]:bottom-[25px] max-[481px]:start-5 max-[481px]:size-[50px] ${revealed ? "visible scale-100 rotate-[360deg] cursor-default opacity-90 max-md:cursor-pointer max-md:active:scale-90" : "invisible scale-0 rotate-0 opacity-0"}`}
+      className={`group fixed bottom-[30px] start-[30px] z-[1000] flex size-11 items-center justify-center rounded-full bg-[#fbbf24] text-[#0c0a06] shadow-[0_0_20px_rgba(251,191,36,0.5)] transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)] max-[481px]:bottom-[25px] max-[481px]:start-5 max-[481px]:size-[50px] ${revealed ? "visible scale-100 rotate-[360deg] cursor-default opacity-90 max-md:cursor-pointer max-md:active:scale-90" : "invisible scale-0 rotate-0 opacity-0"}`}
       aria-label="Secret terminal"
       onClick={onActivate}
     >

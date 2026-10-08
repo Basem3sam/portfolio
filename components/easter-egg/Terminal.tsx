@@ -157,12 +157,14 @@ export default function Terminal({ open, onClose }: TerminalProps) {
           <div className="text-[14px] font-bold tracking-[2px] text-[#fbbf24] uppercase [text-shadow:0_0_10px_rgba(251,191,36,0.5)] max-[481px]:text-[12px]">
             <Icon name="terminal" className="inline size-[1em]" /> BASEM_TERMINAL v1.0.0
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <button
-              className="size-3 cursor-pointer rounded-full bg-[#ff5f56] transition-transform duration-200 hover:scale-125"
+              className="-my-3 flex size-11 cursor-pointer items-center justify-center"
               aria-label="Close terminal"
               onClick={onClose}
-            ></button>
+            >
+              <span className="size-3 rounded-full bg-[#ff5f56] transition-transform duration-200 hover:scale-125"></span>
+            </button>
             <span className="size-3 rounded-full bg-[#ffbd2e]"></span>
             <span className="size-3 rounded-full bg-[#27c93f]"></span>
           </div>

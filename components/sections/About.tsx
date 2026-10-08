@@ -23,9 +23,7 @@ export default function About({ dict }: AboutProps) {
             <p className="leading-relaxed text-light-text">{dict.today}</p>
             <div className="flex flex-wrap gap-2 pt-2">
               {dict.chips.map((chip) => (
-                <Badge variant="primary" key={chip}>
-                  {chip}
-                </Badge>
+                <Badge key={chip}>{chip}</Badge>
               ))}
             </div>
           </div>

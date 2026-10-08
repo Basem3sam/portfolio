@@ -173,7 +173,7 @@ export default function KonamiKeyboard({ onClose, onBack, onSuccess }: KonamiKey
               </span>
             </span>
             <button
-              className="cursor-pointer rounded-lg border border-[rgba(251,146,60,0.3)] bg-[rgba(251,146,60,0.1)] px-3 py-1.5 font-bold text-[#fb923c] transition-all duration-200 active:scale-90 disabled:cursor-not-allowed disabled:opacity-30"
+              className="min-h-11 cursor-pointer rounded-lg border border-[rgba(251,146,60,0.3)] bg-[rgba(251,146,60,0.1)] px-3 font-bold text-[#fb923c] transition-all duration-200 active:scale-90 disabled:cursor-not-allowed disabled:opacity-30"
               aria-label="Backspace"
               disabled={empty}
               onClick={backspace}
@@ -181,7 +181,7 @@ export default function KonamiKeyboard({ onClose, onBack, onSuccess }: KonamiKey
               ⌫
             </button>
             <button
-              className="cursor-pointer rounded-lg border border-[rgba(248,113,113,0.3)] bg-[rgba(248,113,113,0.1)] px-3 py-1.5 font-bold text-[#f87171] transition-all duration-200 active:scale-90 disabled:cursor-not-allowed disabled:opacity-30"
+              className="min-h-11 cursor-pointer rounded-lg border border-[rgba(248,113,113,0.3)] bg-[rgba(248,113,113,0.1)] px-3 font-bold text-[#f87171] transition-all duration-200 active:scale-90 disabled:cursor-not-allowed disabled:opacity-30"
               aria-label="Clear"
               disabled={empty}
               onClick={() => setSequence([])}

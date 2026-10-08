@@ -86,15 +86,11 @@ function HintToast({ level, clicks, closing, onDone }: HintToastProps) {
   return (
     <div
       className={`fixed start-1/2 z-[10001] flex max-w-[320px] -translate-x-1/2 flex-col items-center gap-1 rounded-xl border border-[rgba(251,191,36,0.35)] bg-[linear-gradient(135deg,#191307_0%,#0c0a06_100%)] px-5 py-3.5 text-center font-mono text-[13px] font-semibold tracking-[0.5px] text-[#fbbf24] shadow-[0_8px_32px_rgba(251,191,36,0.25),0_0_0_1px_rgba(251,191,36,0.2),inset_0_1px_0_rgba(253,230,138,0.08)] backdrop-blur-[10px] [text-shadow:0_0_8px_rgba(251,191,36,0.4)] transition-all duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] top-[100px] max-md:top-auto max-md:bottom-[100px] max-md:z-[10002] max-md:max-w-[280px] max-md:px-4 max-md:py-3 max-[481px]:bottom-[90px] max-[481px]:max-w-[260px] max-[481px]:px-3.5 max-[481px]:py-2.5 ${hintLevelStyles[level] ?? ""} ${shown ? "translate-y-0 opacity-100" : "pointer-events-none -translate-y-5 opacity-0 max-md:translate-y-5"}`}
-      onClick={() => dismiss()}
     >
       <button
-        className="absolute top-1.5 end-1.5 flex size-4 cursor-pointer items-center justify-center rounded-full text-[12px] text-[rgba(251,191,36,0.6)] transition-all duration-200 hover:bg-[rgba(248,113,113,0.2)] hover:text-[#f87171] max-md:top-1 max-md:end-1 max-md:size-5 max-md:text-[10px]"
+        className="absolute top-0 end-0 flex size-11 cursor-pointer items-center justify-center rounded-full text-[12px] text-[rgba(251,191,36,0.6)] transition-all duration-200 hover:bg-[rgba(248,113,113,0.2)] hover:text-[#f87171]"
         aria-label="Close notification"
-        onClick={(event) => {
-          event.stopPropagation();
-          dismiss();
-        }}
+        onClick={() => dismiss()}
       >
         &times;
       </button>
@@ -153,7 +149,16 @@ function MasterToast({ closing, onDone, onShown }: MasterToastProps) {
   return (
     <div
       className={`fixed inset-0 z-[10004] m-auto h-fit w-fit max-w-[460px] min-w-[380px] cursor-pointer overflow-hidden rounded-2xl border-2 border-[rgba(251,191,36,0.4)] bg-[#0c0a06] px-[30px] py-[35px] text-center font-mono text-[#e8e6e1] shadow-[0_0_0_2px_rgba(251,191,36,0.3),0_10px_40px_rgba(0,0,0,0.7)] transition-opacity duration-[800ms] before:pointer-events-none before:absolute before:inset-0 before:z-[1] before:bg-[linear-gradient(transparent_50%,rgba(251,191,36,0.02)_50%)] before:bg-[length:100%_4px] before:content-[''] max-[481px]:max-w-[90%] max-[481px]:min-w-[320px] max-[481px]:px-5 max-[481px]:py-[25px] ${shown ? "animate-master-pop opacity-100" : "pointer-events-none opacity-0"}`}
+      role="button"
+      tabIndex={shown ? 0 : -1}
+      aria-label="Dismiss achievement"
       onClick={() => dismiss(500)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          dismiss(500);
+        }
+      }}
     >
       <div className="relative z-[2]">
         <div className="mb-4 flex items-center justify-center gap-3 text-[18px] font-bold tracking-[2px] text-[#fbbf24] uppercase [text-shadow:0_0_10px_rgba(251,191,36,0.5)] max-[481px]:text-[16px]">
@@ -198,7 +203,7 @@ type ToastsProps = {
 
 export default function Toasts({ toasts, onRemove, onMasterShown }: ToastsProps) {
   return (
-    <>
+    <div aria-live="polite">
       {toasts.map((toast) => {
         const onDone = () => onRemove(toast.id);
 
@@ -265,6 +270,6 @@ export default function Toasts({ toasts, onRemove, onMasterShown }: ToastsProps)
             );
         }
       })}
-    </>
+    </div>
   );
 }
