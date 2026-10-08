@@ -1,4 +1,4 @@
-type ProjectStatus = "production" | "complete" | "research" | "academic";
+type ProjectStatus = "production" | "development" | "complete" | "research" | "academic";
 
 type WorkProject = {
   id: string;
@@ -21,6 +21,25 @@ const projects: WorkProject[] = [
     tech: ["Node.js", "Express", "MongoDB", "Mongoose", "JWT", "Swagger", "Joi"],
   },
   {
+    id: "store-advisor",
+    name: "store-advisor",
+    status: "development",
+    description:
+      "A cross-source monitoring agent for e-commerce merchants: connects a store and its ad accounts, runs checks that join data across both, finds problems no single dashboard can see, prices them in dollars, explains them in plain language — and, with the merchant's approval, fixes them.",
+    detail:
+      "Six Docker Compose services: a NestJS API and scheduler worker, a Python AI service, a Next.js dashboard, Postgres, and Redis — with 241 tests across the three codebases. Design rule: the check finds the problem, the LLM explains it, and never invents a number.",
+    tech: ["NestJS", "PostgreSQL", "Redis", "Python", "Next.js", "Docker"],
+  },
+  {
+    id: "zabthalahak",
+    name: "zabthalahak",
+    status: "development",
+    description:
+      "Freelance build for a real 3D-printing business: an Arabic-first, RTL storefront and admin dashboard — orders, custom requests, inventory, printers, customers, reports, and an audit log — in React 19 + Vite + Tailwind, over a data layer already shaped for the real API.",
+    detail: "Node.js / Express / MongoDB modular-monolith backend currently in development.",
+    tech: ["React", "Vite", "Tailwind CSS", "Node.js", "Express", "MongoDB"],
+  },
+  {
     id: "laravel",
     name: "laravel-ecommerce-app",
     status: "complete",
@@ -29,7 +48,7 @@ const projects: WorkProject[] = [
     detail: "",
     tech: ["PHP", "Laravel", "MySQL", "Blade"],
   },
-    {
+  {
     id: "neuroscan",
     name: "neuroscan-ai",
     status: "academic",
@@ -109,6 +128,7 @@ const en = {
     viewLive: "Live site",
     status: {
       production: "production",
+      development: "in development",
       complete: "complete",
       research: "research",
       academic: "academic",
@@ -123,6 +143,7 @@ const en = {
         items: [
           "Node.js",
           "Express.js",
+          "NestJS",
           "REST API design",
           "JWT authentication",
           "PHP",
@@ -140,6 +161,7 @@ const en = {
           "Compound & text indexing",
           "Aggregation pipelines",
           "MySQL",
+          "PostgreSQL",
         ],
       },
       {
@@ -153,6 +175,10 @@ const en = {
           "ESLint (Airbnb config)",
           "Prettier",
         ],
+      },
+      {
+        label: "frontend",
+        items: ["Next.js", "React", "TypeScript", "Tailwind CSS"],
       },
       {
         label: "security & docs",
@@ -255,7 +281,9 @@ const en = {
     certifications: [
       "Cloud Architecture — Professional Certification, ITI",
       "PHP Web Development — 120-hour Full Stack Track, ITI",
+      "Web Development using React JS — 144-hour Track, ITI (Jul–Aug 2026)",
       "Certificate of Appreciation — OOP Instructor, GDG SCU (2025)",
+      "Vice IT Head Certificate — Trosc Student Club",
     ],
   },
   palette: {

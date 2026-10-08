@@ -24,6 +24,7 @@ const projectLinks: Record<string, { repo: string; live?: string }> = {
 
 const statusDot: Record<string, string> = {
   production: "bg-status",
+  development: "bg-secondary animate-pulse motion-reduce:animate-none",
   complete: "bg-secondary",
   research: "bg-muted-text",
   academic: "bg-muted-text",

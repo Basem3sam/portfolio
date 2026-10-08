@@ -68,6 +68,7 @@ const ar: Dictionary = {
     viewLive: "الموقع الحيّ",
     status: {
       production: "إنتاج",
+      development: "قيد التطوير",
       complete: "مكتمل",
       research: "بحثي",
       academic: "أكاديمي",
@@ -84,6 +85,26 @@ const ar: Dictionary = {
         tech: ["Node.js", "Express", "MongoDB", "Mongoose", "JWT", "Swagger", "Joi"],
       },
       {
+        id: "store-advisor",
+        name: "store-advisor",
+        status: "development",
+        description:
+          "وكيل مراقبة عبر مصادر البيانات لتجار التجارة الإلكترونية: يتصل بمتجر التاجر وحسابات إعلاناته، ويشغّل فحوصًا تربط بيانات المصدرين معًا لتكتشف مشكلات لا تراها أي لوحة مفردة، ويقيّمها بالدولار، ويشرحها بلغة واضحة — ثم يصلحها بموافقة التاجر.",
+        detail:
+          "ست خدمات عبر Docker Compose: واجهة NestJS API ومجدول المهام، وخدمة ذكاء اصطناعي بـ Python، ولوحة تحكم بـ Next.js، مع Postgres و Redis — و241 اختبارًا عبر الأكواد الثلاثة. القاعدة: الفحص يكتشف المشكلة، والنموذج اللغوي يشرحها — ولا يخترع رقمًا أبدًا.",
+        tech: ["NestJS", "PostgreSQL", "Redis", "Python", "Next.js", "Docker"],
+      },
+      {
+        id: "zabthalahak",
+        name: "ظبطهالك",
+        status: "development",
+        description:
+          "عمل حر لمتجر طباعة ثلاثية الأبعاد حقيقي: واجهة متجر ولوحة تحكم إدارية عربية بالكامل بتخطيط RTL — الطلبات، الطلبات المخصّصة، المخزون، الطابعات، العملاء، التقارير، وسجل التدقيق — بـ React 19 و Vite و Tailwind، فوق طبقة بيانات مهيّأة مسبقًا لواجهة الـ API القادمة.",
+        detail:
+          "الـ Backend (Node.js / Express / MongoDB بمعمارية modular monolith) قيد التطوير حاليًا.",
+        tech: ["React", "Vite", "Tailwind CSS", "Node.js", "Express", "MongoDB"],
+      },
+      {
         id: "laravel",
         name: "laravel-ecommerce-app",
         status: "complete",
@@ -97,10 +118,11 @@ const ar: Dictionary = {
         name: "neuroscan-ai",
         status: "academic",
         description:
-          "بنيت خط كشف أورام الدماغ الهجين عبر أكثر من 6 نماذج مجمّعة (CNN-KNN-KMeans) مع معالجة مسبقة بـ OpenCV وتقييم بإجماع متعدد النماذج؛ مع زيادة للبيانات وتحقق متقاطع ومعمارية مصنّفات قابلة للتبديل لاختبارات A/B قابلة للتكرار.",
-        detail: "",
+          "خط كشف أورام الدماغ الهجين عبر أكثر من 6 نماذج مجمّعة (CNN-KNN-KMeans) مع معالجة مسبقة بـ OpenCV وتقييم بإجماع متعدد النماذج، مع زيادة للبيانات وتحقق متقاطع ومعمارية مصنّفات قابلة للتبديل لاختبارات A/B قابلة للتكرار.",
+        detail: "مشروع فريق — امتحان عملي في السنة الثالثة.",
         tech: ["Python", "PyTorch", "CNN", "KNN", "KMeans", "OpenCV"],
       },
+    ],
   },
   stack: {
     title: "التقنيات",
@@ -110,6 +132,7 @@ const ar: Dictionary = {
         items: [
           "Node.js",
           "Express.js",
+          "NestJS",
           "REST API design",
           "JWT authentication",
           "PHP",
@@ -127,6 +150,7 @@ const ar: Dictionary = {
           "Compound & text indexing",
           "Aggregation pipelines",
           "MySQL",
+          "PostgreSQL",
         ],
       },
       {
@@ -140,6 +164,10 @@ const ar: Dictionary = {
           "ESLint (Airbnb config)",
           "Prettier",
         ],
+      },
+      {
+        label: "الواجهة الأمامية",
+        items: ["Next.js", "React", "TypeScript", "Tailwind CSS"],
       },
       {
         label: "الأمان والتوثيق",
@@ -235,7 +263,9 @@ const ar: Dictionary = {
     certifications: [
       "شهادة Cloud Architecture الاحترافية — ITI",
       "تطوير ويب PHP — مسار Full Stack (120 ساعة) — ITI",
+      "تطوير الويب بـ React JS — مسار 144 ساعة — ITI (يوليو–أغسطس 2026)",
       "شهادة تقدير — مدرّس OOP، GDG SCU (2025)",
+      "شهادة نائب رئيس قسم IT — Trosc Student Club",
     ],
   },
   palette: {
