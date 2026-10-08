@@ -53,7 +53,7 @@ const revealClass =
   "data-[revealed=false]:opacity-0 data-[revealed=true]:animate-reveal-up";
 
 const linkButton =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-hairline bg-surface px-4 text-sm font-medium text-dark-text no-underline transition-colors duration-200 hover:border-secondary hover:text-secondary";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-hairline bg-surface px-4 text-sm font-medium text-dark-text no-underline transition-colors duration-200 hover:border-signal hover:text-signal";
 
 function CaseSection({
   label,
@@ -252,7 +252,7 @@ export default async function TroscCaseStudyPage({ params }: CaseStudyPageProps)
             href={TROSC_API_DOCS_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-3 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-secondary no-underline transition-colors duration-200 hover:text-dark-text"
+            className="mt-3 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-signal no-underline transition-colors duration-200 hover:text-dark-text"
           >
             {t.sections.explorer.apiReference}
             <Icon name="externalLink" className="size-4" />

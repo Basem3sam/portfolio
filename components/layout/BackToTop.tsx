@@ -63,7 +63,7 @@ export default function BackToTop({ label = 'Back to top' }: BackToTopProps) {
     <a
       ref={linkRef}
       href="#"
-      className={`group fixed end-5 bottom-5 z-[1030] flex size-11 cursor-pointer items-center justify-center rounded-full border border-hairline bg-surface text-dark-text no-underline shadow-md transition-all duration-300 select-none [-webkit-tap-highlight-color:transparent] [touch-action:manipulation] hover:border-secondary hover:text-secondary hover:shadow-lg md:end-8 md:bottom-8 pointer-coarse:active:scale-95 print:hidden ${visible ? shown : hidden}`}
+      className={`group fixed end-5 bottom-5 z-[1030] flex size-11 cursor-pointer items-center justify-center rounded-full border border-hairline bg-surface text-dark-text no-underline shadow-md transition-all duration-300 select-none [-webkit-tap-highlight-color:transparent] [touch-action:manipulation] hover:border-signal hover:text-signal hover:shadow-lg md:end-8 md:bottom-8 pointer-coarse:active:scale-95 print:hidden ${visible ? shown : hidden}`}
       aria-label={label}
       onClick={handleClick}
     >

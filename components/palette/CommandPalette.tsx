@@ -264,7 +264,9 @@ function PaletteDialog({
 
   const optionClass = (index: number) =>
     `flex min-h-11 w-full items-center gap-3 rounded-md px-3 text-start text-sm transition-colors duration-100 cursor-pointer ${
-      index === active ? "bg-light-bg text-dark-text" : "text-light-text"
+      index === active
+        ? "bg-light-bg text-dark-text shadow-[inset_2px_0_0_0_var(--c-signal)]"
+        : "text-light-text"
     }`;
 
   return (

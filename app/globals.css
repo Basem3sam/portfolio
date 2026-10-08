@@ -344,6 +344,7 @@
   --color-primary: var(--c-primary);
   --color-secondary: var(--c-secondary);
   --color-on-secondary: var(--c-on-secondary);
+  --color-signal: var(--c-signal);
   --color-accent: var(--c-accent);
   --color-hairline: var(--c-hairline);
   --color-status: var(--c-status);
@@ -369,6 +370,7 @@
   --c-primary: #191a1e;
   --c-secondary: #b45309;
   --c-on-secondary: #ffffff;
+  --c-signal: #1d4ed8;
   --c-accent: #b3261e;
   --c-hairline: #e7e5de;
   --c-status: #166534;
@@ -396,6 +398,7 @@ html[lang="ar"] {
   --c-primary: #1e1c1a;
   --c-secondary: #fbbf24;
   --c-on-secondary: #1e1c1a;
+  --c-signal: #60a5fa;
   --c-accent: #f87171;
   --c-hairline: #3e3a34;
   --c-status: #4ade80;
@@ -545,6 +548,7 @@ html[lang="ar"] {
       --c-primary: #ffffff;
       --c-secondary: #7a3705;
       --c-on-secondary: #ffffff;
+  --c-signal: #1d4ed8;
       --c-accent: #7a3705;
       --c-hairline: #d4d4d0;
       --c-status: #15803d;

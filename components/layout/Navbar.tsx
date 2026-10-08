@@ -38,17 +38,17 @@ const sectionLink = (active: boolean) =>
   `relative flex min-h-11 items-center px-2.5 text-sm font-medium transition-colors duration-200 after:absolute after:inset-x-2.5 after:bottom-2 after:h-0.5 after:rounded-sm after:bg-secondary after:transition-transform after:duration-200 max-lg:after:hidden ${
     active
       ? "text-secondary after:scale-x-100"
-      : "text-light-text hover:text-dark-text after:scale-x-0"
+      : "text-light-text hover:text-signal after:scale-x-0"
   }`;
 
 const auxLink =
-  "flex min-h-11 items-center gap-1.5 px-2.5 text-sm font-medium text-light-text no-underline transition-colors duration-200 hover:text-dark-text";
+  "flex min-h-11 items-center gap-1.5 px-2.5 text-sm font-medium text-light-text no-underline transition-colors duration-200 hover:text-signal";
 
 const themeButton =
-  "flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md border border-hairline bg-surface/50 text-light-text transition-colors duration-200 hover:border-secondary hover:text-secondary max-lg:w-full";
+  "flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md border border-hairline bg-surface/50 text-light-text transition-colors duration-200 hover:border-signal hover:text-signal max-lg:w-full";
 
 const paletteButton =
-  "hidden min-h-11 cursor-pointer items-center gap-2 rounded-md border border-hairline bg-surface/50 px-3 text-sm font-medium text-light-text transition-colors duration-200 hover:border-secondary hover:text-secondary lg:inline-flex";
+  "hidden min-h-11 cursor-pointer items-center gap-2 rounded-md border border-hairline bg-surface/50 px-3 text-sm font-medium text-light-text transition-colors duration-200 hover:border-signal hover:text-signal lg:inline-flex";
 
 export default function Navbar({ labels, theme, locale, languageSwitch, palette }: NavbarProps) {
   const { openPalette } = useCommandPalette();
@@ -143,7 +143,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
 
         <button
           type="button"
-          className="flex size-11 cursor-pointer items-center justify-center rounded-md border border-hairline bg-surface/50 text-dark-text transition-colors duration-200 hover:border-secondary hover:text-secondary lg:hidden"
+          className="flex size-11 cursor-pointer items-center justify-center rounded-md border border-hairline bg-surface/50 text-dark-text transition-colors duration-200 hover:border-signal hover:text-signal lg:hidden"
           aria-controls="navbarNav"
           aria-expanded={menuOpen}
           aria-label={labels.toggleNavigation}
@@ -161,7 +161,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
           <div className="min-h-0 overflow-hidden lg:ms-auto lg:overflow-visible">
             <button
               type="button"
-              className="mb-2 flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-md px-2.5 text-sm font-medium text-light-text transition-colors duration-200 hover:text-dark-text lg:hidden"
+              className="mb-2 flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-md px-2.5 text-sm font-medium text-light-text transition-colors duration-200 hover:text-signal lg:hidden"
               onClick={() => {
                 setMenuOpen(false);
                 openPalette();

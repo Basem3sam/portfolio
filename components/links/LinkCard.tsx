@@ -12,7 +12,7 @@ type LinkCardProps = {
 };
 
 const card =
-  "group relative flex items-center gap-4 rounded-lg border border-hairline bg-surface p-4 no-underline shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-secondary hover:shadow-md motion-safe:animate-hero-in md:p-5";
+  "group relative flex items-center gap-4 rounded-lg border border-hairline bg-surface p-4 no-underline shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:shadow-md motion-safe:animate-hero-in md:p-5";
 
 export default function LinkCard({
   href,
@@ -27,7 +27,7 @@ export default function LinkCard({
 
   const content = (
     <>
-      <span className="flex size-11 shrink-0 items-center justify-center rounded-md border border-hairline bg-light-bg text-light-text transition-colors duration-200 group-hover:border-secondary group-hover:text-secondary">
+      <span className="flex size-11 shrink-0 items-center justify-center rounded-md border border-hairline bg-light-bg text-light-text transition-colors duration-200 group-hover:border-signal group-hover:text-signal">
         <Icon name={icon} className="size-5" />
       </span>
       <span className="min-w-0 flex-1">
@@ -36,7 +36,7 @@ export default function LinkCard({
       </span>
       <Icon
         name="arrowRight"
-        className="size-5 shrink-0 text-muted-text transition-all duration-200 group-hover:translate-x-1 group-hover:text-secondary rtl:rotate-180 rtl:group-hover:-translate-x-1"
+        className="size-5 shrink-0 text-muted-text transition-all duration-200 group-hover:translate-x-1 group-hover:text-signal rtl:rotate-180 rtl:group-hover:-translate-x-1"
       />
     </>
   );

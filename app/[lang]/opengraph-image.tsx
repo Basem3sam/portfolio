@@ -20,7 +20,7 @@ export default function OpengraphImage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          backgroundColor: "#fafaf8",
+          backgroundColor: "#fbfaf6",
           padding: "64px 72px",
         }}
       >
@@ -30,14 +30,14 @@ export default function OpengraphImage() {
               width: 18,
               height: 18,
               borderRadius: 9999,
-              backgroundColor: "#15803d",
+              backgroundColor: "#166534",
               display: "flex",
             }}
           />
-          <div style={{ display: "flex", fontSize: 26, color: "#6e6b66", letterSpacing: 4 }}>
+          <div style={{ display: "flex", fontSize: 26, color: "#64626c", letterSpacing: 4 }}>
             OPERATIONAL
           </div>
-          <div style={{ display: "flex", fontSize: 26, color: "#6e6b66" }}>— open to work</div>
+          <div style={{ display: "flex", fontSize: 26, color: "#64626c" }}>— open to work</div>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column" }}>
@@ -46,13 +46,13 @@ export default function OpengraphImage() {
               display: "flex",
               fontSize: 88,
               fontWeight: 700,
-              color: "#1a1d21",
+              color: "#1b1d23",
               letterSpacing: -3,
             }}
           >
             Basem Esam
           </div>
-          <div style={{ display: "flex", fontSize: 36, color: "#a04a07", marginTop: 12 }}>
+          <div style={{ display: "flex", fontSize: 36, color: "#b45309", marginTop: 12 }}>
             Backend Engineer — Node.js · Express · MongoDB
           </div>
         </div>
@@ -66,14 +66,14 @@ export default function OpengraphImage() {
                 flexDirection: "column",
                 padding: "22px 30px",
                 borderRadius: 16,
-                border: "2px solid #e4e4e1",
+                border: "2px solid #e7e5de",
                 backgroundColor: "#ffffff",
               }}
             >
-              <div style={{ display: "flex", fontSize: 46, fontWeight: 700, color: "#1a1d21" }}>
+              <div style={{ display: "flex", fontSize: 46, fontWeight: 700, color: "#1b1d23" }}>
                 {metric.value}
               </div>
-              <div style={{ display: "flex", fontSize: 22, color: "#52525b", marginTop: 6 }}>
+              <div style={{ display: "flex", fontSize: 22, color: "#4b4b55", marginTop: 6 }}>
                 {metric.label}
               </div>
             </div>
@@ -81,20 +81,31 @@ export default function OpengraphImage() {
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          <div
-            style={{
-              display: "flex",
-              width: "100%",
-              height: 6,
-              borderRadius: 3,
-              backgroundColor: "#a04a07",
-            }}
-          />
+          <div style={{ display: "flex", gap: 10, width: "100%" }}>
+            <div
+              style={{
+                display: "flex",
+                flex: 4,
+                height: 6,
+                borderRadius: 3,
+                backgroundColor: "#b45309",
+              }}
+            />
+            <div
+              style={{
+                display: "flex",
+                flex: 1,
+                height: 6,
+                borderRadius: 3,
+                backgroundColor: "#1d4ed8",
+              }}
+            />
+          </div>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div style={{ display: "flex", fontSize: 26, color: "#52525b" }}>
+            <div style={{ display: "flex", fontSize: 26, color: "#4b4b55" }}>
               basemesam.vercel.app
             </div>
-            <div style={{ display: "flex", fontSize: 26, color: "#6e6b66" }}>
+            <div style={{ display: "flex", fontSize: 26, color: "#64626c" }}>
               class of 2027 · Suez Canal University
             </div>
           </div>

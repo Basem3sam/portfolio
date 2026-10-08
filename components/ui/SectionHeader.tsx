@@ -17,6 +17,7 @@ export default function SectionHeader({ number, title }: SectionHeaderProps) {
       </h2>
       <div className="mt-4 flex items-center gap-2" aria-hidden="true">
         <span className="h-0.5 w-12 rounded-full bg-secondary motion-safe:animate-rule-grow"></span>
+        <span className="h-0.5 w-3 rounded-full bg-signal motion-safe:animate-rule-grow [animation-delay:250ms]"></span>
         <span className="h-px flex-1 bg-hairline"></span>
       </div>
     </div>

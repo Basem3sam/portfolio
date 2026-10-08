@@ -25,10 +25,10 @@ const linkCell =
 const plainCell = "flex flex-col gap-1.5 bg-surface p-5 md:p-6";
 
 const socialLink =
-  "flex size-11 items-center justify-center rounded-md border border-hairline bg-surface text-light-text no-underline transition-colors duration-200 hover:border-secondary hover:text-secondary";
+  "flex size-11 items-center justify-center rounded-md border border-hairline bg-surface text-light-text no-underline transition-colors duration-200 hover:border-signal hover:text-signal";
 
 const cvButton =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-hairline bg-surface px-5 text-sm font-semibold text-dark-text no-underline transition-colors duration-200 hover:border-secondary hover:text-secondary";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-hairline bg-surface px-5 text-sm font-semibold text-dark-text no-underline transition-colors duration-200 hover:border-signal hover:text-signal";
 
 export default function Contact({ dict }: ContactProps) {
   return (
@@ -47,7 +47,7 @@ export default function Contact({ dict }: ContactProps) {
           <a href={MAILTO} className={linkCell}>
             <span className={labelClass}>{dict.emailLabel}</span>
             <span
-              className={`${valueClass} break-all transition-colors duration-200 group-hover:text-secondary`}
+              className={`${valueClass} break-all transition-colors duration-200 group-hover:text-signal`}
             >
               {EMAIL}
             </span>
@@ -56,7 +56,7 @@ export default function Contact({ dict }: ContactProps) {
           <a href={PHONE_TEL} className={linkCell}>
             <span className={labelClass}>{dict.phoneLabel}</span>
             <span
-              className={`${valueClass} transition-colors duration-200 group-hover:text-secondary`}
+              className={`${valueClass} transition-colors duration-200 group-hover:text-signal`}
               dir="ltr"
             >
               {PHONE_DISPLAY}

@@ -38,10 +38,10 @@ const caseStudyLink =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-secondary px-4 text-sm font-semibold text-on-secondary no-underline shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#8a3f06] hover:shadow-md dark:hover:bg-[#fcd34d]";
 
 const repoLink =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-hairline bg-surface px-4 text-sm font-medium text-dark-text no-underline shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-secondary hover:text-secondary hover:shadow-md";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-hairline bg-surface px-4 text-sm font-medium text-dark-text no-underline shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:text-signal hover:shadow-md";
 
 const liveLink =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-hairline bg-surface px-4 text-sm font-medium text-dark-text no-underline shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-secondary hover:text-secondary hover:shadow-md";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-hairline bg-surface px-4 text-sm font-medium text-dark-text no-underline shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:text-signal hover:shadow-md";
 
 export default function Work({ dict, github, locale }: WorkProps) {
   return (
@@ -59,7 +59,7 @@ export default function Work({ dict, github, locale }: WorkProps) {
                 key={project.id}
                 data-reveal
                 style={{ animationDelay: `${index * 100}ms` }}
-                className="rounded-lg border border-hairline bg-surface p-6 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md md:p-7 data-[revealed=false]:opacity-0 data-[revealed=true]:animate-reveal-up"
+                className="rounded-lg border border-hairline bg-surface p-6 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:shadow-md md:p-7 data-[revealed=false]:opacity-0 data-[revealed=true]:animate-reveal-up"
               >
                 <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
                   <h3 className="font-mono text-lg font-semibold break-all text-dark-text">
@@ -136,7 +136,7 @@ export default function Work({ dict, github, locale }: WorkProps) {
 
         <div className="mt-16 print:hidden">
           <div className="flex items-center gap-3">
-            <p className="font-mono text-xs font-medium tracking-wide whitespace-nowrap text-muted-text uppercase">
+            <p className="font-mono text-xs font-medium tracking-wide whitespace-nowrap text-signal uppercase">
               {dict.liveLabel}
             </p>
             <div className="h-px flex-1 bg-hairline" aria-hidden="true"></div>
