@@ -235,7 +235,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
           const tree = parseSpanHtml(item.html);
           if (tree) {
             return {
-              line: { ...item, tree },
+              line: { ...item, tree, shown: 0 },
               entry: { id: -1, mode: "html", length: countChars(tree), shown: 0, full: "" },
             };
           }
