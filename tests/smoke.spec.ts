@@ -1,5 +1,18 @@
 import { expect, test } from "@playwright/test";
 
+const KONAMI = [
+  "ArrowUp",
+  "ArrowUp",
+  "ArrowDown",
+  "ArrowDown",
+  "ArrowLeft",
+  "ArrowRight",
+  "ArrowLeft",
+  "ArrowRight",
+  "b",
+  "a",
+];
+
 test.beforeEach(async ({ context }) => {
   await context.clearCookies();
 });
@@ -72,38 +85,28 @@ test("palette escape closes and returns focus", async ({ page }) => {
   await expect(trigger).toBeFocused();
 });
 
-test("keyboard shortcut opens the hidden terminal", async ({ page }) => {
+test("locked users unlock through the code entry area and on-screen keypad", async ({ page }) => {
   await page.goto("/");
 
+  // Locked: the shortcut opens the code entry area, never the terminal
   await page.keyboard.press("Control+Shift+b");
-  const terminal = page.locator("#secret-terminal");
-  await expect(terminal).toBeVisible();
+  const enterButton = page.getByRole("button", { name: "Enter Konami Code" });
+  await expect(enterButton).toBeVisible();
 
-  const input = page.locator("#terminal-input");
-  await expect(input).toBeAttached();
-  await input.fill("help");
-  await input.press("Enter");
-  await expect(page.locator("#terminal-output")).toContainText("Available Commands");
-  await input.fill("exit");
-  await input.press("Enter");
-  await expect(terminal).not.toBeVisible();
+  await enterButton.click();
+
+  // The complete mouse-only journey: solve the code on the on-screen keypad
+  for (const key of ["↑", "↑", "↓", "↓", "←", "→", "←", "→", "B", "A"]) {
+    await page.getByRole("button", { name: key, exact: true }).click();
+  }
+
+  await expect(page.locator("#secret-terminal")).toBeVisible();
 });
 
 test("konami code unlocks the terminal", async ({ page }) => {
   await page.goto("/");
 
-  for (const key of [
-    "ArrowUp",
-    "ArrowUp",
-    "ArrowDown",
-    "ArrowDown",
-    "ArrowLeft",
-    "ArrowRight",
-    "ArrowLeft",
-    "ArrowRight",
-    "b",
-    "a",
-  ]) {
+  for (const key of KONAMI) {
     await page.keyboard.press(key);
   }
 
@@ -112,7 +115,10 @@ test("konami code unlocks the terminal", async ({ page }) => {
 
 test("terminal unlock persists in localStorage", async ({ page }) => {
   await page.goto("/");
-  await page.keyboard.press("Control+Shift+b");
+
+  for (const key of KONAMI) {
+    await page.keyboard.press(key);
+  }
   await expect(page.locator("#secret-terminal")).toBeVisible();
 
   await page.reload();
@@ -152,8 +158,6 @@ test("scroll progress bar reaches exactly 100% at the bottom", async ({ page }) 
   await page.goto("/");
   await page.waitForLoadState("networkidle");
 
-  // Scroll to the bottom repeatedly: the GitHub feed settles asynchronously
-  // and changes page height, so the last pass lands at the true bottom.
   for (let i = 0; i < 3; i += 1) {
     await page.evaluate(() =>
       window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" }),

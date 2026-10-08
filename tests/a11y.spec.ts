@@ -1,12 +1,19 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-// Axe scans computed colors at scan time; without this, elements caught
-// mid-fade (hero-in animation, scroll reveals still at opacity 0) report
-// impossible contrast ratios. Reduced motion is also the honest choice:
-// it is exactly the environment real prefers-reduced-motion users get,
-// where RevealOnScroll never hides anything and motion-safe animations
-// never run.
+const KONAMI = [
+  "ArrowUp",
+  "ArrowUp",
+  "ArrowDown",
+  "ArrowDown",
+  "ArrowLeft",
+  "ArrowRight",
+  "ArrowLeft",
+  "ArrowRight",
+  "b",
+  "a",
+];
+
 test.use({ reducedMotion: "reduce" });
 
 test.describe("accessibility", () => {
@@ -44,7 +51,9 @@ test.describe("accessibility", () => {
 
   test("open terminal has no axe violations", async ({ page }) => {
     await page.goto("/");
-    await page.keyboard.press("Control+Shift+b");
+    for (const key of KONAMI) {
+      await page.keyboard.press(key);
+    }
     await expect(page.locator("#secret-terminal")).toBeVisible();
     const results = await new AxeBuilder({ page }).analyze();
     expect(results.violations).toEqual([]);

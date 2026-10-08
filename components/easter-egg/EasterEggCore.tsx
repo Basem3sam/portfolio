@@ -146,13 +146,17 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
 
       if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "b") {
         event.preventDefault();
-        openTerminal();
+        if (unlocked) {
+          openTerminal();
+        } else {
+          setOverlay((current) => (current === "none" ? "prompt" : current));
+        }
       }
     };
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [openTerminal]);
+  }, [openTerminal, unlocked]);
 
   // UI access while the core is already loaded (palette item, footer button).
   useEffect(() => {

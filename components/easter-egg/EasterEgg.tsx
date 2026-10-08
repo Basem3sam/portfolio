@@ -13,6 +13,14 @@ const MIN_CLICK_INTERVAL = 300;
 
 type LoadState = { mode: TerminalMode; clicks: number };
 
+function readUnlocked() {
+  try {
+    return localStorage.getItem(UNLOCKED_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
 export default function EasterEgg({ locale }: { locale: Locale }) {
   const [load, setLoad] = useState<LoadState | null>(null);
   const clicks = useRef(0);
@@ -27,12 +35,7 @@ export default function EasterEgg({ locale }: { locale: Locale }) {
   }, []);
 
   useEffect(() => {
-    let unlocked = false;
-    try {
-      unlocked = localStorage.getItem(UNLOCKED_KEY) === "1";
-    } catch {}
-
-    if (unlocked) {
+    if (readUnlocked()) {
       console.log(
         "%c🎮 Welcome back, terminal master!",
         "color: #fbbf24; font-size: 16px; font-weight: bold;",
@@ -40,13 +43,14 @@ export default function EasterEgg({ locale }: { locale: Locale }) {
       console.log("%cPress Ctrl + Shift + B to reopen the terminal", "color: #fbbf24; font-size: 12px;");
     } else {
       console.log(
-        "%c🎮 SECRET TERMINAL AVAILABLE!",
+        "%c🎮 SECRET TERMINAL LOCKED!",
         "color: #fbbf24; font-size: 16px; font-weight: bold;",
       );
-      console.log("%cPress Ctrl + Shift + B to open the terminal", "color: #e8e6e1; font-size: 12px;");
+      console.log("%cEnter the Konami Code to unlock it:", "color: #f87171; font-size: 12px;");
+      console.log("%c↑ ↑ ↓ ↓ ← → ← → B A", "color: #f87171; font-size: 12px;");
       console.log(
-        "%cOr try the Konami Code: ↑ ↑ ↓ ↓ ← → ← → B A",
-        "color: #f87171; font-size: 12px;",
+        "%cNo keyboard? Ctrl + Shift + B opens the code entry panel.",
+        "color: #e8e6e1; font-size: 12px;",
       );
     }
   }, []);
@@ -68,7 +72,7 @@ export default function EasterEgg({ locale }: { locale: Locale }) {
 
       if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "b") {
         event.preventDefault();
-        arm("terminal");
+        arm(readUnlocked() ? "terminal" : "prompt");
       }
     };
 
@@ -76,16 +80,11 @@ export default function EasterEgg({ locale }: { locale: Locale }) {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [arm]);
 
-  // UI access (palette item, footer button): unlocked users open the terminal
-  // directly; everyone else lands in the Konami access area - the secret is
-  // never bypassed, only made solvable without a keyboard.
+  // UI access (palette item, footer button): masters open directly,
+  // everyone else lands in the code entry area - never a bypass.
   useEffect(() => {
     const openFromUI = () => {
-      let unlocked = false;
-      try {
-        unlocked = localStorage.getItem(UNLOCKED_KEY) === "1";
-      } catch {}
-      arm(unlocked ? "terminal" : "prompt");
+      arm(readUnlocked() ? "terminal" : "prompt");
     };
 
     window.addEventListener(OPEN_TERMINAL_EVENT, openFromUI);
