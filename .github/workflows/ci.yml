@@ -1,0 +1,65 @@
+name: CI
+
+# Runs on every push (any branch), every pull request, and manually
+# via the "Run workflow" button. Public repository: free, unlimited
+# minutes. Private repository: 2,000 free minutes per month - this
+# workflow uses roughly 6-8 minutes per run.
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+# Cancel a still-running run from the same branch when a new push
+# lands (saves minutes during rapid iteration).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # Requires package-lock.json to be committed to the repository.
+      # If you ever decide not to commit the lock file, change this to
+      # `npm install` and remove `cache: npm` above.
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      # Also exercises the next/font downloads and the next/og image
+      # generation - this is the first full external build of the site.
+      - name: Build
+        run: npm run build
+
+      # Starts `npm start`, waits for readiness, audits the four pages
+      # (3 runs each, mobile emulation), then asserts the thresholds in
+      # lighthouserc.json. Chrome is preinstalled on ubuntu runners.
+      - name: Lighthouse CI
+        run: npx lhci autorun
+
+      # Always upload the HTML reports. When a threshold fails, download
+      # this artifact and open the failing URL's report to see exactly
+      # which audit tripped it.
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci
+          retention-days: 7

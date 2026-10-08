@@ -20,3 +20,6 @@ npm-debug.log*
 /export/
 scripts/
 commit-message.txt
+
+# lighthouse ci output
+.lighthouseci/

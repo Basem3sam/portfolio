@@ -14,6 +14,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
+    "lighthouse": "lhci autorun",
     "export": "node scripts/export.mjs",
     "export:design": "node scripts/export.mjs design",
     "export:full": "node scripts/export.mjs full"
@@ -25,6 +26,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.0",
+    "@lhci/cli": "^0.14.0",
     "@tailwindcss/postcss": "^4.1.0",
     "@types/node": "^22",
     "@types/react": "^19",
