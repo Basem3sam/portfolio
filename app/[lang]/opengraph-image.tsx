@@ -20,7 +20,7 @@ export default function OpengraphImage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          backgroundColor: "#faf5ea",
+          backgroundColor: "#f9f7f2",
           padding: "64px 72px",
         }}
       >
@@ -34,10 +34,10 @@ export default function OpengraphImage() {
               display: "flex",
             }}
           />
-          <div style={{ display: "flex", fontSize: 26, color: "#6f6149", letterSpacing: 4 }}>
+          <div style={{ display: "flex", fontSize: 26, color: "#6a6252", letterSpacing: 4 }}>
             OPERATIONAL
           </div>
-          <div style={{ display: "flex", fontSize: 26, color: "#6f6149" }}>— open to work</div>
+          <div style={{ display: "flex", fontSize: 26, color: "#6a6252" }}>— open to work</div>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column" }}>
@@ -46,7 +46,7 @@ export default function OpengraphImage() {
               display: "flex",
               fontSize: 88,
               fontWeight: 700,
-              color: "#241c11",
+              color: "#201b12",
               letterSpacing: -3,
             }}
           >
@@ -66,14 +66,14 @@ export default function OpengraphImage() {
                 flexDirection: "column",
                 padding: "22px 30px",
                 borderRadius: 16,
-                border: "2px solid #e7dcc4",
+                border: "2px solid #e4dfd3",
                 backgroundColor: "#ffffff",
               }}
             >
               <div style={{ display: "flex", fontSize: 46, fontWeight: 700, color: "#a34809" }}>
                 {metric.value}
               </div>
-              <div style={{ display: "flex", fontSize: 22, color: "#574a38", marginTop: 6 }}>
+              <div style={{ display: "flex", fontSize: 22, color: "#5a5244", marginTop: 6 }}>
                 {metric.label}
               </div>
             </div>
@@ -97,15 +97,15 @@ export default function OpengraphImage() {
                 flex: 1,
                 height: 6,
                 borderRadius: 3,
-                backgroundColor: "#0e7490",
+                backgroundColor: "#0c6a84",
               }}
             />
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div style={{ display: "flex", fontSize: 26, color: "#574a38" }}>
+            <div style={{ display: "flex", fontSize: 26, color: "#5a5244" }}>
               basemesam.vercel.app
             </div>
-            <div style={{ display: "flex", fontSize: 26, color: "#6f6149" }}>
+            <div style={{ display: "flex", fontSize: 26, color: "#6a6252" }}>
               class of 2027 · Suez Canal University
             </div>
           </div>

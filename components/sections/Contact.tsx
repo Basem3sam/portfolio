@@ -57,7 +57,7 @@ export default function Contact({ dict }: ContactProps) {
     },
     {
       icon: "phone",
-      tint: "bg-[rgba(14,116,144,0.08)] text-signal dark:bg-[rgba(45,212,191,0.1)] dark:text-[#2dd4bf]",
+      tint: "bg-[rgba(12,106,132,0.08)] text-signal dark:bg-[rgba(45,212,191,0.1)] dark:text-[#2dd4bf]",
       label: dict.phoneLabel,
       value: PHONE_DISPLAY,
       href: PHONE_TEL,

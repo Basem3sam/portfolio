@@ -35,9 +35,9 @@ const statusPill: Record<string, string> = {
   complete:
     "bg-[rgba(163,72,9,0.14)] text-[#7e3907] dark:bg-[rgba(251,191,36,0.16)] dark:text-[#fde68a]",
   research:
-    "bg-[rgba(111,97,73,0.12)] text-[#574a38] dark:bg-[rgba(184,188,199,0.12)] dark:text-[#b8bcc7]",
+    "bg-[rgba(106,98,82,0.12)] text-[#5a5244] dark:bg-[rgba(184,188,199,0.12)] dark:text-[#b8bcc7]",
   academic:
-    "bg-[rgba(111,97,73,0.12)] text-[#574a38] dark:bg-[rgba(184,188,199,0.12)] dark:text-[#b8bcc7]",
+    "bg-[rgba(106,98,82,0.12)] text-[#5a5244] dark:bg-[rgba(184,188,199,0.12)] dark:text-[#b8bcc7]",
 };
 
 const statusDot: Record<string, string> = {
