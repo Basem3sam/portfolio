@@ -144,3 +144,10 @@ export function warmAudioContext() {
     oscillator.stop(audio.currentTime + 0.001);
   } catch {}
 }
+
+export function resumeAudio(): Promise<void> {
+  return getContext()
+    .resume()
+    .then(() => {})
+    .catch(() => {});
+}

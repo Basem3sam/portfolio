@@ -22,7 +22,7 @@ import {
   createDirectionalParticles,
   createEpicCelebration,
 } from "@/lib/effects";
-import { playKonamiSound, playSuccessSound, setupAudio } from "@/lib/sounds";
+import { playKonamiSound, playSuccessSound, resumeAudio, setupAudio } from "@/lib/sounds";
 import type { Locale } from "@/lib/i18n";
 import type { TerminalMode } from "@/components/easter-egg/constants";
 
@@ -201,6 +201,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       if (clueRef.current) animateClue(clueRef.current, "celebration", 2000);
       addToast({ kind: "master" });
       createEpicCelebration();
+      resumeAudio().then(() => playSuccessSound());
 
       window.clearTimeout(state.resetTimer);
       state.resetTimer = window.setTimeout(() => reset(false), 5000);

@@ -171,7 +171,10 @@ function MasterToast({ closing, onDone }: MasterToastProps) {
           <span className="text-[12px]">The secret terminal awaits your command...</span>
         </p>
         <div className="my-5 rounded-lg border border-[rgba(251,191,36,0.3)] bg-black/40 p-[18px]">
-          <code className="block text-[20px] font-bold tracking-[6px] text-[#fbbf24] [text-shadow:0_0_10px_rgba(251,191,36,0.4)] max-[481px]:text-[16px] max-[481px]:tracking-[4px]">
+          <code
+            dir="ltr"
+            className="block text-[20px] font-bold tracking-[6px] text-[#fbbf24] [unicode-bidi:isolate] [text-shadow:0_0_10px_rgba(251,191,36,0.4)] max-[481px]:text-[16px] max-[481px]:tracking-[4px]"
+          >
             ↑ ↑ ↓ ↓ ← → ← → B A
           </code>
         </div>
