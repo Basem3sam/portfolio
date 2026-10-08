@@ -8,7 +8,7 @@ const personJsonLd = {
   name: "Basem Esam",
   jobTitle: "Backend Engineer",
   description:
-    "Backend engineer specializing in Node.js, Express, and MongoDB. Built and runs an 85+ endpoint production API serving 200+ members.",
+    "Backend engineer specializing in Node.js, Express, and MongoDB. Built and runs a 100+ endpoint production API serving 200+ members.",
   url: SITE_URL,
   email: "mailto:basem.esam.omar@gmail.com",
   telephone: "+201123505981",

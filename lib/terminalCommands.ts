@@ -27,8 +27,9 @@ Name: Basem Esam
 Role: Backend Engineer & CS Student
 Location: Port Said, Egypt
 
-Bio: A passionate backend developer with expertise in
-Node.js, Express, and scalable system architecture.
+Bio: A backend engineer with expertise in Node.js,
+Express, and scalable system architecture. Builds and
+runs a 100+ endpoint production API for 200+ users.
 Active in competitive programming (ICPC) and tech
 communities (GDG, Mech Hackers).
 
@@ -46,8 +47,8 @@ that make a difference! 🚀
 ╚════════════════════════════════════════╝
 
 Backend Development:
-  ▸ Node.js / Express
-  ▸ MongoDB (Mongoose) / MySQL
+  ▸ Node.js / Express / NestJS
+  ▸ MongoDB (Mongoose) / MySQL / PostgreSQL
   ▸ PHP / Laravel
 
 DevOps & Tools:
@@ -71,8 +72,8 @@ Special Abilities:
 
 1. Trosc Student Club Platform
    ├─ Production REST API (Node.js / Express)
-   ├─ MongoDB · service-layer architecture
-   └─ Serving 200+ members
+   ├─ MongoDB · 12 collections · 17 services
+   └─ 100+ endpoints · serving 200+ members
    Status: ✓ Live & Running
    Link: https://trosc.vercel.app/
    Repo: github.com/Basem3sam/trosc-backend

@@ -15,9 +15,9 @@ const projects: WorkProject[] = [
     name: "trosc-backend",
     status: "production",
     description:
-      "Open-source production backend for a student-club learning platform — 85+ endpoints across 6 Mongoose models and 9 dedicated services, serving tracks, courses, sessions, events, and announcements to 200+ members. Service-layer architecture with thin controllers, reusable factory middleware, and MongoDB querying with compound indexes and virtual population.",
+      "Open-source production backend for a student-club learning platform — 100+ endpoints across 12 Mongoose collections and 17 dedicated services, serving tracks, courses, sessions, events, and announcements to 200+ members. Service-layer architecture with thin controllers, reusable factory middleware, and MongoDB querying with compound indexes and virtual population.",
     detail:
-      "3-tier RBAC with dual-token auth, enrollment prerequisites (public / track-only / private), bulk user operations with admin-protection guards, and an email service with 4 HTML templates. Swagger/OpenAPI 3.0 docs served interactively at /api-docs.",
+      "3-tier RBAC with dual-token auth, enrollment prerequisites (public / track-only / private), bulk user operations with admin-protection guards, and a background email service. Swagger/OpenAPI 3.0 docs served interactively at /api-docs.",
     tech: ["Node.js", "Express", "MongoDB", "Mongoose", "JWT", "Swagger", "Joi"],
   },
   {
@@ -102,12 +102,12 @@ const en = {
   hero: {
     whoami: "$ whoami",
     name: "Basem Esam",
-    lead: "Backend engineer who built and runs an 85+ endpoint production API for 200+ real users — while finishing a Computer Science degree (class of 2027).",
+    lead: "Backend engineer who built and runs a 100+ endpoint production API for 200+ real users — while finishing a Computer Science degree (class of 2027).",
     status: "operational",
     statusDetail:
       "open to internships, junior roles & freelance · remote worldwide or on-site in Egypt",
     metrics: [
-      { value: 85, suffix: "+", label: "endpoints in production" },
+      { value: 100, suffix: "+", label: "endpoints in production" },
       { value: 200, suffix: "+", label: "members served" },
       { value: 7, suffix: "", label: "security layers" },
       { value: 11, suffix: "", label: "trusted media hosts" },
@@ -240,7 +240,7 @@ const en = {
         role: "IT Head & Backend Lead",
         org: "Trosc Student Club",
         period: "Jan 2025 – Present",
-        text: "Architected and deployed the club's production REST API — 85+ endpoints across 6 Mongoose models and 9 dedicated services — serving tracks, courses, sessions, events, and announcements to 200+ members, with dual-token JWT auth, 3-tier RBAC, and a 7-layer security model. Leads the club's IT team.",
+        text: "Architected and deployed the club's production REST API — 100+ endpoints across 12 Mongoose collections and 17 dedicated services — serving tracks, courses, sessions, events, and announcements to 200+ members, with dual-token JWT auth, 3-tier RBAC, and a 7-layer security model. Leads the club's IT team.",
       },
       {
         role: "OOP Instructor",

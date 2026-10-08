@@ -5,7 +5,7 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 const metrics = [
-  { value: "85+", label: "endpoints in production" },
+  { value: "100+", label: "endpoints in production" },
   { value: "200+", label: "members served" },
   { value: "7", label: "security layers" },
 ];

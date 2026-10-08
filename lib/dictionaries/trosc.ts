@@ -11,7 +11,7 @@ const en = {
   role: "IT Head & Backend Lead · Jan 2025 – Present",
   brief:
     "The API behind Trosc Student Club's learning platform at Suez Canal University. What began in January 2025 as a club website grew into a production system: 100+ endpoints over 12 collections and 17 services, serving tracks, courses, video sessions, events, announcements, assignments, weekly tasks, and reviews to 200+ members — on infrastructure that costs nothing to run.",
-  metricsNote: "Figures from the live API documentation — the system is still in development.",
+  metricsNote: "Figures from the live API documentation.",
   links: {
     repo: "View repository",
     live: "Live site",
@@ -168,7 +168,7 @@ const ar: TroscDictionary = {
   role: "رئيس قسم IT وقائد فريق Backend · يناير 2025 – حتى الآن",
   brief:
     "الواجهة البرمجية خلف منصة التعلّم لنادي طلاب Trosc بجامعة قناة السويس. ما بدأ في يناير 2025 كموقع لنادٍ طلابي تحوّل إلى نظام إنتاجي: أكثر من 100 نقطة نهاية فوق 12 مجموعة بيانات و17 خدمة، تخدم المسارات والدورات والجلسات المرئية والفعاليات والإعلانات والواجبات والمهام الأسبوعية والتقييمات لأكثر من 200 عضو — على بنية تحتية لا تكلّف شيئًا في تشغيلها.",
-  metricsNote: "الأرقام من وثائق الـ API الحية — النظام ما يزال قيد التطوير.",
+  metricsNote: "الأرقام من وثائق الـ API الحية.",
   links: {
     repo: "عرض المستودع",
     live: "الموقع الحيّ",
