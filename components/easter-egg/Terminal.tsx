@@ -1,19 +1,30 @@
 "use client";
 
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { isMobileViewport } from "@/components/easter-egg/constants";
 import Icon from "@/components/ui/Icon";
 import { lockScroll, unlockScroll } from "@/lib/scrollLock";
 import { prefersReducedMotion } from "@/lib/scroll";
-import { ASCII_BANNER, COMMAND_ALIASES, COMMAND_NAMES, COMMAND_OUTPUT } from "@/lib/terminalCommands";
+import {
+  ASCII_BANNER,
+  COMMAND_ALIASES,
+  COMMAND_NAMES,
+  COMMAND_OUTPUT,
+} from "@/lib/terminalCommands";
 
 type Tone = "plain" | "prompt" | "success" | "info" | "error";
+
+type HtmlNode =
+  | { kind: "text"; atoms: string[] }
+  | { kind: "span"; className: string; children: HtmlNode[] };
 
 type Line = {
   id: number;
   tone: Tone;
   text?: string;
   html?: string;
+  tree?: HtmlNode[];
+  shown?: number;
   kind?: "ascii" | "banner";
   delay?: number;
 };
@@ -33,7 +44,7 @@ const lineClass = "mb-2 animate-terminal-line max-md:text-[13px] max-md:leading-
 const TYPE_CHUNK = 4;
 const TYPE_INTERVAL = 12;
 
-type QueueEntry = { id: number; full: string; shown: number };
+type QueueEntry = { id: number; mode: "text" | "html"; length: number; shown: number; full: string };
 
 const BANNER_COLORS = ["#fef3c7", "#fde68a", "#fcd34d", "#fbbf24", "#f59e0b", "#d97706", "#fbbf24"];
 
@@ -42,6 +53,93 @@ const escapeHtml = (value: string) =>
 
 const PROMPT_HTML =
   '<span class="font-bold text-[#4ade80]">guest@basem</span><span class="text-[#fde68a]">:</span><span class="font-bold text-[#60a5fa]">~</span><span class="text-[#fde68a]">$</span>';
+
+const splitAtoms = (text: string): string[] =>
+  text.match(/&[a-zA-Z#][a-zA-Z0-9]*;|[\s\S]/g) ?? [];
+
+// Parses the terminal's controlled markup (<span class="...">...</span>
+// nesting only) into a tree whose text is split into single visible
+// characters (entities count as one). Returns null for anything else so
+// the caller can fall back to instant rendering - typing can never break
+// output it does not understand.
+function parseSpanHtml(html: string): HtmlNode[] | null {
+  const root: HtmlNode[] = [];
+  const stack: HtmlNode[][] = [root];
+  let text = "";
+  let i = 0;
+
+  const flushText = () => {
+    if (text) {
+      stack[stack.length - 1].push({ kind: "text", atoms: splitAtoms(text) });
+      text = "";
+    }
+  };
+
+  while (i < html.length) {
+    if (html[i] === "<") {
+      const rest = html.slice(i);
+      const open = rest.match(/^<span\s+class="([^"]*)"\s*>/);
+      const close = rest.match(/^<\/span\s*>/);
+
+      if (open) {
+        flushText();
+        const children: HtmlNode[] = [];
+        stack[stack.length - 1].push({ kind: "span", className: open[1], children });
+        stack.push(children);
+        i += open[0].length;
+      } else if (close) {
+        flushText();
+        stack.pop();
+        if (stack.length === 0) return null;
+        i += close[0].length;
+      } else {
+        return null;
+      }
+    } else {
+      text += html[i];
+      i += 1;
+    }
+  }
+
+  flushText();
+  return stack.length === 1 ? root : null;
+}
+
+function countChars(nodes: HtmlNode[]): number {
+  return nodes.reduce(
+    (sum, node) =>
+      sum + (node.kind === "text" ? node.atoms.length : countChars(node.children)),
+    0,
+  );
+}
+
+// Renders the tree with a character budget: spans with fully-consumed
+// children render normally, the current span renders sliced text. Keys are
+// stable, so spans persist across ticks and CSS animations do not replay.
+function renderTyped(nodes: HtmlNode[], cursor: { left: number }, keyPrefix: string): ReactNode[] {
+  const out: ReactNode[] = [];
+
+  nodes.forEach((node, index) => {
+    if (cursor.left <= 0) return;
+
+    if (node.kind === "text") {
+      const take = node.atoms.slice(0, cursor.left);
+      cursor.left -= take.length;
+      if (take.length > 0) out.push(take.join(""));
+    } else {
+      const children = renderTyped(node.children, cursor, `${keyPrefix}-${index}`);
+      if (children.length > 0) {
+        out.push(
+          <span key={`${keyPrefix}-${index}`} className={node.className}>
+            {children}
+          </span>,
+        );
+      }
+    }
+  });
+
+  return out;
+}
 
 type TerminalProps = {
   open: boolean;
@@ -74,10 +172,6 @@ export default function Terminal({ open, onClose }: TerminalProps) {
   const withIds = (items: NewLine[]): Line[] =>
     items.map((item) => ({ ...item, id: nextId.current++ }));
 
-  const renderLine = (id: number, text: string) => {
-    setLines((current) => current.map((line) => (line.id === id ? { ...line, text } : line)));
-  };
-
   const stopTyping = () => {
     window.clearInterval(typingTimer.current);
     typingTimer.current = 0;
@@ -94,10 +188,17 @@ export default function Terminal({ open, onClose }: TerminalProps) {
         return;
       }
 
-      entry.shown = Math.min(entry.shown + TYPE_CHUNK, entry.full.length);
-      renderLine(entry.id, entry.full.slice(0, entry.shown));
+      entry.shown = Math.min(entry.shown + TYPE_CHUNK, entry.length);
+      const { id, mode, shown, full } = entry;
 
-      if (entry.shown >= entry.full.length) {
+      setLines((current) =>
+        current.map((line) => {
+          if (line.id !== id) return line;
+          return mode === "text" ? { ...line, text: full.slice(0, shown) } : { ...line, shown };
+        }),
+      );
+
+      if (entry.shown >= entry.length) {
         typingQueue.current.shift();
       }
     }, TYPE_INTERVAL);
@@ -107,15 +208,18 @@ export default function Terminal({ open, onClose }: TerminalProps) {
     const queue = typingQueue.current;
     if (queue.length === 0 && typingTimer.current === 0) return;
 
-    const completes = new Map(queue.map((entry) => [entry.id, entry.full] as const));
+    const completes = new Map(queue.map((entry) => [entry.id, entry] as const));
     typingQueue.current = [];
     stopTyping();
 
     if (completes.size === 0) return;
     setLines((current) =>
       current.map((line) => {
-        const full = completes.get(line.id);
-        return full !== undefined ? { ...line, text: full } : line;
+        const entry = completes.get(line.id);
+        if (!entry) return line;
+        return entry.mode === "text"
+          ? { ...line, text: entry.full }
+          : { ...line, shown: entry.length };
       }),
     );
   };
@@ -123,24 +227,40 @@ export default function Terminal({ open, onClose }: TerminalProps) {
   const append = (items: NewLine[]) => {
     const canType = !prefersReducedMotion();
 
-    const entries = items.map((item) => ({
-      item,
-      types: canType && item.html === undefined && Boolean(item.text),
-    }));
+    const prepared = items.map(
+      (item): { line: Line; entry: QueueEntry | null } => {
+        if (!canType) return { line: { ...item }, entry: null };
 
-    const added = withIds(
-      entries.map(({ item, types }) => (types ? { ...item, text: "" } : item)),
+        if (item.html !== undefined) {
+          const tree = parseSpanHtml(item.html);
+          if (tree) {
+            return {
+              line: { ...item, tree },
+              entry: { id: -1, mode: "html", length: countChars(tree), shown: 0, full: "" },
+            };
+          }
+          return { line: { ...item }, entry: null };
+        }
+
+        if (item.text) {
+          return {
+            line: { ...item, text: "" },
+            entry: { id: -1, mode: "text", length: item.text.length, shown: 0, full: item.text },
+          };
+        }
+
+        return { line: { ...item }, entry: null };
+      },
     );
 
-    setLines((current) => [...current, ...added]);
-
-    if (!canType) return;
-
-    entries.forEach((entry, index) => {
-      if (!entry.types) return;
-      typingQueue.current.push({ id: added[index].id, full: entry.item.text ?? "", shown: 0 });
+    const added = withIds(prepared.map(({ line }) => line));
+    prepared.forEach(({ entry }, index) => {
+      if (!entry) return;
+      entry.id = added[index].id;
+      typingQueue.current.push(entry);
     });
 
+    setLines((current) => [...current, ...added]);
     startTyping();
   };
 
@@ -201,7 +321,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
     if (!COMMAND_NAMES.includes(command)) {
       append([
         { tone: "error", text: `Command not found: ${input}` },
-        { tone: "info", text: 'Type "help" for available commands.' },
+        { tone: "info", text: 'Type "help" to see available commands.' },
       ]);
       return;
     }
@@ -365,14 +485,25 @@ export default function Terminal({ open, onClose }: TerminalProps) {
 
               const className = `${lineClass} ${toneClasses[line.tone]}`;
 
-              return line.html !== undefined ? (
-                <div
-                  key={line.id}
-                  style={style}
-                  className={className}
-                  dangerouslySetInnerHTML={{ __html: line.html }}
-                />
-              ) : (
+              if (line.html !== undefined) {
+                if (line.tree && line.shown !== undefined) {
+                  return (
+                    <div key={line.id} style={style} className={className}>
+                      {renderTyped(line.tree, { left: line.shown }, `t${line.id}`)}
+                    </div>
+                  );
+                }
+                return (
+                  <div
+                    key={line.id}
+                    style={style}
+                    className={className}
+                    dangerouslySetInnerHTML={{ __html: line.html }}
+                  />
+                );
+              }
+
+              return (
                 <div key={line.id} style={style} className={className}>
                   {line.text}
                 </div>
@@ -381,7 +512,12 @@ export default function Terminal({ open, onClose }: TerminalProps) {
           </div>
         </div>
         <div className="relative z-[3] flex shrink-0 items-center gap-2.5 border-t border-[#fbbf24] bg-[rgba(26,22,14,0.95)] px-5 py-3">
-          <span className="text-[14px] font-bold whitespace-nowrap text-[#fbbf24] [text-shadow:0_0_6px_rgba(251,191,36,0.55)] max-md:text-[12px]"><span className="text-[#4ade80]">guest@basem</span><span className="text-[#fde68a]">:</span><span className="text-[#60a5fa]">~</span><span className="text-[#fde68a]">$</span></span>
+          <span className="text-[14px] font-bold whitespace-nowrap text-[#fbbf24] [text-shadow:0_0_6px_rgba(251,191,36,0.55)] max-md:text-[12px]">
+            <span className="text-[#4ade80]">guest@basem</span>
+            <span className="text-[#fde68a]">:</span>
+            <span className="text-[#60a5fa]">~</span>
+            <span className="text-[#fde68a]">$</span>
+          </span>
           <input
             ref={inputRef}
             id="terminal-input"
