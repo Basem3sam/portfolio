@@ -85,7 +85,7 @@ function HintToast({ level, clicks, closing, onDone }: HintToastProps) {
 
   return (
     <div
-      className={`fixed start-1/2 z-[10001] flex max-w-[320px] -translate-x-1/2 flex-col rtl:translate-x-1/2 items-center gap-1 rounded-xl border border-[rgba(251,191,36,0.35)] bg-[linear-gradient(135deg,#191307_0%,#0c0a06_100%)] px-5 py-3.5 text-center font-mono text-[13px] font-semibold tracking-[0.5px] text-[#fbbf24] shadow-[0_8px_32px_rgba(251,191,36,0.25),0_0_0_1px_rgba(251,191,36,0.2),inset_0_1px_0_rgba(253,230,138,0.08)] backdrop-blur-[10px] [text-shadow:0_0_8px_rgba(251,191,36,0.4)] transition-all duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] top-[100px] max-md:top-auto max-md:bottom-[100px] max-md:z-[10002] max-md:max-w-[280px] max-md:px-4 max-md:py-3 max-[481px]:bottom-[90px] max-[481px]:max-w-[260px] max-[481px]:px-3.5 max-[481px]:py-2.5 ${hintLevelStyles[level] ?? ""} ${shown ? "translate-y-0 opacity-100" : "pointer-events-none -translate-y-5 opacity-0 max-md:translate-y-5"}`}
+      className={`fixed start-1/2 z-[10001] flex max-w-[320px] -translate-x-1/2 flex-col items-center gap-1.5 rounded-xl border border-[rgba(251,191,36,0.35)] bg-[linear-gradient(135deg,#191307_0%,#0c0a06_100%)] px-5 py-4 text-center font-mono text-[13px] font-semibold tracking-[0.5px] text-[#fbbf24] shadow-[0_8px_32px_rgba(251,191,36,0.25),0_0_0_1px_rgba(251,191,36,0.2),inset_0_1px_0_rgba(253,230,138,0.08)] backdrop-blur-[10px] [text-shadow:0_0_8px_rgba(251,191,36,0.4)] transition-all duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] before:pointer-events-none before:absolute before:inset-x-4 before:top-0 before:h-0.5 before:rounded-full before:bg-[linear-gradient(90deg,transparent_0%,#fbbf24_50%,transparent_100%)] before:content-[''] top-[100px] max-md:top-auto max-md:bottom-[100px] max-md:z-[10002] max-md:max-w-[280px] max-md:px-4 max-md:py-3 max-[481px]:bottom-[90px] max-[481px]:max-w-[260px] max-[481px]:px-3.5 max-[481px]:py-2.5 rtl:translate-x-1/2 ${hintLevelStyles[level] ?? ""} ${shown ? "translate-y-0 scale-100 opacity-100" : "pointer-events-none -translate-y-5 scale-95 opacity-0 max-md:translate-y-5 max-md:scale-100"}`}
     >
       <button
         className="absolute top-0 end-0 flex size-11 cursor-pointer items-center justify-center rounded-full text-[12px] text-[rgba(251,191,36,0.6)] transition-all duration-200 hover:bg-[rgba(248,113,113,0.2)] hover:text-[#f87171]"
@@ -94,19 +94,23 @@ function HintToast({ level, clicks, closing, onDone }: HintToastProps) {
       >
         &times;
       </button>
-      <Icon
-        name={HINT_LEVELS[level].icon}
-        className="mb-0.5 size-4 text-[#fbbf24] [filter:drop-shadow(0_0_6px_rgba(251,191,36,0.6))]"
-      />
+      <span className="flex size-7 items-center justify-center rounded-full border border-[rgba(251,191,36,0.3)] bg-[rgba(251,191,36,0.1)]">
+        <Icon
+          name={HINT_LEVELS[level].icon}
+          className="size-3.5 text-[#fbbf24] [filter:drop-shadow(0_0_6px_rgba(251,191,36,0.6))]"
+        />
+      </span>
       <span className="leading-[1.3] text-[#fbbf24] max-md:text-[12px]">
         {HINT_LEVELS[level].notification}
       </span>
       {level >= 1 && level <= 4 && (
-        <div className="mt-1.5 flex items-center gap-1.5 text-[10px] text-[#fde68a] max-md:gap-[5px] max-md:text-[9px]">
-          <span>Exploring...</span>
-          <div className="h-[3px] w-[50px] overflow-hidden rounded-sm bg-[rgba(251,191,36,0.2)] max-md:w-10">
+        <div className="mt-0.5 flex w-full items-center gap-2 text-[10px] text-[#fde68a]">
+          <span className="shrink-0 font-bold" dir="ltr">
+            {clicks}/10
+          </span>
+          <div className="h-1 flex-1 overflow-hidden rounded-full bg-[rgba(251,191,36,0.2)]">
             <div
-              className="h-full rounded-sm bg-[linear-gradient(90deg,#fbbf24,#fde68a)] shadow-[0_0_6px_rgba(251,191,36,0.6)] transition-[width] duration-300 ease-[ease]"
+              className="h-full rounded-full bg-[linear-gradient(90deg,#fbbf24,#fde68a)] shadow-[0_0_6px_rgba(251,191,36,0.6)] transition-[width] duration-300 ease-[ease]"
               style={{ width: `${progress}%` }}
             ></div>
           </div>
@@ -149,16 +153,7 @@ function MasterToast({ closing, onDone, onShown }: MasterToastProps) {
   return (
     <div
       className={`fixed inset-0 z-[10004] m-auto h-fit w-fit max-w-[460px] min-w-[380px] cursor-pointer overflow-hidden rounded-2xl border-2 border-[rgba(251,191,36,0.4)] bg-[#131007] px-[30px] py-[35px] text-center font-mono text-[#e8e6e1] shadow-[0_0_0_2px_rgba(251,191,36,0.3),0_10px_40px_rgba(0,0,0,0.7)] transition-opacity duration-[800ms] before:pointer-events-none before:absolute before:inset-0 before:z-[1] before:bg-[linear-gradient(transparent_50%,rgba(251,191,36,0.02)_50%)] before:bg-[length:100%_4px] before:content-[''] max-[481px]:max-w-[90%] max-[481px]:min-w-[320px] max-[481px]:px-5 max-[481px]:py-[25px] ${shown ? "animate-master-pop opacity-100" : "pointer-events-none opacity-0"}`}
-      role="button"
-      tabIndex={shown ? 0 : -1}
-      aria-label="Dismiss achievement"
       onClick={() => dismiss(500)}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          dismiss(500);
-        }
-      }}
     >
       <div className="relative z-[2]">
         <div className="mb-4 flex items-center justify-center gap-3 text-[18px] font-bold tracking-[2px] text-[#fbbf24] uppercase [text-shadow:0_0_10px_rgba(251,191,36,0.5)] max-[481px]:text-[16px]">
@@ -225,7 +220,7 @@ export default function Toasts({ toasts, onRemove, onMasterShown }: ToastsProps)
                 duration={3000}
                 exitDelay={300}
                 onDone={onDone}
-                className="top-[120px] gap-[9px] rounded-[22px] bg-[linear-gradient(135deg,#a16207_0%,#854d05_100%)] px-[19px] py-[11px] duration-300 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)]"
+                className="top-[120px] gap-2.5 rounded-xl border border-[rgba(251,191,36,0.35)] bg-[#14110a] px-4 py-2.5 font-mono text-[12px] font-semibold text-[#fbbf24] shadow-[0_8px_30px_rgba(0,0,0,0.5),0_0_20px_rgba(251,191,36,0.15)] duration-300 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)]"
               >
                 <Icon name="clock" className="size-3.5" />
                 <span>{toast.text}</span>

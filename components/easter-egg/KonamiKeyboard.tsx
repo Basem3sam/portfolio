@@ -23,8 +23,6 @@ const DISPLAY: Record<string, string> = {
   a: "A",
 };
 
-const PATTERN = ["↑", "↑", "↓", "↓", "←", "→", "←", "→", "B", "A"];
-
 const keys = [
   { key: "ArrowUp", kind: "direction", position: "col-start-2 row-start-1" },
   { key: "ArrowLeft", kind: "direction", position: "col-start-1 row-start-2" },
@@ -37,21 +35,24 @@ const keys = [
 const keyStyles = {
   direction: {
     idle: "border-[rgba(251,191,36,0.3)] shadow-[0_4px_15px_rgba(251,191,36,0.15)]",
+    hover: "hover:border-[rgba(251,191,36,0.7)] hover:shadow-[0_0_20px_rgba(251,191,36,0.25)]",
     pressed: "scale-90 border-[rgba(251,191,36,0.8)] shadow-[0_0_25px_rgba(251,191,36,0.5)]",
     color: "bg-[rgba(251,191,36,0.08)] text-[#fbbf24]",
     glow: "bg-[radial-gradient(circle_at_center,rgba(251,191,36,0.2)_0%,transparent_70%)]",
   },
   letter: {
     idle: "border-[rgba(248,113,113,0.3)] shadow-[0_4px_15px_rgba(248,113,113,0.15)]",
+    hover: "hover:border-[rgba(248,113,113,0.7)] hover:shadow-[0_0_20px_rgba(248,113,113,0.25)]",
     pressed: "scale-90 border-[rgba(248,113,113,0.8)] shadow-[0_0_25px_rgba(248,113,113,0.5)]",
     color: "bg-[rgba(248,113,113,0.08)] text-[#f87171]",
     glow: "bg-[radial-gradient(circle_at_center,rgba(248,113,113,0.2)_0%,transparent_70%)]",
   },
 };
 
-function createPattern() {
+function createAmbient() {
+  const symbols = ["↑", "↓", "←", "→", "B", "A"];
   return Array.from({ length: 20 }, () => ({
-    symbol: PATTERN[Math.floor(Math.random() * PATTERN.length)],
+    symbol: symbols[Math.floor(Math.random() * symbols.length)],
     left: Math.random() * 100,
     top: Math.random() * 100,
     delay: Math.random() * 3,
@@ -64,7 +65,7 @@ export default function KonamiKeyboard({ onClose, onBack, onSuccess }: KonamiKey
   const [sequence, setSequence] = useState<string[]>([]);
   const [pressed, setPressed] = useState<string | null>(null);
   const [status, setStatus] = useState<Status>("idle");
-  const [pattern] = useState(createPattern);
+  const [ambient] = useState(createAmbient);
   const timers = useRef<number[]>([]);
 
   const later = (callback: () => void, delay: number) => {
@@ -120,7 +121,7 @@ export default function KonamiKeyboard({ onClose, onBack, onSuccess }: KonamiKey
       onClose={() => leave(onClose)}
       background={
         <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden opacity-[0.08]">
-          {pattern.map((item, index) => (
+          {ambient.map((item, index) => (
             <div
               key={index}
               className="absolute animate-symbol-float font-black text-[#fbbf24] [text-shadow:0_0_10px_rgba(251,191,36,0.5)]"
@@ -166,11 +167,22 @@ export default function KonamiKeyboard({ onClose, onBack, onSuccess }: KonamiKey
               })
             )}
           </div>
-          <div className="flex items-center justify-between gap-2">
-            <span className="flex-1 rounded-lg border border-[rgba(253,230,138,0.3)] bg-[rgba(253,230,138,0.1)] px-3 py-1.5 text-center text-[14px] font-bold text-[#fde68a]">
-              <span key={sequence.length} className="inline-block animate-success-pulse">
-                {sequence.length}/10
-              </span>
+
+          <div className="flex items-center gap-2 px-1">
+            <div className="flex flex-1 justify-between gap-1" aria-hidden="true">
+              {Array.from({ length: KONAMI_CODE.length }).map((_, index) => (
+                <span
+                  key={index}
+                  className={`h-1.5 flex-1 rounded-full transition-colors duration-200 ${
+                    index < sequence.length
+                      ? "bg-[#fbbf24] shadow-[0_0_6px_rgba(251,191,36,0.5)]"
+                      : "bg-[rgba(251,191,36,0.15)]"
+                  }`}
+                ></span>
+              ))}
+            </div>
+            <span className="font-mono text-[12px] font-bold text-[#fde68a]" dir="ltr">
+              {sequence.length}/{KONAMI_CODE.length}
             </span>
             <button
               className="min-h-11 cursor-pointer rounded-lg border border-[rgba(251,146,60,0.3)] bg-[rgba(251,146,60,0.1)] px-3 font-bold text-[#fb923c] transition-all duration-200 active:scale-90 disabled:cursor-not-allowed disabled:opacity-30"
@@ -189,6 +201,7 @@ export default function KonamiKeyboard({ onClose, onBack, onSuccess }: KonamiKey
               ↺
             </button>
           </div>
+
           {status === "wrong" && (
             <div className="mt-2.5 flex animate-feedback-slide items-center justify-center gap-2 rounded-lg border border-[rgba(248,113,113,0.4)] bg-[rgba(248,113,113,0.15)] p-2.5 text-[13px] font-bold text-[#f87171] shadow-[0_0_20px_rgba(248,113,113,0.3)]">
               <span>❌</span>
@@ -197,7 +210,7 @@ export default function KonamiKeyboard({ onClose, onBack, onSuccess }: KonamiKey
           )}
         </div>
 
-        <div className="mb-4 grid grid-cols-3 gap-2">
+        <div className="mb-4 grid grid-cols-3 gap-2 sm:gap-2.5">
           <div className="col-start-2 row-start-2 flex animate-center-pulse items-center justify-center text-[28px] text-[#fbbf24] [text-shadow:0_0_20px_rgba(251,191,36,0.8)]">
             ●
           </div>
@@ -206,12 +219,12 @@ export default function KonamiKeyboard({ onClose, onBack, onSuccess }: KonamiKey
             return (
               <button
                 key={key}
-                className={`group relative cursor-pointer overflow-hidden rounded-xl border-2 p-5 text-[26px] font-black transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-90 max-[481px]:p-4 max-[481px]:text-[24px] ${position} ${style.color} ${pressed === key ? style.pressed : style.idle}`}
+                className={`group relative cursor-pointer overflow-hidden rounded-xl border-2 p-5 text-[26px] font-black transition-all duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-90 max-[481px]:p-4 max-[481px]:text-[24px] ${position} ${style.color} ${pressed === key ? style.pressed : `${style.idle} ${style.hover}`}`}
                 aria-label={DISPLAY[key]}
                 onClick={() => press(key)}
               >
                 <span
-                  className={`absolute inset-0 opacity-0 transition-opacity duration-300 group-active:opacity-100 ${style.glow}`}
+                  className={`absolute inset-0 opacity-0 transition-opacity duration-300 group-active:opacity-100 group-hover:opacity-60 ${style.glow}`}
                 ></span>
                 <span className="relative z-[2] block">{DISPLAY[key]}</span>
               </button>

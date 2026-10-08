@@ -1,5 +1,7 @@
 import type { IconName } from "@/components/ui/Icon";
 
+export type TerminalMode = "terminal" | "prompt" | null;
+
 export const KONAMI_CODE = [
   "ArrowUp",
   "ArrowUp",

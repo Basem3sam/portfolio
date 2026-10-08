@@ -10,9 +10,8 @@ import {
   getHintLevel,
   isMobileViewport,
 } from "@/components/easter-egg/constants";
-import type { Locale } from "@/lib/i18n";
 import KonamiKeyboard from "@/components/easter-egg/KonamiKeyboard";
-import MobileSecretPrompt from "@/components/easter-egg/MobileSecretPrompt";
+import SecretTerminalAccess from "@/components/easter-egg/SecretTerminalAccess";
 import Toasts, { type ToastData } from "@/components/easter-egg/Notifications";
 import SecretClue from "@/components/easter-egg/SecretClue";
 import Terminal from "@/components/easter-egg/Terminal";
@@ -25,6 +24,8 @@ import {
   createEpicCelebration,
 } from "@/lib/effects";
 import { playKonamiSound, playSuccessSound, setupAudio } from "@/lib/sounds";
+import type { Locale } from "@/lib/i18n";
+import type { TerminalMode } from "@/components/easter-egg/constants";
 
 type Overlay = "none" | "prompt" | "keyboard";
 
@@ -36,18 +37,26 @@ const MIN_CLICK_INTERVAL = 300;
 const SPAM_WINDOW = 1000;
 const SPAM_THRESHOLD = 3;
 const UNLOCKED_KEY = "terminal_unlocked";
+const OPEN_TERMINAL_EVENT = "open-secret-terminal";
 
 type EasterEggCoreProps = {
-  autoOpen: boolean;
+  mode: TerminalMode;
   initialClicks: number;
   locale: Locale;
 };
 
-export default function EasterEggCore({ autoOpen, initialClicks, locale }: EasterEggCoreProps) {
+export default function EasterEggCore({ mode, initialClicks, locale }: EasterEggCoreProps) {
   const [toasts, setToasts] = useState<ToastData[]>([]);
   const [terminalOpen, setTerminalOpen] = useState(false);
   const [overlay, setOverlay] = useState<Overlay>("none");
   const [clue, setClue] = useState({ revealed: false, level: 0 });
+  const [unlocked, setUnlocked] = useState(() => {
+    try {
+      return localStorage.getItem(UNLOCKED_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
   const clueRef = useRef<HTMLButtonElement>(null);
   const terminalOpenRef = useRef(false);
   const nextToastId = useRef(0);
@@ -79,6 +88,7 @@ export default function EasterEggCore({ autoOpen, initialClicks, locale }: Easte
     try {
       localStorage.setItem(UNLOCKED_KEY, "1");
     } catch {}
+    setUnlocked(true);
     terminalOpenRef.current = true;
     setToasts((current) =>
       current.map((toast) => (toast.kind === "master" ? { ...toast, closing: true } : toast)),
@@ -111,10 +121,11 @@ export default function EasterEggCore({ autoOpen, initialClicks, locale }: Easte
 
     setClue({ revealed: state.revealed, level: state.level });
 
-    if (autoOpen) openTerminal();
+    if (mode === "terminal") openTerminal();
+    if (mode === "prompt") setOverlay("prompt");
 
     return setupAudio();
-  }, [autoOpen, initialClicks, openTerminal]);
+  }, [mode, initialClicks, openTerminal]);
 
   useEffect(() => {
     let index = 0;
@@ -143,6 +154,21 @@ export default function EasterEggCore({ autoOpen, initialClicks, locale }: Easte
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [openTerminal]);
 
+  // UI access while the core is already loaded (palette item, footer button).
+  useEffect(() => {
+    const openFromUI = () => {
+      if (terminalOpenRef.current) return;
+      if (unlocked) {
+        openTerminal();
+        return;
+      }
+      setOverlay((current) => (current === "none" ? "prompt" : current));
+    };
+
+    window.addEventListener(OPEN_TERMINAL_EVENT, openFromUI);
+    return () => window.removeEventListener(OPEN_TERMINAL_EVENT, openFromUI);
+  }, [unlocked, openTerminal]);
+
   useEffect(() => {
     const image = document.querySelector<HTMLElement>("#hero picture img");
     if (!image) return;
@@ -168,6 +194,7 @@ export default function EasterEggCore({ autoOpen, initialClicks, locale }: Easte
       try {
         localStorage.setItem(UNLOCKED_KEY, "1");
       } catch {}
+      setUnlocked(true);
       setToasts((current) =>
         current.map((toast) => (toast.kind === "hint" ? { ...toast, closing: true } : toast)),
       );
@@ -246,20 +273,15 @@ export default function EasterEggCore({ autoOpen, initialClicks, locale }: Easte
   const showHint = () => {
     if (overlay !== "none") return;
 
-    if (isMobileViewport()) {
-      setOverlay("prompt");
-      return;
-    }
-
     addToast({
       kind: "reminder",
       text: REMINDERS[Math.floor(Math.random() * REMINDERS.length)],
     });
   };
 
-  const openFromClue = () => {
+  const openPrompt = () => {
     if (overlay !== "none") return;
-    openTerminal();
+    setOverlay("prompt");
   };
 
   const handleKeyboardSuccess = () => {
@@ -276,13 +298,15 @@ export default function EasterEggCore({ autoOpen, initialClicks, locale }: Easte
       <SecretClue
         buttonRef={clueRef}
         revealed={clue.revealed}
+        unlocked={unlocked}
         locale={locale}
         onHint={showHint}
-        onOpen={openFromClue}
+        onPrompt={openPrompt}
+        onOpen={openTerminal}
       />
       <Terminal key={terminalOpen ? "open" : "closed"} open={terminalOpen} onClose={closeTerminal} />
       {overlay === "prompt" && (
-        <MobileSecretPrompt
+        <SecretTerminalAccess
           onClose={() => setOverlay("none")}
           onTry={() => setOverlay("keyboard")}
         />

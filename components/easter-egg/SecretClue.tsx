@@ -7,21 +7,30 @@ import type { Locale } from "@/lib/i18n";
 type SecretClueProps = {
   buttonRef: Ref<HTMLButtonElement>;
   revealed: boolean;
+  unlocked: boolean;
   locale: Locale;
   onHint: () => void;
+  onPrompt: () => void;
   onOpen: () => void;
 };
 
 const labels = {
-  en: { title: "Secret terminal", hint: "Show a hint", open: "Open terminal" },
-  ar: { title: "الطرفية السرية", hint: "عرض تلميح", open: "فتح الطرفية" },
+  en: { title: "Secret terminal", hint: "Show a hint", enter: "Enter Konami code", open: "Open terminal" },
+  ar: {
+    title: "الطرفية السرية",
+    hint: "عرض تلميح",
+    enter: "أدخل كود كونامي",
+    open: "فتح الطرفية",
+  },
 } as const;
 
 export default function SecretClue({
   buttonRef,
   revealed,
+  unlocked,
   locale,
   onHint,
+  onPrompt,
   onOpen,
 }: SecretClueProps) {
   const [open, setOpen] = useState(false);
@@ -82,15 +91,27 @@ export default function SecretClue({
             <Icon name="helpCircle" className="size-4 shrink-0" />
             {t.hint}
           </button>
-          <button
-            type="button"
-            role="menuitem"
-            className="flex min-h-11 w-full cursor-pointer items-center gap-2.5 px-3 text-start text-[13px] font-semibold text-[#fbbf24] transition-colors duration-150 hover:bg-[rgba(251,191,36,0.1)]"
-            onClick={() => trigger(onOpen)}
-          >
-            <Icon name="terminal" className="size-4 shrink-0" />
-            {t.open}
-          </button>
+          {unlocked ? (
+            <button
+              type="button"
+              role="menuitem"
+              className="flex min-h-11 w-full cursor-pointer items-center gap-2.5 px-3 text-start text-[13px] font-semibold text-[#fbbf24] transition-colors duration-150 hover:bg-[rgba(251,191,36,0.1)]"
+              onClick={() => trigger(onOpen)}
+            >
+              <Icon name="terminal" className="size-4 shrink-0" />
+              {t.open}
+            </button>
+          ) : (
+            <button
+              type="button"
+              role="menuitem"
+              className="flex min-h-11 w-full cursor-pointer items-center gap-2.5 px-3 text-start text-[13px] font-semibold text-[#fbbf24] transition-colors duration-150 hover:bg-[rgba(251,191,36,0.1)]"
+              onClick={() => trigger(onPrompt)}
+            >
+              <Icon name="terminal" className="size-4 shrink-0" />
+              {t.enter}
+            </button>
+          )}
         </div>
       )}
 

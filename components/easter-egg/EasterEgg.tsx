@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { KONAMI_CODE } from "@/components/easter-egg/constants";
+import { KONAMI_CODE, type TerminalMode } from "@/components/easter-egg/constants";
 import type { Locale } from "@/lib/i18n";
 
 const EasterEggCore = dynamic(() => import("./EasterEggCore"), { ssr: false });
@@ -11,7 +11,7 @@ const UNLOCKED_KEY = "terminal_unlocked";
 const OPEN_TERMINAL_EVENT = "open-secret-terminal";
 const MIN_CLICK_INTERVAL = 300;
 
-type LoadState = { autoOpen: boolean; clicks: number };
+type LoadState = { mode: TerminalMode; clicks: number };
 
 export default function EasterEgg({ locale }: { locale: Locale }) {
   const [load, setLoad] = useState<LoadState | null>(null);
@@ -20,10 +20,10 @@ export default function EasterEgg({ locale }: { locale: Locale }) {
   const konamiIndex = useRef(0);
   const armed = useRef(false);
 
-  const arm = useCallback((autoOpen: boolean) => {
+  const arm = useCallback((mode: TerminalMode) => {
     if (armed.current) return;
     armed.current = true;
-    setLoad({ autoOpen, clicks: clicks.current });
+    setLoad({ mode, clicks: clicks.current });
   }, []);
 
   useEffect(() => {
@@ -60,7 +60,7 @@ export default function EasterEgg({ locale }: { locale: Locale }) {
         if (konamiIndex.current === KONAMI_CODE.length) {
           event.preventDefault();
           konamiIndex.current = 0;
-          arm(true);
+          arm("terminal");
         }
       } else if (konamiIndex.current > 0) {
         konamiIndex.current = 0;
@@ -68,7 +68,7 @@ export default function EasterEgg({ locale }: { locale: Locale }) {
 
       if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "b") {
         event.preventDefault();
-        arm(true);
+        arm("terminal");
       }
     };
 
@@ -76,8 +76,17 @@ export default function EasterEgg({ locale }: { locale: Locale }) {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [arm]);
 
+  // UI access (palette item, footer button): unlocked users open the terminal
+  // directly; everyone else lands in the Konami access area - the secret is
+  // never bypassed, only made solvable without a keyboard.
   useEffect(() => {
-    const openFromUI = () => arm(true);
+    const openFromUI = () => {
+      let unlocked = false;
+      try {
+        unlocked = localStorage.getItem(UNLOCKED_KEY) === "1";
+      } catch {}
+      arm(unlocked ? "terminal" : "prompt");
+    };
 
     window.addEventListener(OPEN_TERMINAL_EVENT, openFromUI);
     return () => window.removeEventListener(OPEN_TERMINAL_EVENT, openFromUI);
@@ -95,7 +104,7 @@ export default function EasterEgg({ locale }: { locale: Locale }) {
       if (now - lastClick.current < MIN_CLICK_INTERVAL) return;
       lastClick.current = now;
       clicks.current++;
-      if (clicks.current === 1) arm(false);
+      if (clicks.current === 1) arm(null);
     };
 
     image.classList.add("cursor-pointer");
@@ -108,5 +117,5 @@ export default function EasterEgg({ locale }: { locale: Locale }) {
 
   if (!load) return null;
 
-  return <EasterEggCore autoOpen={load.autoOpen} initialClicks={load.clicks} locale={locale} />;
+  return <EasterEggCore mode={load.mode} initialClicks={load.clicks} locale={locale} />;
 }
