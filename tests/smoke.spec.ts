@@ -167,6 +167,39 @@ test("scroll progress bar reaches exactly 100% at the bottom", async ({ page }) 
   expect(width).toBe("100%");
 });
 
+test("no permanent overlay is painted when the palette is closed", async ({ page }) => {
+  await page.goto("/");
+
+  const paintedOverlays = await page.evaluate(() => {
+    const overlays = [];
+
+    for (const el of document.querySelectorAll("body *")) {
+      const style = getComputedStyle(el);
+      if (style.position !== "fixed" && style.position !== "absolute") continue;
+      if (el.closest("[inert], [aria-hidden='true']")) continue;
+
+      const background = style.backgroundColor;
+      const alpha =
+        background.startsWith("rgba") && !background.endsWith(", 0)")
+          ? Number(background.split(", ")[3]?.replace(")", ""))
+          : background !== "transparent"
+            ? 1
+            : 0;
+
+      if (alpha > 0) {
+        const rect = el.getBoundingClientRect();
+        if (rect.width >= window.innerWidth * 0.9 && rect.height >= window.innerHeight * 0.9) {
+          overlays.push(`${el.tagName}.${el.className?.toString().split(" ")[0]}`);
+        }
+      }
+    }
+
+    return overlays;
+  });
+
+  expect(paintedOverlays).toEqual([]);
+});
+
 test("hero metric values align on one line at every width", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");

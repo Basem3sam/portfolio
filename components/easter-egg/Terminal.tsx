@@ -256,8 +256,14 @@ export default function Terminal({ open, onClose }: TerminalProps) {
             >
               <span className="size-3 rounded-full bg-[#ff5f56] shadow-[0_0_8px_rgba(255,95,86,0.7)] transition-transform duration-200 hover:scale-125"></span>
             </button>
-            <span className="size-3 rounded-full bg-[#ffbd2e] shadow-[0_0_8px_rgba(255,189,46,0.6)]"></span>
-            <span className="size-3 rounded-full bg-[#27c93f] shadow-[0_0_8px_rgba(39,201,63,0.6)]"></span>
+            <span
+              aria-hidden="true"
+              className="size-3 rounded-full bg-[#ffbd2e] shadow-[0_0_8px_rgba(255,189,46,0.6)]"
+            ></span>
+            <span
+              aria-hidden="true"
+              className="size-3 rounded-full bg-[#27c93f] shadow-[0_0_8px_rgba(39,201,63,0.6)]"
+            ></span>
           </div>
         </div>
         <div
