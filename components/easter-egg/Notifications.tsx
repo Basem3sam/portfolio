@@ -148,14 +148,10 @@ function AccessToast({ onDone }: ToastProps) {
   );
 }
 
-type MasterToastProps = ToastProps & { closing?: boolean; onShown: () => void };
+type MasterToastProps = ToastProps & { closing?: boolean };
 
-function MasterToast({ closing, onDone, onShown }: MasterToastProps) {
+function MasterToast({ closing, onDone }: MasterToastProps) {
   const { shown, dismiss } = useToast(10000, 1000, onDone, closing);
-
-  useEffect(() => {
-    onShown();
-  }, [onShown]);
 
   return (
     <div
@@ -169,7 +165,7 @@ function MasterToast({ closing, onDone, onShown }: MasterToastProps) {
           <Icon name="trophy" className="size-6 text-[#fbbf24] [filter:drop-shadow(0_0_8px_rgba(251,191,36,0.6))]" />
         </div>
         <p className="my-[18px] text-[14px] leading-[1.6] text-[#a8a29e]">
-          🎮 You&apos;ve unlocked the{" "}
+          🎮 You&apos;ve discovered the{" "}
           <strong className="font-semibold text-[#fbbf24]">legendary 10-click sequence</strong>!
           <br />
           <span className="text-[12px]">The secret terminal awaits your command...</span>
@@ -200,10 +196,9 @@ function MasterToast({ closing, onDone, onShown }: MasterToastProps) {
 type ToastsProps = {
   toasts: ToastData[];
   onRemove: (id: number) => void;
-  onMasterShown: () => void;
 };
 
-export default function Toasts({ toasts, onRemove, onMasterShown }: ToastsProps) {
+export default function Toasts({ toasts, onRemove }: ToastsProps) {
   return (
     <div aria-live="polite">
       {toasts.map((toast) => {
@@ -262,14 +257,7 @@ export default function Toasts({ toasts, onRemove, onMasterShown }: ToastsProps)
           case "access":
             return <AccessToast key={toast.id} onDone={onDone} />;
           case "master":
-            return (
-              <MasterToast
-                key={toast.id}
-                closing={toast.closing}
-                onDone={onDone}
-                onShown={onMasterShown}
-              />
-            );
+            return <MasterToast key={toast.id} closing={toast.closing} onDone={onDone} />;
         }
       })}
     </div>

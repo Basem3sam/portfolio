@@ -51,7 +51,6 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
   const [unlocked, setUnlocked] = useState(false);
   const clueRef = useRef<HTMLButtonElement>(null);
   const terminalOpenRef = useRef(false);
-  const accessAnnounced = useRef(false);
   const nextToastId = useRef(0);
   const game = useRef({
     clicks: 0,
@@ -60,7 +59,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
     spamActive: false,
     level: 0,
     revealed: false,
-    unlocked: false,
+    solved: false,
     resetTimer: 0,
   });
 
@@ -78,28 +77,25 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
     setToasts((current) => current.filter((toast) => toast.id !== id));
   }, []);
 
+  // The terminal's only concern is the terminal. It reads and writes nothing
+  // the click game owns - the two systems are fully independent.
   const openTerminal = useCallback(() => {
     setUnlocked(true);
     terminalOpenRef.current = true;
-
-    if (!accessAnnounced.current) {
-      accessAnnounced.current = true;
-      addToast({ kind: "access" });
-    }
-
     setTerminalOpen(true);
-  }, [addToast]);
+  }, []);
 
   const closeTerminal = useCallback(() => {
     terminalOpenRef.current = false;
     setTerminalOpen(false);
   }, []);
 
-  const handleMasterShown = useCallback(() => {
+  const celebrateUnlock = useCallback(() => {
+    addToast({ kind: "access" });
     createCelebrationParticles();
     createConfettiBurst();
     playSuccessSound();
-  }, []);
+  }, [addToast]);
 
   useEffect(() => {
     const state = game.current;
@@ -107,12 +103,16 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
     state.level = getHintLevel(initialClicks);
     setClue({ revealed: state.revealed, level: state.level });
 
-    if (mode === "terminal") openTerminal();
+    if (mode === "terminal") {
+      openTerminal();
+      celebrateUnlock();
+    }
     if (mode === "prompt") setOverlay("prompt");
 
     return setupAudio();
-  }, [mode, initialClicks, openTerminal]);
+  }, [mode, initialClicks, openTerminal, celebrateUnlock]);
 
+  // Keyboard Konami and the shortcut: the actual easter-egg triggers.
   useEffect(() => {
     let index = 0;
 
@@ -125,6 +125,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
           event.preventDefault();
           index = 0;
           openTerminal();
+          celebrateUnlock();
         }
       } else if (index > 0) {
         index = 0;
@@ -142,10 +143,10 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [openTerminal, unlocked]);
+  }, [openTerminal, unlocked, celebrateUnlock]);
 
-  // UI access while the core is loaded (palette item, footer button):
-  // unlocked opens directly, locked opens the code entry area.
+  // UI access (palette item, footer button): unlocked opens directly,
+  // locked opens the code entry area. Never touches the click game.
   useEffect(() => {
     const openFromUI = () => {
       if (terminalOpenRef.current) return;
@@ -160,10 +161,13 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
     return () => window.removeEventListener(OPEN_TERMINAL_EVENT, openFromUI);
   }, [unlocked, openTerminal]);
 
+  // The photo journey: a hint delivery system and nothing more. Its ONLY
+  // outcome is revealing the Konami Master Code window - the answer sheet.
+  // The effect depends on a single stable callback, so it mounts once and
+  // nothing the terminal does can ever tear it down or reset the counter.
   useEffect(() => {
     const image = document.querySelector<HTMLElement>("#hero picture img");
     if (!image) return;
-    if (game.current.unlocked) return;
 
     const state = game.current;
     const syncClue = () => setClue({ revealed: state.revealed, level: state.level });
@@ -173,6 +177,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       state.clicks = 0;
       state.level = 0;
       state.revealed = false;
+      state.solved = false;
       syncClue();
       if (notify) addToast({ kind: "reset" });
     };
@@ -182,31 +187,23 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       state.resetTimer = window.setTimeout(() => reset(true), duration);
     };
 
-    const unlock = () => {
-      if (state.unlocked) return;
-      state.unlocked = true;
+    // The journey's single outcome: deliver the answer sheet. It never
+    // opens the terminal, never sets unlock state, runs no open timers.
+    // Guarded so clicks past ten do not stack duplicate master windows;
+    // a quiet idle reset afterwards makes the journey replayable.
+    const solve = () => {
+      if (state.solved) return;
+      state.solved = true;
 
-      setUnlocked(true);
-      setToasts((current) =>
-        current.map((toast) => (toast.kind === "hint" ? { ...toast, closing: true } : toast)),
-      );
       state.revealed = true;
-      state.clicks = 0;
       state.level = HINT_LEVELS.length - 1;
       syncClue();
       if (clueRef.current) animateClue(clueRef.current, "celebration", 2000);
       addToast({ kind: "master" });
       createEpicCelebration();
 
-      // The discovery journey IS solving it: the achievement lands first,
-      // then the terminal opens on its own. The master toast is this path's
-      // granted message and stays for its full duration - the terminal
-      // renders above it, it is not closed early.
-      accessAnnounced.current = true;
-      window.setTimeout(() => {
-        terminalOpenRef.current = true;
-        setTerminalOpen(true);
-      }, 1400);
+      window.clearTimeout(state.resetTimer);
+      state.resetTimer = window.setTimeout(() => reset(false), 5000);
     };
 
     const handleClick = (event: MouseEvent) => {
@@ -249,7 +246,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       }
 
       if (state.clicks >= CLICKS_NEEDED) {
-        unlock();
+        solve();
         return;
       }
 
@@ -270,7 +267,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       window.clearTimeout(state.resetTimer);
       image.classList.remove("cursor-pointer");
     };
-  }, [addToast, unlocked]);
+  }, [addToast]);
 
   const showHint = () => {
     if (overlay !== "none") return;
@@ -289,9 +286,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
   const handleKeyboardSuccess = () => {
     setOverlay("none");
     openTerminal();
-    createCelebrationParticles();
-    createConfettiBurst();
-    playSuccessSound();
+    celebrateUnlock();
   };
 
   return (
@@ -319,7 +314,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
           onSuccess={handleKeyboardSuccess}
         />
       )}
-      <Toasts toasts={toasts} onRemove={removeToast} onMasterShown={handleMasterShown} />
+      <Toasts toasts={toasts} onRemove={removeToast} />
     </>
   );
 }
