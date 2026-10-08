@@ -26,10 +26,25 @@ export async function generateMetadata({ params }: LinksPageProps): Promise<Meta
   const { lang } = await params;
   const locale: Locale = isLocale(lang) ? lang : "en";
   const dict = getDictionary(locale);
+  const canonical = locale === "ar" ? "/ar/links" : "/links";
 
   return {
     title: dict.links.metadataTitle,
     description: dict.links.metadataDescription,
+    alternates: {
+      canonical,
+      languages: {
+        en: "/links",
+        ar: "/ar/links",
+        "x-default": "/links",
+      },
+    },
+    openGraph: {
+      url: canonical,
+      title: dict.links.metadataTitle,
+      description: dict.links.metadataDescription,
+      locale: locale === "ar" ? "ar_EG" : "en_US",
+    },
   };
 }
 

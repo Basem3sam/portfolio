@@ -1,43 +1,34 @@
-import type { Metadata } from 'next';
-import {
-  IBM_Plex_Mono,
-  IBM_Plex_Sans,
-  IBM_Plex_Sans_Arabic,
-} from 'next/font/google';
-import type { ReactNode } from 'react';
+import type { Metadata, Viewport } from "next";
+import { IBM_Plex_Mono, IBM_Plex_Sans, IBM_Plex_Sans_Arabic } from "next/font/google";
+import type { ReactNode } from "react";
 import "@/app/globals.css";
-import RevealOnScroll from '@/components/behavior/RevealOnScroll';
-import ScrollManager from '@/components/behavior/ScrollManager';
-import ThemeEffects from '@/components/behavior/ThemeEffects';
-import ThemeScript from '@/components/behavior/ThemeScript';
-import { PROFILE_IMAGE, SITE_URL } from '@/data/site';
-import {
-  getDictionary,
-  getDirection,
-  isLocale,
-  locales,
-  type Locale,
-} from '@/lib/i18n';
+import RevealOnScroll from "@/components/behavior/RevealOnScroll";
+import ScrollManager from "@/components/behavior/ScrollManager";
+import ThemeEffects from "@/components/behavior/ThemeEffects";
+import ThemeScript from "@/components/behavior/ThemeScript";
+import JsonLd from "@/components/seo/JsonLd";
+import { SITE_URL } from "@/data/site";
+import { getDictionary, getDirection, isLocale, locales, type Locale } from "@/lib/i18n";
 
 const plexSans = IBM_Plex_Sans({
-  weight: ['400', '500', '600', '700'],
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-plex-sans',
+  weight: ["400", "500", "600", "700"],
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-plex-sans",
 });
 
 const plexSansArabic = IBM_Plex_Sans_Arabic({
-  weight: ['400', '500', '600', '700'],
-  subsets: ['arabic', 'latin'],
-  display: 'swap',
-  variable: '--font-plex-arabic',
+  weight: ["400", "500", "600", "700"],
+  subsets: ["arabic", "latin"],
+  display: "swap",
+  variable: "--font-plex-arabic",
 });
 
 const plexMono = IBM_Plex_Mono({
-  weight: ['400', '500', '600'],
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-plex-mono',
+  weight: ["400", "500", "600"],
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-plex-mono",
 });
 
 type RootLayoutProps = {
@@ -55,58 +46,60 @@ export async function generateMetadata({
   params: Promise<{ lang: string }>;
 }): Promise<Metadata> {
   const { lang } = await params;
-  const locale: Locale = isLocale(lang) ? lang : 'en';
+  const locale: Locale = isLocale(lang) ? lang : "en";
   const dict = getDictionary(locale);
-  const shareImage = `${SITE_URL.replace(/\/$/, '')}${PROFILE_IMAGE}`;
+  const canonical = locale === "ar" ? "/ar" : "/";
 
   return {
     metadataBase: new URL(SITE_URL),
     title: dict.metadata.title,
     description: dict.metadata.description,
     keywords: dict.metadata.keywords,
-    authors: [{ name: 'Basem Esam' }],
+    authors: [{ name: "Basem Esam" }],
+    alternates: {
+      canonical,
+      languages: {
+        en: "/",
+        ar: "/ar",
+        "x-default": "/",
+      },
+    },
     openGraph: {
-      type: 'website',
-      url: SITE_URL,
+      type: "website",
+      url: canonical,
+      siteName: "Basem Esam",
       title: dict.metadata.title,
       description: dict.metadata.shareDescription,
-      images: [shareImage],
+      locale: locale === "ar" ? "ar_EG" : "en_US",
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title: dict.metadata.title,
       description: dict.metadata.shareDescription,
-      images: [shareImage],
     },
     icons: {
-      apple: [
-        { url: '/assets/icons/light/apple-touch-icon.png', sizes: '180x180' },
-      ],
+      apple: [{ url: "/assets/icons/light/apple-touch-icon.png", sizes: "180x180" }],
       icon: [
-        {
-          url: '/assets/icons/light/favicon-32x32.png',
-          sizes: '32x32',
-          type: 'image/png',
-        },
-        {
-          url: '/assets/icons/light/favicon-16x16.png',
-          sizes: '16x16',
-          type: 'image/png',
-        },
+        { url: "/assets/icons/light/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+        { url: "/assets/icons/light/favicon-16x16.png", sizes: "16x16", type: "image/png" },
       ],
     },
-    manifest: '/assets/icons/light/site.webmanifest',
+    manifest: "/assets/icons/light/site.webmanifest",
   };
 }
 
-export default async function RootLayout({
-  children,
-  params,
-}: RootLayoutProps) {
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fafaf8" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f1215" },
+  ],
+};
+
+export default async function RootLayout({ children, params }: RootLayoutProps) {
   const { lang } = await params;
-  const locale: Locale = isLocale(lang) ? lang : 'en';
+  const locale: Locale = isLocale(lang) ? lang : "en";
   const fontVariables =
-    locale === 'ar'
+    locale === "ar"
       ? `${plexSansArabic.variable} ${plexMono.variable}`
       : `${plexSans.variable} ${plexMono.variable}`;
 
@@ -120,6 +113,7 @@ export default async function RootLayout({
       <body suppressHydrationWarning>
         <ThemeScript />
         {children}
+        <JsonLd />
         <ThemeEffects />
         <ScrollManager />
         <RevealOnScroll />

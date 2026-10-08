@@ -17,10 +17,26 @@ export async function generateMetadata({ params }: CaseStudyPageProps): Promise<
   const { lang } = await params;
   const locale: Locale = isLocale(lang) ? lang : "en";
   const t = getTroscDictionary(locale);
+  const canonical = locale === "ar" ? "/ar/work/trosc" : "/work/trosc";
 
   return {
     title: t.metadata.title,
     description: t.metadata.description,
+    alternates: {
+      canonical,
+      languages: {
+        en: "/work/trosc",
+        ar: "/ar/work/trosc",
+        "x-default": "/work/trosc",
+      },
+    },
+    openGraph: {
+      type: "article",
+      url: canonical,
+      title: t.metadata.title,
+      description: t.metadata.description,
+      locale: locale === "ar" ? "ar_EG" : "en_US",
+    },
   };
 }
 
