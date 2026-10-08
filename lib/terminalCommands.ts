@@ -1,165 +1,174 @@
+const BOX_WIDTH = 34;
+
+const box = (title: string) => {
+  const inner = BOX_WIDTH - 2;
+  const left = Math.floor((inner - title.length) / 2);
+  const right = inner - title.length - left;
+  const edge = (l: string, r: string) =>
+    `<span class="text-[rgba(251,191,36,0.7)]">${l}${"═".repeat(inner)}${r}</span>`;
+  const bar = `<span class="text-[rgba(251,191,36,0.7)]">║</span>`;
+  const name = `<span class="font-bold text-[#fde68a]">${" ".repeat(left)}${title}${" ".repeat(right)}</span>`;
+  return `<span class="inline-block leading-[1.32]">${edge("╔", "╗")}\n${bar}${name}${bar}\n${edge("╚", "╝")}</span>`;
+};
+
 export const COMMAND_OUTPUT: Record<string, string> = {
   help: `
-Available Commands:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  help        - Show this help message
-  about       - Learn about the creator
-  skills      - Display technical skills
-  projects    - Show featured projects
-  contact     - Get contact information
-  secret      - Reveal the secret message
-  matrix      - Activate the Matrix
-  hack        - Initialize hacking sequence
-  coffee      - Get a coffee ☕
-  whoami      - Display user information
-  clear       - Clear the terminal
-  exit        - Close the terminal
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${box("AVAILABLE COMMANDS")}
+
+  help      - Show this help message
+  about     - Learn about the creator
+  skills    - Display technical skills
+  projects  - Show featured projects
+  contact   - Get contact information
+  secret    - Reveal the secret message
+  matrix    - Activate the Matrix
+  hack      - Initialize hacking sequence
+  coffee    - Get a coffee
+  whoami    - Display user information
+  clear     - Clear the terminal
+  exit      - Close the terminal
 
 Type any command to execute it!
 `,
   about: `
-╔════════════════════════════════════════╗
-║         ABOUT THE DEVELOPER            ║
-╚════════════════════════════════════════╝
+${box("ABOUT THE DEVELOPER")}
 
 Name: Basem Esam
 Role: Backend Engineer & CS Student
 Location: Port Said, Egypt
 
-Bio: A backend engineer with expertise in Node.js,
-Express, and scalable system architecture. Builds and
-runs a 100+ endpoint production API for 200+ users.
-Active in competitive programming (ICPC) and tech
-communities (GDG, Mech Hackers).
+Bio: A backend engineer with expertise in
+Node.js, Express, and scalable system
+architecture. Builds and runs a 100+
+endpoint production API for 200+ users.
+Active in competitive programming (ICPC)
+and tech communities (GDG, Mech Hackers).
 
-Philosophy: "Code is poetry written in logic"
+Philosophy: "Code is poetry written in
+logic"
 
-Fun Fact: Started building websites at age 11,
-inspired by a teacher who believed in potential.
+Fun Fact: Started building websites at
+age 11, inspired by a teacher who
+believed in potential.
 
-Current Mission: Building robust backend systems
-that make a difference! 🚀
+Current Mission: Building robust backend
+systems that make a difference!
 `,
   skills: `
-╔════════════════════════════════════════╗
-║          TECHNICAL ARSENAL             ║
-╚════════════════════════════════════════╝
+${box("TECHNICAL ARSENAL")}
 
 Backend Development:
-  ▸ Node.js / Express / NestJS
-  ▸ MongoDB (Mongoose) / MySQL / PostgreSQL
-  ▸ PHP / Laravel
+  > Node.js / Express / NestJS
+  > MongoDB (Mongoose) / MySQL
+  > PostgreSQL / Redis
+  > PHP / Laravel
 
 DevOps & Tools:
-  ▸ Docker / Kubernetes
-  ▸ Git / Linux Admin / Bash
+  > Docker / Kubernetes
+  > Git / Linux Admin / Bash
 
 System Design:
-  ▸ OOP / Clean Architecture
-  ▸ REST API Design / RBAC
+  > OOP / Clean Architecture
+  > REST API Design / RBAC
 
 Special Abilities:
-  ✓ Problem Solving
-  ✓ Team Leadership
-  ✓ Teaching & Mentoring
-  ✓ Competitive Programming
+  * Problem Solving
+  * Team Leadership
+  * Teaching & Mentoring
+  * Competitive Programming
 `,
   projects: `
-╔════════════════════════════════════════╗
-║         FEATURED PROJECTS              ║
-╚════════════════════════════════════════╝
+${box("FEATURED PROJECTS")}
 
 1. Trosc Student Club Platform
-   ├─ Production REST API (Node.js / Express)
-   ├─ MongoDB · 12 collections · 17 services
-   └─ 100+ endpoints · serving 200+ members
-   Status: ✓ Live & Running
+   > Production REST API (Node/Express)
+   > MongoDB - 12 collections
+   > 17 services, 100+ endpoints
+   > Serving 200+ members
+   Status: LIVE & RUNNING
    Link: https://trosc.vercel.app/
-   Repo: github.com/Basem3sam/trosc-backend
+   Repo: github.com/Basem3sam/
+         trosc-backend
 
 2. Laravel E-commerce Platform
-   ├─ Full-stack e-commerce solution
-   ├─ PHP/Laravel backend
-   └─ MySQL database
-   Status: ✓ Completed
-   Repo: github.com/Basem3sam/laravel-ecommerce-app
+   > Full-stack e-commerce solution
+   > PHP/Laravel backend + MySQL
+   Status: COMPLETED
+   Repo: github.com/Basem3sam/
+         laravel-ecommerce-app
 
 3. NeuroScan-AI
-   ├─ Brain-tumor detection pipeline
-   ├─ CNN / KNN / K-Means ensembles
-   └─ Python / PyTorch / OpenCV
-   Status: ✓ Team project (3rd-year exam)
-   Repo: github.com/Basem3sam/neuroscan-ai
+   > Brain-tumor detection pipeline
+   > CNN / KNN / K-Means ensembles
+   > Python / PyTorch / OpenCV
+   Status: TEAM PROJECT (3rd-year exam)
+   Repo: github.com/Basem3sam/
+         neuroscan-ai
 
 For more projects, visit:
-→ github.com/basem3sam
+> github.com/basem3sam
 `,
   contact: `
-╔════════════════════════════════════════╗
-║         CONTACT INFORMATION            ║
-╚════════════════════════════════════════╝
+${box("CONTACT INFORMATION")}
 
-📧 Email:
+Email:
    basem.esam.omar@gmail.com
 
-🔗 LinkedIn:
+LinkedIn:
    linkedin.com/in/BasemEsam
 
-💻 GitHub:
+GitHub:
    github.com/basem3sam
 
-📍 Location:
+Location:
    Port Said, Egypt
 
-🌐 Portfolio:
-   You're already here! 😉
+Portfolio:
+   You're already here!
 
-⚡ Status: Available for opportunities
-   Open to: Backend Development Projects
-           Remote Collaborations
-           Freelance Work
+Status: Available for opportunities
+Open to: Backend Development Projects
+         Remote Collaborations
+         Freelance Work
 
-Feel free to reach out! Always excited to
-discuss technology, projects, or just grab
-a virtual coffee ☕
+Feel free to reach out! Always excited
+to discuss technology, projects, or just
+grab a virtual coffee
 `,
   secret: `
-╔════════════════════════════════════════╗
-║          🎉 SECRET UNLOCKED 🎉         ║
-╚════════════════════════════════════════╝
+${box("SECRET UNLOCKED!")}
 
-Congratulations! You've discovered the secret
-terminal easter egg! 🎮
+Congratulations! You've discovered the
+secret terminal easter egg!
 
-You are one of the few who think like a developer.
-Curiosity and exploration are the hallmarks of
-great engineers.
+You are one of the few who think like a
+developer. Curiosity and exploration are
+the hallmarks of great engineers.
 
-<span class="my-2.5 inline-block animate-badge-pulse rounded-sm border-2 border-[#fbbf24] bg-[#14110a] px-4 py-2 font-bold tracking-[1px] text-[#fbbf24] uppercase shadow-[0_0_20px_rgba(251,191,36,0.4)]">🏆 Achievement Unlocked: Terminal Hacker</span>
+<span class="my-2.5 inline-block animate-badge-pulse rounded-sm border-2 border-[#fbbf24] bg-[#14110a] px-4 py-2 font-bold tracking-[1px] text-[#fbbf24] uppercase shadow-[0_0_20px_rgba(251,191,36,0.4)]">ACHIEVEMENT UNLOCKED: TERMINAL HACKER</span>
 
 Secret Message:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-"The best developers are those who never stop
-exploring, questioning, and learning. You've
-proven you belong in that elite group."
+----------------------------------------
+"The best developers are those who never
+stop exploring, questioning, and learning.
+You've proven you belong in that elite
+group."
 
   - Basem Esam
 
-Fun Fact: This terminal runs on React, TypeScript,
-and Tailwind CSS — 12 commands and counting!
+Fun Fact: This terminal was built with
+React, TypeScript, and Tailwind CSS -
+12 commands and counting!
 
-Try typing: matrix, hack, or coffee for more fun!
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Try typing: matrix, hack, or coffee
+----------------------------------------
 `,
   matrix: `
-╔════════════════════════════════════════╗
-║         MATRIX MODE ACTIVATED          ║
-╚════════════════════════════════════════╝
+${box("MATRIX MODE ACTIVATED")}
 
 Wake up, Neo...
 The Matrix has you...
-Follow the white rabbit. 🐰
+Follow the white rabbit.
 
 Knock, knock, Neo.
 
@@ -169,25 +178,28 @@ Knock, knock, Neo.
 <span class="text-[#fbbf24]">System Status: Reality.exe has stopped working</span>
 <span class="text-[#ffa502] [text-shadow:0_0_5px_rgba(255,165,2,0.5)]">WARNING: You are now in the Matrix</span>
 
-Would you like to take the red pill or blue pill?
+Would you like to take the red pill or
+blue pill?
 
-Just kidding! You're still in Basem's portfolio 😄
-But that was cool, right?
+Just kidding! You're still in Basem's
+portfolio. But that was cool, right?
 `,
   hack: `<span class="text-[#ffa502] [text-shadow:0_0_5px_rgba(255,165,2,0.5)]">Initializing hack sequence...</span>
 Connecting to mainframe...
 Bypassing firewall...
 <span class="text-[#fbbf24]">Access granted!</span>
 Downloading files...
-portfolio_secrets.zip [████████] 100%
-cool_developer_facts.txt [████████] 100%
-<span class="text-[#f87171] [text-shadow:0_0_5px_rgba(248,113,113,0.5)]">ERROR: Nice try, hacker! 😄</span>
+portfolio_secrets.zip [########] 100%
+cool_dev_facts.txt [########] 100%
+<span class="text-[#f87171] [text-shadow:0_0_5px_rgba(248,113,113,0.5)]">ERROR: Nice try, hacker!</span>
 
 <span class="text-[#fde68a] [text-shadow:0_0_5px_rgba(251,191,36,0.5)]">Just kidding! There's nothing to hack here.</span>
-But I appreciate your spirit! 🚀
 
-Real hacking is about building, not breaking.
-Want to build something cool together?
+But I appreciate your spirit!
+
+Real hacking is about building, not
+breaking. Want to build something cool
+together?
 Check out my GitHub: github.com/basem3sam
 `,
   coffee: `
@@ -196,47 +208,47 @@ Check out my GitHub: github.com/basem3sam
      (   ) )
       ) ( (
     _______)_
- .-'---------|  
-( C|/\\/\\/\\/\\/|
- '-./\\/\\/\\/\\/|
-   '_________'
+ .-'---------|
+( C|\\/\\/\\/\\/|
+ '-.\\/\\/\\/\\/|
+   '_________
     '-------'
 
 
-Here's a virtual coffee! ☕
+Here's a virtual coffee!
 
 <span class="text-[#fbbf24]">Coffee.exe is brewing...</span>
 
-Fun fact: Developers run on coffee and semicolons.
+Fun fact: Developers run on coffee and
+semicolons.
 
-Error 418: I'm a teapot 🫖
+Error 418: I'm a teapot
 Just kidding! Here's your coffee!
 
-Enjoy coding! 💻
+Enjoy coding!
 `,
   whoami: `
-╔════════════════════════════════════════╗
-║          USER INFORMATION              ║
-╚════════════════════════════════════════╝
+${box("USER INFORMATION")}
 
 Username: curious_developer
 Role: Easter Egg Hunter
 Level: Terminal Master
-Status: IMPRESSED ✨
+Status: IMPRESSED
 
 Achievements:
-  ✓ Found the secret terminal
-  ✓ Explored hidden features
-  ✓ Thinks like a developer
-  ✓ Has great taste in portfolios
+  * Found the secret terminal
+  * Explored hidden features
+  * Thinks like a developer
+  * Has great taste in portfolios
 
 Special Privileges:
-  → Access to all terminal commands
-  → Bragging rights for finding this
-  → Respect from Basem Esam
-  → Exclusive knowledge of portfolio secrets
+  > Access to all terminal commands
+  > Bragging rights for finding this
+  > Respect from Basem Esam
+  > Exclusive knowledge of portfolio
+    secrets
 
-You are: Awesome! 🌟
+You are: Awesome!
 `,
 };
 
@@ -255,17 +267,30 @@ export const COMMAND_NAMES = [
   "exit",
 ];
 
-export const ASCII_BANNER = `
-╔═══════════════════════════════════════════════════════════╗
-║                                                           ║
-║        ██████╗  █████╗ ███████╗███████╗███╗   ███╗        ║
-║        ██╔══██╗██╔══██╗██╔════╝██╔════╝████╗ ████║        ║
-║        ██████╔╝███████║███████╗█████╗  ██╔████╔██║        ║
-║        ██╔══██╗██╔══██║╚════██║██╔══╝  ██║╚██╔╝██║        ║
-║        ██████╔╝██║  ██║███████║███████╗██║ ╚═╝ ██║        ║
-║        ╚═════╝ ╚═╝  ╚═╝╚══════╝╚══════╝╚═╝     ╚═╝        ║
-║                                                           ║
-║                 SECRET DEVELOPER TERMINAL                 ║
-║                                                           ║
-╚═══════════════════════════════════════════════════════════╝
-`;
+export const ASCII_BANNER = [
+  "██████╗  █████╗ ███████╗███████╗███╗   ███╗",
+  "██╔══██╗██╔══██╗██╔════╝██╔════╝████╗ ████║",
+  "██████╔╝███████║███████╗█████╗  ██╔████╔██║",
+  "██╔══██╗██╔══██║╚════██║██╔══╝  ██║╚██╔╝██║",
+  "██████╔╝██║  ██║███████║███████╗██║ ╚═╝ ██║",
+  "╚═════╝ ╚═╝  ╚═╝╚══════╝╚══════╝╚═╝     ╚═╝",
+  "",
+  "       [ SECRET DEVELOPER TERMINAL ]",
+].join("\n");
+
+export const COMMAND_ALIASES: Record<string, string> = {
+  "مساعدة": "help",
+  "عني": "about",
+  "نبذة": "about",
+  "مهارات": "skills",
+  "مشاريع": "projects",
+  "تواصل": "contact",
+  "اتصال": "contact",
+  "سر": "secret",
+  "ماتريكس": "matrix",
+  "اختراق": "hack",
+  "قهوة": "coffee",
+  "من": "whoami",
+  "مسح": "clear",
+  "خروج": "exit",
+};

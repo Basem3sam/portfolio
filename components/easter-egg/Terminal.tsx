@@ -5,7 +5,7 @@ import { isMobileViewport } from "@/components/easter-egg/constants";
 import Icon from "@/components/ui/Icon";
 import { lockScroll, unlockScroll } from "@/lib/scrollLock";
 import { prefersReducedMotion } from "@/lib/scroll";
-import { ASCII_BANNER, COMMAND_NAMES, COMMAND_OUTPUT } from "@/lib/terminalCommands";
+import { ASCII_BANNER, COMMAND_ALIASES, COMMAND_NAMES, COMMAND_OUTPUT } from "@/lib/terminalCommands";
 
 type Tone = "plain" | "prompt" | "success" | "info" | "error";
 
@@ -35,6 +35,14 @@ const TYPE_INTERVAL = 12;
 
 type QueueEntry = { id: number; full: string; shown: number };
 
+const BANNER_COLORS = ["#fef3c7", "#fde68a", "#fcd34d", "#fbbf24", "#f59e0b", "#d97706", "#fbbf24"];
+
+const escapeHtml = (value: string) =>
+  value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+const PROMPT_HTML =
+  '<span class="font-bold text-[#4ade80]">guest@basem</span><span class="text-[#fde68a]">:</span><span class="font-bold text-[#60a5fa]">~</span><span class="text-[#fde68a]">$</span>';
+
 type TerminalProps = {
   open: boolean;
   onClose: () => void;
@@ -42,14 +50,15 @@ type TerminalProps = {
 
 export default function Terminal({ open, onClose }: TerminalProps) {
   const [lines, setLines] = useState<Line[]>(() => {
-    const mobile = isMobileViewport();
+    const ok = '[<span class="font-bold text-[#4ade80]"> OK </span>]';
     return [
-      mobile
-        ? { id: 0, tone: "plain", kind: "banner", delay: 0 }
-        : { id: 0, tone: "plain", kind: "ascii", text: ASCII_BANNER, delay: 0 },
-      { id: 1, tone: "success", text: "Welcome to Basem's Secret Developer Terminal!", delay: 250 },
-      { id: 2, tone: "info", text: 'Type "help" to see available commands.', delay: 500 },
-      { id: 3, tone: "plain", text: "", delay: 700 },
+      { id: 0, tone: "plain", kind: "ascii", text: ASCII_BANNER, delay: 0 },
+      { id: 1, tone: "plain", html: `${ok} mounting portfolio.fs`, delay: 200 },
+      { id: 2, tone: "plain", html: `${ok} loading developer profile`, delay: 350 },
+      { id: 3, tone: "plain", html: `${ok} opening guest session`, delay: 500 },
+      { id: 4, tone: "success", text: "Welcome to Basem's Secret Developer Terminal!", delay: 750 },
+      { id: 5, tone: "info", text: 'Type "help" to see available commands.', delay: 950 },
+      { id: 6, tone: "plain", text: "", delay: 1100 },
     ];
   });
   const [glitch, setGlitch] = useState(false);
@@ -57,7 +66,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const history = useRef<string[]>([]);
   const historyIndex = useRef(0);
-  const nextId = useRef(4);
+  const nextId = useRef(7);
   const timers = useRef<number[]>([]);
   const typingQueue = useRef<QueueEntry[]>([]);
   const typingTimer = useRef(0);
@@ -157,7 +166,9 @@ export default function Terminal({ open, onClose }: TerminalProps) {
     return () => pending.forEach((timer) => window.clearTimeout(timer));
   }, []);
 
-  const run = (command: string) => {
+  const run = (input: string) => {
+    const command = COMMAND_ALIASES[input] ?? input;
+
     if (command === "clear") {
       finishTyping();
       setLines([]);
@@ -171,7 +182,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
 
     if (!COMMAND_NAMES.includes(command)) {
       append([
-        { tone: "error", text: `Command not found: ${command}` },
+        { tone: "error", text: `Command not found: ${input}` },
         { tone: "info", text: 'Type "help" for available commands.' },
       ]);
       return;
@@ -197,7 +208,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
       if (command) {
         history.current.push(command);
         historyIndex.current = history.current.length;
-        append([{ tone: "prompt", text: `guest@basem:~$ ${command}` }]);
+        append([{ tone: "plain", html: `${PROMPT_HTML} <span class="font-bold text-[#fde68a]">${escapeHtml(command)}</span>` }]);
         run(command);
       }
 
@@ -234,7 +245,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
       <div
         id="secret-terminal"
         dir="ltr"
-        className={`fixed z-[10000] flex flex-col overflow-hidden rounded-xl border-2 border-[#fbbf24] bg-[#131007] font-mono shadow-[0_0_70px_rgba(251,191,36,0.3),inset_0_0_60px_rgba(251,191,36,0.05)] transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] after:pointer-events-none after:absolute after:inset-0 after:z-[5] after:rounded-xl after:bg-[radial-gradient(ellipse_at_center,transparent_65%,rgba(0,0,0,0.35)_100%)] after:content-[''] top-1/2 left-1/2 h-[600px] w-[90%] max-w-[800px] -translate-x-1/2 -translate-y-1/2 max-md:h-auto max-md:min-h-[50dvh] max-md:max-h-[calc(100dvh_-_6rem)] max-md:w-[calc(100%_-_2rem)] max-md:max-w-none max-md:rounded-2xl ${open ? "scale-100 opacity-100" : "pointer-events-none scale-0 opacity-0"}`}
+        className={`fixed z-[10000] flex flex-col overflow-hidden rounded-xl border-2 border-[#fbbf24] bg-[#131007] [font-family:var(--font-terminal),var(--font-mono-body),monospace] shadow-[0_0_70px_rgba(251,191,36,0.3),inset_0_0_60px_rgba(251,191,36,0.05)] transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] after:pointer-events-none after:absolute after:inset-0 after:z-[5] after:rounded-xl after:bg-[radial-gradient(ellipse_at_center,transparent_65%,rgba(0,0,0,0.35)_100%)] after:content-[''] top-1/2 left-1/2 h-[600px] w-[90%] max-w-[800px] -translate-x-1/2 -translate-y-1/2 max-md:h-auto max-md:min-h-[50dvh] max-md:max-h-[calc(100dvh_-_6rem)] max-md:w-[calc(100%_-_2rem)] max-md:max-w-none max-md:rounded-2xl ${open ? "scale-100 opacity-100" : "pointer-events-none scale-0 opacity-0"}`}
         role="dialog"
         aria-label="Secret terminal"
         inert={!open}
@@ -284,9 +295,20 @@ export default function Terminal({ open, onClose }: TerminalProps) {
                   <pre
                     key={line.id}
                     style={style}
-                    className={`my-5 animate-terminal-line text-[10px] leading-none text-[#fbbf24] [text-shadow:2px_0_rgba(248,113,113,0.35),-2px_0_rgba(103,232,249,0.35),0_0_12px_rgba(251,191,36,0.35)] max-md:text-[8px]`}
+                    className="my-4 animate-terminal-line text-[13px] leading-[1.32] whitespace-pre [font-family:inherit] max-md:text-[9px]"
                   >
-                    {line.text}
+                    {(line.text ?? "").split("\n").map((row, index) => (
+                      <span
+                        key={index}
+                        className="block"
+                        style={{
+                          color: BANNER_COLORS[Math.min(index, BANNER_COLORS.length - 1)],
+                          textShadow: "0 0 8px rgba(251,191,36,0.45)",
+                        }}
+                      >
+                        {row || " "}
+                      </span>
+                    ))}
                   </pre>
                 );
               }
@@ -330,13 +352,12 @@ export default function Terminal({ open, onClose }: TerminalProps) {
           </div>
         </div>
         <div className="relative z-[3] flex shrink-0 items-center gap-2.5 border-t border-[#fbbf24] bg-[rgba(26,22,14,0.95)] px-5 py-3">
-          <span className="text-[14px] font-bold whitespace-nowrap text-[#fbbf24] [text-shadow:0_0_6px_rgba(251,191,36,0.55)] max-md:text-[12px]">
-            guest@basem:~$           </span>
+          <span className="text-[14px] font-bold whitespace-nowrap text-[#fbbf24] [text-shadow:0_0_6px_rgba(251,191,36,0.55)] max-md:text-[12px]"><span className="text-[#4ade80]">guest@basem</span><span className="text-[#fde68a]">:</span><span className="text-[#60a5fa]">~</span><span className="text-[#fde68a]">$</span></span>
           <input
             ref={inputRef}
             id="terminal-input"
             type="text"
-            className="flex-1 bg-transparent text-[14px] text-[#fde68a] caret-[#fbbf24] outline-none [text-shadow:0_0_5px_rgba(251,191,36,0.4)] placeholder:text-[rgba(251,191,36,0.35)] max-md:text-[12px]"
+            className="flex-1 bg-transparent text-[14px] text-[#fde68a] caret-[#fbbf24] [caret-shape:block] outline-none [text-shadow:0_0_5px_rgba(251,191,36,0.4)] placeholder:text-[rgba(251,191,36,0.35)] max-md:text-[12px]"
             placeholder="Type 'help' for available commands..."
             autoComplete="off"
             autoCapitalize="off"

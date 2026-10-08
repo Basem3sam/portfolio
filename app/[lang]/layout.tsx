@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, IBM_Plex_Sans_Arabic } from "next/font/google";
+import localFont from "next/font/local";
 import type { ReactNode } from "react";
 import "@/app/globals.css";
 import RevealOnScroll from "@/components/behavior/RevealOnScroll";
@@ -29,6 +30,15 @@ const plexMono = IBM_Plex_Mono({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-plex-mono",
+});
+
+const terminalFont = localFont({
+  src: [
+    { path: "../fonts/JetBrainsMonoNL-Regular.woff2", weight: "400", style: "normal" },
+    { path: "../fonts/JetBrainsMonoNL-Bold.woff2", weight: "700", style: "normal" },
+  ],
+  display: "swap",
+  variable: "--font-terminal",
 });
 
 type RootLayoutProps = {
@@ -100,8 +110,8 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
   const locale: Locale = isLocale(lang) ? lang : "en";
   const fontVariables =
     locale === "ar"
-      ? `${plexSansArabic.variable} ${plexMono.variable}`
-      : `${plexSans.variable} ${plexMono.variable}`;
+      ? `${plexSansArabic.variable} ${plexMono.variable} ${terminalFont.variable}`
+      : `${plexSans.variable} ${plexMono.variable} ${terminalFont.variable}`;
 
   return (
     <html

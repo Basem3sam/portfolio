@@ -29,6 +29,10 @@ const labels = {
   },
 } as const;
 
+// Pointer grace: the menu stays open while the pointer is inside it or
+// inside the button, and for this long after the pointer last left both.
+const POINTER_GRACE_MS = 400;
+
 export default function SecretClue({
   buttonRef,
   revealed,
@@ -42,6 +46,7 @@ export default function SecretClue({
   const [footerNear, setFooterNear] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const firstItemRef = useRef<HTMLButtonElement>(null);
+  const closeTimer = useRef(0);
   const t = labels[locale];
 
   // The clue button bows out at the page end: it is a mid-page exploration
@@ -59,31 +64,48 @@ export default function SecretClue({
     return () => observer.disconnect();
   }, []);
 
+  const scheduleClose = () => {
+    window.clearTimeout(closeTimer.current);
+    closeTimer.current = window.setTimeout(() => setOpen(false), POINTER_GRACE_MS);
+  };
+
+  const cancelClose = () => {
+    window.clearTimeout(closeTimer.current);
+  };
+
   useEffect(() => {
     if (!open) return;
+
+    cancelClose();
+    firstItemRef.current?.focus();
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
+        cancelClose();
         setOpen(false);
       }
     };
 
     const handlePointerDown = (event: PointerEvent) => {
-      if (!containerRef.current?.contains(event.target as Node)) setOpen(false);
+      if (!containerRef.current?.contains(event.target as Node)) {
+        cancelClose();
+        setOpen(false);
+      }
     };
 
     document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("pointerdown", handlePointerDown);
-    firstItemRef.current?.focus();
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("pointerdown", handlePointerDown);
+      cancelClose();
     };
   }, [open]);
 
   const trigger = (action: () => void) => {
+    cancelClose();
     setOpen(false);
     action();
   };
@@ -91,6 +113,8 @@ export default function SecretClue({
   return (
     <div
       ref={containerRef}
+      onPointerEnter={cancelClose}
+      onPointerLeave={scheduleClose}
       className="fixed bottom-[30px] start-[30px] z-[1000] print:hidden max-[481px]:bottom-[25px] max-[481px]:start-5"
     >
       {open && revealed && (
@@ -141,8 +165,11 @@ export default function SecretClue({
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={t.title}
-        onClick={() => setOpen((value) => !value)}
-        className={`relative flex size-11 cursor-pointer items-center justify-center rounded-full bg-secondary text-on-secondary shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg active:scale-90 motion-reduce:transition-none ${
+        onClick={() => {
+          cancelClose();
+          setOpen((value) => !value);
+        }}
+        className={`relative flex size-11 cursor-pointer items-center justify-center rounded-full bg-secondary text-on-secondary shadow-md transition-all duration-500 hover:-translate-y-0.5 hover:shadow-lg active:scale-90 motion-reduce:transition-none ${
           revealed
             ? `visible scale-100 rotate-[360deg] ${footerNear ? "pointer-events-none opacity-0" : "opacity-100"}`
             : "invisible scale-0 opacity-0"

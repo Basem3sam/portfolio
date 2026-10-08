@@ -204,7 +204,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       resumeAudio().then(() => playSuccessSound());
 
       window.clearTimeout(state.resetTimer);
-      state.resetTimer = window.setTimeout(() => reset(false), 5000);
+      state.resetTimer = window.setTimeout(() => reset(false), 10000);
     };
 
     const handleClick = (event: MouseEvent) => {
