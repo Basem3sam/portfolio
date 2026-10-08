@@ -66,6 +66,26 @@ export default function Education({ dict }: EducationProps) {
                 ))}
               </ul>
             </div>
+
+            <div>
+              <h3 className="font-mono text-xs font-medium tracking-wide text-muted-text uppercase">
+                {dict.certificationsHeading}
+              </h3>
+              <ul className="mt-3 space-y-2.5">
+                {dict.certifications.map((cert) => (
+                  <li
+                    key={cert}
+                    className="flex items-start gap-2.5 text-sm leading-relaxed text-light-text"
+                  >
+                    <span
+                      className="mt-1.5 size-2 shrink-0 rounded-full bg-secondary"
+                      aria-hidden="true"
+                    ></span>
+                    <span>{cert}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
       </div>

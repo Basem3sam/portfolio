@@ -60,7 +60,10 @@ export default function Hero({ dict }: HeroProps) {
 
             <dl className="mx-auto mt-8 grid max-w-lg grid-cols-2 gap-px overflow-hidden rounded-lg border border-hairline bg-hairline sm:grid-cols-4 lg:mx-0 motion-safe:animate-hero-in-3">
               {dict.metrics.map((metric) => (
-                <div key={metric.label} className="flex flex-col-reverse bg-surface p-4 text-center">
+                <div
+                  key={metric.label}
+                  className="flex flex-col-reverse bg-surface p-4 text-center"
+                >
                   <dt className="mt-1 text-xs leading-snug text-light-text">{metric.label}</dt>
                   <dd className="font-mono text-2xl font-semibold text-dark-text" dir="ltr">
                     <CountUp value={metric.value} suffix={metric.suffix} />
@@ -84,7 +87,7 @@ export default function Hero({ dict }: HeroProps) {
             </p>
 
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
-              <a href="#projects" className={primaryCta}>
+              <a href="#work" className={primaryCta}>
                 {dict.viewWork}
                 <Icon name="arrowRight" className="size-4 rtl:rotate-180" />
               </a>

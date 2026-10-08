@@ -1,3 +1,45 @@
+type ProjectStatus = "production" | "complete" | "research";
+
+type WorkProject = {
+  id: string;
+  name: string;
+  status: ProjectStatus;
+  description: string;
+  detail: string;
+  tech: string[];
+};
+
+const projects: WorkProject[] = [
+  {
+    id: "trosc",
+    name: "trosc-backend",
+    status: "production",
+    description:
+      "Open-source production backend for a student-club learning platform — 85+ endpoints across 6 Mongoose models and 9 dedicated services, serving tracks, courses, sessions, events, and announcements to 200+ members. Service-layer architecture with thin controllers, reusable factory middleware, and MongoDB querying with compound indexes and virtual population.",
+    detail:
+      "3-tier RBAC with dual-token auth, enrollment prerequisites (public / track-only / private), bulk user operations with admin-protection guards, and an email service with 4 HTML templates. Swagger/OpenAPI 3.0 docs served interactively at /api-docs.",
+    tech: ["Node.js", "Express", "MongoDB", "Mongoose", "JWT", "Swagger", "Joi"],
+  },
+  {
+    id: "laravel",
+    name: "laravel-ecommerce-app",
+    status: "complete",
+    description:
+      "Built a full-stack e-commerce app — auth, admin dashboard, cart, and order placement — using Eloquent ORM relationships with eager loading, MVC architecture, and Laravel form-request validation with database transaction wrappers.",
+    detail: "",
+    tech: ["PHP", "Laravel", "MySQL", "Blade"],
+  },
+  {
+    id: "neuroscan",
+    name: "neuroscan-ai",
+    status: "research",
+    description:
+      "Built a hybrid brain-tumor detection pipeline across 6+ CNN-KNN-KMeans ensemble models with OpenCV preprocessing and multi-model consensus scoring; added data augmentation and cross-validation with a swappable classifier architecture for reproducible A/B testing.",
+    detail: "",
+    tech: ["Python", "PyTorch", "CNN", "KNN", "KMeans", "OpenCV"],
+  },
+];
+
 const en = {
   metadata: {
     title: "Basem Esam | Backend Developer",
@@ -10,10 +52,10 @@ const en = {
   nav: {
     home: "Basem Esam",
     ariaHome: "Basem Esam - Home",
-    about: "About",
+    work: "Work",
     stack: "Stack",
+    about: "About",
     experience: "Experience",
-    projects: "Projects",
     education: "Education",
     contact: "Contact",
     allLinks: "All My Links",
@@ -60,42 +102,79 @@ const en = {
       phone: "Call Basem Esam",
     },
   },
+  work: {
+    title: "Work",
+    liveLabel: "live from github",
+    viewRepo: "View repository",
+    viewLive: "Live site",
+    status: {
+      production: "production",
+      complete: "complete",
+      research: "research",
+    },
+    projects,
+  },
   stack: {
     title: "Stack",
     groups: [
       {
-        label: "backend",
+        label: "backend & apis",
         items: [
           "Node.js",
-          "Express",
+          "Express.js",
           "REST API design",
-          "Authentication & authorization",
+          "JWT authentication",
           "PHP",
           "Laravel",
+          "JavaScript",
+          "Python",
+          "C++",
         ],
       },
       {
-        label: "data",
-        items: ["MongoDB (Mongoose)", "MySQL", "Redis"],
-      },
-      {
-        label: "ops & tools",
-        items: ["Docker", "Kubernetes", "Git & GitHub", "Linux administration", "Bash scripting"],
-      },
-      {
-        label: "frontend",
-        items: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Responsive design"],
-      },
-      {
-        label: "practice",
-        items: ["OOP", "Clean architecture", "Design patterns", "Scalable systems"],
-      },
-      {
-        label: "beyond code",
+        label: "databases",
         items: [
-          "Teaching & mentoring — GDG SCU",
-          "Team leadership — Trosc IT",
-          "Competitive problem solving — ICPC",
+          "MongoDB (Mongoose ODM)",
+          "Schema design",
+          "Compound & text indexing",
+          "Aggregation pipelines",
+          "MySQL",
+        ],
+      },
+      {
+        label: "devops & tools",
+        items: [
+          "Docker",
+          "Git",
+          "Linux",
+          "Bash",
+          "Nodemon",
+          "ESLint (Airbnb config)",
+          "Prettier",
+        ],
+      },
+      {
+        label: "security & docs",
+        items: [
+          "Swagger / OpenAPI 3.0",
+          "Joi validation",
+          "Helmet",
+          "express-rate-limit",
+          "express-mongo-sanitize",
+          "HPP",
+          "CORS",
+        ],
+      },
+      {
+        label: "architecture & patterns",
+        items: [
+          "Service layer",
+          "Factory pattern",
+          "RBAC",
+          "Middleware",
+          "Data modeling",
+          "Pagination",
+          "MVC",
         ],
       },
     ],
@@ -131,8 +210,8 @@ const en = {
       {
         role: "IT Head & Backend Lead",
         org: "Trosc Student Club",
-        period: "2025 – Present",
-        text: "Own the club's production backend: an Express + MongoDB API with 85+ endpoints, 6 models, and 9 services — 7 security layers, 11 trusted media hosts, serving 200+ members. Lead the IT team.",
+        period: "Jan 2025 – Present",
+        text: "Architected and deployed the club's production REST API — 85+ endpoints across 6 Mongoose models and 9 dedicated services — serving tracks, courses, sessions, events, and announcements to 200+ members, with dual-token JWT auth, 3-tier RBAC, and a 7-layer security model. Leads the club's IT team.",
       },
       {
         role: "OOP Instructor",
@@ -158,11 +237,11 @@ const en = {
     ],
     courseworkHeading: "Relevant coursework",
     coursework: [
-      "Object-Oriented Programming",
-      "Backend Development Fundamentals",
-      "Linux Administration",
-      "PHP / Laravel Development",
-      "Node.js Basics",
+      "Software Engineering",
+      "Operating Systems",
+      "Computer Networks",
+      "Data Structures",
+      "Database Systems",
     ],
     achievementsHeading: "Highlights",
     achievements: [
@@ -170,6 +249,12 @@ const en = {
       "IT Head & Backend Lead at Trosc Student Club",
       "Taught OOP to 50+ students at GDG SCU",
       "Active in the Mech Hackers community",
+    ],
+    certificationsHeading: "Certifications",
+    certifications: [
+      "Cloud Architecture — Professional Certification, ITI",
+      "PHP Web Development — 120-hour Full Stack Track, ITI",
+      "Certificate of Appreciation — OOP Instructor, GDG SCU (2025)",
     ],
   },
   palette: {
@@ -185,13 +270,6 @@ const en = {
       connect: "Connect",
     },
     items: {
-      stack: "Stack",
-      about: "About",
-      experience: "Experience",
-      projects: "Projects",
-      education: "Education",
-      contact: "Contact",
-      links: "All my links",
       theme: "Toggle theme",
       languageToAr: "التبديل إلى العربية",
       languageToEn: "Switch to English",
@@ -199,6 +277,26 @@ const en = {
       email: "Email me",
       github: "GitHub profile",
       linkedin: "LinkedIn profile",
+    },
+  },
+  github: {
+    loading: "Fetching projects from GitHub…",
+    tryAgain: "Try again",
+    viewOnGithub: "View on GitHub",
+    demo: "Demo",
+    created: "Created",
+    updated: "Updated",
+    stars: "Stars",
+    forks: "Forks",
+    watchers: "Watchers",
+    issues: "Open issues",
+    noRepos: "No public repositories found.",
+    errors: {
+      userNotFound: "GitHub user not found. Please check the username.",
+      rateLimit: "GitHub API rate limit exceeded. Please try again in an hour.",
+      timeout: "Request timed out. Please check your connection and try again.",
+      cancelled: "Request was cancelled.",
+      generic: "Unable to load GitHub projects at this time.",
     },
   },
   links: {

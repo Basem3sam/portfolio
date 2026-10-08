@@ -50,6 +50,7 @@ function buildItems(palette: PaletteLabels, nav: NavLabels, locale: Locale): Pal
   const languageHref = locale === "ar" ? "/" : "/ar";
 
   return [
+    { id: "work", label: nav.work, group: "navigate", icon: "arrowRight", href: "#work" },
     { id: "stack", label: nav.stack, group: "navigate", icon: "arrowRight", href: "#stack" },
     { id: "about", label: nav.about, group: "navigate", icon: "arrowRight", href: "#about" },
     {
@@ -65,13 +66,6 @@ function buildItems(palette: PaletteLabels, nav: NavLabels, locale: Locale): Pal
       group: "navigate",
       icon: "arrowRight",
       href: "#education",
-    },
-    {
-      id: "projects",
-      label: nav.projects,
-      group: "navigate",
-      icon: "arrowRight",
-      href: "#projects",
     },
     { id: "contact", label: nav.contact, group: "navigate", icon: "arrowRight", href: "#contact" },
     { id: "links", label: nav.allLinks, group: "navigate", icon: "externalLink", href: linksHref },
@@ -238,20 +232,14 @@ function PaletteDialog({
       className={`fixed inset-0 z-[1080] flex items-start justify-center p-4 pt-[10vh] ${open ? "" : "pointer-events-none"}`}
       inert={!open}
     >
-      <div
-        className="absolute inset-0 bg-black/40"
-        onClick={onClose}
-        aria-hidden="true"
-      ></div>
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true"></div>
       <div
         role="dialog"
         aria-modal="true"
         aria-label={labels.ariaLabel}
         onKeyDown={handleDialogKeyDown}
         className={`relative mx-auto flex w-full max-w-lg flex-col overflow-hidden rounded-xl border border-hairline bg-surface shadow-xl transition duration-200 motion-reduce:transition-none ${
-          open
-            ? "translate-y-0 scale-100 opacity-100"
-            : "-translate-y-2 scale-[0.98] opacity-0"
+          open ? "translate-y-0 scale-100 opacity-100" : "-translate-y-2 scale-[0.98] opacity-0"
         }`}
       >
         <div className="flex items-center gap-2 border-b border-hairline px-4">
@@ -293,7 +281,12 @@ function PaletteDialog({
           {filtered.length === 0 ? (
             <p className="px-3 py-8 text-center text-sm text-light-text">{labels.empty}</p>
           ) : (
-            <ul role="listbox" id={listId} aria-label={labels.ariaLabel} className="flex flex-col gap-0.5">
+            <ul
+              role="listbox"
+              id={listId}
+              aria-label={labels.ariaLabel}
+              className="flex flex-col gap-0.5"
+            >
               {filtered.map((item, index) => {
                 const showHeader = index === 0 || filtered[index - 1].group !== item.group;
                 const iconClass =

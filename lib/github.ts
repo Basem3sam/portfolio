@@ -16,14 +16,15 @@ export type GitHubRepo = {
   updated_at: string;
 };
 
-export type LanguageTone = "secondary" | "primary" | "warning" | "info" | "danger" | "success";
-
 export type FallbackTone = "error" | "warning" | "info";
+
+export type ErrorCode = "userNotFound" | "rateLimit" | "timeout" | "cancelled" | "generic";
 
 export type ErrorInfo = {
   message: string;
   tone: FallbackTone;
   retryable: boolean;
+  code: ErrorCode;
 };
 
 const USERNAME = "basem3sam";
@@ -36,24 +37,6 @@ const RETRY_ATTEMPTS = 3;
 const RETRY_DELAY = 1000;
 const REQUEST_TIMEOUT = 10000;
 const MAX_DESCRIPTION_LENGTH = 120;
-
-const LANGUAGE_TONES: Record<string, LanguageTone> = {
-  JavaScript: "warning",
-  TypeScript: "primary",
-  Python: "info",
-  Java: "danger",
-  PHP: "primary",
-  HTML: "danger",
-  CSS: "info",
-  Vue: "success",
-  React: "info",
-  Shell: "secondary",
-  Dockerfile: "primary",
-};
-
-export function getLanguageTone(language: string): LanguageTone {
-  return LANGUAGE_TONES[language] ?? "secondary";
-}
 
 function readCache(): GitHubRepo[] | null {
   try {
@@ -169,6 +152,7 @@ export function getErrorInfo(error: unknown): ErrorInfo {
       message: "GitHub user not found. Please check the username.",
       tone: "warning",
       retryable: false,
+      code: "userNotFound",
     };
   }
   if (message.includes("403")) {
@@ -176,6 +160,7 @@ export function getErrorInfo(error: unknown): ErrorInfo {
       message: "GitHub API rate limit exceeded. Please try again in an hour.",
       tone: "warning",
       retryable: true,
+      code: "rateLimit",
     };
   }
   if (message.includes("timeout")) {
@@ -183,16 +168,18 @@ export function getErrorInfo(error: unknown): ErrorInfo {
       message: "Request timeout. Please check your connection and try again.",
       tone: "warning",
       retryable: true,
+      code: "timeout",
     };
   }
   if (message.includes("abort")) {
-    return { message: "Request was cancelled.", tone: "info", retryable: false };
+    return { message: "Request was cancelled.", tone: "info", retryable: false, code: "cancelled" };
   }
 
   return {
     message: "Unable to load GitHub projects at this time.",
     tone: "error",
     retryable: true,
+    code: "generic",
   };
 }
 
@@ -205,30 +192,28 @@ export function formatRepositoryName(name: string) {
 
 export function truncateDescription(description: string | null) {
   const text = description || "No description available.";
-  return text.length > MAX_DESCRIPTION_LENGTH ? `${text.substring(0, MAX_DESCRIPTION_LENGTH)}...` : text;
+  return text.length > MAX_DESCRIPTION_LENGTH
+    ? `${text.substring(0, MAX_DESCRIPTION_LENGTH)}...`
+    : text;
 }
 
 export function formatCount(count: number) {
   return count > 999 ? `${(count / 1000).toFixed(1)}k` : count;
 }
 
-export function formatDate(dateString: string) {
+export function formatDate(dateString: string, locale: string = "en") {
+  const dateLocale = locale === "ar" ? "ar-u-nu-latn" : locale;
   const date = new Date(dateString);
   const diffDays = Math.ceil(Math.abs(Date.now() - date.getTime()) / (1000 * 60 * 60 * 24));
+  const relative = new Intl.RelativeTimeFormat(dateLocale, { numeric: "auto" });
 
-  if (diffDays === 0) return "Today";
-  if (diffDays === 1) return "Yesterday";
-  if (diffDays < 7) return `${diffDays} days ago`;
-  if (diffDays < 30) {
-    const weeks = Math.floor(diffDays / 7);
-    return `${weeks} week${weeks > 1 ? "s" : ""} ago`;
-  }
-  if (diffDays < 365) {
-    const months = Math.floor(diffDays / 30);
-    return `${months} month${months > 1 ? "s" : ""} ago`;
-  }
+  if (diffDays === 0) return relative.format(0, "day");
+  if (diffDays === 1) return relative.format(-1, "day");
+  if (diffDays < 7) return relative.format(-diffDays, "day");
+  if (diffDays < 30) return relative.format(-Math.floor(diffDays / 7), "week");
+  if (diffDays < 365) return relative.format(-Math.floor(diffDays / 30), "month");
 
-  return date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+  return date.toLocaleDateString(dateLocale, { year: "numeric", month: "short", day: "numeric" });
 }
 
 export function isWebUrl(url: string) {
