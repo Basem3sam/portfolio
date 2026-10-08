@@ -19,7 +19,6 @@
     "export:full": "node scripts/export.mjs full"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "6.4.0",
     "next": "16.3.8",
     "react": "19.3.0",
     "react-dom": "19.3.0"

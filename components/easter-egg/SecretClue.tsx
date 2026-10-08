@@ -2,6 +2,7 @@
 
 import type { Ref } from "react";
 import { HINT_LEVELS } from "@/components/easter-egg/constants";
+import Icon from "@/components/ui/Icon";
 
 type SecretClueProps = {
   buttonRef: Ref<HTMLButtonElement>;
@@ -22,7 +23,7 @@ export default function SecretClue({ buttonRef, revealed, level, onActivate }: S
       aria-label="Secret terminal"
       onClick={onActivate}
     >
-      <i className="fas fa-terminal text-[18px] text-white"></i>
+      <Icon name="terminal" className="size-[18px] text-white" />
       <span
         className={`${tooltip} bottom-0 left-[60px] hidden px-3 py-2 text-[12px] md:block md:group-hover:opacity-100`}
         aria-hidden="true"

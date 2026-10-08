@@ -46,21 +46,17 @@ that make a difference! 🚀
 ╚════════════════════════════════════════╝
 
 Backend Development:
-  ▸ Node.js         ████████████ 90%
-  ▸ Express         ███████████░ 85%
-  ▸ MongoDB         ██████████░░ 80%
-  ▸ PHP/Laravel     ████████░░░░ 70%
+  ▸ Node.js / Express
+  ▸ MongoDB (Mongoose) / MySQL
+  ▸ PHP / Laravel
 
 DevOps & Tools:
-  ▸ Docker          ███████░░░░░ 65%
-  ▸ Kubernetes      ██████░░░░░░ 60%
-  ▸ Git             ████████████ 95%
-  ▸ Linux Admin     ████████░░░░ 75%
+  ▸ Docker / Kubernetes
+  ▸ Git / Linux Admin / Bash
 
 System Design:
-  ▸ OOP             ███████████░ 85%
-  ▸ Clean Arch      ████████░░░░ 75%
-  ▸ REST APIs       ████████████ 90%
+  ▸ OOP / Clean Architecture
+  ▸ REST API Design / RBAC
 
 Special Abilities:
   ✓ Problem Solving
@@ -73,12 +69,13 @@ Special Abilities:
 ║         FEATURED PROJECTS              ║
 ╚════════════════════════════════════════╝
 
-1. Trosc Student Club Website
-   ├─ Backend infrastructure using Node.js
-   ├─ RESTful API design
-   └─ Database: MongoDB
+1. Trosc Student Club Platform
+   ├─ Production REST API (Node.js / Express)
+   ├─ MongoDB · service-layer architecture
+   └─ Serving 200+ members
    Status: ✓ Live & Running
-   Link: https://trosc-scu.netlify.app/
+   Link: https://trosc.vercel.app/
+   Repo: github.com/Basem3sam/trosc-backend
 
 2. Laravel E-commerce Platform
    ├─ Full-stack e-commerce solution
@@ -87,11 +84,12 @@ Special Abilities:
    Status: ✓ Completed
    Repo: github.com/Basem3sam/laravel-ecommerce-app
 
-3. REST API Authentication System
-   ├─ JWT-based authentication
-   ├─ Role-based access control
-   └─ Security best practices
-   Status: ⚡ In Development
+3. NeuroScan-AI
+   ├─ Brain-tumor detection pipeline
+   ├─ CNN / KNN / K-Means ensembles
+   └─ Python / PyTorch / OpenCV
+   Status: ✓ Team project (3rd-year exam)
+   Repo: github.com/Basem3sam/neuroscan-ai
 
 For more projects, visit:
 → github.com/basem3sam
@@ -147,8 +145,8 @@ proven you belong in that elite group."
 
   - Basem Esam
 
-Fun Fact: This terminal was built with vanilla
-JavaScript and has 15+ interactive commands!
+Fun Fact: This terminal runs on React, TypeScript,
+and Tailwind CSS — 12 commands and counting!
 
 Try typing: matrix, hack, or coffee for more fun!
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -5,8 +5,7 @@ import {
   IBM_Plex_Sans_Arabic,
 } from 'next/font/google';
 import type { ReactNode } from 'react';
-import '@fortawesome/fontawesome-free/css/all.min.css';
-import '@/app/globals.css';
+import "@/app/globals.css";
 import RevealOnScroll from '@/components/behavior/RevealOnScroll';
 import ScrollManager from '@/components/behavior/ScrollManager';
 import ThemeEffects from '@/components/behavior/ThemeEffects';

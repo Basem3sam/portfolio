@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { isMobileViewport } from "@/components/easter-egg/constants";
+import Icon from "@/components/ui/Icon";
 import { lockScroll, unlockScroll } from "@/lib/scrollLock";
 import { ASCII_BANNER, COMMAND_NAMES, COMMAND_OUTPUT } from "@/lib/terminalCommands";
 
@@ -156,7 +157,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
       >
         <div className="flex items-center justify-between border-b border-[#00ff41] bg-[linear-gradient(135deg,#1a1f3a_0%,#0a0e27_100%)] px-5 py-3 shadow-[0_2px_10px_rgba(0,255,65,0.2)] dark:bg-[linear-gradient(135deg,#0a0e1a_0%,#050814_100%)]">
           <div className="text-[14px] font-bold tracking-[2px] text-[#00ff41] uppercase [text-shadow:0_0_10px_rgba(0,255,65,0.5)] max-[481px]:text-[12px]">
-            <i className="fas fa-terminal"></i> BASEM_TERMINAL v1.0.0
+            <Icon name="terminal" className="inline size-[1em]" /> BASEM_TERMINAL v1.0.0
           </div>
           <div className="flex gap-2">
             <button

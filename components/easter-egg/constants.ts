@@ -1,3 +1,5 @@
+import type { IconName } from "@/components/ui/Icon";
+
 export const KONAMI_CODE = [
   "ArrowUp",
   "ArrowUp",
@@ -29,12 +31,12 @@ export function getHintLevel(clicks: number) {
 type HintLevel = {
   tooltip: string;
   notification: string;
-  icon: string;
+  icon: IconName;
   showNotification: boolean;
 };
 
 export const HINT_LEVELS: HintLevel[] = [
-  { tooltip: "...", notification: "", icon: "question", showNotification: false },
+  { tooltip: "...", notification: "", icon: "helpCircle", showNotification: false },
   {
     tooltip: "You found something! Keep exploring...",
     notification: "Secret discovered! Keep clicking to reveal more... 🔍",
@@ -44,25 +46,25 @@ export const HINT_LEVELS: HintLevel[] = [
   {
     tooltip: "Follow the arrow patterns... 🧭",
     notification: "Notice the arrow directions? There's a pattern... ↗️↙️",
-    icon: "compass",
+    icon: "globe",
     showNotification: true,
   },
   {
     tooltip: "Up, up, down, down...",
     notification: "It's a famous gaming sequence! Keep going... 🎮",
-    icon: "arrows-alt",
+    icon: "arrowUp",
     showNotification: true,
   },
   {
     tooltip: "↑↑↓↓←→←→",
     notification: "Almost there! Just need the final buttons... 🔄",
-    icon: "project-diagram",
+    icon: "gitBranch",
     showNotification: true,
   },
   {
     tooltip: "↑↑↓↓←→←→BA - Complete the sequence!",
     notification: "🎮 ONE MORE CLICK! Complete the Konami Code!",
-    icon: "puzzle-piece",
+    icon: "star",
     showNotification: true,
   },
   {

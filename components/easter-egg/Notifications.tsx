@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { HINT_LEVELS } from "@/components/easter-egg/constants";
 import { isMobileViewport } from "@/components/easter-egg/constants";
+import Icon from "@/components/ui/Icon";
 
 export type ToastData =
   | { id: number; kind: "hint"; level: number; clicks: number; closing?: boolean }
@@ -98,9 +99,10 @@ function HintToast({ level, clicks, closing, onDone }: HintToastProps) {
       >
         &times;
       </button>
-      <i
-        className={`fas fa-${HINT_LEVELS[level].icon} mb-0.5 text-[16px] text-[#00ff41] [filter:drop-shadow(0_0_6px_rgba(0,255,65,0.6))]`}
-      ></i>
+      <Icon
+        name={HINT_LEVELS[level].icon}
+        className="mb-0.5 size-4 text-[#00ff41] [filter:drop-shadow(0_0_6px_rgba(0,255,65,0.6))]"
+      />
       <span className="leading-[1.3] text-[#00ff41] max-md:text-[12px]">
         {HINT_LEVELS[level].notification}
       </span>
@@ -131,7 +133,10 @@ function AccessToast({ onDone }: ToastProps) {
     <div
       className={`pointer-events-none fixed inset-0 z-[10010] m-auto flex h-fit w-fit max-w-[320px] items-center justify-center gap-3 rounded-xl border border-[rgba(0,255,65,0.4)] bg-[linear-gradient(135deg,#1a1f3a_0%,#0a0e27_100%)] px-[25px] py-5 text-center font-[Courier_New,monospace] text-[16px] leading-[1.4] font-semibold tracking-[0.5px] text-[#00ff41] shadow-[0_20px_50px_rgba(0,255,65,0.5),0_0_0_2px_rgba(0,255,65,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-[10px] [text-shadow:0_0_10px_rgba(0,255,65,0.5)] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] max-md:w-[calc(100%_-_40px)] max-md:max-w-[280px] max-md:px-[22px] max-md:py-[18px] max-md:text-[15px] max-[481px]:max-w-[260px] max-[481px]:px-5 max-[481px]:py-4 max-[481px]:text-[14px] ${shown ? "scale-100 opacity-100" : "scale-90 opacity-0"}`}
     >
-      <i className="fas fa-unlock-alt shrink-0 text-[24px] text-[#00ff41] [filter:drop-shadow(0_0_8px_rgba(0,255,65,0.6))] max-md:text-[22px] max-[481px]:text-[20px]"></i>
+      <Icon
+        name="unlock"
+        className="shrink-0 size-6 text-[#00ff41] [filter:drop-shadow(0_0_8px_rgba(0,255,65,0.6))] max-md:size-[22px] max-[481px]:size-5"
+      />
       <span className="min-w-0 flex-1 text-[#00ff41]">Access Granted! The terminal awaits... 🎉</span>
     </div>
   );
@@ -153,9 +158,9 @@ function MasterToast({ closing, onDone, onShown }: MasterToastProps) {
     >
       <div className="relative z-[2]">
         <div className="mb-4 flex items-center justify-center gap-3 text-[18px] font-bold tracking-[2px] text-[#00ff41] uppercase [text-shadow:0_0_10px_rgba(0,255,65,0.5)] max-[481px]:text-[16px]">
-          <i className="fas fa-trophy text-[24px] text-[#00ff41] [filter:drop-shadow(0_0_8px_rgba(0,255,65,0.6))]"></i>
+          <Icon name="trophy" className="size-6 text-[#00ff41] [filter:drop-shadow(0_0_8px_rgba(0,255,65,0.6))]" />
           <span>KONAMI CODE MASTER!</span>
-          <i className="fas fa-trophy text-[24px] text-[#00ff41] [filter:drop-shadow(0_0_8px_rgba(0,255,65,0.6))]"></i>
+          <Icon name="trophy" className="size-6 text-[#00ff41] [filter:drop-shadow(0_0_8px_rgba(0,255,65,0.6))]" />
         </div>
         <p className="my-[18px] text-[14px] leading-[1.6] text-[#b8b8b8]">
           🎮 You&apos;ve unlocked the{" "}
@@ -218,7 +223,7 @@ export default function Toasts({ toasts, onRemove, onMasterShown }: ToastsProps)
                 onDone={onDone}
                 className="top-[120px] gap-[9px] rounded-[22px] bg-[linear-gradient(135deg,#3498db_0%,#2980b9_100%)] px-[19px] py-[11px] text-[12px] font-medium shadow-[0_8px_35px_rgba(52,152,219,0.5)] duration-300 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)]"
               >
-                <i className="fas fa-history"></i>
+                <Icon name="clock" className="size-3.5" />
                 <span>{toast.text}</span>
               </Pill>
             );
@@ -231,7 +236,7 @@ export default function Toasts({ toasts, onRemove, onMasterShown }: ToastsProps)
                 onDone={onDone}
                 className="top-[140px] gap-2 rounded-[20px] bg-[linear-gradient(135deg,#95a5a6_0%,#7f8c8d_100%)] px-[18px] py-2.5 text-[12px] font-medium shadow-[0_6px_25px_rgba(149,165,166,0.5)] duration-300 ease-[ease]"
               >
-                <i className="fas fa-redo"></i>
+                <Icon name="rotateCcw" className="size-3.5" />
                 <span>Sequence broken! Start over... 🔄</span>
               </Pill>
             );
@@ -244,7 +249,7 @@ export default function Toasts({ toasts, onRemove, onMasterShown }: ToastsProps)
                 onDone={onDone}
                 className="top-[180px] gap-2.5 rounded-xl border border-white/20 bg-[linear-gradient(135deg,#f39c12_0%,#e67e22_100%)] px-5 py-3 text-[13px] font-medium shadow-[0_8px_30px_rgba(243,156,18,0.5)] duration-[400ms] ease-[cubic-bezier(0.68,-0.55,0.265,1.55)]"
               >
-                <i className="fas fa-exclamation-triangle"></i>
+                <Icon name="alertCircle" className="size-3.5" />
                 <span>Slow down! Enjoy the discovery process 🐢</span>
               </Pill>
             );
