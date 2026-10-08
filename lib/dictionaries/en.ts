@@ -1,4 +1,4 @@
-type ProjectStatus = "production" | "complete" | "research";
+type ProjectStatus = "production" | "complete" | "research" | "academic";
 
 type WorkProject = {
   id: string;
@@ -29,13 +29,13 @@ const projects: WorkProject[] = [
     detail: "",
     tech: ["PHP", "Laravel", "MySQL", "Blade"],
   },
-  {
+    {
     id: "neuroscan",
     name: "neuroscan-ai",
-    status: "research",
+    status: "academic",
     description:
-      "Built a hybrid brain-tumor detection pipeline across 6+ CNN-KNN-KMeans ensemble models with OpenCV preprocessing and multi-model consensus scoring; added data augmentation and cross-validation with a swappable classifier architecture for reproducible A/B testing.",
-    detail: "",
+      "A hybrid brain-tumor detection pipeline across 6+ CNN-KNN-KMeans ensemble models with OpenCV preprocessing and multi-model consensus scoring, plus data augmentation, cross-validation, and a swappable classifier architecture for reproducible A/B testing.",
+    detail: "Team project — third-year practical exam.",
     tech: ["Python", "PyTorch", "CNN", "KNN", "KMeans", "OpenCV"],
   },
 ];
@@ -111,6 +111,7 @@ const en = {
       production: "production",
       complete: "complete",
       research: "research",
+      academic: "academic",
     },
     projects,
   },

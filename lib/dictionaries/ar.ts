@@ -70,6 +70,7 @@ const ar: Dictionary = {
       production: "إنتاج",
       complete: "مكتمل",
       research: "بحثي",
+      academic: "أكاديمي",
     },
     projects: [
       {
@@ -94,13 +95,12 @@ const ar: Dictionary = {
       {
         id: "neuroscan",
         name: "neuroscan-ai",
-        status: "research",
+        status: "academic",
         description:
           "بنيت خط كشف أورام الدماغ الهجين عبر أكثر من 6 نماذج مجمّعة (CNN-KNN-KMeans) مع معالجة مسبقة بـ OpenCV وتقييم بإجماع متعدد النماذج؛ مع زيادة للبيانات وتحقق متقاطع ومعمارية مصنّفات قابلة للتبديل لاختبارات A/B قابلة للتكرار.",
         detail: "",
         tech: ["Python", "PyTorch", "CNN", "KNN", "KMeans", "OpenCV"],
       },
-    ],
   },
   stack: {
     title: "التقنيات",

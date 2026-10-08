@@ -26,6 +26,7 @@ const statusDot: Record<string, string> = {
   production: "bg-status",
   complete: "bg-secondary",
   research: "bg-muted-text",
+  academic: "bg-muted-text",
 };
 
 const repoLink =
