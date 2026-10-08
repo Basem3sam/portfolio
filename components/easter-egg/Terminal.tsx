@@ -228,7 +228,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
     const canType = !prefersReducedMotion();
 
     const prepared = items.map(
-      (item): { line: Line; entry: QueueEntry | null } => {
+      (item): { line: NewLine; entry: QueueEntry | null } => {
         if (!canType) return { line: { ...item }, entry: null };
 
         if (item.html !== undefined) {
