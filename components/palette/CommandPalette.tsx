@@ -156,7 +156,12 @@ function PaletteDialog({
       restoreFocus.current =
         document.activeElement instanceof HTMLElement ? document.activeElement : null;
       lockScroll();
-      const frame = requestAnimationFrame(() => inputRef.current?.focus());
+      inputRef.current?.focus({ preventScroll: true });
+      const frame = requestAnimationFrame(() => {
+        if (document.activeElement !== inputRef.current) {
+          inputRef.current?.focus({ preventScroll: true });
+        }
+      });
       return () => cancelAnimationFrame(frame);
     }
 
@@ -255,8 +260,10 @@ function PaletteDialog({
         aria-modal="true"
         aria-label={labels.ariaLabel}
         onKeyDown={handleDialogKeyDown}
-        className={`relative mx-auto flex w-full max-w-lg flex-col overflow-hidden rounded-xl border border-hairline bg-surface shadow-xl transition duration-200 motion-reduce:transition-none ${
-          open ? "translate-y-0 scale-100 opacity-100" : "-translate-y-2 scale-[0.98] opacity-0"
+        className={`relative mx-auto flex w-full max-w-lg flex-col overflow-hidden rounded-xl border border-hairline bg-surface shadow-xl transition-[opacity,transform,visibility] duration-200 motion-reduce:transition-none ${
+          open
+            ? "visible translate-y-0 scale-100 opacity-100"
+            : "invisible -translate-y-2 scale-[0.98] opacity-0"
         }`}
       >
         <div className="flex items-center gap-2 border-b border-hairline px-4">

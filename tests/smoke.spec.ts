@@ -36,7 +36,7 @@ test("theme toggle flips the class and persists across reload", async ({ page })
 
 test("language switcher flips direction and content", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("link", { name: "العربية" }).click();
+  await page.getByRole("link", { name: "العربية", exact: true }).click();
   await expect(page).toHaveURL(/\/ar$/);
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   await expect(page.locator("html")).toHaveAttribute("lang", "ar");
@@ -58,7 +58,7 @@ test("command palette opens, filters, and navigates", async ({ page }) => {
   await expect(option).toHaveCount(1);
   await option.click();
 
-  await expect(page.locator("#stack")).toBeVisible();
+  await expect(page.locator("#stack")).toBeInViewport();
 });
 
 test("palette escape closes and returns focus", async ({ page }) => {
@@ -144,8 +144,6 @@ test("print emulation forces light colors in dark mode", async ({ page }) => {
   await expect(page.locator("body")).toHaveClass(/dark-mode/);
 
   await page.emulateMedia({ media: "print" });
-  const bgColor = await page.evaluate(() =>
-    getComputedStyle(document.body).backgroundColor,
-  );
+  const bgColor = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
   await expect(bgColor).toBe("rgb(255, 255, 255)");
 });
