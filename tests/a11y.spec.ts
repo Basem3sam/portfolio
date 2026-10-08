@@ -1,6 +1,14 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
+// Axe scans computed colors at scan time; without this, elements caught
+// mid-fade (hero-in animation, scroll reveals still at opacity 0) report
+// impossible contrast ratios. Reduced motion is also the honest choice:
+// it is exactly the environment real prefers-reduced-motion users get,
+// where RevealOnScroll never hides anything and motion-safe animations
+// never run.
+test.use({ reducedMotion: "reduce" });
+
 test.describe("accessibility", () => {
   test("homepage (en) has no axe violations", async ({ page }) => {
     await page.goto("/");

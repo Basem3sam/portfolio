@@ -326,6 +326,7 @@
 @theme inline {
   --color-primary: var(--c-primary);
   --color-secondary: var(--c-secondary);
+  --color-on-secondary: var(--c-on-secondary);
   --color-accent: var(--c-accent);
   --color-hairline: var(--c-hairline);
   --color-status: var(--c-status);
@@ -350,6 +351,7 @@
   --c-page: #fafaf8;
   --c-primary: #1a1d21;
   --c-secondary: #a04a07;
+  --c-on-secondary: #ffffff;
   --c-accent: #b3261e;
   --c-hairline: #e4e4e1;
   --c-status: #166534;
@@ -376,6 +378,7 @@ html[lang="ar"] {
   --c-page: #0f1215;
   --c-primary: #0f1215;
   --c-secondary: #fbbf24;
+  --c-on-secondary: #0f1215;
   --c-accent: #f87171;
   --c-hairline: #26292f;
   --c-status: #4ade80;

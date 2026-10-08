@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   createContext,
+  Fragment,
   useContext,
   useEffect,
   useId,
@@ -171,6 +172,23 @@ function PaletteDialog({
     return undefined;
   }, [open]);
 
+  // Safety net: Escape closes the palette even when focus never entered
+  // the dialog (for example right after opening via the keyboard shortcut).
+  useEffect(() => {
+    if (!open) return;
+
+    const handleDocumentKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      setQuery("");
+      setActive(0);
+      onClose();
+    };
+
+    document.addEventListener("keydown", handleDocumentKeyDown);
+    return () => document.removeEventListener("keydown", handleDocumentKeyDown);
+  }, [open, onClose]);
+
   useEffect(() => {
     if (!open) return;
     optionRefs.current[active]?.scrollIntoView({ block: "nearest" });
@@ -260,10 +278,10 @@ function PaletteDialog({
         aria-modal="true"
         aria-label={labels.ariaLabel}
         onKeyDown={handleDialogKeyDown}
-        className={`relative mx-auto flex w-full max-w-lg flex-col overflow-hidden rounded-xl border border-hairline bg-surface shadow-xl transition-[opacity,transform,visibility] duration-200 motion-reduce:transition-none ${
+        className={`relative mx-auto flex w-full max-w-lg flex-col overflow-hidden rounded-xl border border-hairline bg-surface shadow-xl transition-[opacity,transform] duration-200 motion-reduce:transition-none ${
           open
             ? "visible translate-y-0 scale-100 opacity-100"
-            : "invisible -translate-y-2 scale-[0.98] opacity-0"
+            : "invisible -translate-y-2 scale-[0.98] opacity-0 [transition:opacity_200ms,transform_200ms,visibility_0s_linear_200ms]"
         }`}
       >
         <div className="flex items-center gap-2 border-b border-hairline px-4">
@@ -317,70 +335,78 @@ function PaletteDialog({
                   item.icon === "arrowRight" ? "size-4 shrink-0 rtl:rotate-180" : "size-4 shrink-0";
 
                 return (
-                  <li
-                    key={item.id}
-                    role="option"
-                    aria-selected={index === active}
-                    id={`${listId}-${item.id}`}
-                    onMouseEnter={() => setActive(index)}
-                  >
+                  <Fragment key={item.id}>
                     {showHeader && (
-                      <p className="px-3 pt-2 pb-1 font-mono text-[11px] font-medium tracking-wide text-muted-text uppercase">
-                        {labels.groups[item.group]}
-                      </p>
-                    )}
-                    {item.href ? (
-                      item.href.startsWith("#") ||
-                      item.download ||
-                      item.external ||
-                      item.href.startsWith("mailto") ? (
-                        <a
-                          ref={(element) => {
-                            optionRefs.current[index] = element;
-                          }}
-                          href={item.href}
-                          download={item.download || undefined}
-                          target={item.external ? "_blank" : undefined}
-                          rel={item.external ? "noopener noreferrer" : undefined}
-                          className={optionClass(index)}
-                          onClick={(event) => {
-                            if (item.href) handleHashLinkClick(event, item.href);
-                            handleClose();
-                          }}
-                        >
-                          <Icon name={item.icon} className={iconClass} />
-                          <span className="flex-1">{item.label}</span>
-                        </a>
-                      ) : (
-                        <Link
-                          ref={(element) => {
-                            optionRefs.current[index] = element;
-                          }}
-                          href={item.href}
-                          className={optionClass(index)}
-                          onClick={() => handleClose()}
-                        >
-                          <Icon name={item.icon} className={iconClass} />
-                          <span className="flex-1">{item.label}</span>
-                        </Link>
-                      )
-                    ) : (
-                      <button
-                        ref={(element) => {
-                          optionRefs.current[index] = element;
-                        }}
-                        type="button"
-                        className={optionClass(index)}
-                        onClick={() => {
-                          handleClose();
-                          item.action?.();
-                        }}
+                      <li
+                        role="presentation"
+                        className="px-3 pt-2 pb-1 font-mono text-[11px] font-medium tracking-wide text-muted-text uppercase"
                       >
-                        <Icon name={item.icon} className={iconClass} />
-                        <span className="flex-1">{item.label}</span>
-                      </button>
+                        {labels.groups[item.group]}
+                      </li>
                     )}
-                  </li>
+                    <li role="presentation" onMouseEnter={() => setActive(index)}>
+                      {item.href ? (
+                        item.href.startsWith("#") ||
+                        item.download ||
+                        item.external ||
+                        item.href.startsWith("mailto") ? (
+                          <a
+                            id={`${listId}-${item.id}`}
+                            role="option"
+                            aria-selected={index === active}
+                            ref={(element) => {
+                              optionRefs.current[index] = element;
+                            }}
+                            href={item.href}
+                            download={item.download || undefined}
+                            target={item.external ? "_blank" : undefined}
+                            rel={item.external ? "noopener noreferrer" : undefined}
+                            className={optionClass(index)}
+                            onClick={(event) => {
+                              if (item.href) handleHashLinkClick(event, item.href);
+                              handleClose();
+                            }}
+                          >
+                            <Icon name={item.icon} className={iconClass} />
+                            <span className="flex-1">{item.label}</span>
+                          </a>
+                        ) : (
+                          <Link
+                            id={`${listId}-${item.id}`}
+                            role="option"
+                            aria-selected={index === active}
+                            ref={(element) => {
+                              optionRefs.current[index] = element;
+                            }}
+                            href={item.href}
+                            className={optionClass(index)}
+                            onClick={() => handleClose()}
+                          >
+                            <Icon name={item.icon} className={iconClass} />
+                            <span className="flex-1">{item.label}</span>
+                          </Link>
+                        )
+                      ) : (
+                        <button
+                          id={`${listId}-${item.id}`}
+                          role="option"
+                          aria-selected={index === active}
+                          ref={(element) => {
+                            optionRefs.current[index] = element;
+                          }}
+                          type="button"
+                          className={optionClass(index)}
+                          onClick={() => {
+                            handleClose();
+                            item.action?.();
+                          }}
+                        >
+                          <Icon name={item.icon} className={iconClass} />
+                          <span className="flex-1">{item.label}</span>
+                        </button>
+                      )}
+                    </li>
+                  </Fragment>
                 );
               })}
             </ul>

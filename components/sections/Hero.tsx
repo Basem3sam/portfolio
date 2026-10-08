@@ -97,25 +97,24 @@ export default function Hero({ dict }: HeroProps) {
               </a>
             </div>
 
-            <div
+            <ul
               className="mt-8 flex items-center justify-center gap-2 lg:justify-start"
-              role="list"
               aria-label={dict.socialsAria}
             >
               {socials.map((social) => (
-                <a
-                  key={social.href}
-                  href={social.href}
-                  role="listitem"
-                  aria-label={social.label}
-                  target={social.external ? "_blank" : undefined}
-                  rel={social.external ? "noopener noreferrer" : undefined}
-                  className={socialLink}
-                >
-                  <Icon name={social.icon} className="size-5" />
-                </a>
+                <li key={social.href}>
+                  <a
+                    href={social.href}
+                    aria-label={social.label}
+                    target={social.external ? "_blank" : undefined}
+                    rel={social.external ? "noopener noreferrer" : undefined}
+                    className={socialLink}
+                  >
+                    <Icon name={social.icon} className="size-5" />
+                  </a>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
 
           <div className="justify-self-center motion-safe:animate-hero-in-1 max-lg:order-1 lg:order-2">
