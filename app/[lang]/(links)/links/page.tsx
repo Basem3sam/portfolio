@@ -160,7 +160,7 @@ export default async function LinksPage({ params }: LinksPageProps) {
         </div>
       </div>
 
-      <footer className="bg-grid py-6 text-center text-sm text-light-text">
+      <footer className="py-6 text-center text-sm text-light-text">
         <p>&copy; {new Date().getFullYear()} Basem Esam. {dict.footer.rights}</p>
       </footer>
     </main>
