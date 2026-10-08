@@ -60,6 +60,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
     spamActive: false,
     level: 0,
     revealed: false,
+    unlocked: false,
     resetTimer: 0,
   });
 
@@ -184,6 +185,9 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
     };
 
     const unlock = () => {
+      if (state.unlocked) return;
+      state.unlocked = true;
+
       setUnlocked(true);
       setToasts((current) =>
         current.map((toast) => (toast.kind === "hint" ? { ...toast, closing: true } : toast)),
@@ -195,6 +199,12 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       if (clueRef.current) animateClue(clueRef.current, "celebration", 2000);
       addToast({ kind: "master" });
       createEpicCelebration();
+
+      // The discovery journey IS solving it: after the achievement lands,
+      // the terminal opens on its own. The master toast already announced
+      // the unlock, so the separate access toast is suppressed this session.
+      accessAnnounced.current = true;
+      window.setTimeout(() => openTerminal(), 1400);
     };
 
     const handleClick = (event: MouseEvent) => {

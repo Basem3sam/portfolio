@@ -132,9 +132,9 @@ function AccessToast({ onDone }: ToastProps) {
     <div
       className={`pointer-events-none fixed inset-0 z-[10010] m-auto flex h-fit w-fit max-w-[340px] items-center gap-3.5 rounded-xl border border-[rgba(251,191,36,0.4)] bg-[linear-gradient(135deg,#191307_0%,#0c0a06_100%)] px-6 py-5 font-mono shadow-[0_20px_50px_rgba(251,191,36,0.35),0_0_0_2px_rgba(251,191,36,0.4),inset_0_1px_0_rgba(253,230,138,0.08)] backdrop-blur-[10px] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] max-md:w-[calc(100%_-_40px)] max-md:max-w-[300px] ${shown ? "scale-100 opacity-100" : "scale-90 opacity-0"}`}
     >
-      <icon
+      <Icon
         name="unlock"
-        classname="shrink-0 size-7 text-[#fbbf24] [filter:drop-shadow(0_0_8PX_rgba(251,191,36,0.6))]"
+        className="shrink-0 size-7 text-[#fbbf24] [filter:drop-shadow(0_0_8px_rgba(251,191,36,0.6))]"
       />
       <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5 text-start">
         <span className="text-[16px] font-bold text-[#fbbf24] [text-shadow:0_0_10px_rgba(251,191,36,0.5)]">
