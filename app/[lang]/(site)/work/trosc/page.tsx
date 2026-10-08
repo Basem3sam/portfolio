@@ -64,12 +64,15 @@ function CaseSection({
   title: string;
   children: ReactNode;
 }) {
+  const id = label.replace(/[^a-z]/g, "");
+  const headingId = `${id}-heading`;
+
   return (
-    <section className="border-t border-hairline py-12 md:py-16">
+    <section id={id} aria-labelledby={headingId} className="border-t border-hairline py-12 md:py-16">
       <p className="font-mono text-xs font-medium tracking-wide text-secondary uppercase" dir="ltr">
         {label}
       </p>
-      <h2 className="mt-1.5 text-2xl font-semibold tracking-tight text-dark-text md:text-3xl">
+      <h2 id={headingId} className="mt-1.5 text-2xl font-semibold tracking-tight text-dark-text md:text-3xl">
         {title}
       </h2>
       <div className="mt-3 flex items-center gap-2" aria-hidden="true">
@@ -94,9 +97,12 @@ export default async function TroscCaseStudyPage({ params }: CaseStudyPageProps)
       <div className="container bg-grid pt-28 pb-4 md:pt-32">
         <Link
           href={backHref}
-          className="inline-flex min-h-11 items-center gap-1.5 font-mono text-sm text-light-text no-underline transition-colors duration-200 hover:text-secondary"
+          className="group/back inline-flex min-h-11 items-center gap-2 rounded-full border border-hairline bg-surface px-4 font-mono text-sm font-medium text-light-text no-underline shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:text-signal hover:shadow-md active:translate-y-0"
         >
-          <Icon name="arrowLeft" className="size-4 rtl:rotate-180" />
+          <Icon
+            name="arrowLeft"
+            className="size-4 transition-transform duration-200 group-hover/back:-translate-x-0.5 rtl:rotate-180 rtl:group-hover/back:translate-x-0.5"
+          />
           {t.back}
         </Link>
 

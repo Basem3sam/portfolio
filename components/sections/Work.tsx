@@ -59,7 +59,7 @@ export default function Work({ dict, github, locale }: WorkProps) {
               <article
                 key={project.id}
                 style={{ "--stagger-index": index } as CSSProperties}
-                className="rounded-lg border border-hairline bg-surface p-6 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:shadow-md md:p-7"
+                className="rounded-lg border border-hairline bg-surface p-6 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:shadow-md focus-visible:-translate-y-0.5 focus-visible:border-signal focus-visible:shadow-md md:p-7"
               >
                 <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
                   <h3 className="font-mono text-lg font-semibold break-all text-dark-text">

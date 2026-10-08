@@ -12,7 +12,7 @@ type LinkCardProps = {
 };
 
 const card =
-  "group relative flex items-center gap-4 rounded-lg border border-hairline bg-surface p-4 no-underline shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:shadow-md motion-safe:animate-hero-in md:p-5";
+  "group relative flex items-center gap-4 rounded-lg border border-hairline bg-surface p-4 no-underline shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:shadow-md focus-visible:-translate-y-0.5 focus-visible:border-signal focus-visible:shadow-md motion-safe:animate-hero-in md:p-5";
 
 export default function LinkCard({
   href,

@@ -128,8 +128,10 @@ export default function EndpointExplorer({ dict }: EndpointExplorerProps) {
   };
 
   const rowClass = (active: boolean) =>
-    `flex w-full min-h-11 cursor-pointer items-center gap-2.5 border-b border-hairline px-3 py-2.5 text-start transition-colors duration-100 last:border-b-0 ${
-      active ? "bg-light-bg" : "hover:bg-light-bg"
+    `flex w-full min-h-11 cursor-pointer items-center gap-2.5 border-b border-hairline px-3 text-start transition-colors duration-100 last:border-b-0 ${
+      active
+        ? "bg-light-bg text-dark-text shadow-[inset_2px_0_0_0_var(--c-signal)]"
+        : "text-light-text hover:bg-light-bg hover:text-dark-text"
     }`;
 
   return (

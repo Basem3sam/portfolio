@@ -47,7 +47,8 @@ export default function Contact({ dict }: ContactProps) {
           <a href={MAILTO} className={linkCell}>
             <span className={labelClass}>{dict.emailLabel}</span>
             <span
-              className={`${valueClass} break-all transition-colors duration-200 group-hover:text-signal`}
+              className="font-mono text-sm font-medium break-all text-dark-text transition-colors duration-200 group-hover:text-signal max-[400px]:text-[13px]"
+              dir="ltr"
             >
               {EMAIL}
             </span>

@@ -116,7 +116,7 @@ export default async function LinksPage({ params }: LinksPageProps) {
   ];
 
   const floatingButton =
-    "fixed top-4 z-[1030] flex size-11 items-center justify-center rounded-full border border-hairline bg-surface text-light-text no-underline shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:text-signal hover:shadow-md print:hidden";
+    "fixed top-4 z-[1030] flex size-11 items-center justify-center rounded-full border border-hairline bg-surface text-light-text no-underline shadow-sm transition-all duration-200 hover:scale-105 hover:border-signal hover:text-signal hover:shadow-md active:scale-95 print:hidden";
 
   return (
     <main className="relative flex min-h-screen flex-col bg-grid">
