@@ -26,6 +26,7 @@ function spawn(
 ) {
   const element = document.createElement("div");
   element.className = className;
+  element.setAttribute("aria-hidden", "true");
   element.textContent = text;
   Object.assign(element.style, styles);
   document.body.appendChild(element);
