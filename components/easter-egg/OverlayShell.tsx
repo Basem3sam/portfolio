@@ -27,6 +27,7 @@ export default function OverlayShell({
       }}
     >
       <div
+        dir="ltr"
         className={`relative max-h-[90vh] w-full max-w-[420px] overflow-hidden rounded-[20px] border-2 border-[#fbbf24] bg-[linear-gradient(135deg,#14110a_0%,#0b0906_100%)] font-mono text-white shadow-[0_0_60px_rgba(251,191,36,0.25),inset_0_0_60px_rgba(251,191,36,0.04)] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${containerVisible ? "translate-y-0 scale-100 opacity-100" : "translate-y-5 scale-90 opacity-0"}`}
       >
         <div className="relative z-[1] overflow-hidden border-b-2 border-[rgba(251,191,36,0.3)] bg-[linear-gradient(135deg,#1a150b_0%,#0e0b07_100%)] py-5 pr-[60px] pl-5">
