@@ -69,31 +69,34 @@ export default function SecretTerminalAccess({ onClose, onTry }: SecretTerminalA
         </div>
 
         <div className="mb-6 text-center">
-          <p className="mb-2 flex flex-col gap-1 text-[15px] leading-[1.6] font-medium text-[#fbbf24]">
-            <span className="text-[#a8a29e]">Enter the legendary</span>
-            <span className="animate-text-glow text-[18px] font-bold tracking-[1px] text-[#fbbf24]">
-              Konami Code
-            </span>
-            <span className="text-[#a8a29e]">to unlock the developer terminal</span>
+          <p className="text-[12px] font-medium tracking-[0.25em] text-[#a8a29e] uppercase">
+            Enter the legendary
           </p>
-          <p className="flex items-center justify-center gap-2 text-[13px] text-[#fde68a] opacity-90">
-            <span className="animate-sparkle text-[16px]">✨</span>
+          <p className="animate-text-glow my-2 bg-[linear-gradient(135deg,#fbbf24_0%,#fde68a_100%)] bg-clip-text text-[26px] font-black tracking-[0.18em] text-transparent">
+            KONAMI CODE
+          </p>
+          <p className="text-[12px] font-medium tracking-[0.25em] text-[#a8a29e] uppercase">
+            to unlock the developer terminal
+          </p>
+          <p className="mt-3 flex items-center justify-center gap-2 text-[12px] text-[#fde68a] opacity-90">
+            <span className="animate-sparkle text-[15px]">✨</span>
             <em>A classic gaming sequence holds the key...</em>
           </p>
         </div>
 
-        <div className="relative mb-6 overflow-hidden rounded-xl border border-[rgba(251,191,36,0.2)] bg-black/50 p-4 before:absolute before:top-0 before:left-[-100%] before:h-full before:w-full before:animate-progress-sweep before:bg-[linear-gradient(90deg,transparent_0%,rgba(251,191,36,0.05)_50%,transparent_100%)] before:content-['']">
-          <div className="relative mb-3 flex w-full gap-1">
+        <div className="relative mb-6 overflow-hidden rounded-xl border border-[rgba(251,191,36,0.25)] bg-black/50 p-4 shadow-[0_0_30px_rgba(251,191,36,0.1),inset_0_0_25px_rgba(0,0,0,0.45)] before:absolute before:top-0 before:left-[-100%] before:h-full before:w-full before:animate-progress-sweep before:bg-[linear-gradient(90deg,transparent_0%,rgba(251,191,36,0.06)_50%,transparent_100%)] before:content-['']">
+          <div className="relative mb-3 flex w-full gap-1.5">
             {Array.from({ length: KONAMI_CODE.length }).map((_, index) => (
               <span
                 key={index}
-                className="flex h-8 flex-1 items-center justify-center rounded-md border border-[rgba(251,191,36,0.25)] bg-[rgba(251,191,36,0.05)] font-mono text-[13px] font-bold text-[#fbbf24]"
+                style={{ animationDelay: `${index * 130}ms` }}
+                className="flex h-10 flex-1 animate-pulse items-center justify-center rounded-md border border-[rgba(251,191,36,0.3)] bg-[rgba(251,191,36,0.06)] font-mono text-[15px] font-black text-[#fbbf24]/70 shadow-[inset_0_-3px_6px_rgba(0,0,0,0.5)] motion-reduce:animate-none"
               >
                 ?
               </span>
             ))}
           </div>
-          <p className="relative text-center font-mono text-[11px] tracking-wide text-[#a8a29e] uppercase">
+          <p className="relative text-center font-mono text-[10px] tracking-[0.2em] text-[#a8a29e] uppercase">
             {KONAMI_CODE.length} inputs · one legendary sequence · hidden in gaming history
           </p>
         </div>

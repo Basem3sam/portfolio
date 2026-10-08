@@ -39,9 +39,25 @@ export default function SecretClue({
   onOpen,
 }: SecretClueProps) {
   const [open, setOpen] = useState(false);
+  const [footerNear, setFooterNear] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const firstItemRef = useRef<HTMLButtonElement>(null);
   const t = labels[locale];
+
+  // The clue button bows out at the page end: it is a mid-page exploration
+  // aid, and fading it over the footer removes floating-button clutter.
+  useEffect(() => {
+    const footer = document.querySelector("footer");
+    if (!footer) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setFooterNear(entry.isIntersecting),
+      { threshold: 0.35 },
+    );
+
+    observer.observe(footer);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -127,10 +143,12 @@ export default function SecretClue({
         aria-label={t.title}
         onClick={() => setOpen((value) => !value)}
         className={`relative flex size-11 cursor-pointer items-center justify-center rounded-full bg-secondary text-on-secondary shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg active:scale-90 motion-reduce:transition-none ${
-          revealed ? "visible scale-100 rotate-[360deg] opacity-100" : "invisible scale-0 opacity-0"
+          revealed
+            ? `visible scale-100 rotate-[360deg] ${footerNear ? "pointer-events-none opacity-0" : "opacity-100"}`
+            : "invisible scale-0 opacity-0"
         }`}
       >
-        {revealed && (
+        {revealed && !footerNear && (
           <span
             className="pointer-events-none absolute inset-0 animate-attention rounded-full border-2 border-secondary motion-reduce:animate-none"
             aria-hidden="true"

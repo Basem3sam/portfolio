@@ -7,19 +7,10 @@ import type { Locale } from "@/lib/i18n";
 
 const EasterEggCore = dynamic(() => import("./EasterEggCore"), { ssr: false });
 
-const UNLOCKED_KEY = "terminal_unlocked";
 const OPEN_TERMINAL_EVENT = "open-secret-terminal";
 const MIN_CLICK_INTERVAL = 300;
 
 type LoadState = { mode: TerminalMode; clicks: number };
-
-function readUnlocked() {
-  try {
-    return localStorage.getItem(UNLOCKED_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
 
 export default function EasterEgg({ locale }: { locale: Locale }) {
   const [load, setLoad] = useState<LoadState | null>(null);
@@ -28,6 +19,8 @@ export default function EasterEgg({ locale }: { locale: Locale }) {
   const konamiIndex = useRef(0);
   const armed = useRef(false);
 
+  // Access is session-scoped: no storage. A page refresh remounts this
+  // module and the terminal locks again until the code is re-entered.
   const arm = useCallback((mode: TerminalMode) => {
     if (armed.current) return;
     armed.current = true;
@@ -35,24 +28,16 @@ export default function EasterEgg({ locale }: { locale: Locale }) {
   }, []);
 
   useEffect(() => {
-    if (readUnlocked()) {
-      console.log(
-        "%c🎮 Welcome back, terminal master!",
-        "color: #fbbf24; font-size: 16px; font-weight: bold;",
-      );
-      console.log("%cPress Ctrl + Shift + B to reopen the terminal", "color: #fbbf24; font-size: 12px;");
-    } else {
-      console.log(
-        "%c🎮 SECRET TERMINAL LOCKED!",
-        "color: #fbbf24; font-size: 16px; font-weight: bold;",
-      );
-      console.log("%cEnter the Konami Code to unlock it:", "color: #f87171; font-size: 12px;");
-      console.log("%c↑ ↑ ↓ ↓ ← → ← → B A", "color: #f87171; font-size: 12px;");
-      console.log(
-        "%cNo keyboard? Ctrl + Shift + B opens the code entry panel.",
-        "color: #e8e6e1; font-size: 12px;",
-      );
-    }
+    console.log(
+      "%c🎮 SECRET TERMINAL LOCKED!",
+      "color: #fbbf24; font-size: 16px; font-weight: bold;",
+    );
+    console.log("%cEnter the Konami Code to unlock it:", "color: #f87171; font-size: 12px;");
+    console.log("%c↑ ↑ ↓ ↓ ← → ← → B A", "color: #f87171; font-size: 12px;");
+    console.log(
+      "%cNo keyboard? Ctrl + Shift + B opens the code entry panel.",
+      "color: #e8e6e1; font-size: 12px;",
+    );
   }, []);
 
   useEffect(() => {
@@ -72,7 +57,7 @@ export default function EasterEgg({ locale }: { locale: Locale }) {
 
       if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "b") {
         event.preventDefault();
-        arm(readUnlocked() ? "terminal" : "prompt");
+        arm("prompt");
       }
     };
 
@@ -80,12 +65,10 @@ export default function EasterEgg({ locale }: { locale: Locale }) {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [arm]);
 
-  // UI access (palette item, footer button): masters open directly,
-  // everyone else lands in the code entry area - never a bypass.
+  // UI access (palette item, footer button): always opens the code entry
+  // area on a fresh load - the gate is the Konami code, never a bypass.
   useEffect(() => {
-    const openFromUI = () => {
-      arm(readUnlocked() ? "terminal" : "prompt");
-    };
+    const openFromUI = () => arm("prompt");
 
     window.addEventListener(OPEN_TERMINAL_EVENT, openFromUI);
     return () => window.removeEventListener(OPEN_TERMINAL_EVENT, openFromUI);

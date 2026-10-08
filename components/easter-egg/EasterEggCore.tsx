@@ -8,7 +8,6 @@ import {
   KONAMI_CODE,
   REMINDERS,
   getHintLevel,
-  isMobileViewport,
 } from "@/components/easter-egg/constants";
 import KonamiKeyboard from "@/components/easter-egg/KonamiKeyboard";
 import SecretTerminalAccess from "@/components/easter-egg/SecretTerminalAccess";
@@ -36,7 +35,6 @@ type NewToast = DistributiveOmit<ToastData, "id">;
 const MIN_CLICK_INTERVAL = 300;
 const SPAM_WINDOW = 1000;
 const SPAM_THRESHOLD = 3;
-const UNLOCKED_KEY = "terminal_unlocked";
 const OPEN_TERMINAL_EVENT = "open-secret-terminal";
 
 type EasterEggCoreProps = {
@@ -50,15 +48,10 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
   const [terminalOpen, setTerminalOpen] = useState(false);
   const [overlay, setOverlay] = useState<Overlay>("none");
   const [clue, setClue] = useState({ revealed: false, level: 0 });
-  const [unlocked, setUnlocked] = useState(() => {
-    try {
-      return localStorage.getItem(UNLOCKED_KEY) === "1";
-    } catch {
-      return false;
-    }
-  });
+  const [unlocked, setUnlocked] = useState(false);
   const clueRef = useRef<HTMLButtonElement>(null);
   const terminalOpenRef = useRef(false);
+  const accessAnnounced = useRef(false);
   const nextToastId = useRef(0);
   const game = useRef({
     clicks: 0,
@@ -85,16 +78,19 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
   }, []);
 
   const openTerminal = useCallback(() => {
-    try {
-      localStorage.setItem(UNLOCKED_KEY, "1");
-    } catch {}
     setUnlocked(true);
     terminalOpenRef.current = true;
+
+    if (!accessAnnounced.current) {
+      accessAnnounced.current = true;
+      addToast({ kind: "access" });
+    }
+
     setToasts((current) =>
       current.map((toast) => (toast.kind === "master" ? { ...toast, closing: true } : toast)),
     );
     setTerminalOpen(true);
-  }, []);
+  }, [addToast]);
 
   const closeTerminal = useCallback(() => {
     terminalOpenRef.current = false;
@@ -111,14 +107,6 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
     const state = game.current;
     state.clicks = initialClicks;
     state.level = getHintLevel(initialClicks);
-
-    try {
-      if (localStorage.getItem(UNLOCKED_KEY) === "1") {
-        state.revealed = true;
-        state.level = HINT_LEVELS.length - 1;
-      }
-    } catch {}
-
     setClue({ revealed: state.revealed, level: state.level });
 
     if (mode === "terminal") openTerminal();
@@ -158,7 +146,8 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [openTerminal, unlocked]);
 
-  // UI access while the core is already loaded (palette item, footer button).
+  // UI access while the core is loaded (palette item, footer button):
+  // unlocked opens directly, locked opens the code entry area.
   useEffect(() => {
     const openFromUI = () => {
       if (terminalOpenRef.current) return;
@@ -195,9 +184,6 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
     };
 
     const unlock = () => {
-      try {
-        localStorage.setItem(UNLOCKED_KEY, "1");
-      } catch {}
       setUnlocked(true);
       setToasts((current) =>
         current.map((toast) => (toast.kind === "hint" ? { ...toast, closing: true } : toast)),
@@ -291,7 +277,6 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
   const handleKeyboardSuccess = () => {
     setOverlay("none");
     openTerminal();
-    addToast({ kind: "access" });
     createCelebrationParticles();
     createConfettiBurst();
     playSuccessSound();

@@ -23,7 +23,7 @@ export default function Footer({ locale = "en" }: FooterProps) {
 
   return (
     <footer className="w-full bg-light-bg print:bg-white">
-      <div className="container py-10">
+      <div className="container pt-10 pb-24">
         <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-6">
           <div>
             <p className="flex items-center gap-2 font-mono text-base font-semibold text-dark-text">

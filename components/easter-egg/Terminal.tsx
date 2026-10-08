@@ -233,7 +233,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
       ></div>
       <div
         id="secret-terminal"
-        className={`fixed top-1/2 left-1/2 z-[10000] h-[600px] w-[90%] max-w-[800px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-lg border-2 border-[#fbbf24] bg-[#131007] font-mono shadow-[0_0_70px_rgba(251,191,36,0.3),inset_0_0_60px_rgba(251,191,36,0.05)] transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)] after:pointer-events-none after:absolute after:inset-0 after:z-[5] after:rounded-lg after:bg-[radial-gradient(ellipse_at_center,transparent_65%,rgba(0,0,0,0.35)_100%)] after:content-[''] max-md:top-auto max-md:bottom-0 max-md:left-0 max-md:h-[85vh] max-md:w-full max-md:max-w-none max-md:origin-bottom max-md:translate-x-0 max-md:translate-y-0 max-md:rounded-t-2xl max-md:rounded-b-none max-md:border-x-0 max-md:border-b-0 ${open ? "scale-100 opacity-100" : "pointer-events-none scale-0 opacity-0"}`}
+        className={`fixed top-1/2 left-1/2 z-[10000] flex h-[600px] w-[90%] max-w-[800px] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-lg border-2 border-[#fbbf24] bg-[#131007] font-mono shadow-[0_0_70px_rgba(251,191,36,0.3),inset_0_0_60px_rgba(251,191,36,0.05)] transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)] after:pointer-events-none after:absolute after:inset-0 after:z-[5] after:rounded-lg after:bg-[radial-gradient(ellipse_at_center,transparent_65%,rgba(0,0,0,0.35)_100%)] after:content-[''] max-md:top-auto max-md:bottom-0 max-md:left-0 max-md:h-[85dvh] max-md:w-full max-md:max-w-none max-md:origin-bottom max-md:translate-x-0 max-md:rounded-t-2xl max-md:rounded-b-none max-md:border-x-0 max-md:border-b-0 ${open ? "scale-100 opacity-100 max-md:translate-y-0" : "pointer-events-none scale-0 opacity-0 max-md:translate-y-full max-md:scale-100"}`}
         role="dialog"
         aria-label="Secret terminal"
         inert={!open}
@@ -243,7 +243,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
           aria-hidden="true"
         ></div>
 
-        <div className="relative z-[3] flex items-center justify-between border-b border-[#fbbf24] bg-[linear-gradient(135deg,#1a150b_0%,#0e0b07_100%)] px-5 py-3 shadow-[0_2px_10px_rgba(251,191,36,0.2)]">
+        <div className="relative z-[3] flex shrink-0 items-center justify-between border-b border-[#fbbf24] bg-[linear-gradient(135deg,#1a150b_0%,#0e0b07_100%)] px-5 py-3 shadow-[0_2px_10px_rgba(251,191,36,0.2)]">
           <div className="text-[14px] font-bold tracking-[2px] text-[#fbbf24] uppercase [text-shadow:0_0_12px_rgba(251,191,36,0.6)] max-[481px]:text-[12px]">
             <Icon name="terminal" className="inline size-[1em]" /> BASEM_TERMINAL v1.0.0
           </div>
@@ -269,7 +269,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
         <div
           ref={bodyRef}
           onClick={finishTyping}
-          className={`relative z-[1] h-[calc(100%-100px)] overflow-y-auto bg-[rgba(19,16,10,0.95)] p-5 before:pointer-events-none before:absolute before:inset-0 before:z-[2] before:animate-scanline before:bg-[linear-gradient(transparent_50%,rgba(251,191,36,0.06)_50%)] before:bg-[length:100%_4px] before:content-[''] ${glitch ? "animate-glitch" : ""}`}
+          className={`relative z-[1] min-h-0 flex-1 overflow-y-auto bg-[rgba(19,16,10,0.95)] p-5 before:pointer-events-none before:absolute before:inset-0 before:z-[2] before:animate-scanline before:bg-[linear-gradient(transparent_50%,rgba(251,191,36,0.06)_50%)] before:bg-[length:100%_4px] before:content-[''] ${glitch ? "animate-glitch" : ""}`}
         >
           <div
             className="relative z-[1] text-[14px] leading-[1.6] whitespace-pre-wrap text-[#fbbf24] [text-shadow:0_0_7px_rgba(251,191,36,0.45)] max-md:p-2.5"
@@ -328,7 +328,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
             })}
           </div>
         </div>
-        <div className="absolute right-0 bottom-0 left-0 z-[3] flex items-center gap-2.5 border-t border-[#fbbf24] bg-[rgba(26,22,14,0.95)] px-5 py-[15px]">
+        <div className="relative z-[3] flex shrink-0 items-center gap-2.5 border-t border-[#fbbf24] bg-[rgba(26,22,14,0.95)] px-5 py-[15px] max-md:pb-[calc(env(safe-area-inset-bottom)+15px)]">
           <span className="text-[14px] font-bold whitespace-nowrap text-[#fbbf24] [text-shadow:0_0_6px_rgba(251,191,36,0.55)] max-md:text-[12px]">
             guest@basem:~$           </span>
           <input

@@ -35,14 +35,14 @@ const keys = [
 const keyStyles = {
   direction: {
     idle: "border-[rgba(251,191,36,0.3)] shadow-[0_4px_15px_rgba(251,191,36,0.15)]",
-    hover: "hover:border-[rgba(251,191,36,0.7)] hover:shadow-[0_0_20px_rgba(251,191,36,0.25)]",
+    hover: "hover:-translate-y-0.5 hover:border-[rgba(251,191,36,0.7)] hover:shadow-[0_0_20px_rgba(251,191,36,0.3)]",
     pressed: "scale-90 border-[rgba(251,191,36,0.8)] shadow-[0_0_25px_rgba(251,191,36,0.5)]",
     color: "bg-[rgba(251,191,36,0.08)] text-[#fbbf24]",
     glow: "bg-[radial-gradient(circle_at_center,rgba(251,191,36,0.2)_0%,transparent_70%)]",
   },
   letter: {
     idle: "border-[rgba(248,113,113,0.3)] shadow-[0_4px_15px_rgba(248,113,113,0.15)]",
-    hover: "hover:border-[rgba(248,113,113,0.7)] hover:shadow-[0_0_20px_rgba(248,113,113,0.25)]",
+    hover: "hover:-translate-y-0.5 hover:border-[rgba(248,113,113,0.7)] hover:shadow-[0_0_20px_rgba(248,113,113,0.3)]",
     pressed: "scale-90 border-[rgba(248,113,113,0.8)] shadow-[0_0_25px_rgba(248,113,113,0.5)]",
     color: "bg-[rgba(248,113,113,0.08)] text-[#f87171]",
     glow: "bg-[radial-gradient(circle_at_center,rgba(248,113,113,0.2)_0%,transparent_70%)]",
@@ -139,7 +139,10 @@ export default function KonamiKeyboard({ onClose, onBack, onSuccess }: KonamiKey
       }
     >
       <div className="p-5 max-[481px]:p-3.5 font-mono">
-        <div className="mb-4 rounded-xl border-2 border-[rgba(251,191,36,0.2)] bg-black/60 p-3 shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)]">
+        <div className="mb-4 rounded-xl border-2 border-[rgba(251,191,36,0.2)] bg-black/60 p-3 shadow-[inset_0_2px_10px_rgba(0,0,0,0.5),0_0_25px_rgba(251,191,36,0.08)]">
+          <p className="mb-1.5 px-1 text-[10px] font-semibold tracking-[0.25em] text-[#78716c] uppercase">
+            sequence
+          </p>
           <div
             className={`mb-2.5 flex min-h-[45px] flex-wrap items-center justify-center gap-1.5 rounded-lg bg-black/30 p-2 ${status === "wrong" ? "animate-shake" : ""}`}
           >

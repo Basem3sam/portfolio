@@ -126,17 +126,24 @@ function HintToast({ level, clicks, closing, onDone }: HintToastProps) {
 }
 
 function AccessToast({ onDone }: ToastProps) {
-  const { shown } = useToast(3000, 500, onDone);
+  const { shown } = useToast(4500, 500, onDone);
 
   return (
     <div
-      className={`pointer-events-none fixed inset-0 z-[10010] m-auto flex h-fit w-fit max-w-[320px] items-center justify-center gap-3 rounded-xl border border-[rgba(251,191,36,0.4)] bg-[linear-gradient(135deg,#191307_0%,#0c0a06_100%)] px-[25px] py-5 text-center font-mono text-[16px] leading-[1.4] font-semibold tracking-[0.5px] text-[#fbbf24] shadow-[0_20px_50px_rgba(251,191,36,0.35),0_0_0_2px_rgba(251,191,36,0.4),inset_0_1px_0_rgba(253,230,138,0.08)] backdrop-blur-[10px] [text-shadow:0_0_10px_rgba(251,191,36,0.5)] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] max-md:w-[calc(100%_-_40px)] max-md:max-w-[280px] max-md:px-[22px] max-md:py-[18px] max-md:text-[15px] max-[481px]:max-w-[260px] max-[481px]:px-5 max-[481px]:py-4 max-[481px]:text-[14px] ${shown ? "scale-100 opacity-100" : "scale-90 opacity-0"}`}
+      className={`pointer-events-none fixed inset-0 z-[10010] m-auto flex h-fit w-fit max-w-[340px] items-center gap-3.5 rounded-xl border border-[rgba(251,191,36,0.4)] bg-[linear-gradient(135deg,#191307_0%,#0c0a06_100%)] px-6 py-5 font-mono shadow-[0_20px_50px_rgba(251,191,36,0.35),0_0_0_2px_rgba(251,191,36,0.4),inset_0_1px_0_rgba(253,230,138,0.08)] backdrop-blur-[10px] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] max-md:w-[calc(100%_-_40px)] max-md:max-w-[300px] ${shown ? "scale-100 opacity-100" : "scale-90 opacity-0"}`}
     >
-      <Icon
+      <icon
         name="unlock"
-        className="shrink-0 size-6 text-[#fbbf24] [filter:drop-shadow(0_0_8px_rgba(251,191,36,0.6))] max-md:size-[22px] max-[481px]:size-5"
+        classname="shrink-0 size-7 text-[#fbbf24] [filter:drop-shadow(0_0_8PX_rgba(251,191,36,0.6))]"
       />
-      <span className="min-w-0 flex-1 text-[#fbbf24]">Access Granted! The terminal awaits... 🎉</span>
+      <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5 text-start">
+        <span className="text-[16px] font-bold text-[#fbbf24] [text-shadow:0_0_10px_rgba(251,191,36,0.5)]">
+          Access Granted! 🎉
+        </span>
+        <span className="text-[11px] leading-snug text-[#fde68a] opacity-90">
+          Terminal unlocked for this session — it locks again when you refresh the page.
+        </span>
+      </span>
     </div>
   );
 }

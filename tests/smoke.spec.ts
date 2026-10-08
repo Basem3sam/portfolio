@@ -113,7 +113,7 @@ test("konami code unlocks the terminal", async ({ page }) => {
   await expect(page.locator("#secret-terminal")).toBeVisible();
 });
 
-test("terminal unlock persists in localStorage", async ({ page }) => {
+test("terminal access resets when the page is refreshed", async ({ page }) => {
   await page.goto("/");
 
   for (const key of KONAMI) {
@@ -122,8 +122,14 @@ test("terminal unlock persists in localStorage", async ({ page }) => {
   await expect(page.locator("#secret-terminal")).toBeVisible();
 
   await page.reload();
+  await page.keyboard.press("Control+Shift+b");
+
+  // Locked again: the shortcut opens the code entry area, not the terminal
+  await expect(page.getByRole("button", { name: "Enter Konami Code" })).toBeVisible();
+  await expect(page.locator("#secret-terminal")).not.toBeVisible();
+
   const stored = await page.evaluate(() => localStorage.getItem("terminal_unlocked"));
-  expect(stored).toBe("1");
+  expect(stored).toBeNull();
 });
 
 test("contact exposes a tap-to-call phone link", async ({ page }) => {
@@ -181,6 +187,7 @@ test("no permanent overlay is painted when the palette is closed", async ({ page
       const style = getComputedStyle(el);
       if (style.position !== "fixed" && style.position !== "absolute") continue;
       if (el.closest("[inert], [aria-hidden='true']")) continue;
+      if (style.opacity === "0" || style.visibility === "hidden") continue;
 
       const background = style.backgroundColor;
       const alpha =
