@@ -11,3 +11,4 @@ export const PHONE_TEL = "tel:+201123505981";
 export const TROSC_REPO_URL = "https://github.com/Basem3sam/trosc-backend";
 export const LARAVEL_REPO_URL = "https://github.com/Basem3sam/laravel-ecommerce-app";
 export const NEUROSCAN_REPO_URL = "https://github.com/Basem3sam/neuroscan-ai";
+export const ZABTHALAHAK_URL = "https://zabthalahak.vercel.app/";

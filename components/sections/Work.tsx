@@ -6,6 +6,7 @@ import {
   NEUROSCAN_REPO_URL,
   TROSC_REPO_URL,
   TROSC_URL,
+  ZABTHALAHAK_URL,
 } from "@/data/site";
 import type { Dictionary } from "@/lib/dictionaries/en";
 import type { Locale } from "@/lib/i18n";
@@ -16,8 +17,10 @@ type WorkProps = {
   locale: Locale;
 };
 
-const projectLinks: Record<string, { repo: string; live?: string }> = {
+const projectLinks: Record<string, { repo?: string; live?: string }> = {
   trosc: { repo: TROSC_REPO_URL, live: TROSC_URL },
+  storeAdvisor: {},
+  zabthalahak: { live: ZABTHALAHAK_URL },
   laravel: { repo: LARAVEL_REPO_URL },
   neuroscan: { repo: NEUROSCAN_REPO_URL },
 };
@@ -85,17 +88,19 @@ export default function Work({ dict, github, locale }: WorkProps) {
                   ))}
                 </div>
 
-                {links && (
+                {links && (links.repo || links.live) && (
                   <div className="mt-5 flex flex-wrap gap-3">
-                    <a
-                      href={links.repo}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={repoLink}
-                    >
-                      <Icon name="github" className="size-4" />
-                      {dict.viewRepo}
-                    </a>
+                    {links.repo && (
+                      <a
+                        href={links.repo}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={repoLink}
+                      >
+                        <Icon name="github" className="size-4" />
+                        {dict.viewRepo}
+                      </a>
+                    )}
                     {links.live && (
                       <a
                         href={links.live}
@@ -114,7 +119,7 @@ export default function Work({ dict, github, locale }: WorkProps) {
           })}
         </div>
 
-        <div className="mt-16">
+        <div className="mt-16 print:hidden">
           <div className="flex items-center gap-3">
             <p className="font-mono text-xs font-medium tracking-wide whitespace-nowrap text-muted-text uppercase">
               {dict.liveLabel}

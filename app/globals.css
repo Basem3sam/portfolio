@@ -624,4 +624,68 @@ html[lang='ar'] {
       scroll-behavior: auto !important;
     }
   }
+
+    @media print {
+    :root,
+    .dark-mode {
+      --c-page: #ffffff;
+      --c-primary: #ffffff;
+      --c-secondary: #7a3705;
+      --c-secondary-ink: #7a3705;
+      --c-on-secondary: #ffffff;
+      --c-accent: #7a3705;
+      --c-hairline: #d4d4d0;
+      --c-status: #15803d;
+      --c-gradient-start: #7a3705;
+      --c-gradient-end: #7a3705;
+      --c-light-bg: #f3f3f0;
+      --c-surface: #ffffff;
+      --c-dark-bg: #ffffff;
+      --c-dark-text: #1a1d21;
+      --c-light-text: #3f3f46;
+      --c-muted-text: #52525b;
+      --c-avatar-from: #ffffff;
+      --c-avatar-to: #ffffff;
+      --sh-xs: none;
+      --sh-sm: none;
+      --sh-md: none;
+      --sh-lg: none;
+      --sh-xl: none;
+    }
+
+    html {
+      overflow-x: visible;
+      scroll-padding-top: 0;
+    }
+
+    body {
+      background: #ffffff;
+    }
+
+    [data-reveal] {
+      opacity: 1 !important;
+    }
+
+    h1,
+    h2,
+    h3 {
+      break-after: avoid;
+    }
+
+    article {
+      break-inside: avoid;
+    }
+
+    a {
+      text-decoration: none !important;
+    }
+
+    #work article a[href^="http"]::after,
+    #contact a[href^="http"]::after {
+      content: " <" attr(href) ">";
+      font-size: 0.8em;
+      color: #52525b;
+      word-break: break-all;
+    }
+  }
 }

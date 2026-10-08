@@ -229,7 +229,7 @@ function PaletteDialog({
 
   return (
     <div
-      className={`fixed inset-0 z-[1080] flex items-start justify-center p-4 pt-[10vh] ${open ? "" : "pointer-events-none"}`}
+      className={`fixed inset-0 z-[1080] flex items-start justify-center p-4 pt-[10vh] print:hidden ${open ? "" : "pointer-events-none"}`}
       inert={!open}
     >
       <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true"></div>
