@@ -213,7 +213,7 @@ export default function EndpointExplorer({ dict }: EndpointExplorerProps) {
 
           <pre
             dir="ltr"
-            className="mt-4 overflow-x-auto rounded-md border border-hairline bg-light-bg p-4 font-mono text-xs leading-relaxed whitespace-pre-wrap text-dark-text"
+            className="mt-4 overflow-x-auto rounded-md border border-hairline bg-[#f5f2ea] p-4 font-mono text-xs leading-relaxed whitespace-pre-wrap text-dark-text dark:bg-[#0d1015] dark:text-[#f2f1ee] dark:border-[#2c313c]"
           >
             {renderJson(selected.response, 0)}
           </pre>

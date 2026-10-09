@@ -109,7 +109,11 @@ export default async function TroscCaseStudyPage({ params }: CaseStudyPageProps)
 
   return (
     <main id="main-content">
-      <div className="relative container bg-grid bg-ember-glow pt-28 pb-4 md:pt-32">
+      <div className="relative container bg-grid pt-28 pb-4 md:pt-32">
+        <div
+          className="pointer-events-none absolute inset-0 bg-ember-glow motion-safe:animate-glow-breathe"
+          aria-hidden="true"
+        ></div>
         <Link
           href={backHref}
           className="group/back inline-flex min-h-11 items-center gap-2 rounded-full border border-hairline bg-surface px-4 font-mono text-sm font-medium text-light-text no-underline shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:text-signal hover:shadow-md active:translate-y-0"
@@ -134,9 +138,9 @@ export default async function TroscCaseStudyPage({ params }: CaseStudyPageProps)
           </p>
         </div>
         <p className="mt-2 text-sm font-medium text-light-text">{t.role}</p>
-        <p className="mt-6 max-w-3xl border-s-4 border-secondary ps-5 text-lg leading-relaxed text-dark-text">
-          {t.brief}
-        </p>
+        <div className="mt-6 max-w-3xl rounded-xl border border-hairline bg-surface p-6 shadow-sm md:p-7">
+          <p className="text-lg leading-relaxed text-dark-text">{t.brief}</p>
+        </div>
 
         <dl
           className={`mx-auto mt-10 grid auto-rows-fr grid-cols-2 gap-px overflow-hidden rounded-lg border border-hairline bg-hairline sm:grid-cols-3 lg:mx-0 lg:grid-cols-6 ${revealClass}`}
@@ -188,11 +192,12 @@ export default async function TroscCaseStudyPage({ params }: CaseStudyPageProps)
           label={sectionLabels.architecture}
           title={t.sections.architecture.title}
         >
-          <div className="grid gap-x-10 gap-y-8 stagger-60 md:grid-cols-2" data-reveal data-stagger>
+          <div className="grid gap-4 stagger-60 md:grid-cols-2" data-reveal data-stagger>
             {t.sections.architecture.entries.map((entry, index) => (
               <div
                 key={entry.title}
                 style={{ "--stagger-index": index } as CSSProperties}
+                className="rounded-xl border border-hairline bg-surface p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:shadow-md md:p-6"
               >
                 <p className="flex items-baseline gap-2.5">
                   <span className="font-mono text-sm font-semibold text-secondary" dir="ltr">
@@ -213,15 +218,18 @@ export default async function TroscCaseStudyPage({ params }: CaseStudyPageProps)
         >
           <p className="max-w-3xl text-light-text">{t.sections.security.intro}</p>
           <ol
-            className={`mt-6 divide-y divide-hairline border-y border-hairline ${revealClass}`}
+            className={`mt-6 overflow-hidden rounded-xl border border-hairline bg-surface shadow-xs ${revealClass}`}
             data-reveal
           >
             {t.sections.security.layers.map((layer, index) => (
               <li
                 key={layer}
-                className="flex gap-4 px-2 py-3.5 transition-colors duration-200 hover:bg-light-bg"
+                className="flex items-center gap-4 border-b border-hairline px-5 py-4 transition-colors duration-200 last:border-b-0 hover:bg-light-bg"
               >
-                <span className="font-mono text-sm font-semibold text-secondary" dir="ltr">
+                <span
+                  className="flex size-8 shrink-0 items-center justify-center rounded-md bg-[rgba(163,72,9,0.08)] font-mono text-xs font-semibold text-secondary dark:bg-[rgba(251,191,36,0.1)] dark:text-[#fbbf24]"
+                  dir="ltr"
+                >
                   {String(index + 1).padStart(2, "0")}
                 </span>
                 <p className="text-sm leading-relaxed text-light-text">{layer}</p>
@@ -310,6 +318,35 @@ export default async function TroscCaseStudyPage({ params }: CaseStudyPageProps)
             <Icon name="externalLink" className="size-4" />
           </a>
         </CaseSection>
+        <div classname="mt-16 border-t border-hairline pt-8">
+          <div classname="flex flex-wrap items-center justify-between gap-4">
+            <link
+              href={backhref}
+              classname="group/back inline-flex min-h-11 items-center gap-2 rounded-full border border-hairline bg-surface px-4 font-mono text-sm font-medium text-light-text no-underline shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:text-signal hover:shadow-md active:translate-y-0"
+            >
+              <icon
+                name="arrowleft"
+                classname="size-4 transition-transform duration-200 group-hover/back:-translate-x-0.5 rtl:rotate-180 rtl:group-hover/back:translate-x-0.5"
+              />
+              {t.back}
+            </link>
+            <div classname="flex flex-wrap gap-3">
+              <a
+                href={trosc_repo_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                classname={linkbutton}
+              >
+                <icon name="github" classname="size-4" />
+                {t.links.repo}
+              </a>
+              <a href={trosc_url} target="_blank" rel="noopener noreferrer" classname={linkbutton}>
+                <icon name="externallink" classname="size-4" />
+                {t.links.live}
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   );
