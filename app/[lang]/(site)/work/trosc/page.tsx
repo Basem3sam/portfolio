@@ -318,30 +318,30 @@ export default async function TroscCaseStudyPage({ params }: CaseStudyPageProps)
             <Icon name="externalLink" className="size-4" />
           </a>
         </CaseSection>
-        <div classname="mt-16 border-t border-hairline pt-8">
-          <div classname="flex flex-wrap items-center justify-between gap-4">
-            <link
-              href={backhref}
-              classname="group/back inline-flex min-h-11 items-center gap-2 rounded-full border border-hairline bg-surface px-4 font-mono text-sm font-medium text-light-text no-underline shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:text-signal hover:shadow-md active:translate-y-0"
+        <div className="mt-16 border-t border-hairline pt-8">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <Link
+              href={backHref}
+              className="group/back inline-flex min-h-11 items-center gap-2 rounded-full border border-hairline bg-surface px-4 font-mono text-sm font-medium text-light-text no-underline shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:text-signal hover:shadow-md active:translate-y-0"
             >
-              <icon
-                name="arrowleft"
-                classname="size-4 transition-transform duration-200 group-hover/back:-translate-x-0.5 rtl:rotate-180 rtl:group-hover/back:translate-x-0.5"
+              <Icon
+                name="arrowLeft"
+                className="size-4 transition-transform duration-200 group-hover/back:-translate-x-0.5 rtl:rotate-180 rtl:group-hover/back:translate-x-0.5"
               />
               {t.back}
-            </link>
-            <div classname="flex flex-wrap gap-3">
+            </Link>
+            <div className="flex flex-wrap gap-3">
               <a
-                href={trosc_repo_url}
+                href={TROSC_REPO_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                classname={linkbutton}
+                className={linkButton}
               >
-                <icon name="github" classname="size-4" />
+                <Icon name="github" className="size-4" />
                 {t.links.repo}
               </a>
-              <a href={trosc_url} target="_blank" rel="noopener noreferrer" classname={linkbutton}>
-                <icon name="externallink" classname="size-4" />
+              <a href={TROSC_URL} target="_blank" rel="noopener noreferrer" className={linkButton}>
+                <Icon name="externalLink" className="size-4" />
                 {t.links.live}
               </a>
             </div>
