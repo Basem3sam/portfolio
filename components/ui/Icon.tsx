@@ -31,7 +31,7 @@ export type IconName =
   | "unlock"
   | "activity"
   | "box"
-  | "checkcircle"
+  | "checkCircle"
   | "database"
   | "layers"
   | "monitor"
