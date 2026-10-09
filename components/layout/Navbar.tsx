@@ -64,16 +64,16 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
   const linksHref = locale === "ar" ? "/ar/links" : "/links";
 
   // Scroll-spy: the active section is the LAST section whose top edge has
-  // crossed above the detection line (just below the navbar). The previous
-  // "first section spanning the line" approach failed whenever a tall
-  // previous section's body still crossed the line after scrolling to the
-  // next section's header - which is every section on mobile.
+  // crossed above the detection line. The line sits 32px below the navbar —
+  // wide enough to absorb the navbar's height transition during scroll
+  // (py-3 unscrolled → py-2 scrolled = 8px) plus the scroll offset (+10px)
+  // plus margin, so the destination section's top always clears the line.
   useEffect(() => {
     let frame = 0;
 
     const detectionLine = () => {
       const nav = navRef.current;
-      return nav ? nav.offsetHeight + 16 : 96;
+      return nav ? nav.offsetHeight + 32 : 120;
     };
 
     const update = () => {
