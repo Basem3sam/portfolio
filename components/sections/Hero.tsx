@@ -90,7 +90,7 @@ export default function Hero({ dict }: HeroProps) {
               ))}
             </dl>
 
-            <p className="mt-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm text-light-text lg:justify-start">
+            <p className="mt-6 flex flex-col items-center gap-2 text-sm text-light-text lg:items-start xl:flex-row xl:flex-wrap xl:items-center xl:gap-x-3">
               <span className={statusPill}>
                 <span
                   className="size-1.5 animate-pulse rounded-full bg-status motion-reduce:animate-none"
@@ -98,10 +98,10 @@ export default function Hero({ dict }: HeroProps) {
                 ></span>
                 {dict.status}
               </span>
-              <span aria-hidden="true" className="text-muted-text">
+              <span aria-hidden="true" className="hidden text-muted-text xl:inline">
                 —
               </span>
-              <span>{dict.statusDetail}</span>
+              <span className="text-balance max-lg:text-center">{dict.statusDetail}</span>
             </p>
 
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
