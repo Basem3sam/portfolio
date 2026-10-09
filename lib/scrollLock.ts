@@ -17,5 +17,5 @@ export function unlockScroll() {
   document.body.style.position = "";
   document.body.style.width = "";
   document.body.style.top = "";
-  window.scrollTo(0, parseInt(top || "0") * -1);
+  window.scrollTo({ top: parseInt(top || "0") * -1, left: 0, behavior: "instant" });
 }

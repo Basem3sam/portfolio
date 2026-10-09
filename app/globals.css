@@ -511,6 +511,12 @@ html[lang="ar"] {
   transition: background-color 0.25s ease;
 }
 
+@utility nav-menu-glass {
+  background-color: color-mix(in srgb, var(--c-page) 84%, transparent);
+  backdrop-filter: blur(22px) saturate(1.5);
+  -webkit-backdrop-filter: blur(22px) saturate(1.5);
+}
+
 @utility nav-glass-hover {
   background-color: color-mix(in srgb, var(--c-page) 88%, transparent);
   backdrop-filter: blur(20px) saturate(1.5);

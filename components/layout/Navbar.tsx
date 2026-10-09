@@ -9,7 +9,7 @@ import Icon from "@/components/ui/Icon";
 import { CV_PATH } from "@/data/site";
 import type { Dictionary } from "@/lib/dictionaries/en";
 import type { Locale } from "@/lib/i18n";
-import { lockScroll, unlockScroll } from "@/lib/scrollLock";
+import { getNavbarHeight } from "@/lib/scroll";
 
 type NavbarProps = {
   labels: Dictionary["nav"];
@@ -54,7 +54,7 @@ const paletteButton =
   "hidden min-h-11 cursor-pointer items-center gap-2 rounded-md border border-hairline bg-surface/50 px-3 text-sm font-medium text-light-text transition-colors duration-200 hover:border-signal hover:text-signal lg:inline-flex";
 
 const menuRow =
-  "group/row flex min-h-[52px] w-full items-center gap-3 rounded-lg px-3 text-start no-underline transition-colors duration-150 active:bg-light-bg";
+  "group/row flex min-h-12 [@media(max-height:720px)]:min-h-11 w-full items-center gap-3 rounded-lg px-3 text-start no-underline transition-colors duration-150 active:bg-light-bg";
 
 const menuRowIndex = "font-mono text-xs font-semibold text-secondary/70 dark:text-[#fbbf24]/60";
 
@@ -79,10 +79,8 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
   useEffect(() => {
     let frame = 0;
 
-    const detectionLine = () => {
-      const nav = navRef.current;
-      return nav ? nav.offsetHeight + 32 : 120;
-    };
+    // Closed-bar height, so the open mobile menu never shifts the line.
+    const detectionLine = () => getNavbarHeight() + 32;
 
     const update = () => {
       frame = 0;
@@ -148,17 +146,41 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
     return () => observer.disconnect();
   }, []);
 
-  // Lock body scroll while the mobile menu is open, using the same
-  // position:fixed mechanism as the palette and terminal overlays —
-  // overflow:hidden doesn't block touch scrolling on mobile browsers.
-  // The scroll position is saved and restored, so the ScrollManager's
-  // smooth scroll to a section target isn't disrupted by the unlock.
+  // The menu never locks the page. It collapses as soon as the user
+  // interacts with anything outside it: a press outside, scrolling the
+  // page, Escape, or the viewport growing into the desktop layout.
   useEffect(() => {
     if (!menuOpen) return;
 
-    lockScroll();
+    const startY = window.scrollY;
+    const close = () => setMenuOpen(false);
 
-    return () => unlockScroll();
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!navRef.current?.contains(event.target as Node)) close();
+    };
+    const handleScroll = () => {
+      if (Math.abs(window.scrollY - startY) > 10) close();
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") close();
+    };
+
+    const desktop = window.matchMedia("(min-width: 992px)");
+    const handleDesktop = (event: MediaQueryListEvent) => {
+      if (event.matches) close();
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    desktop.addEventListener("change", handleDesktop);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("scroll", handleScroll);
+      desktop.removeEventListener("change", handleDesktop);
+    };
   }, [menuOpen]);
 
   // Scrim fade: mount at opacity-0, then rAF to the target opacity.
@@ -190,10 +212,14 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
       <nav
         ref={navRef}
         className={`group/nav fixed inset-x-0 top-0 z-[1030] border-b transition-[padding,background-color,border-color,box-shadow] duration-300 print:hidden ${
-          scrolled
-            ? "border-hairline py-2 shadow-xs nav-glass hover:nav-glass-hover"
-            : "border-transparent bg-(--c-page) py-3"
-        } ${menuOpen ? "border-hairline shadow-xs bg-(--c-page)" : ""}`}
+          scrolled ? "py-2" : "py-3"
+        } ${
+          menuOpen
+            ? "border-hairline shadow-xs max-lg:nav-menu-glass"
+            : scrolled
+              ? "border-hairline shadow-xs nav-glass hover:nav-glass-hover"
+              : "border-transparent bg-(--c-page)"
+        }`}
         aria-label={labels.mainNavigation}
         data-scrolled={scrolled}
         onClick={handleClick}
@@ -201,6 +227,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
         <div className="container flex flex-wrap items-center justify-between lg:flex-nowrap">
           <a
             href="#hero"
+            data-nav-logo
             className="inline-flex min-h-11 items-center gap-2 font-mono text-base font-semibold text-dark-text no-underline transition-colors duration-200 hover:text-secondary"
             aria-label={labels.ariaHome}
           >
@@ -226,11 +253,9 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
             id="navbarNav"
           >
             <div
-              className={`min-h-0 transition-colors duration-300 max-lg:pb-[env(safe-area-inset-bottom)] lg:overflow-visible lg:ms-auto ${
-                menuOpen ? "max-lg:bg-(--c-page) max-lg:shadow-lg" : "bg-transparent"
-              }`}
+              className="min-h-0 max-lg:max-h-[calc(100dvh-5rem)] max-lg:overflow-y-auto max-lg:overscroll-contain max-lg:pb-[env(safe-area-inset-bottom)] max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden lg:overflow-visible lg:ms-auto"
             >
-              <div className="flex flex-col px-4 pt-6 pb-6 lg:hidden">
+              <div className="mt-3 flex flex-col border-t border-hairline px-4 pt-4 pb-4 lg:hidden [@media(min-height:721px)]:pt-5 [@media(min-height:721px)]:pb-6">
                 <nav aria-label={labels.mainNavigation} className="flex flex-col gap-1">
                   {sections.map((section, index) => {
                     const active = activeSection === section.href.slice(1);
@@ -273,28 +298,35 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                 </button>
 
                 <div
-                  className="mt-auto pt-6"
+                  className="mt-auto pt-4"
                   style={{ animationDelay: `${80 + (sections.length + 1) * 50}ms` }}
                 >
-                  <div className="mb-4 flex items-center gap-2" aria-hidden="true">
+                  <div className="mb-3 flex items-center gap-2" aria-hidden="true">
                     <span className="font-mono text-[10px] font-semibold tracking-[0.2em] text-muted-text uppercase">
                       {labels.allLinks}
                     </span>
                     <span className="h-px flex-1 bg-hairline"></span>
                   </div>
 
-                  <div className="flex flex-col gap-2">
-                    <Link href={linksHref} className={`${auxLink} rounded-lg py-2`}>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Link
+                      href={linksHref}
+                      className={`${auxLink} justify-center rounded-lg border border-hairline py-2`}
+                    >
                       <Icon name="externalLink" className="size-4" />
                       {labels.allLinks}
                     </Link>
-                    <a href={CV_PATH} download className={`${auxLink} rounded-lg py-2`}>
+                    <a
+                      href={CV_PATH}
+                      download
+                      className={`${auxLink} justify-center rounded-lg border border-hairline py-2`}
+                    >
                       <Icon name="fileDown" className="size-4" />
                       {labels.resume}
                     </a>
                   </div>
 
-                  <div className="mt-4 grid grid-cols-2 gap-2">
+                  <div className="mt-2 grid grid-cols-2 gap-2">
                     <LanguageSwitcher {...languageSwitch} />
                     <ThemeToggle
                       id="darkModeToggle"
@@ -303,15 +335,6 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                       iconClassName="size-5"
                     />
                   </div>
-
-                  <button
-                    type="button"
-                    className="mt-4 flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-hairline text-sm font-medium text-light-text transition-colors duration-200 hover:border-signal hover:text-signal active:scale-[0.98]"
-                    onClick={closeMenu}
-                  >
-                    <Icon name="x" className="size-4" />
-                    Close
-                  </button>
                 </div>
               </div>
 

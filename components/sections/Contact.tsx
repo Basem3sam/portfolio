@@ -138,11 +138,11 @@ export default function Contact({ dict }: ContactProps) {
             data-reveal
             data-stagger
           >
-            <div className="flex items-center justify-between border-b border-hairline px-5 py-3.5">
-              <p className="font-mono text-xs font-semibold tracking-wide text-secondary uppercase">
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-hairline px-5 py-3.5">
+              <p className="font-mono text-xs font-semibold tracking-wide whitespace-nowrap text-secondary uppercase">
                 <span className="font-bold" aria-hidden="true">$ </span>connection.methods
               </p>
-              <p className="flex items-center gap-1.5 font-mono text-[10px] font-semibold tracking-wide text-status uppercase">
+              <p className="flex items-center gap-1.5 font-mono text-[10px] font-semibold tracking-wide whitespace-nowrap text-status uppercase">
                 <span
                   className="size-1.5 animate-pulse rounded-full bg-status motion-reduce:animate-none"
                   aria-hidden="true"

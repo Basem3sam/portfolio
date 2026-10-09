@@ -1,15 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
-import { scrollBehavior, scrollToPosition } from "@/lib/scroll";
+import { getNavbarHeight, scrollBehavior, scrollToPosition } from "@/lib/scroll";
 
 function getOffset() {
-  const navbar = document.querySelector<HTMLElement>("nav");
-  let offset = 70;
-
-  if (navbar) {
-    offset = navbar.dataset.scrolled === "true" ? navbar.offsetHeight - 10 : navbar.offsetHeight + 10;
-  }
+  const navbar = document.querySelector<HTMLElement>("nav[data-scrolled]");
+  const height = getNavbarHeight();
+  let offset = navbar?.dataset.scrolled === "true" ? height - 10 : height + 10;
 
   if (window.innerWidth < 768) offset *= 0.8;
 

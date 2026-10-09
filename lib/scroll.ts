@@ -43,3 +43,15 @@ export function scrollToPosition(top: number, onComplete?: () => void) {
     stop();
   };
 }
+
+// Height of the navbar's top bar only. nav.offsetHeight also includes the
+// expanded mobile menu, which would corrupt every scroll offset computed
+// while (or just after) the menu is open.
+export function getNavbarHeight() {
+  const nav = document.querySelector<HTMLElement>("nav[data-scrolled]");
+  const logo = nav?.querySelector<HTMLElement>("[data-nav-logo]");
+  if (!nav || !logo) return 70;
+
+  const padding = nav.dataset.scrolled === "true" ? 16 : 24;
+  return logo.offsetHeight + padding + 1;
+}

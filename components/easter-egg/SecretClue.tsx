@@ -115,7 +115,9 @@ export default function SecretClue({
       ref={containerRef}
       onPointerEnter={cancelClose}
       onPointerLeave={scheduleClose}
-      className="fixed bottom-[30px] start-[30px] z-[1000] print:hidden max-[481px]:bottom-[25px] max-[481px]:start-5"
+      className={`fixed bottom-[30px] start-[30px] print:hidden max-[481px]:bottom-[25px] max-[481px]:start-5 ${
+        open && revealed ? "z-[10050]" : "z-[1000]"
+      }`}
     >
       {open && revealed && (
         <div
