@@ -45,6 +45,7 @@
   --animate-master-pop: masterPop 1s ease-out;
   --animate-pop-in: popIn 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
   --animate-attention: ringPulse 2s ease-in-out 3;
+  --animate-menu-item-in: menuItemIn 0.28s cubic-bezier(0.4, 0, 0.2, 1) backwards;
 
   @keyframes heroIn {
     from {
@@ -358,6 +359,13 @@
       transform: translateY(6px) scale(0.96);
     }
   }
+
+    @keyframes menuItemIn {
+    from {
+      opacity: 0;
+      transform: translateX(-8px);
+    }
+  }
 }
 
 @theme inline {
@@ -500,6 +508,13 @@ html[lang="ar"] {
   background-color: color-mix(in srgb, var(--c-page) 78%, transparent);
   backdrop-filter: blur(16px) saturate(1.4);
   -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  transition: background-color 0.25s ease;
+}
+
+@utility nav-glass-hover {
+  background-color: color-mix(in srgb, var(--c-page) 88%, transparent);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
 }
 
 @utility bg-ember-glow {
@@ -527,6 +542,12 @@ html[lang="ar"] {
 
 @utility stagger-80 {
   --stagger: 80ms;
+}
+
+@utility nav-scrim {
+  background: color-mix(in srgb, var(--c-page) 35%, transparent);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
 }
 
 @layer base {
