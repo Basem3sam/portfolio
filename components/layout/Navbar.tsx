@@ -9,6 +9,7 @@ import Icon from "@/components/ui/Icon";
 import { CV_PATH } from "@/data/site";
 import type { Dictionary } from "@/lib/dictionaries/en";
 import type { Locale } from "@/lib/i18n";
+import { lockScroll, unlockScroll } from "@/lib/scrollLock";
 
 type NavbarProps = {
   labels: Dictionary["nav"];
@@ -52,14 +53,13 @@ const themeButton =
 const paletteButton =
   "hidden min-h-11 cursor-pointer items-center gap-2 rounded-md border border-hairline bg-surface/50 px-3 text-sm font-medium text-light-text transition-colors duration-200 hover:border-signal hover:text-signal lg:inline-flex";
 
-// Mobile menu section row: mono index + label + trailing arrow
 const menuRow =
   "group/row flex min-h-[52px] w-full items-center gap-3 rounded-lg px-3 text-start no-underline transition-colors duration-150 active:bg-light-bg";
 
-const menuRowIndex =
-  "font-mono text-xs font-semibold text-secondary/70 dark:text-[#fbbf24]/60";
+const menuRowIndex = "font-mono text-xs font-semibold text-secondary/70 dark:text-[#fbbf24]/60";
 
-const menuRowLabel = "flex-1 text-base font-medium text-dark-text transition-colors duration-150 group-hover/row:text-signal";
+const menuRowLabel =
+  "flex-1 text-base font-medium text-dark-text transition-colors duration-150 group-hover/row:text-signal";
 
 const menuRowArrow =
   "size-4 text-signal opacity-0 -translate-x-1 transition-all duration-200 group-hover/row:translate-x-0 group-hover/row:opacity-100 rtl:rotate-180 rtl:translate-x-1 rtl:group-hover/row:translate-x-0";
@@ -148,26 +148,20 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
     return () => observer.disconnect();
   }, []);
 
-  // Lock body scroll while the mobile menu is open (with scrollbar-width
-  // compensation to prevent layout shift); clean unlock on close/unmount.
+  // Lock body scroll while the mobile menu is open, using the same
+  // position:fixed mechanism as the palette and terminal overlays —
+  // overflow:hidden doesn't block touch scrolling on mobile browsers.
+  // The scroll position is saved and restored, so the ScrollManager's
+  // smooth scroll to a section target isn't disrupted by the unlock.
   useEffect(() => {
     if (!menuOpen) return;
 
-    const scrollbar = window.innerWidth - document.documentElement.clientWidth;
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    if (scrollbar > 0) {
-      document.body.style.paddingRight = `${scrollbar}px`;
-    }
+    lockScroll();
 
-    return () => {
-      document.body.style.overflow = originalOverflow;
-      document.body.style.paddingRight = "";
-    };
+    return () => unlockScroll();
   }, [menuOpen]);
 
-  // Scrim fade: mount at opacity-0, then rAF to the target opacity for a
-  // smooth entrance; fade out on close via the transition + delayed unmount.
+  // Scrim fade: mount at opacity-0, then rAF to the target opacity.
   useEffect(() => {
     if (!menuOpen || !scrimRef.current) return;
 
@@ -184,8 +178,6 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
 
   return (
     <>
-      {/* Scrim: dims the page while the mobile menu is open; stays mounted
-          during the close transition, then unmounts. */}
       {menuOpen && (
         <div
           ref={scrimRef}
@@ -227,8 +219,6 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
             <Icon name={menuOpen ? "x" : "menu"} className="size-5" />
           </button>
 
-          {/* Mobile expanded panel: a designed navigation surface.
-              On lg+ it collapses to the standard inline row. */}
           <div
             className={`grid grow basis-full transition-[grid-template-rows,visibility] duration-300 ease-in-out lg:visible lg:flex lg:basis-auto lg:items-center ${
               menuOpen ? "visible grid-rows-[1fr]" : "invisible grid-rows-[0fr]"
@@ -237,14 +227,10 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
           >
             <div
               className={`min-h-0 transition-colors duration-300 max-lg:pb-[env(safe-area-inset-bottom)] lg:overflow-visible lg:ms-auto ${
-                menuOpen
-                  ? "max-lg:bg-(--c-page) max-lg:shadow-lg"
-                  : "bg-transparent"
+                menuOpen ? "max-lg:bg-(--c-page) max-lg:shadow-lg" : "bg-transparent"
               }`}
             >
-              {/* Mobile: the panel content, with breathing room and its own composition */}
               <div className="flex flex-col px-4 pt-6 pb-6 lg:hidden">
-                {/* Section rows — the primary navigation, as designed tappable rows */}
                 <nav aria-label={labels.mainNavigation} className="flex flex-col gap-1">
                   {sections.map((section, index) => {
                     const active = activeSection === section.href.slice(1);
@@ -270,7 +256,6 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                   })}
                 </nav>
 
-                {/* Palette trigger as a row, matching the section rows */}
                 <button
                   type="button"
                   className={`${menuRow} mt-2 cursor-pointer`}
@@ -287,7 +272,6 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                   <Icon name="arrowRight" className={menuRowArrow} />
                 </button>
 
-                {/* Action footer: quick links + language + theme + close */}
                 <div
                   className="mt-auto pt-6"
                   style={{ animationDelay: `${80 + (sections.length + 1) * 50}ms` }}
@@ -320,7 +304,6 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                     />
                   </div>
 
-                  {/* Bottom close: thumb-reach dismiss */}
                   <button
                     type="button"
                     className="mt-4 flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-hairline text-sm font-medium text-light-text transition-colors duration-200 hover:border-signal hover:text-signal active:scale-[0.98]"
@@ -332,7 +315,6 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                 </div>
               </div>
 
-              {/* Desktop: the standard inline row (unchanged) */}
               <div className="hidden lg:block">
                 <ul className="flex list-none items-center">
                   {sections.map((section) => {
