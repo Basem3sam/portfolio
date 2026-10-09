@@ -124,7 +124,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
     <nav
       className={`fixed inset-x-0 top-0 z-[1030] border-b transition-[padding,background-color,border-color,box-shadow] duration-300 print:hidden ${
         scrolled
-          ? "border-hairline bg-(--c-page) py-2 shadow-xs"
+          ? "border-hairline py-2 shadow-xs nav-glass"
           : "border-transparent bg-(--c-page) py-3"
       }`}
       aria-label={labels.mainNavigation}
