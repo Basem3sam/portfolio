@@ -52,6 +52,18 @@ const themeButton =
 const paletteButton =
   "hidden min-h-11 cursor-pointer items-center gap-2 rounded-md border border-hairline bg-surface/50 px-3 text-sm font-medium text-light-text transition-colors duration-200 hover:border-signal hover:text-signal lg:inline-flex";
 
+// Mobile menu section row: mono index + label + trailing arrow
+const menuRow =
+  "group/row flex min-h-[52px] w-full items-center gap-3 rounded-lg px-3 text-start no-underline transition-colors duration-150 active:bg-light-bg";
+
+const menuRowIndex =
+  "font-mono text-xs font-semibold text-secondary/70 dark:text-[#fbbf24]/60";
+
+const menuRowLabel = "flex-1 text-base font-medium text-dark-text transition-colors duration-150 group-hover/row:text-signal";
+
+const menuRowArrow =
+  "size-4 text-signal opacity-0 -translate-x-1 transition-all duration-200 group-hover/row:translate-x-0 group-hover/row:opacity-100 rtl:rotate-180 rtl:translate-x-1 rtl:group-hover/row:translate-x-0";
+
 export default function Navbar({ labels, theme, locale, languageSwitch, palette }: NavbarProps) {
   const { openPalette } = useCommandPalette();
   const [scrolled, setScrolled] = useState(false);
@@ -59,11 +71,11 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
   const [menuOpen, setMenuOpen] = useState(false);
   const [modKey] = useState(getModKey);
   const navRef = useRef<HTMLElement>(null);
+  const scrimRef = useRef<HTMLDivElement>(null);
   const linksHref = locale === "ar" ? "/ar/links" : "/links";
 
   // Scroll-spy: the active section is the LAST section whose top edge has
-  // crossed above the detection line (32px below the navbar — wide enough
-  // to absorb the navbar's height transition during scroll).
+  // crossed above the detection line (32px below the navbar).
   useEffect(() => {
     let frame = 0;
 
@@ -136,8 +148,8 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
     return () => observer.disconnect();
   }, []);
 
-  // Lock body scroll while the mobile menu is open (clean unlock on close,
-  // including unmount) — mirrors the palette's scroll lock behavior.
+  // Lock body scroll while the mobile menu is open (with scrollbar-width
+  // compensation to prevent layout shift); clean unlock on close/unmount.
   useEffect(() => {
     if (!menuOpen) return;
 
@@ -154,23 +166,32 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
     };
   }, [menuOpen]);
 
+  // Scrim fade: mount at opacity-0, then rAF to the target opacity for a
+  // smooth entrance; fade out on close via the transition + delayed unmount.
+  useEffect(() => {
+    if (!menuOpen || !scrimRef.current) return;
+
+    const scrim = scrimRef.current;
+    const raf = requestAnimationFrame(() => scrim.classList.add("opacity-40"));
+    return () => cancelAnimationFrame(raf);
+  }, [menuOpen]);
+
+  const closeMenu = () => setMenuOpen(false);
+
   const handleClick = (event: MouseEvent<HTMLElement>) => {
     if ((event.target as Element).closest('a[href^="#"]')) setMenuOpen(false);
   };
 
   return (
     <>
-      {/* Scrim: dims the page content while the mobile menu is open. Fades
-          in/out via opacity transition; pointer-events only when visible;
-          aria-hidden because it's purely decorative. */}
+      {/* Scrim: dims the page while the mobile menu is open; stays mounted
+          during the close transition, then unmounts. */}
       {menuOpen && (
         <div
-          className="fixed inset-0 top-0 z-[1029] nav-scrim opacity-0 transition-opacity duration-300 motion-reduce:transition-none print:hidden"
-          onClick={() => setMenuOpen(false)}
+          ref={scrimRef}
+          className="fixed inset-0 z-[1029] nav-scrim opacity-0 transition-opacity duration-300 motion-reduce:transition-none print:hidden"
+          onClick={closeMenu}
           aria-hidden="true"
-          ref={(el) => {
-            if (el) requestAnimationFrame(() => el.classList.add("opacity-40"));
-          }}
         ></div>
       )}
 
@@ -180,7 +201,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
           scrolled
             ? "border-hairline py-2 shadow-xs nav-glass hover:nav-glass-hover"
             : "border-transparent bg-(--c-page) py-3"
-        } ${menuOpen ? "border-hairline shadow-xs" : ""}`}
+        } ${menuOpen ? "border-hairline shadow-xs bg-(--c-page)" : ""}`}
         aria-label={labels.mainNavigation}
         data-scrolled={scrolled}
         onClick={handleClick}
@@ -203,12 +224,11 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
             aria-label={labels.toggleNavigation}
             onClick={() => setMenuOpen((open) => !open)}
           >
-            <Icon
-              name={menuOpen ? "x" : "menu"}
-              className="size-5 transition-transform duration-200"
-            />
+            <Icon name={menuOpen ? "x" : "menu"} className="size-5" />
           </button>
 
+          {/* Mobile expanded panel: a designed navigation surface.
+              On lg+ it collapses to the standard inline row. */}
           <div
             className={`grid grow basis-full transition-[grid-template-rows,visibility] duration-300 ease-in-out lg:visible lg:flex lg:basis-auto lg:items-center ${
               menuOpen ? "visible grid-rows-[1fr]" : "invisible grid-rows-[0fr]"
@@ -216,81 +236,145 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
             id="navbarNav"
           >
             <div
-              className={`min-h-0 overflow-hidden transition-colors duration-300 lg:ms-auto lg:overflow-visible ${
-                menuOpen ? "bg-surface/95 backdrop-blur-md lg:bg-transparent lg:backdrop-blur-none" : "bg-transparent"
+              className={`min-h-0 overflow-y-auto overscroll-contain transition-colors duration-300 lg:overflow-visible lg:ms-auto ${
+                menuOpen
+                  ? "max-lg:bg-(--c-page) max-lg:shadow-lg"
+                  : "bg-transparent"
               }`}
             >
-              <button
-                type="button"
-                className="mb-2 flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-md px-2.5 text-sm font-medium text-light-text transition-colors duration-200 hover:text-signal lg:hidden"
-                onClick={() => {
-                  setMenuOpen(false);
-                  openPalette();
-                }}
-              >
-                <Icon name="search" className="size-4" />
-                {palette.trigger}
-              </button>
-
-              <ul className="flex list-none flex-col border-t border-hairline py-2 lg:flex-row lg:items-center lg:border-0 lg:py-0">
-                {sections.map((section, index) => {
-                  const active = activeSection === section.href.slice(1);
-                  return (
-                    <li
-                      key={section.href}
-                      style={{
-                        animationDelay: menuOpen ? `${60 + index * 40}ms` : undefined,
-                      }}
-                      className={
-                        menuOpen
-                          ? "motion-safe:animate-menu-item-in lg:animate-none"
-                          : ""
-                      }
-                    >
+              {/* Mobile: the panel content, with breathing room and its own composition */}
+              <div className="flex min-h-[calc(100dvh_-_140px)] flex-col px-4 pt-4 pb-6 lg:hidden">
+                {/* Section rows — the primary navigation, as designed tappable rows */}
+                <nav aria-label={labels.mainNavigation} className="flex flex-col gap-1">
+                  {sections.map((section, index) => {
+                    const active = activeSection === section.href.slice(1);
+                    return (
                       <a
-                        className={sectionLink(active)}
+                        key={section.href}
                         href={section.href}
                         aria-current={active ? "page" : undefined}
+                        style={{ animationDelay: `${80 + index * 50}ms` }}
+                        className={`${menuRow} ${active ? "bg-light-bg" : ""} ${
+                          menuOpen ? "motion-safe:animate-menu-item-in" : ""
+                        }`}
                       >
-                        {labels[section.labelKey]}
+                        <span className={menuRowIndex} dir="ltr">
+                          {String(index + 1).padStart(2, "0")}
+                        </span>
+                        <span className={active ? `${menuRowLabel} text-secondary` : menuRowLabel}>
+                          {labels[section.labelKey]}
+                        </span>
+                        <Icon name="arrowRight" className={menuRowArrow} />
                       </a>
-                    </li>
-                  );
-                })}
+                    );
+                  })}
+                </nav>
 
-                <li
-                  style={{
-                    animationDelay: menuOpen ? `${60 + sections.length * 40}ms` : undefined,
+                {/* Palette trigger as a row, matching the section rows */}
+                <button
+                  type="button"
+                  className={`${menuRow} mt-2 cursor-pointer`}
+                  style={{ animationDelay: `${80 + sections.length * 50}ms` }}
+                  onClick={() => {
+                    setMenuOpen(false);
+                    openPalette();
                   }}
-                  className={`max-lg:mt-1 max-lg:border-t max-lg:border-hairline max-lg:pt-2 lg:ms-2 ${
-                    menuOpen ? "motion-safe:animate-menu-item-in lg:animate-none" : ""
-                  }`}
                 >
-                  <div className="flex flex-col gap-1 lg:flex-row lg:items-center lg:gap-2">
-                    <button
-                      type="button"
-                      onClick={openPalette}
-                      aria-label={palette.trigger}
-                      className={paletteButton}
-                    >
-                      <Icon name="search" className="size-4" />
-                      <span
-                        className="font-mono text-xs text-muted-text"
-                        suppressHydrationWarning
-                      >
-                        {modKey} K
-                      </span>
-                    </button>
-                    <Link href={linksHref} className={auxLink}>
+                  <span className={menuRowIndex} dir="ltr">
+                    ⌕
+                  </span>
+                  <span className={menuRowLabel}>{palette.trigger}</span>
+                  <Icon name="arrowRight" className={menuRowArrow} />
+                </button>
+
+                {/* Action footer: quick links + language + theme + close */}
+                <div
+                  className="mt-auto pt-6"
+                  style={{ animationDelay: `${80 + (sections.length + 1) * 50}ms` }}
+                >
+                  <div className="mb-4 flex items-center gap-2" aria-hidden="true">
+                    <span className="font-mono text-[10px] font-semibold tracking-[0.2em] text-muted-text uppercase">
+                      {labels.allLinks}
+                    </span>
+                    <span className="h-px flex-1 bg-hairline"></span>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <Link href={linksHref} className={`${auxLink} rounded-lg py-2`}>
                       <Icon name="externalLink" className="size-4" />
                       {labels.allLinks}
                     </Link>
-                    <a href={CV_PATH} download className={auxLink}>
+                    <a href={CV_PATH} download className={`${auxLink} rounded-lg py-2`}>
                       <Icon name="fileDown" className="size-4" />
                       {labels.resume}
                     </a>
-                    <div className="grid grid-cols-2 gap-2 lg:flex lg:items-center lg:gap-2">
-                      <LanguageSwitcher {...languageSwitch} className="max-lg:w-full" />
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-2 gap-2">
+                    <LanguageSwitcher {...languageSwitch} />
+                    <ThemeToggle
+                      id="darkModeToggle"
+                      labels={theme}
+                      className={themeButton}
+                      iconClassName="size-5"
+                    />
+                  </div>
+
+                  {/* Bottom close: thumb-reach dismiss */}
+                  <button
+                    type="button"
+                    className="mt-4 flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-hairline text-sm font-medium text-light-text transition-colors duration-200 hover:border-signal hover:text-signal active:scale-[0.98]"
+                    onClick={closeMenu}
+                  >
+                    <Icon name="x" className="size-4" />
+                    Close
+                  </button>
+                </div>
+              </div>
+
+              {/* Desktop: the standard inline row (unchanged) */}
+              <div className="hidden lg:block">
+                <ul className="flex list-none items-center">
+                  {sections.map((section) => {
+                    const active = activeSection === section.href.slice(1);
+                    return (
+                      <li key={section.href}>
+                        <a
+                          className={sectionLink(active)}
+                          href={section.href}
+                          aria-current={active ? "page" : undefined}
+                        >
+                          {labels[section.labelKey]}
+                        </a>
+                      </li>
+                    );
+                  })}
+
+                  <li className="ms-2">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={openPalette}
+                        aria-label={palette.trigger}
+                        className={paletteButton}
+                      >
+                        <Icon name="search" className="size-4" />
+                        <span
+                          className="font-mono text-xs text-muted-text"
+                          suppressHydrationWarning
+                        >
+                          {modKey} K
+                        </span>
+                      </button>
+                      <Link href={linksHref} className={auxLink}>
+                        <Icon name="externalLink" className="size-4" />
+                        {labels.allLinks}
+                      </Link>
+                      <a href={CV_PATH} download className={auxLink}>
+                        <Icon name="fileDown" className="size-4" />
+                        {labels.resume}
+                      </a>
+                      <LanguageSwitcher {...languageSwitch} />
                       <ThemeToggle
                         id="darkModeToggle"
                         labels={theme}
@@ -298,9 +382,9 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                         iconClassName="size-5"
                       />
                     </div>
-                  </div>
-                </li>
-              </ul>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
