@@ -203,7 +203,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
       {menuOpen && (
         <div
           ref={scrimRef}
-          className="fixed inset-0 z-[1029] nav-scrim opacity-0 transition-opacity duration-300 motion-reduce:transition-none print:hidden"
+          className="fixed inset-0 z-[1029] opacity-0 nav-scrim transition-opacity duration-300 motion-reduce:transition-none print:hidden"
           onClick={closeMenu}
           aria-hidden="true"
         ></div>
@@ -217,7 +217,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
           menuOpen
             ? "border-hairline shadow-xs max-lg:nav-menu-glass"
             : scrolled
-              ? "border-hairline shadow-xs nav-glass hover:nav-glass-hover"
+              ? "border-hairline nav-glass shadow-xs hover:nav-glass-hover"
               : "border-transparent bg-(--c-page)"
         }`}
         aria-label={labels.mainNavigation}
@@ -252,88 +252,90 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
             }`}
             id="navbarNav"
           >
-            <div
-              className="min-h-0 max-lg:max-h-[calc(100dvh-5rem)] max-lg:overflow-y-auto max-lg:overscroll-contain max-lg:pb-[env(safe-area-inset-bottom)] max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden lg:overflow-visible lg:ms-auto"
-            >
-              <div className="mt-3 flex flex-col border-t border-hairline px-4 pt-4 pb-4 lg:hidden [@media(min-height:721px)]:pt-5 [@media(min-height:721px)]:pb-6">
-                <nav aria-label={labels.mainNavigation} className="flex flex-col gap-1">
-                  {sections.map((section, index) => {
-                    const active = activeSection === section.href.slice(1);
-                    return (
-                      <a
-                        key={section.href}
-                        href={section.href}
-                        aria-current={active ? "page" : undefined}
-                        style={{ animationDelay: `${80 + index * 50}ms` }}
-                        className={`${menuRow} ${active ? "bg-light-bg" : ""} ${
-                          menuOpen ? "motion-safe:animate-menu-item-in" : ""
-                        }`}
-                      >
-                        <span className={menuRowIndex} dir="ltr">
-                          {String(index + 1).padStart(2, "0")}
-                        </span>
-                        <span className={active ? `${menuRowLabel} text-secondary` : menuRowLabel}>
-                          {labels[section.labelKey]}
-                        </span>
-                        <Icon name="arrowRight" className={menuRowArrow} />
-                      </a>
-                    );
-                  })}
-                </nav>
+            <div className="min-h-0 max-lg:max-h-[calc(100dvh-5rem)] max-lg:[scrollbar-width:none] max-lg:overflow-y-auto max-lg:overscroll-contain max-lg:pb-[env(safe-area-inset-bottom)] lg:ms-auto lg:overflow-visible max-lg:[&::-webkit-scrollbar]:hidden">
+              <div className="mt-3 border-t border-hairline px-2.5 pt-3 pb-3 lg:hidden">
+                <div className="flex flex-col rounded-2xl border border-hairline nav-menu-panel p-3">
+                  <nav aria-label={labels.mainNavigation} className="flex flex-col gap-1">
+                    {sections.map((section, index) => {
+                      const active = activeSection === section.href.slice(1);
+                      return (
+                        <a
+                          key={section.href}
+                          href={section.href}
+                          aria-current={active ? "page" : undefined}
+                          style={{ animationDelay: `${80 + index * 50}ms` }}
+                          className={`${menuRow} ${active ? "bg-surface/80 ring-1 ring-hairline" : ""} ${
+                            menuOpen ? "motion-safe:animate-menu-item-in" : ""
+                          }`}
+                        >
+                          <span className={menuRowIndex} dir="ltr">
+                            {String(index + 1).padStart(2, "0")}
+                          </span>
+                          <span
+                            className={active ? `${menuRowLabel} text-secondary` : menuRowLabel}
+                          >
+                            {labels[section.labelKey]}
+                          </span>
+                          <Icon name="arrowRight" className={menuRowArrow} />
+                        </a>
+                      );
+                    })}
+                  </nav>
 
-                <button
-                  type="button"
-                  className={`${menuRow} mt-2 cursor-pointer`}
-                  style={{ animationDelay: `${80 + sections.length * 50}ms` }}
-                  onClick={() => {
-                    setMenuOpen(false);
-                    openPalette();
-                  }}
-                >
-                  <span className={menuRowIndex} dir="ltr">
-                    ⌕
-                  </span>
-                  <span className={menuRowLabel}>{palette.trigger}</span>
-                  <Icon name="arrowRight" className={menuRowArrow} />
-                </button>
-
-                <div
-                  className="mt-auto pt-4"
-                  style={{ animationDelay: `${80 + (sections.length + 1) * 50}ms` }}
-                >
-                  <div className="mb-3 flex items-center gap-2" aria-hidden="true">
-                    <span className="font-mono text-[10px] font-semibold tracking-[0.2em] text-muted-text uppercase">
-                      {labels.allLinks}
+                  <button
+                    type="button"
+                    className={`${menuRow} mt-2 cursor-pointer`}
+                    style={{ animationDelay: `${80 + sections.length * 50}ms` }}
+                    onClick={() => {
+                      setMenuOpen(false);
+                      openPalette();
+                    }}
+                  >
+                    <span className={menuRowIndex} dir="ltr">
+                      ⌕
                     </span>
-                    <span className="h-px flex-1 bg-hairline"></span>
-                  </div>
+                    <span className={menuRowLabel}>{palette.trigger}</span>
+                    <Icon name="arrowRight" className={menuRowArrow} />
+                  </button>
 
-                  <div className="grid grid-cols-2 gap-2">
-                    <Link
-                      href={linksHref}
-                      className={`${auxLink} justify-center rounded-lg border border-hairline py-2`}
-                    >
-                      <Icon name="externalLink" className="size-4" />
-                      {labels.allLinks}
-                    </Link>
-                    <a
-                      href={CV_PATH}
-                      download
-                      className={`${auxLink} justify-center rounded-lg border border-hairline py-2`}
-                    >
-                      <Icon name="fileDown" className="size-4" />
-                      {labels.resume}
-                    </a>
-                  </div>
+                  <div
+                    className="mt-auto pt-4"
+                    style={{ animationDelay: `${80 + (sections.length + 1) * 50}ms` }}
+                  >
+                    <div className="mb-3 flex items-center gap-2" aria-hidden="true">
+                      <span className="font-mono text-[10px] font-semibold tracking-[0.2em] text-muted-text uppercase">
+                        {labels.allLinks}
+                      </span>
+                      <span className="h-px flex-1 bg-hairline"></span>
+                    </div>
 
-                  <div className="mt-2 grid grid-cols-2 gap-2">
-                    <LanguageSwitcher {...languageSwitch} />
-                    <ThemeToggle
-                      id="darkModeToggle"
-                      labels={theme}
-                      className={themeButton}
-                      iconClassName="size-5"
-                    />
+                    <div className="grid grid-cols-2 gap-2">
+                      <Link
+                        href={linksHref}
+                        className={`${auxLink} justify-center rounded-lg border border-hairline bg-surface/70 py-2`}
+                      >
+                        <Icon name="externalLink" className="size-4" />
+                        {labels.allLinks}
+                      </Link>
+                      <a
+                        href={CV_PATH}
+                        download
+                        className={`${auxLink} justify-center rounded-lg border border-hairline bg-surface/70 py-2`}
+                      >
+                        <Icon name="fileDown" className="size-4" />
+                        {labels.resume}
+                      </a>
+                    </div>
+
+                    <div className="mt-2 grid grid-cols-2 gap-2">
+                      <LanguageSwitcher {...languageSwitch} />
+                      <ThemeToggle
+                        id="darkModeToggle"
+                        labels={theme}
+                        className={themeButton}
+                        iconClassName="size-5"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

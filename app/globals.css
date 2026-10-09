@@ -517,6 +517,24 @@ html[lang="ar"] {
   -webkit-backdrop-filter: blur(22px) saturate(1.5);
 }
 
+@utility nav-menu-panel {
+  background-color: color-mix(
+    in srgb,
+    color-mix(in srgb, var(--c-page) 90%, black) 95%,
+    transparent
+  );
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--c-secondary) 7%, transparent),
+    transparent 60%
+  );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 14%, transparent),
+    0 14px 30px -14px rgb(0 0 0 / 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
 @utility nav-glass-hover {
   background-color: color-mix(in srgb, var(--c-page) 88%, transparent);
   backdrop-filter: blur(20px) saturate(1.5);
