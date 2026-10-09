@@ -255,7 +255,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
             <div className="min-h-0 max-lg:max-h-[calc(100dvh-5rem)] max-lg:[scrollbar-width:none] max-lg:overflow-y-auto max-lg:overscroll-contain max-lg:pb-[env(safe-area-inset-bottom)] lg:ms-auto lg:overflow-visible max-lg:[&::-webkit-scrollbar]:hidden">
               <div className="mt-3 border-t border-hairline px-2.5 pt-3 pb-3 lg:hidden">
                 <div className="flex flex-col rounded-2xl border border-hairline nav-menu-panel p-3">
-                  <nav aria-label={labels.mainNavigation} className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-1">
                     {sections.map((section, index) => {
                       const active = activeSection === section.href.slice(1);
                       return (
@@ -280,7 +280,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                         </a>
                       );
                     })}
-                  </nav>
+                  </div>
 
                   <button
                     type="button"
@@ -330,7 +330,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                     <div className="mt-2 grid grid-cols-2 gap-2">
                       <LanguageSwitcher {...languageSwitch} />
                       <ThemeToggle
-                        id="darkModeToggle"
+                        id="darkModeToggleMobile"
                         labels={theme}
                         className={themeButton}
                         iconClassName="size-5"

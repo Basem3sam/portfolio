@@ -239,14 +239,14 @@ test("navbar highlights the section navigated to, not the previous one", async (
   // Scope to the main navbar (the footer nav shares the same hrefs)
   const mainNav = page.getByRole("navigation", { name: "Main navigation" });
 
-  const experience = mainNav.locator('a[href="#experience"]');
+  const experience = mainNav.locator('a[href="#experience"]:visible');
   await experience.click();
 
   // The destination section's link becomes current (aria-current="page")
   await expect(experience).toHaveAttribute("aria-current", "page");
 
   // And the previous section does NOT retain it
-  const stack = mainNav.locator('a[href="#stack"]');
+  const stack = mainNav.locator('a[href="#stack"]:visible');
   await expect(stack).not.toHaveAttribute("aria-current", "page");
 });
 
@@ -260,11 +260,14 @@ test("scroll-spy tracks quick scrolling between consecutive sections", async ({ 
   await page.evaluate(() =>
     window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" }),
   );
-  await expect(mainNav.locator('a[href="#contact"]')).toHaveAttribute("aria-current", "page");
+  await expect(mainNav.locator('a[href="#contact"]:visible')).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
 
   // Jump back to the top region - no section should claim current
   await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
-  await expect(mainNav.locator('a[href="#contact"]')).not.toHaveAttribute(
+  await expect(mainNav.locator('a[href="#contact"]:visible')).not.toHaveAttribute(
     "aria-current",
     "page",
   );
