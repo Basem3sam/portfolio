@@ -14,9 +14,7 @@
   --animate-hero-in-2: heroIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) 500ms both;
   --animate-hero-in-3: heroIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) 900ms both;
   --animate-rule-grow: ruleGrow 0.7s cubic-bezier(0.4, 0, 0.2, 1) 150ms backwards;
-    --animate-glow-breathe: glowBreathe 16s ease-in-out infinite;
-    --animate-pop-in: popIn 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
-  --animate-attention: ringPulse 2s ease-in-out 3;
+  --animate-glow-breathe: glowBreathe 16s ease-in-out infinite;
   --animate-reveal-up: revealUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) backwards;
   --animate-github-card: githubCard 0.6s cubic-bezier(0.4, 0, 0.2, 1) backwards;
   --animate-scanline: scanline 8s linear infinite;
@@ -45,6 +43,8 @@
   --animate-matrix-fall: matrixFall 3s linear infinite;
   --animate-symbol-float: symbolFloat 4s ease-in-out infinite;
   --animate-master-pop: masterPop 1s ease-out;
+  --animate-pop-in: popIn 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+  --animate-attention: ringPulse 2s ease-in-out 3;
 
   @keyframes heroIn {
     from {
@@ -63,20 +63,13 @@
     }
   }
 
-    @keyframes glowBreathe {
+  @keyframes glowBreathe {
     0%,
     100% {
       opacity: 0.65;
     }
     50% {
       opacity: 1;
-    }
-  }
-
-  @keyframes popIn {
-    from {
-      opacity: 0;
-      transform: translateY(6px) scale(0.96);
     }
   }
 
@@ -358,6 +351,13 @@
       opacity: 1;
     }
   }
+
+  @keyframes popIn {
+    from {
+      opacity: 0;
+      transform: translateY(6px) scale(0.96);
+    }
+  }
 }
 
 @theme inline {
@@ -400,16 +400,24 @@
   --c-dark-text: #201b12;
   --c-light-text: #5a5244;
   --c-muted-text: #6a6252;
+  --c-inner-light: rgba(255, 255, 255, 0.5);
   --sh-xs: 0 1px 2px rgba(32, 27, 18, 0.06), inset 0 1px 0 var(--c-inner-light);
-  --sh-sm: 0 1px 2px rgba(32, 27, 18, 0.05), 0 2px 8px rgba(32, 27, 18, 0.06), inset 0 1px 0 var(--c-inner-light);
-  --sh-md: 0 2px 4px rgba(32, 27, 18, 0.04), 0 8px 20px rgba(32, 27, 18, 0.08), inset 0 1px 0 var(--c-inner-light);
-  --sh-lg: 0 4px 8px rgba(32, 27, 18, 0.04), 0 16px 32px rgba(32, 27, 18, 0.1), inset 0 1px 0 var(--c-inner-light);
-  --sh-xl: 0 8px 16px rgba(32, 27, 18, 0.05), 0 24px 48px rgba(32, 27, 18, 0.12), inset 0 1px 0 var(--c-inner-light);
+  --sh-sm: 0 1px 2px rgba(32, 27, 18, 0.05), 0 2px 8px rgba(32, 27, 18, 0.06),
+    inset 0 1px 0 var(--c-inner-light);
+  --sh-md: 0 2px 4px rgba(32, 27, 18, 0.04), 0 8px 20px rgba(32, 27, 18, 0.08),
+    inset 0 1px 0 var(--c-inner-light);
+  --sh-lg: 0 4px 8px rgba(32, 27, 18, 0.04), 0 16px 32px rgba(32, 27, 18, 0.1),
+    inset 0 1px 0 var(--c-inner-light);
+  --sh-xl: 0 8px 16px rgba(32, 27, 18, 0.05), 0 24px 48px rgba(32, 27, 18, 0.12),
+    inset 0 1px 0 var(--c-inner-light);
+  --bg-ambient: radial-gradient(
+    ellipse 120% 50% at 50% -20%,
+    rgba(255, 255, 255, 0.55) 0%,
+    transparent 55%
+  );
+  --grain-opacity: 0.015;
   --font-body: var(--font-plex-sans, "Segoe UI"), "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   --font-mono-body: var(--font-plex-mono, "Courier New"), "Courier New", monospace;
-  --bg-ambient: radial-gradient(ellipse 120% 50% at 50% -20%, rgba(255, 255, 255, 0.55) 0%, transparent 55%);
-  --grain-opacity: 0.015;
-  --c-inner-light: rgba(255, 255, 255, 0.5);
 }
 
 html[lang="ar"] {
@@ -431,14 +439,24 @@ html[lang="ar"] {
   --c-dark-text: #f2f1ee;
   --c-light-text: #b8bcc7;
   --c-muted-text: #9298a5;
+  --c-inner-light: rgba(244, 236, 221, 0.045);
   --sh-xs: 0 1px 2px rgba(0, 0, 0, 0.3), inset 0 1px 0 var(--c-inner-light);
-  --sh-sm: 0 1px 3px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.3), inset 0 1px 0 var(--c-inner-light);
+  --sh-sm: 0 1px 3px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 var(--c-inner-light);
   --sh-md: 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 var(--c-inner-light);
   --sh-lg: 0 10px 26px rgba(0, 0, 0, 0.45), inset 0 1px 0 var(--c-inner-light);
   --sh-xl: 0 18px 42px rgba(0, 0, 0, 0.55), inset 0 1px 0 var(--c-inner-light);
-  --bg-ambient: radial-gradient(ellipse 130% 60% at 50% -15%, rgba(45, 212, 191, 0.025) 0%, transparent 55%), radial-gradient(ellipse 100% 45% at 50% 115%, rgba(251, 191, 36, 0.02) 0%, transparent 50%);
+  --bg-ambient: radial-gradient(
+      ellipse 130% 60% at 50% -15%,
+      rgba(45, 212, 191, 0.025) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 100% 45% at 50% 115%,
+      rgba(251, 191, 36, 0.02) 0%,
+      transparent 50%
+    );
   --grain-opacity: 0.028;
-  --c-inner-light: rgba(244, 236, 221, 0.045);
 }
 
 @utility container {
@@ -537,7 +555,7 @@ html[lang="ar"] {
     z-index: 2147483647;
     pointer-events: none;
     opacity: var(--grain-opacity);
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3e%3cfilter id='n'%3e%3cfeturbulence type='fractalnoise' basefrequency='0.9' numoctaves='4' stitchtiles='stitch'/%3e%3c/filter%3e%3crect width='100%25' height='100%25' filter='url(%23n)'/%3e%3c/svg%3e");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     background-repeat: repeat;
   }
 
@@ -557,14 +575,20 @@ html[lang="ar"] {
     color: var(--c-on-secondary);
   }
 
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(36, 28, 17, 0.4) transparent;
-  }
+  /* ================================================================
+     SCROLLBARS — completely rebuilt.
+     The old code set scrollbar-color on * which silently disabled
+     every ::-webkit-scrollbar pseudo-element in Chromium, and
+     .dark-mode * never matched html (the page scrollbar's owner)
+     because html is the PARENT of body.dark-mode, not a descendant.
+     The page scrollbar was permanently stuck with the light value.
 
-  .dark-mode * {
-    scrollbar-color: #fbbf24 transparent;
-  }
+     Now: the universal pseudo-elements style all scrollbars (page +
+     inner containers) in light mode. html:has(.dark-mode) overrides
+     the PAGE scrollbar in dark mode (html owns it). .dark-mode
+     descendants override INNER scrollbars in dark mode. No
+     scrollbar-color is set anywhere — the pseudo-elements live.
+     ================================================================ */
 
   ::-webkit-scrollbar {
     width: 10px;
@@ -575,22 +599,40 @@ html[lang="ar"] {
   }
 
   ::-webkit-scrollbar-thumb {
-    background-color: rgba(163, 72, 9, 0.5);
+    background: rgba(163, 72, 9, 0.5);
     border: 2px solid transparent;
     border-radius: 10px;
     background-clip: padding-box;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(163, 72, 9, 0.75);
+    background: rgba(163, 72, 9, 0.75);
   }
 
   ::-webkit-scrollbar-thumb:active {
-    background-color: rgba(25, 26, 30, 0.8);
+    background: rgba(163, 72, 9, 0.85);
   }
 
+  /* Dark mode: PAGE scrollbar (html owns it; :has() detects the
+     body-level .dark-mode class from the parent html element) */
+  html:has(.dark-mode)::-webkit-scrollbar-track {
+    background: var(--c-page);
+  }
+
+  html:has(.dark-mode)::-webkit-scrollbar-thumb {
+    background: #fbbf24;
+    border: 2px solid var(--c-page);
+  }
+
+  html:has(.dark-mode)::-webkit-scrollbar-thumb:hover {
+    background: #fde68a;
+  }
+
+  /* Dark mode: INNER scrollbars (terminal output, overflow containers) —
+     these ARE descendants of body.dark-mode, so the descendant selector
+     reaches them directly */
   .dark-mode ::-webkit-scrollbar-track {
-    background: var(--c-light-bg);
+    background: var(--c-page);
   }
 
   .dark-mode ::-webkit-scrollbar-thumb {
