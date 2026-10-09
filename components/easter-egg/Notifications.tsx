@@ -157,7 +157,7 @@ function MasterToast({ closing, onDone }: MasterToastProps) {
   return (
     <div
       dir="ltr"
-      className={`fixed inset-0 z-[10004] m-auto h-fit w-fit max-w-[460px] min-w-[380px] cursor-pointer overflow-hidden rounded-2xl border-2 border-[rgba(251,191,36,0.4)] bg-[#131007] px-[30px] py-[35px] text-center font-mono text-[#e8e6e1] shadow-[0_0_0_2px_rgba(251,191,36,0.3),0_10px_40px_rgba(0,0,0,0.7)] transition-opacity duration-[800ms] before:pointer-events-none before:absolute before:inset-0 before:z-[1] before:bg-[linear-gradient(transparent_50%,rgba(251,191,36,0.02)_50%)] before:bg-[length:100%_4px] before:content-[''] max-[481px]:max-w-[90%] max-[481px]:min-w-[320px] max-[481px]:px-5 max-[481px]:py-[25px] ${shown ? "animate-master-pop opacity-100" : "pointer-events-none opacity-0"}`}
+      className={`fixed inset-0 z-[10006] m-auto h-fit w-fit max-w-[460px] min-w-[380px] cursor-pointer overflow-hidden rounded-2xl border-2 border-[rgba(251,191,36,0.4)] bg-[#131007] px-[30px] py-[35px] text-center font-mono text-[#e8e6e1] shadow-[0_0_0_2px_rgba(251,191,36,0.3),0_10px_40px_rgba(0,0,0,0.7)] transition-opacity duration-[800ms] before:pointer-events-none before:absolute before:inset-0 before:z-[1] before:bg-[linear-gradient(transparent_50%,rgba(251,191,36,0.02)_50%)] before:bg-[length:100%_4px] before:content-[''] max-[481px]:max-w-[90%] max-[481px]:min-w-[320px] max-[481px]:px-5 max-[481px]:py-[25px] ${shown ? "animate-master-pop opacity-100" : "pointer-events-none opacity-0"}`}
       onClick={() => dismiss(500)}
     >
       <div className="relative z-[2]">
