@@ -218,7 +218,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
 
           <button
             type="button"
-            className="flex size-11 cursor-pointer items-center justify-center rounded-md border border-hairline bg-surface/50 text-dark-text transition-all duration-200 hover:border-signal hover:text-signal active:scale-95 lg:hidden"
+            className="flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md border border-hairline bg-surface/50 text-dark-text transition-all duration-200 hover:border-signal hover:text-signal active:scale-95 lg:hidden"
             aria-controls="navbarNav"
             aria-expanded={menuOpen}
             aria-label={labels.toggleNavigation}
@@ -236,16 +236,16 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
             id="navbarNav"
           >
             <div
-              className={`min-h-0 overflow-y-auto overscroll-contain transition-colors duration-300 lg:overflow-visible lg:ms-auto ${
+              className={`min-h-0 transition-colors duration-300 lg:overflow-visible lg:ms-auto ${
                 menuOpen
                   ? "max-lg:bg-(--c-page) max-lg:shadow-lg"
                   : "bg-transparent"
               }`}
             >
               {/* Mobile: the panel content, with breathing room and its own composition */}
-              <div className="flex min-h-[calc(100dvh_-_140px)] flex-col px-4 pt-4 pb-6 lg:hidden">
+              <div className="flex max-h-[calc(100dvh_-_4.5rem)] min-h-[180px] flex-col overflow-y-auto overscroll-contain px-4 pt-5 pb-6 lg:hidden">
                 {/* Section rows — the primary navigation, as designed tappable rows */}
-                <nav aria-label={labels.mainNavigation} className="flex flex-col gap-1">
+                <nav aria-label={labels.mainNavigation} className="flex flex-col gap-1 pt-2">
                   {sections.map((section, index) => {
                     const active = activeSection === section.href.slice(1);
                     return (
