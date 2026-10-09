@@ -9,6 +9,7 @@ type LinkCardProps = {
   external?: boolean;
   download?: boolean;
   index?: number;
+  ltr?: boolean;
 };
 
 const card =
@@ -22,6 +23,7 @@ export default function LinkCard({
   external,
   download,
   index = 0,
+  ltr = false,
 }: LinkCardProps) {
   const style = { animationDelay: `${index * 70}ms` };
 
@@ -32,7 +34,12 @@ export default function LinkCard({
       </span>
       <span className="min-w-0 flex-1">
         <span className="block font-semibold text-dark-text">{title}</span>
-        <span className="block truncate text-sm text-light-text">{description}</span>
+        <span
+          className="block truncate text-sm text-light-text"
+          dir={ltr ? "ltr" : undefined}
+        >
+          {description}
+        </span>
       </span>
       <Icon
         name="arrowRight"

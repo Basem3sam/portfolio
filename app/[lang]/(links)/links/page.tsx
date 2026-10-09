@@ -55,6 +55,7 @@ type LinkItem = {
   description: string;
   external?: boolean;
   download?: boolean;
+  ltr?: boolean;
 };
 
 export default async function LinksPage({ params }: LinksPageProps) {
@@ -98,6 +99,7 @@ export default async function LinksPage({ params }: LinksPageProps) {
       icon: "phone",
       title: t.cards.phone,
       description: PHONE_DISPLAY,
+      ltr: true,
     },
     {
       href: TROSC_URL,
