@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import CountUp from "@/components/ui/CountUp";
 import Icon, { type IconName } from "@/components/ui/Icon";
 import ProfileImage from "@/components/ui/ProfileImage";
@@ -101,7 +102,19 @@ export default function Hero({ dict }: HeroProps) {
               <span aria-hidden="true" className="hidden text-muted-text xl:inline">
                 —
               </span>
-              <span className="text-balance max-lg:text-center">{dict.statusDetail}</span>
+              {/* Split on the dictionary's " · " so a wrap never starts a line with the dot. */}
+              <span className="flex flex-col items-center gap-0.5 text-center lg:items-start lg:text-start xl:flex-row xl:gap-x-2">
+                {dict.statusDetail.split(" · ").map((part, index) => (
+                  <Fragment key={part}>
+                    {index > 0 && (
+                      <span aria-hidden="true" className="hidden text-muted-text xl:inline">
+                        ·
+                      </span>
+                    )}
+                    <span className="text-balance">{part}</span>
+                  </Fragment>
+                ))}
+              </span>
             </p>
 
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
