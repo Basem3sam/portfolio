@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import ThemeToggle from "@/components/behavior/ThemeToggle";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import { useCommandPalette } from "@/components/palette/CommandPalette";
@@ -34,6 +34,10 @@ const sections: { href: string; labelKey: keyof Dictionary["nav"] }[] = [
 
 const sectionIds = sections.map((section) => section.href.slice(1));
 
+// Fired by ScrollManager after a smooth-scroll navigation settles, so the
+// spy syncs to the destination immediately.
+const NAV_SYNC_EVENT = "navbar-sync-section";
+
 const sectionLink = (active: boolean) =>
   `relative flex min-h-11 items-center px-2.5 text-sm font-medium transition-colors duration-200 after:absolute after:inset-x-2.5 after:bottom-2 after:h-0.5 after:rounded-full after:transition-transform after:duration-200 after:content-[''] max-lg:after:hidden ${
     active
@@ -56,8 +60,57 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [modKey] = useState(getModKey);
+  const navRef = useRef<HTMLElement>(null);
   const linksHref = locale === "ar" ? "/ar/links" : "/links";
 
+  // Scroll-spy: the active section is the LAST section whose top edge has
+  // crossed above the detection line (just below the navbar). The previous
+  // "first section spanning the line" approach failed whenever a tall
+  // previous section's body still crossed the line after scrolling to the
+  // next section's header - which is every section on mobile.
+  useEffect(() => {
+    let frame = 0;
+
+    const detectionLine = () => {
+      const nav = navRef.current;
+      return nav ? nav.offsetHeight + 16 : 96;
+    };
+
+    const update = () => {
+      frame = 0;
+      const line = detectionLine();
+      let current: string | null = null;
+
+      for (const section of document.querySelectorAll<HTMLElement>("section[id]")) {
+        if (section.getBoundingClientRect().top <= line) {
+          current = section.id;
+        } else {
+          break;
+        }
+      }
+
+      setActiveSection(current && sectionIds.includes(current) ? current : null);
+    };
+
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    window.addEventListener(NAV_SYNC_EVENT, update);
+
+    return () => {
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      window.removeEventListener(NAV_SYNC_EVENT, update);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  // Scrolled state: IntersectionObserver on #hero (homepage), scroll
+  // listener fallback for pages without #hero (case study).
   useEffect(() => {
     const hero = document.getElementById("hero");
 
@@ -87,41 +140,13 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    let frame = 0;
-
-    const update = () => {
-      frame = 0;
-      const current = Array.from(document.querySelectorAll<HTMLElement>("section[id]")).find(
-        (section) => {
-          const rect = section.getBoundingClientRect();
-          return rect.top <= 100 && rect.bottom > 100;
-        },
-      );
-      setActiveSection(current && sectionIds.includes(current.id) ? current.id : null);
-    };
-
-    const schedule = () => {
-      if (!frame) frame = requestAnimationFrame(update);
-    };
-
-    update();
-    window.addEventListener("scroll", schedule, { passive: true });
-    window.addEventListener("resize", schedule);
-
-    return () => {
-      window.removeEventListener("scroll", schedule);
-      window.removeEventListener("resize", schedule);
-      if (frame) cancelAnimationFrame(frame);
-    };
-  }, []);
-
   const handleClick = (event: MouseEvent<HTMLElement>) => {
     if ((event.target as Element).closest('a[href^="#"]')) setMenuOpen(false);
   };
 
   return (
     <nav
+      ref={navRef}
       className={`fixed inset-x-0 top-0 z-[1030] border-b transition-[padding,background-color,border-color,box-shadow] duration-300 print:hidden ${
         scrolled
           ? "border-hairline py-2 shadow-xs nav-glass"

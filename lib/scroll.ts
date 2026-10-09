@@ -12,6 +12,7 @@ export function scrollToPosition(top: number, onComplete?: () => void) {
   if (Math.abs(top - window.scrollY) < 2 || prefersReducedMotion()) {
     window.scrollTo({ top, behavior: "instant" });
     onComplete?.();
+    window.dispatchEvent(new CustomEvent("navbar-sync-section"));
     return () => {};
   }
 

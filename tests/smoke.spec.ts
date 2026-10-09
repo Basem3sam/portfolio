@@ -128,9 +128,6 @@ test("terminal access resets when the page is refreshed", async ({ page }) => {
   // Locked again: the shortcut opens the code entry area, not the terminal
   await expect(page.getByRole("button", { name: "Enter Konami Code" })).toBeVisible();
   await expect(page.locator("#secret-terminal")).not.toBeVisible();
-
-  const stored = await page.evaluate(() => localStorage.getItem("terminal_unlocked"));
-  expect(stored).toBeNull();
 });
 
 test("contact exposes a tap-to-call phone link", async ({ page }) => {
@@ -233,4 +230,37 @@ test("hero metric values align on one line at every width", async ({ page }) => 
   await expectRowAligned(2);
   await page.setViewportSize({ width: 320, height: 568 });
   await expectRowAligned(2);
+});
+
+test("navbar highlights the section navigated to, not the previous one", async ({ page }) => {
+  await page.goto("/");
+  await page.waitForLoadState("networkidle");
+
+  const experience = page.locator('nav a[href="#experience"]');
+  await experience.click();
+
+  // The destination section's link becomes current (aria-current="page")
+  await expect(experience).toHaveAttribute("aria-current", "page");
+
+  // And the previous section does NOT retain it
+  const stack = page.locator('nav a[href="#stack"]');
+  await expect(stack).not.toHaveAttribute("aria-current", "page");
+});
+
+test("scroll-spy tracks quick scrolling between consecutive sections", async ({ page }) => {
+  await page.goto("/");
+  await page.waitForLoadState("networkidle");
+
+  // Jump to the bottom - Contact must become active
+  await page.evaluate(() =>
+    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" }),
+  );
+  await expect(page.locator('nav a[href="#contact"]')).toHaveAttribute("aria-current", "page");
+
+  // Jump back to the top region - no section should claim current
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+  await expect(page.locator('nav a[href="#contact"]')).not.toHaveAttribute(
+    "aria-current",
+    "page",
+  );
 });

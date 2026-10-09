@@ -64,6 +64,7 @@ export default function ScrollManager() {
           target.setAttribute("tabindex", "-1");
           target.focus({ preventScroll: true });
         }, 100);
+        window.dispatchEvent(new CustomEvent("navbar-sync-section"));
       });
     };
 
