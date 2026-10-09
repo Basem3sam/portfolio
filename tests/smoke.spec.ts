@@ -23,6 +23,7 @@ test("homepage renders the pitch with correct facts", async ({ page }) => {
   await expect(page.locator("h1")).toContainText("Basem Esam");
   await expect(page.locator("#hero")).toContainText("100+");
   await expect(page.locator("#hero")).toContainText("200+");
+  await expect(page.locator("#hero")).toContainText("95%+");
   await expect(page.locator("#work")).toContainText("trosc-backend");
   await expect(page.locator("#work")).toContainText("production");
 });

@@ -51,7 +51,7 @@ const ar: Dictionary = {
       { value: 100, suffix: "+", label: "نقطة نهاية في الإنتاج" },
       { value: 200, suffix: "+", label: "عضو مستفيد" },
       { value: 7, suffix: "", label: "طبقات أمان" },
-      { value: 11, suffix: "", label: "مضيفات وسائط موثوقة" },
+      { value: 95, suffix: "%+", label: "تغطية الاختبارات" },
     ],
     viewWork: "استعرض أعمالي",
     downloadCv: "تحميل السيرة الذاتية",

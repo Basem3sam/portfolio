@@ -112,7 +112,7 @@ const en = {
       { value: 100, suffix: "+", label: "endpoints in production" },
       { value: 200, suffix: "+", label: "members served" },
       { value: 7, suffix: "", label: "security layers" },
-      { value: 11, suffix: "", label: "trusted media hosts" },
+      { value: 95, suffix: "%+", label: "test coverage" },
     ],
     viewWork: "View my work",
     downloadCv: "Download CV",
