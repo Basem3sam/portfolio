@@ -40,7 +40,7 @@ export default function Footer({ locale = "en" }: FooterProps) {
           </div>
 
           <nav
-            aria-label={dict.nav.mainNavigation}
+            aria-label={dict.footer.navLabel}
             className="grid w-full grid-cols-3 gap-1.5 sm:grid-cols-6 md:w-auto md:grid-cols-none md:flex md:flex-wrap md:items-center md:gap-x-6 md:gap-y-2"
           >
             {quickLinks.map(({ href, key }) => (

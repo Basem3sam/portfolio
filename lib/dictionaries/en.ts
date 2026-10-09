@@ -92,6 +92,7 @@ const en = {
   footer: {
     rights: "All rights reserved.",
     openTerminal: "Open the secret terminal",
+    navLabel: "Footer navigation",
   },
   notFound: {
     label: "HTTP 404",

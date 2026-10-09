@@ -51,6 +51,14 @@ test.describe("accessibility", () => {
 
   test("open terminal has no axe violations", async ({ page }) => {
     await page.goto("/");
+
+    // The konami listener attaches when the easter egg mounts - the same
+    // effect marks the hero photo as clickable. Wait for that signal so
+    // keys typed during the hydration gap are not lost (retry flake).
+    await page.waitForFunction(() =>
+      Boolean(document.querySelector("#hero picture img")?.classList.contains("cursor-pointer")),
+    );
+
     for (const key of KONAMI) {
       await page.keyboard.press(key);
     }

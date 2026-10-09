@@ -32,6 +32,7 @@ const ar: Dictionary = {
   footer: {
     rights: "جميع الحقوق محفوظة.",
     openTerminal: "افتح الطرفية السرية",
+    navLabel: "تنقّل التذييل",
   },
   notFound: {
     label: "HTTP 404",
