@@ -31,13 +31,32 @@ export function getCurrentTheme(): Theme {
 
 function updateFavicons(theme: Theme) {
   const icons = FAVICONS[theme];
-  const favicon32 = document.querySelector<HTMLLinkElement>("link[sizes='32x32']");
-  const favicon16 = document.querySelector<HTMLLinkElement>("link[sizes='16x16']");
-  const appleIcon = document.querySelector<HTMLLinkElement>("link[rel='apple-touch-icon']");
 
-  if (favicon32) favicon32.href = icons.png32;
-  if (favicon16) favicon16.href = icons.png16;
-  if (appleIcon) appleIcon.href = icons.apple;
+  // Remove ALL icon links at once, then recreate them fresh. Merely
+  // changing href on an existing <link> doesn't trigger a favicon
+  // re-render in Chrome/Firefox — the browser caches the initial
+  // render and ignores subsequent href mutations. Removing and
+  // re-inserting the elements forces an immediate re-fetch.
+  document
+    .querySelectorAll(
+      'link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]',
+    )
+    .forEach((link) => link.remove());
+
+  const head = document.head;
+
+  const createLink = (rel: string, href: string, sizes?: string, type?: string) => {
+    const link = document.createElement("link");
+    link.rel = rel;
+    link.href = href;
+    if (sizes) link.setAttribute("sizes", sizes);
+    if (type) link.setAttribute("type", type);
+    head.appendChild(link);
+  };
+
+  createLink("icon", icons.png32, "32x32", "image/png");
+  createLink("icon", icons.png16, "16x16", "image/png");
+  createLink("apple-touch-icon", icons.apple, "180x180");
 }
 
 export function applyTheme(theme: Theme) {
