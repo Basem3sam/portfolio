@@ -47,9 +47,9 @@ export default function Hero({ dict }: HeroProps) {
         aria-hidden="true"
       ></div>
 
-      <div className="container relative z-[1]">
+      <div className="relative z-[1] container">
         <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-16">
-          <div className="max-lg:order-2 text-center lg:order-1 lg:text-start">
+          <div className="text-center max-lg:order-2 lg:order-1 lg:text-start">
             <p className="font-mono text-sm font-medium text-secondary motion-safe:animate-hero-in-1">
               <span dir="ltr">{dict.whoami}</span>
               <span
@@ -59,14 +59,14 @@ export default function Hero({ dict }: HeroProps) {
             </p>
             <h1
               id="hero-title"
-              className="mt-4 text-4xl leading-tight font-bold tracking-tight text-dark-text sm:text-5xl motion-safe:animate-hero-in-2"
+              className="mt-4 text-4xl leading-tight font-bold tracking-tight text-dark-text motion-safe:animate-hero-in-2 sm:text-5xl"
             >
               {dict.name}
               <span className="text-secondary" aria-hidden="true">
                 .
               </span>
             </h1>
-            <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-light-text sm:text-xl lg:mx-0 motion-safe:animate-hero-in-3">
+            <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-light-text motion-safe:animate-hero-in-3 sm:text-xl lg:mx-0">
               {dict.lead}
             </p>
 
@@ -74,7 +74,11 @@ export default function Hero({ dict }: HeroProps) {
               {dict.metrics.map((metric, index) => (
                 <div
                   key={metric.label}
-                  style={{ animationDelay: `${900 + index * 120}ms` }}
+                  // Metric tiles are the largest painted hero block, so they are
+                  // frequently the LCP element. Keeping this cascade just behind
+                  // the lead paragraph (320ms) preserves the stagger without
+                  // parking them in an opacity:0 state long enough to cost LCP.
+                  style={{ animationDelay: `${440 + index * 70}ms` }}
                   className="flex flex-col-reverse items-center justify-between gap-1 bg-surface p-4 text-center transition-colors duration-200 hover:bg-light-bg motion-safe:animate-hero-in-1"
                 >
                   <dt className="font-mono text-[11px] leading-snug tracking-wide text-light-text uppercase">

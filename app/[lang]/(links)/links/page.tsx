@@ -122,11 +122,7 @@ export default async function LinksPage({ params }: LinksPageProps) {
 
   return (
     <main className="relative flex min-h-screen flex-col bg-grid">
-      <Link
-        href={homeHref}
-        className={`${floatingButton} start-4`}
-        aria-label={t.backToPortfolio}
-      >
+      <Link href={homeHref} className={`${floatingButton} start-4`} aria-label={t.backToPortfolio}>
         <Icon name="arrowLeft" className="size-5 rtl:rotate-180" />
       </Link>
 
@@ -163,7 +159,9 @@ export default async function LinksPage({ params }: LinksPageProps) {
       </div>
 
       <footer className="py-6 text-center text-sm text-light-text">
-        <p>&copy; {new Date().getFullYear()} Basem Esam. {dict.footer.rights}</p>
+        <p>
+          &copy; {new Date().getFullYear()} Basem Esam. {dict.footer.rights}
+        </p>
       </footer>
     </main>
   );

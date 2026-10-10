@@ -158,15 +158,7 @@ const ar: Dictionary = {
       },
       {
         label: "التشغيل والأدوات",
-        items: [
-          "Docker",
-          "Git",
-          "Linux",
-          "Bash",
-          "Nodemon",
-          "ESLint (Airbnb config)",
-          "Prettier",
-        ],
+        items: ["Docker", "Git", "Linux", "Bash", "Nodemon", "ESLint (Airbnb config)", "Prettier"],
       },
       {
         label: "الواجهة الأمامية",
@@ -324,6 +316,8 @@ const ar: Dictionary = {
     errors: {
       userNotFound: "مستخدم GitHub غير موجود — تحقق من اسم المستخدم.",
       rateLimit: "تم تجاوز حد طلبات GitHub — حاول مجددًا خلال ساعة.",
+      authFailed: "تعذر التحقق من هوية GitHub. المشاريع غير متاحة مؤقتًا.",
+      forbidden: " الوصول إلى GitHub مقيّد لهذا الحساب. المشاريع غير متاحة مؤقتًا.",
       timeout: "انتهت مهلة الطلب — تحقق من اتصالك وحاول مجددًا.",
       cancelled: "تم إلغاء الطلب.",
       generic: "تعذّر تحميل مشاريع GitHub حاليًا.",
@@ -331,8 +325,7 @@ const ar: Dictionary = {
   },
   links: {
     metadataTitle: "باسم عصام — كل روابطي",
-    metadataDescription:
-      "كل روابطي المهمة في مكان واحد — باسم عصام، مهندس Backend وطالب علوم حاسب",
+    metadataDescription: "كل روابطي المهمة في مكان واحد — باسم عصام، مهندس Backend وطالب علوم حاسب",
     backToPortfolio: "العودة إلى الموقع",
     name: "باسم عصام",
     role: "مهندس Backend وطالب علوم حاسب",

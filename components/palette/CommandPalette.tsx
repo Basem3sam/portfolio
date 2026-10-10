@@ -149,9 +149,7 @@ function PaletteDialog({
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return items;
-    return items.filter((item) =>
-      `${item.label} ${item.keywords ?? ""}`.toLowerCase().includes(q),
-    );
+    return items.filter((item) => `${item.label} ${item.keywords ?? ""}`.toLowerCase().includes(q));
   }, [items, query]);
 
   const handleClose = () => {

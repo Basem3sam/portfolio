@@ -53,7 +53,9 @@ function playTone({ type = "sine", frequencies, gain, duration }: Tone) {
   oscillator.connect(gainNode);
   gainNode.connect(context.destination);
 
-  frequencies.forEach(({ frequency, time }) => oscillator.frequency.setValueAtTime(frequency, now + time));
+  frequencies.forEach(({ frequency, time }) =>
+    oscillator.frequency.setValueAtTime(frequency, now + time),
+  );
 
   gainNode.gain.setValueAtTime(gain.start, now);
   if (gain.peak !== undefined) {

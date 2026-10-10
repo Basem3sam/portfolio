@@ -1,31 +1,48 @@
-# dependencies
-/node_modules
+# Dependencies
+/node_modules/
 
-# next.js
+# Build output
+/dist/
+/build/
 /.next/
 /out/
+/export/
+/scripts/
+
+# Environment files and secrets
+.env
+.env.*
+!.env.example
 next-env.d.ts
 
-# typescript
+# TypeScript
 *.tsbuildinfo
 
-# env files
-.env*
-
-# misc
-.DS_Store
+# Logs
 npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
 
-# export output
-/export/
-scripts/
-commit-message.txt
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
 
-# lighthouse ci output
-.lighthouseci/
-
-# playwright
+# Test output
 /test-results/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+/.lighthouseci/
+
+# OpenCode and AI workflow files
+/.opencode/
+/AGENTS.md
+/PLAN-TO-PRODUCTION.md
+/README-SETUP.md
+/docs/
+/prompts/
+
+# Temporary local files
+/commit-message.txt

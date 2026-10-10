@@ -15,8 +15,7 @@ import {
 type Tone = "plain" | "prompt" | "success" | "info" | "error";
 
 type HtmlNode =
-  | { kind: "text"; atoms: string[] }
-  | { kind: "span"; className: string; children: HtmlNode[] };
+  { kind: "text"; atoms: string[] } | { kind: "span"; className: string; children: HtmlNode[] };
 
 type Line = {
   id: number;
@@ -44,7 +43,13 @@ const lineClass = "mb-2 animate-terminal-line max-md:text-[13px] max-md:leading-
 const TYPE_CHUNK = 4;
 const TYPE_INTERVAL = 12;
 
-type QueueEntry = { id: number; mode: "text" | "html"; length: number; shown: number; full: string };
+type QueueEntry = {
+  id: number;
+  mode: "text" | "html";
+  length: number;
+  shown: number;
+  full: string;
+};
 
 const BANNER_COLORS = ["#fef3c7", "#fde68a", "#fcd34d", "#fbbf24", "#f59e0b", "#d97706", "#fbbf24"];
 
@@ -54,8 +59,7 @@ const escapeHtml = (value: string) =>
 const PROMPT_HTML =
   '<span class="font-bold text-[#4ade80]">guest@basem</span><span class="text-[#fde68a]">:</span><span class="font-bold text-[#60a5fa]">~</span><span class="text-[#fde68a]">$</span>';
 
-const splitAtoms = (text: string): string[] =>
-  text.match(/&[a-zA-Z#][a-zA-Z0-9]*;|[\s\S]/g) ?? [];
+const splitAtoms = (text: string): string[] => text.match(/&[a-zA-Z#][a-zA-Z0-9]*;|[\s\S]/g) ?? [];
 
 // Parses the terminal's controlled markup (<span class="...">...</span>
 // nesting only) into a tree whose text is split into single visible
@@ -107,8 +111,7 @@ function parseSpanHtml(html: string): HtmlNode[] | null {
 
 function countChars(nodes: HtmlNode[]): number {
   return nodes.reduce(
-    (sum, node) =>
-      sum + (node.kind === "text" ? node.atoms.length : countChars(node.children)),
+    (sum, node) => sum + (node.kind === "text" ? node.atoms.length : countChars(node.children)),
     0,
   );
 }
@@ -227,31 +230,29 @@ export default function Terminal({ open, onClose }: TerminalProps) {
   const append = (items: NewLine[]) => {
     const canType = !prefersReducedMotion();
 
-    const prepared = items.map(
-      (item): { line: NewLine; entry: QueueEntry | null } => {
-        if (!canType) return { line: { ...item }, entry: null };
+    const prepared = items.map((item): { line: NewLine; entry: QueueEntry | null } => {
+      if (!canType) return { line: { ...item }, entry: null };
 
-        if (item.html !== undefined) {
-          const tree = parseSpanHtml(item.html);
-          if (tree) {
-            return {
-              line: { ...item, tree, shown: 0 },
-              entry: { id: -1, mode: "html", length: countChars(tree), shown: 0, full: "" },
-            };
-          }
-          return { line: { ...item }, entry: null };
-        }
-
-        if (item.text) {
+      if (item.html !== undefined) {
+        const tree = parseSpanHtml(item.html);
+        if (tree) {
           return {
-            line: { ...item, text: "" },
-            entry: { id: -1, mode: "text", length: item.text.length, shown: 0, full: item.text },
+            line: { ...item, tree, shown: 0 },
+            entry: { id: -1, mode: "html", length: countChars(tree), shown: 0, full: "" },
           };
         }
-
         return { line: { ...item }, entry: null };
-      },
-    );
+      }
+
+      if (item.text) {
+        return {
+          line: { ...item, text: "" },
+          entry: { id: -1, mode: "text", length: item.text.length, shown: 0, full: item.text },
+        };
+      }
+
+      return { line: { ...item }, entry: null };
+    });
 
     const added = withIds(prepared.map(({ line }) => line));
     prepared.forEach(({ entry }, index) => {
@@ -388,7 +389,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
       <div
         id="secret-terminal"
         dir="ltr"
-        className={`fixed z-[10000] flex flex-col overflow-hidden rounded-xl border-2 border-[#fbbf24] bg-[#131007] [font-family:var(--font-terminal),var(--font-mono-body),monospace] shadow-[0_0_70px_rgba(251,191,36,0.3),inset_0_0_60px_rgba(251,191,36,0.05)] transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] after:pointer-events-none after:absolute after:inset-0 after:z-[5] after:rounded-[inherit] after:bg-[radial-gradient(ellipse_at_center,transparent_65%,rgba(0,0,0,0.35)_100%)] after:content-[''] top-1/2 left-1/2 h-[600px] w-[90%] max-w-[800px] -translate-x-1/2 -translate-y-1/2 max-md:h-auto max-md:min-h-[50dvh] max-md:max-h-[calc(100dvh_-_6rem)] max-md:w-[calc(100%_-_2rem)] max-md:max-w-none max-md:rounded-2xl ${open ? "scale-100 opacity-100" : "pointer-events-none scale-0 opacity-0"}`}
+        className={`fixed top-1/2 left-1/2 z-[10000] flex h-[600px] w-[90%] max-w-[800px] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border-2 border-[#fbbf24] bg-[#131007] [font-family:var(--font-terminal),var(--font-mono-body),monospace] shadow-[0_0_70px_rgba(251,191,36,0.3),inset_0_0_60px_rgba(251,191,36,0.05)] transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] after:pointer-events-none after:absolute after:inset-0 after:z-[5] after:rounded-[inherit] after:bg-[radial-gradient(ellipse_at_center,transparent_65%,rgba(0,0,0,0.35)_100%)] after:content-[''] max-md:h-auto max-md:max-h-[calc(100dvh_-_6rem)] max-md:min-h-[50dvh] max-md:w-[calc(100%_-_2rem)] max-md:max-w-none max-md:rounded-2xl ${open ? "scale-100 opacity-100" : "pointer-events-none scale-0 opacity-0"}`}
         role="dialog"
         aria-modal="true"
         aria-label="Secret terminal"
@@ -444,7 +445,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
                   <pre
                     key={line.id}
                     style={style}
-                    className="my-4 animate-terminal-line text-[13px] leading-[1.32] whitespace-pre [font-family:inherit] max-md:text-[9px]"
+                    className="my-4 animate-terminal-line [font-family:inherit] text-[13px] leading-[1.32] whitespace-pre max-md:text-[9px]"
                   >
                     {(line.text ?? "").split("\n").map((row, index) => (
                       <span
@@ -522,7 +523,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
             ref={inputRef}
             id="terminal-input"
             type="text"
-            className="flex-1 bg-transparent text-[14px] text-[#fde68a] caret-[#fbbf24] [caret-shape:block] outline-none [text-shadow:0_0_5px_rgba(251,191,36,0.4)] placeholder:text-[rgba(251,191,36,0.35)] max-md:text-[12px]"
+            className="flex-1 bg-transparent text-[14px] text-[#fde68a] caret-[#fbbf24] outline-none [caret-shape:block] [text-shadow:0_0_5px_rgba(251,191,36,0.4)] placeholder:text-[rgba(251,191,36,0.35)] max-md:text-[12px]"
             placeholder="Type 'help' for available commands..."
             autoComplete="off"
             autoCapitalize="off"

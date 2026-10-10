@@ -1,5 +1,5 @@
-import Link from 'next/link';
-import Icon from '@/components/ui/Icon';
+import Link from "next/link";
+import Icon from "@/components/ui/Icon";
 
 type LanguageSwitcherProps = {
   href: string;
@@ -12,7 +12,7 @@ export default function LanguageSwitcher({
   href,
   hrefLang,
   label,
-  className = '',
+  className = "",
 }: LanguageSwitcherProps) {
   return (
     <Link

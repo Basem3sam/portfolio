@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from "next/link";
 
 export default function NotFound() {
   return (
@@ -7,29 +7,14 @@ export default function NotFound() {
         <p className="font-mono text-sm font-medium tracking-[0.2em] text-secondary uppercase">
           <span aria-hidden="true">● </span>HTTP 404
         </p>
-        <h1 className="mt-4 text-4xl font-bold text-dark-text sm:text-5xl">
-          Page not found
-        </h1>
-        <p
-          className="mt-2 text-2xl font-semibold text-dark-text"
-          dir="rtl"
-          lang="ar"
-        >
+        <h1 className="mt-4 text-4xl font-bold text-dark-text sm:text-5xl">Page not found</h1>
+        <p className="mt-2 text-2xl font-semibold text-dark-text" dir="rtl" lang="ar">
           الصفحة غير موجودة
         </p>
-        <p
-          className="mx-auto mt-4 max-w-md leading-relaxed text-light-text"
-          dir="ltr"
-          lang="en"
-        >
-          This page does not exist. It may have moved, or the address might be
-          mistyped.
+        <p className="mx-auto mt-4 max-w-md leading-relaxed text-light-text" dir="ltr" lang="en">
+          This page does not exist. It may have moved, or the address might be mistyped.
         </p>
-        <p
-          className="mx-auto mt-2 max-w-md leading-relaxed text-light-text"
-          dir="rtl"
-          lang="ar"
-        >
+        <p className="mx-auto mt-2 max-w-md leading-relaxed text-light-text" dir="rtl" lang="ar">
           هذه الصفحة غير موجودة — ربما تم نقلها أو أن العنوان غير صحيح.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-4">

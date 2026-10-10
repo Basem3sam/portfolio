@@ -41,7 +41,7 @@ export default function Footer({ locale = "en" }: FooterProps) {
 
           <nav
             aria-label={dict.footer.navLabel}
-            className="grid w-full max-w-sm grid-cols-2 gap-2 sm:max-w-none sm:grid-cols-4 md:w-auto md:grid-cols-none md:flex md:flex-wrap md:items-center md:gap-x-6 md:gap-y-2"
+            className="grid w-full max-w-sm grid-cols-2 gap-2 sm:max-w-none sm:grid-cols-4 md:flex md:w-auto md:grid-cols-none md:flex-wrap md:items-center md:gap-x-6 md:gap-y-2"
           >
             {quickLinks.map(({ href, key }) => (
               <a key={href} href={href} className={linkClass}>

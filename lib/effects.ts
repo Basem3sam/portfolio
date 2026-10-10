@@ -13,8 +13,8 @@ export function isLowEndDevice() {
 
   return Boolean(
     (nav.deviceMemory && nav.deviceMemory < 2) ||
-      (nav.hardwareConcurrency && nav.hardwareConcurrency < 4) ||
-      nav.connection?.saveData,
+    (nav.hardwareConcurrency && nav.hardwareConcurrency < 4) ||
+    nav.connection?.saveData,
   );
 }
 
@@ -154,7 +154,13 @@ export function createEpicCelebration() {
   });
 
   spawnSequence(isLowEndDevice() ? 30 : 150, 20, () => {
-    fallingConfetti(pick(EPIC_COLORS), `${Math.random() * 100}vw`, Math.random() * 2000, 3000, 3000);
+    fallingConfetti(
+      pick(EPIC_COLORS),
+      `${Math.random() * 100}vw`,
+      Math.random() * 2000,
+      3000,
+      3000,
+    );
   });
 }
 
@@ -189,10 +195,26 @@ export function createDirectionalParticles(element: HTMLElement, clickCount: num
 }
 
 const CLICK_ANIMATIONS: Keyframe[][] = [
-  [{ transform: "translateY(0)" }, { transform: "translateY(-8px)" }, { transform: "translateY(0)" }],
-  [{ transform: "translateY(0)" }, { transform: "translateY(8px)" }, { transform: "translateY(0)" }],
-  [{ transform: "translateX(0)" }, { transform: "translateX(-8px)" }, { transform: "translateX(0)" }],
-  [{ transform: "translateX(0)" }, { transform: "translateX(8px)" }, { transform: "translateX(0)" }],
+  [
+    { transform: "translateY(0)" },
+    { transform: "translateY(-8px)" },
+    { transform: "translateY(0)" },
+  ],
+  [
+    { transform: "translateY(0)" },
+    { transform: "translateY(8px)" },
+    { transform: "translateY(0)" },
+  ],
+  [
+    { transform: "translateX(0)" },
+    { transform: "translateX(-8px)" },
+    { transform: "translateX(0)" },
+  ],
+  [
+    { transform: "translateX(0)" },
+    { transform: "translateX(8px)" },
+    { transform: "translateX(0)" },
+  ],
   [
     { transform: "scale(1)", boxShadow: "0 0 0 rgba(255, 107, 107, 0.4)" },
     { transform: "scale(1.1)", boxShadow: "0 0 20px rgba(255, 107, 107, 0.8)" },
@@ -226,6 +248,10 @@ const CLUE_CELEBRATION: Keyframe[] = [
   { transform: "scale(1) rotate(360deg)" },
 ];
 
-export function animateClue(element: HTMLElement, kind: "reveal" | "celebration", duration: number) {
+export function animateClue(
+  element: HTMLElement,
+  kind: "reveal" | "celebration",
+  duration: number,
+) {
   element.animate(kind === "reveal" ? CLUE_REVEAL : CLUE_CELEBRATION, { duration, easing: "ease" });
 }

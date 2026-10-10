@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useSyncExternalStore } from 'react';
-import Icon from '@/components/ui/Icon';
-import { getCurrentTheme, subscribeToTheme, toggleTheme } from '@/lib/theme';
+import { useSyncExternalStore } from "react";
+import Icon from "@/components/ui/Icon";
+import { getCurrentTheme, subscribeToTheme, toggleTheme } from "@/lib/theme";
 
 type ThemeToggleLabels = {
   toLight: string;
@@ -17,24 +17,20 @@ type ThemeToggleProps = {
 };
 
 const defaultLabels: ThemeToggleLabels = {
-  toLight: 'Switch to light mode',
-  toDark: 'Switch to dark mode',
+  toLight: "Switch to light mode",
+  toDark: "Switch to dark mode",
 };
 
-const getSnapshot = () => getCurrentTheme() === 'dark';
+const getSnapshot = () => getCurrentTheme() === "dark";
 const getServerSnapshot = () => false;
 
 export default function ThemeToggle({
   id,
   className,
-  iconClassName = '',
+  iconClassName = "",
   labels = defaultLabels,
 }: ThemeToggleProps) {
-  const dark = useSyncExternalStore(
-    subscribeToTheme,
-    getSnapshot,
-    getServerSnapshot,
-  );
+  const dark = useSyncExternalStore(subscribeToTheme, getSnapshot, getServerSnapshot);
 
   return (
     <button
@@ -43,10 +39,7 @@ export default function ThemeToggle({
       aria-label={dark ? labels.toLight : labels.toDark}
       onClick={toggleTheme}
     >
-      <Icon
-        name={dark ? 'sun' : 'moon'}
-        className={`size-5 ${iconClassName}`}
-      />
+      <Icon name={dark ? "sun" : "moon"} className={`size-5 ${iconClassName}`} />
     </button>
   );
 }

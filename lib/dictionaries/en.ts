@@ -64,8 +64,7 @@ const en = {
     title: "Basem Esam | Backend Engineer",
     description:
       "Basem Esam - Backend Engineer & CS Student specializing in Node.js, Express, and scalable systems",
-    keywords:
-      "Backend Engineer, Backend Developer, Node.js, Express, MongoDB, Web Development",
+    keywords: "Backend Engineer, Backend Developer, Node.js, Express, MongoDB, Web Development",
     shareDescription:
       "Backend Engineer & CS Student specializing in Node.js, Express, and scalable systems.",
   },
@@ -170,15 +169,7 @@ const en = {
       },
       {
         label: "devops & tools",
-        items: [
-          "Docker",
-          "Git",
-          "Linux",
-          "Bash",
-          "Nodemon",
-          "ESLint (Airbnb config)",
-          "Prettier",
-        ],
+        items: ["Docker", "Git", "Linux", "Bash", "Nodemon", "ESLint (Airbnb config)", "Prettier"],
       },
       {
         label: "frontend",
@@ -213,21 +204,14 @@ const en = {
   about: {
     title: "About",
     intro:
-      "I'm Basem — a backend engineer from Port Said, Egypt, in my fourth year of Computer Science at Suez Canal University (class of 2027). I build and run the production backend that powers Trosc Student Club: an Express + MongoDB API with 85+ endpoints serving 200+ members.",
+      "I'm Basem — a backend engineer from Port Said, Egypt, in my fourth year of Computer Science at Suez Canal University (class of 2027). I build and run the production backend that powers Trosc Student Club: an Express + MongoDB API with 100+ endpoints serving 200+ members.",
     story:
       "My path into software started early: a teacher's encouragement led to my first website at age 11, and growing up around a family electronics repair shop taught me to treat technology from the inside out — understand it first, then make it work for you.",
     community:
       "Since 2022 I've been programming seriously. ICPC competitive programming sharpened how I break down problems, teaching OOP with C++ to 50+ students at GDG SCU (8 weeks, Apr–May 2025) taught me to explain complex things simply, and two terms as HR Coordinator at Mech Hackers keep me close to the community that got me started.",
     today:
       "Today, as IT Head & Backend Lead at Trosc, I care about the unglamorous parts done well: clean architecture, layered security, and APIs another engineer can pick up without asking me anything.",
-    chips: [
-      "Node.js",
-      "Express",
-      "MongoDB",
-      "REST APIs",
-      "TypeScript",
-      "Competitive Programming",
-    ],
+    chips: ["Node.js", "Express", "MongoDB", "REST APIs", "TypeScript", "Competitive Programming"],
     facts: [
       { label: "Location", value: "Port Said, Egypt" },
       { label: "Education", value: "B.Sc. Computer Science — Suez Canal University" },
@@ -343,6 +327,8 @@ const en = {
     errors: {
       userNotFound: "GitHub user not found. Please check the username.",
       rateLimit: "GitHub API rate limit exceeded. Please try again in an hour.",
+      authFailed: "GitHub authentication failed. Projects are temporarily unavailable.",
+      forbidden: "GitHub access is restricted. Projects are temporarily unavailable.",
       timeout: "Request timed out. Please check your connection and try again.",
       cancelled: "Request was cancelled.",
       generic: "Unable to load GitHub projects at this time.",

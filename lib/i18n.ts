@@ -1,9 +1,9 @@
-import ar from '@/lib/dictionaries/ar';
-import en, { type Dictionary } from '@/lib/dictionaries/en';
+import ar from "@/lib/dictionaries/ar";
+import en, { type Dictionary } from "@/lib/dictionaries/en";
 
-export const locales = ['en', 'ar'] as const;
+export const locales = ["en", "ar"] as const;
 export type Locale = (typeof locales)[number];
-export const defaultLocale: Locale = 'en';
+export const defaultLocale: Locale = "en";
 
 const dictionaries: Record<Locale, Dictionary> = { en, ar };
 
@@ -16,5 +16,5 @@ export function getDictionary(locale: Locale): Dictionary {
 }
 
 export function getDirection(locale: Locale) {
-  return locale === 'ar' ? 'rtl' : 'ltr';
+  return locale === "ar" ? "rtl" : "ltr";
 }

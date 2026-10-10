@@ -214,9 +214,9 @@ test("hero metric values align on one line at every width", async ({ page }) => 
   await page.goto("/");
 
   const expectRowAligned = async (perRow: number) => {
-    const tops = await page.locator('[data-testid="metric-value"]').evaluateAll((els) =>
-      els.map((el) => el.getBoundingClientRect().top),
-    );
+    const tops = await page
+      .locator('[data-testid="metric-value"]')
+      .evaluateAll((els) => els.map((el) => el.getBoundingClientRect().top));
     expect(tops).toHaveLength(4);
     for (let i = 0; i < tops.length; i += perRow) {
       for (let j = 1; j < perRow; j += 1) {

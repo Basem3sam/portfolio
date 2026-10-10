@@ -57,8 +57,7 @@ const sectionIcons: Record<keyof typeof sectionLabels, IconName> = {
   explorer: "terminal",
 };
 
-const revealClass =
-  "data-[revealed=false]:opacity-0 data-[revealed=true]:animate-reveal-up";
+const revealClass = "data-[revealed=false]:opacity-0 data-[revealed=true]:animate-reveal-up";
 
 const linkButton =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-hairline bg-surface px-4 text-sm font-medium text-dark-text no-underline shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:text-signal hover:shadow-md";
@@ -78,7 +77,11 @@ function CaseSection({
   const headingId = `${id}-heading`;
 
   return (
-    <section id={id} aria-labelledby={headingId} className="border-t border-hairline py-12 md:py-16">
+    <section
+      id={id}
+      aria-labelledby={headingId}
+      className="border-t border-hairline py-12 md:py-16"
+    >
       <p className="flex items-center gap-2 font-mono text-xs font-medium tracking-wide text-secondary uppercase">
         <Icon name={icon} className="size-3.5" />
         <span dir="ltr">{label}</span>
@@ -91,7 +94,7 @@ function CaseSection({
       </h2>
       <div className="mt-3 flex items-center gap-2" aria-hidden="true">
         <span className="h-0.5 w-12 rounded-full bg-secondary motion-safe:animate-rule-grow"></span>
-        <span className="h-0.5 w-3 rounded-full bg-signal motion-safe:animate-rule-grow [animation-delay:250ms]"></span>
+        <span className="h-0.5 w-3 rounded-full bg-signal [animation-delay:250ms] motion-safe:animate-rule-grow"></span>
         <span className="h-px flex-1 bg-hairline"></span>
       </div>
       <div className="mt-6">{children}</div>
@@ -161,12 +164,7 @@ export default async function TroscCaseStudyPage({ params }: CaseStudyPageProps)
         <p className="mt-3 font-mono text-xs text-muted-text">{t.metricsNote}</p>
 
         <div className="mt-8 flex flex-wrap gap-3">
-          <a
-            href={TROSC_REPO_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={linkButton}
-          >
+          <a href={TROSC_REPO_URL} target="_blank" rel="noopener noreferrer" className={linkButton}>
             <Icon name="github" className="size-4" />
             {t.links.repo}
           </a>
@@ -241,7 +239,11 @@ export default async function TroscCaseStudyPage({ params }: CaseStudyPageProps)
           </p>
         </CaseSection>
 
-        <CaseSection icon={sectionIcons.media} label={sectionLabels.media} title={t.sections.media.title}>
+        <CaseSection
+          icon={sectionIcons.media}
+          label={sectionLabels.media}
+          title={t.sections.media.title}
+        >
           <div className={`max-w-3xl space-y-4 ${revealClass}`} data-reveal>
             {t.sections.media.paragraphs.map((paragraph, index) => (
               <p key={index} className="leading-relaxed text-light-text">
