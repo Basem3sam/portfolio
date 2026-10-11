@@ -34,10 +34,7 @@ export default function Stack({ dict }: StackProps) {
             >
               <dt className="flex items-center gap-3">
                 <span className={tile}>
-                  <Icon
-                    name={GROUP_ICONS[index % GROUP_ICONS.length]}
-                    className="size-5"
-                  />
+                  <Icon name={GROUP_ICONS[index % GROUP_ICONS.length]} className="size-5" />
                 </span>
                 <span className="flex flex-col gap-0.5">
                   <span className="font-mono text-xs font-medium tracking-wide text-muted-text uppercase">

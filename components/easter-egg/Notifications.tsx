@@ -85,10 +85,10 @@ function HintToast({ level, clicks, closing, onDone }: HintToastProps) {
 
   return (
     <div
-      className={`fixed start-1/2 z-[10001] flex max-w-[320px] -translate-x-1/2 flex-col items-center gap-1.5 rounded-xl border border-[rgba(251,191,36,0.35)] bg-[linear-gradient(135deg,#191307_0%,#0c0a06_100%)] px-5 py-4 text-center font-mono text-[13px] font-semibold tracking-[0.5px] text-[#fbbf24] shadow-[0_8px_32px_rgba(251,191,36,0.25),0_0_0_1px_rgba(251,191,36,0.2),inset_0_1px_0_rgba(253,230,138,0.08)] backdrop-blur-[10px] [text-shadow:0_0_8px_rgba(251,191,36,0.4)] transition-all duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] before:pointer-events-none before:absolute before:inset-x-4 before:top-0 before:h-0.5 before:rounded-full before:bg-[linear-gradient(90deg,transparent_0%,#fbbf24_50%,transparent_100%)] before:content-[''] top-[100px] max-md:top-auto max-md:bottom-[100px] max-md:z-[10002] max-md:max-w-[280px] max-md:px-4 max-md:py-3 max-[481px]:bottom-[90px] max-[481px]:max-w-[260px] max-[481px]:px-3.5 max-[481px]:py-2.5 rtl:translate-x-1/2 ${hintLevelStyles[level] ?? ""} ${shown ? "translate-y-0 scale-100 opacity-100" : "pointer-events-none -translate-y-5 scale-95 opacity-0 max-md:translate-y-5 max-md:scale-100"}`}
+      className={`fixed start-1/2 top-[100px] z-[10001] flex max-w-[320px] -translate-x-1/2 flex-col items-center gap-1.5 rounded-xl border border-[rgba(251,191,36,0.35)] bg-[linear-gradient(135deg,#191307_0%,#0c0a06_100%)] px-5 py-4 text-center font-mono text-[13px] font-semibold tracking-[0.5px] text-[#fbbf24] shadow-[0_8px_32px_rgba(251,191,36,0.25),0_0_0_1px_rgba(251,191,36,0.2),inset_0_1px_0_rgba(253,230,138,0.08)] backdrop-blur-[10px] transition-all duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] [text-shadow:0_0_8px_rgba(251,191,36,0.4)] before:pointer-events-none before:absolute before:inset-x-4 before:top-0 before:h-0.5 before:rounded-full before:bg-[linear-gradient(90deg,transparent_0%,#fbbf24_50%,transparent_100%)] before:content-[''] max-md:top-auto max-md:bottom-[100px] max-md:z-[10002] max-md:max-w-[280px] max-md:px-4 max-md:py-3 max-[481px]:bottom-[90px] max-[481px]:max-w-[260px] max-[481px]:px-3.5 max-[481px]:py-2.5 rtl:translate-x-1/2 ${hintLevelStyles[level] ?? ""} ${shown ? "translate-y-0 scale-100 opacity-100" : "pointer-events-none -translate-y-5 scale-95 opacity-0 max-md:translate-y-5 max-md:scale-100"}`}
     >
       <button
-        className="absolute top-0 end-0 flex size-11 cursor-pointer items-center justify-center rounded-full text-[12px] text-[rgba(251,191,36,0.6)] transition-all duration-200 hover:bg-[rgba(248,113,113,0.2)] hover:text-[#f87171]"
+        className="absolute end-0 top-0 flex size-11 cursor-pointer items-center justify-center rounded-full text-[12px] text-[rgba(251,191,36,0.6)] transition-all duration-200 hover:bg-[rgba(248,113,113,0.2)] hover:text-[#f87171]"
         aria-label="Close notification"
         onClick={() => dismiss()}
       >
@@ -135,7 +135,7 @@ function AccessToast({ onDone }: ToastProps) {
     >
       <Icon
         name="unlock"
-        className="shrink-0 size-7 text-[#fbbf24] [filter:drop-shadow(0_0_8px_rgba(251,191,36,0.6))]"
+        className="size-7 shrink-0 text-[#fbbf24] [filter:drop-shadow(0_0_8px_rgba(251,191,36,0.6))]"
       />
       <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5 text-start">
         <span className="text-[16px] font-bold text-[#fbbf24] [text-shadow:0_0_10px_rgba(251,191,36,0.5)]">
@@ -162,9 +162,15 @@ function MasterToast({ closing, onDone }: MasterToastProps) {
     >
       <div className="relative z-[2]">
         <div className="mb-4 flex items-center justify-center gap-3 text-[18px] font-bold tracking-[2px] text-[#fbbf24] uppercase [text-shadow:0_0_10px_rgba(251,191,36,0.5)] max-[481px]:text-[16px]">
-          <Icon name="trophy" className="size-6 text-[#fbbf24] [filter:drop-shadow(0_0_8px_rgba(251,191,36,0.6))]" />
+          <Icon
+            name="trophy"
+            className="size-6 text-[#fbbf24] [filter:drop-shadow(0_0_8px_rgba(251,191,36,0.6))]"
+          />
           <span>KONAMI CODE MASTER!</span>
-          <Icon name="trophy" className="size-6 text-[#fbbf24] [filter:drop-shadow(0_0_8px_rgba(251,191,36,0.6))]" />
+          <Icon
+            name="trophy"
+            className="size-6 text-[#fbbf24] [filter:drop-shadow(0_0_8px_rgba(251,191,36,0.6))]"
+          />
         </div>
         <p className="my-[18px] text-[14px] leading-[1.6] text-[#a8a29e]">
           🎮 You&apos;ve discovered the{" "}
@@ -175,7 +181,7 @@ function MasterToast({ closing, onDone }: MasterToastProps) {
         <div className="my-5 rounded-lg border border-[rgba(251,191,36,0.3)] bg-black/40 p-[18px]">
           <code
             dir="ltr"
-            className="block text-[20px] font-bold tracking-[6px] text-[#fbbf24] [unicode-bidi:isolate] [text-shadow:0_0_10px_rgba(251,191,36,0.4)] max-[481px]:text-[16px] max-[481px]:tracking-[4px]"
+            className="block text-[20px] font-bold tracking-[6px] text-[#fbbf24] [text-shadow:0_0_10px_rgba(251,191,36,0.4)] [unicode-bidi:isolate] max-[481px]:text-[16px] max-[481px]:tracking-[4px]"
           >
             ↑ ↑ ↓ ↓ ← → ← → B A
           </code>

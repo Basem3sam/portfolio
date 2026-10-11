@@ -13,7 +13,7 @@ export default function Education({ dict }: EducationProps) {
 
         <div className="grid gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-16">
           <dl
-            className="grid grid-cols-2 self-start gap-px overflow-hidden rounded-lg border border-hairline bg-hairline data-[revealed=false]:opacity-0 data-[revealed=true]:animate-reveal-up"
+            className="grid grid-cols-2 gap-px self-start overflow-hidden rounded-lg border border-hairline bg-hairline data-[revealed=false]:opacity-0 data-[revealed=true]:animate-reveal-up"
             data-reveal
           >
             {dict.facts.map((fact) => (

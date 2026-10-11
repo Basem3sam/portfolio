@@ -22,6 +22,10 @@ const plexSansArabic = IBM_Plex_Sans_Arabic({
   weight: ["400", "500", "600", "700"],
   subsets: ["arabic", "latin"],
   display: "swap",
+  // English routes never render Arabic glyphs, but Next preloads every font
+  // declared in this module. Without this, `/` downloads ~196 KB of Arabic
+  // subsets it cannot use. `/ar` still gets them via `font-display: swap`.
+  preload: false,
   variable: "--font-plex-arabic",
 });
 

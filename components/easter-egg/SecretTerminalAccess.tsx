@@ -44,7 +44,7 @@ export default function SecretTerminalAccess({ onClose, onTry }: SecretTerminalA
           {rain.map((column, index) => (
             <div
               key={index}
-              className={`absolute animate-matrix-fall text-[14px] text-[#fbbf24] [text-shadow:0_0_8px_rgba(251,191,36,0.8)] font-mono`}
+              className={`absolute animate-matrix-fall font-mono text-[14px] text-[#fbbf24] [text-shadow:0_0_8px_rgba(251,191,36,0.8)]`}
               style={{ left: `${column.left}%`, animationDelay: `${column.delay}s` }}
             >
               {column.character}
@@ -72,7 +72,7 @@ export default function SecretTerminalAccess({ onClose, onTry }: SecretTerminalA
           <p className="text-[12px] font-medium tracking-[0.25em] text-[#a8a29e] uppercase">
             Enter the legendary
           </p>
-          <p className="animate-text-glow my-2 bg-[linear-gradient(135deg,#fbbf24_0%,#fde68a_100%)] bg-clip-text text-[26px] font-black tracking-[0.18em] text-transparent">
+          <p className="my-2 animate-text-glow bg-[linear-gradient(135deg,#fbbf24_0%,#fde68a_100%)] bg-clip-text text-[26px] font-black tracking-[0.18em] text-transparent">
             KONAMI CODE
           </p>
           <p className="text-[12px] font-medium tracking-[0.25em] text-[#a8a29e] uppercase">

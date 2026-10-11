@@ -2,7 +2,12 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import Icon from "@/components/ui/Icon";
-import { EXPLORER_ENDPOINTS, type EndpointId, type ExplorerEndpoint, type HttpMethod } from "@/data/trosc";
+import {
+  EXPLORER_ENDPOINTS,
+  type EndpointId,
+  type ExplorerEndpoint,
+  type HttpMethod,
+} from "@/data/trosc";
 import type { TroscDictionary } from "@/lib/dictionaries/trosc";
 import { prefersReducedMotion } from "@/lib/scroll";
 
@@ -98,8 +103,7 @@ export default function EndpointExplorer({ dict }: EndpointExplorerProps) {
   const timer = useRef<number | undefined>(undefined);
 
   const selected: ExplorerEndpoint =
-    EXPLORER_ENDPOINTS.find((endpoint) => endpoint.id === selectedId) ??
-    EXPLORER_ENDPOINTS[0];
+    EXPLORER_ENDPOINTS.find((endpoint) => endpoint.id === selectedId) ?? EXPLORER_ENDPOINTS[0];
 
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
@@ -137,7 +141,7 @@ export default function EndpointExplorer({ dict }: EndpointExplorerProps) {
   return (
     <div className="overflow-hidden rounded-lg border border-hairline">
       <div className="grid lg:grid-cols-[300px_1fr]">
-        <div className="max-h-[420px] overflow-y-auto border-b border-hairline lg:border-b-0 lg:border-e lg:border-hairline">
+        <div className="max-h-[420px] overflow-y-auto border-b border-hairline lg:border-e lg:border-b-0 lg:border-hairline">
           {EXPLORER_ENDPOINTS.map((endpoint) => {
             const active = endpoint.id === selectedId;
             return (
@@ -213,7 +217,7 @@ export default function EndpointExplorer({ dict }: EndpointExplorerProps) {
 
           <pre
             dir="ltr"
-            className="mt-4 overflow-x-auto rounded-md border border-hairline bg-[#f5f2ea] p-4 font-mono text-xs leading-relaxed whitespace-pre-wrap text-dark-text dark:bg-[#0d1015] dark:text-[#f2f1ee] dark:border-[#2c313c]"
+            className="mt-4 overflow-x-auto rounded-md border border-hairline bg-[#f5f2ea] p-4 font-mono text-xs leading-relaxed whitespace-pre-wrap text-dark-text dark:border-[#2c313c] dark:bg-[#0d1015] dark:text-[#f2f1ee]"
           >
             {renderJson(selected.response, 0)}
           </pre>

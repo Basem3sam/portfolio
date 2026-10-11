@@ -34,10 +34,7 @@ export default function LinkCard({
       </span>
       <span className="min-w-0 flex-1">
         <span className="block font-semibold text-dark-text">{title}</span>
-        <span
-          className="block truncate text-sm text-light-text"
-          dir={ltr ? "ltr" : undefined}
-        >
+        <span className="block truncate text-sm text-light-text" dir={ltr ? "ltr" : undefined}>
           {description}
         </span>
       </span>

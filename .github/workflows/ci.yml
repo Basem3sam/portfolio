@@ -39,6 +39,11 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      # Fails fast on style drift. Runs before Build so a formatting
+      # error is reported in seconds, not after the ~2 min build.
+      - name: Format check
+        run: npm run format:check
+
       - name: Build
         run: npm run build
 

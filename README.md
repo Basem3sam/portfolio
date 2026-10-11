@@ -36,31 +36,31 @@ The project is built with **Next.js, React, TypeScript, and Tailwind CSS**. It i
 
 ## Explore the site
 
-| Page | Description |
-| --- | --- |
-| [Portfolio](https://basemesam.vercel.app/) | Main English portfolio |
-| [Arabic portfolio](https://basemesam.vercel.app/ar) | Arabic interface with RTL layout |
-| [Links page](https://basemesam.vercel.app/links) | Quick access to selected profiles and contact links |
-| [Trosc case study](https://basemesam.vercel.app/work/trosc) | Backend project overview and endpoint explorer |
-| [Source code](https://github.com/basem3sam/portfolio) | Browse the repository |
+| Page                                                        | Description                                         |
+| ----------------------------------------------------------- | --------------------------------------------------- |
+| [Portfolio](https://basemesam.vercel.app/)                  | Main English portfolio                              |
+| [Arabic portfolio](https://basemesam.vercel.app/ar)         | Arabic interface with RTL layout                    |
+| [Links page](https://basemesam.vercel.app/links)            | Quick access to selected profiles and contact links |
+| [Trosc case study](https://basemesam.vercel.app/work/trosc) | Backend project overview and endpoint explorer      |
+| [Source code](https://github.com/basem3sam/portfolio)       | Browse the repository                               |
 
 > Routes and deployment URLs are based on the project's documented setup. If the deployment domain or route structure changes, update this table accordingly.
 
 ## Tech stack
 
-| Area | Technologies |
-| --- | --- |
-| Framework | Next.js App Router |
-| UI | React |
-| Language | TypeScript with strict checking |
-| Styling | Tailwind CSS |
-| Typography | IBM Plex Sans, Arabic sans-serif, and a self-hosted JetBrains Mono variant for terminal rendering |
-| Icons | Inline SVG icon components |
-| External data | GitHub REST API |
-| Testing | Playwright and axe-core |
-| Code quality | ESLint and Prettier |
-| Performance checks | Lighthouse CI |
-| Browser effects | Web Audio API and Web Animations API |
+| Area               | Technologies                                                                                      |
+| ------------------ | ------------------------------------------------------------------------------------------------- |
+| Framework          | Next.js App Router                                                                                |
+| UI                 | React                                                                                             |
+| Language           | TypeScript with strict checking                                                                   |
+| Styling            | Tailwind CSS                                                                                      |
+| Typography         | IBM Plex Sans, Arabic sans-serif, and a self-hosted JetBrains Mono variant for terminal rendering |
+| Icons              | Inline SVG icon components                                                                        |
+| External data      | GitHub REST API                                                                                   |
+| Testing            | Playwright and axe-core                                                                           |
+| Code quality       | ESLint and Prettier                                                                               |
+| Performance checks | Lighthouse CI                                                                                     |
+| Browser effects    | Web Audio API and Web Animations API                                                              |
 
 The project keeps runtime dependencies focused on the framework and UI libraries; development and verification tools are configured separately.
 
@@ -91,19 +91,19 @@ npx playwright install chromium
 
 ### Available scripts
 
-| Command | Purpose |
-| --- | --- |
-| `npm run dev` | Start the development server |
-| `npm run build` | Create a production build |
-| `npm start` | Serve the production build |
-| `npm run typecheck` | Run TypeScript checks without emitting files |
-| `npm run lint` | Run ESLint |
-| `npm run lint:fix` | Apply supported ESLint fixes |
-| `npm run format` | Format files with Prettier |
-| `npm run format:check` | Check formatting without changing files |
-| `npm test` | Run the Playwright end-to-end suite |
-| `npm run test:ui` | Run the Playwright suite with its UI, if configured |
-| `npm run lighthouse` | Run the configured Lighthouse CI checks |
+| Command                | Purpose                                             |
+| ---------------------- | --------------------------------------------------- |
+| `npm run dev`          | Start the development server                        |
+| `npm run build`        | Create a production build                           |
+| `npm start`            | Serve the production build                          |
+| `npm run typecheck`    | Run TypeScript checks without emitting files        |
+| `npm run lint`         | Run ESLint                                          |
+| `npm run lint:fix`     | Apply supported ESLint fixes                        |
+| `npm run format`       | Format files with Prettier                          |
+| `npm run format:check` | Check formatting without changing files             |
+| `npm test`             | Run the Playwright end-to-end suite                 |
+| `npm run test:ui`      | Run the Playwright suite with its UI, if configured |
+| `npm run lighthouse`   | Run the configured Lighthouse CI checks             |
 
 Refer to `package.json` for the definitive list of scripts and their current behavior.
 
@@ -230,17 +230,17 @@ The GitHub Actions workflow runs the quality checks configured for the repositor
 
 ## Configuration and customization
 
-| What to change | Where to look |
-| --- | --- |
-| Site links and contact details | `data/site.ts` |
-| Trosc case-study data | `data/trosc.ts` and the relevant dictionaries |
-| English and Arabic interface text | `lib/dictionaries/` |
-| GitHub username and repository fetching | `lib/github.ts` |
-| Theme colors and visual tokens | `app/globals.css` |
-| Terminal commands and aliases | `lib/terminalCommands.ts` |
-| Terminal font files | `app/fonts/` |
-| Lighthouse thresholds | `lighthouserc.json` |
-| Formatting and lint rules | `.prettierrc.json` and `eslint.config.mjs` |
+| What to change                          | Where to look                                 |
+| --------------------------------------- | --------------------------------------------- |
+| Site links and contact details          | `data/site.ts`                                |
+| Trosc case-study data                   | `data/trosc.ts` and the relevant dictionaries |
+| English and Arabic interface text       | `lib/dictionaries/`                           |
+| GitHub username and repository fetching | `lib/github.ts`                               |
+| Theme colors and visual tokens          | `app/globals.css`                             |
+| Terminal commands and aliases           | `lib/terminalCommands.ts`                     |
+| Terminal font files                     | `app/fonts/`                                  |
+| Lighthouse thresholds                   | `lighthouserc.json`                           |
+| Formatting and lint rules               | `.prettierrc.json` and `eslint.config.mjs`    |
 
 Check the relevant source file before changing configuration; some behavior is shared across locales or components.
 
@@ -331,13 +331,13 @@ Certifications and training listed in the portfolio include:
 
 ## Selected projects
 
-| Project | Description |
-| --- | --- |
-| [TROSC Backend](https://github.com/basem3sam/trosc-backend) | REST API for a student club, with authentication, role-based access control, security middleware, and API documentation. |
-| Store Advisor | An in-development project exploring e-commerce monitoring and data-driven recommendations with a multi-service architecture. |
-| ظبطهالك (Zabthalahak) | Arabic-first platform for a 3D-printing business, with a custom-request flow and RTL interface. |
-| Laravel E-commerce App | E-commerce application built with PHP, Laravel, and MySQL. |
-| NeuroScan AI | Team project exploring brain-tumor detection with Python, PyTorch, and OpenCV. |
+| Project                                                     | Description                                                                                                                  |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| [TROSC Backend](https://github.com/basem3sam/trosc-backend) | REST API for a student club, with authentication, role-based access control, security middleware, and API documentation.     |
+| Store Advisor                                               | An in-development project exploring e-commerce monitoring and data-driven recommendations with a multi-service architecture. |
+| ظبطهالك (Zabthalahak)                                       | Arabic-first platform for a 3D-printing business, with a custom-request flow and RTL interface.                              |
+| Laravel E-commerce App                                      | E-commerce application built with PHP, Laravel, and MySQL.                                                                   |
+| NeuroScan AI                                                | Team project exploring brain-tumor detection with Python, PyTorch, and OpenCV.                                               |
 
 See the portfolio and linked repositories for the latest project details and availability.
 

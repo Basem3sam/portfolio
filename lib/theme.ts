@@ -38,9 +38,7 @@ function updateFavicons(theme: Theme) {
   // render and ignores subsequent href mutations. Removing and
   // re-inserting the elements forces an immediate re-fetch.
   document
-    .querySelectorAll(
-      'link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]',
-    )
+    .querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]')
     .forEach((link) => link.remove());
 
   const head = document.head;

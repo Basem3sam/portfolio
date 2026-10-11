@@ -83,7 +83,10 @@ export default function ScrollManager() {
         case "PageUp": {
           event.preventDefault();
           const direction = event.key === "PageDown" ? 1 : -1;
-          window.scrollBy({ top: window.innerHeight * 0.8 * direction, behavior: scrollBehavior() });
+          window.scrollBy({
+            top: window.innerHeight * 0.8 * direction,
+            behavior: scrollBehavior(),
+          });
           break;
         }
         case "Home":
@@ -92,7 +95,10 @@ export default function ScrollManager() {
           break;
         case "End":
           event.preventDefault();
-          window.scrollTo({ top: document.documentElement.scrollHeight, behavior: scrollBehavior() });
+          window.scrollTo({
+            top: document.documentElement.scrollHeight,
+            behavior: scrollBehavior(),
+          });
           break;
       }
     };

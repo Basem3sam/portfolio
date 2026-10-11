@@ -301,7 +301,11 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
         onPrompt={openPrompt}
         onOpen={openTerminal}
       />
-      <Terminal key={terminalOpen ? "open" : "closed"} open={terminalOpen} onClose={closeTerminal} />
+      <Terminal
+        key={terminalOpen ? "open" : "closed"}
+        open={terminalOpen}
+        onClose={closeTerminal}
+      />
       {overlay === "prompt" && (
         <SecretTerminalAccess
           onClose={() => setOverlay("none")}

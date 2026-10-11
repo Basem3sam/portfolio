@@ -140,7 +140,10 @@ export default function Contact({ dict }: ContactProps) {
           >
             <div className="flex items-center justify-between gap-3 border-b border-hairline px-4 py-3.5 sm:px-5">
               <p className="font-mono text-[11px] font-semibold tracking-normal whitespace-nowrap text-secondary uppercase sm:text-xs sm:tracking-wide">
-                <span className="font-bold" aria-hidden="true">$ </span>connection.methods
+                <span className="font-bold" aria-hidden="true">
+                  ${" "}
+                </span>
+                connection.methods
               </p>
               <p className="flex items-center gap-1.5 font-mono text-[9px] font-semibold tracking-normal whitespace-nowrap text-status uppercase sm:text-[10px] sm:tracking-wide">
                 <span
@@ -174,7 +177,7 @@ export default function Contact({ dict }: ContactProps) {
                   {row.href && (
                     <Icon
                       name="arrowRight"
-                      className="size-4 shrink-0 -translate-x-1 text-signal opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100 rtl:rotate-180 rtl:translate-x-1 rtl:group-hover:translate-x-0"
+                      className="size-4 shrink-0 -translate-x-1 text-signal opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100 rtl:translate-x-1 rtl:rotate-180 rtl:group-hover:translate-x-0"
                     />
                   )}
                 </>

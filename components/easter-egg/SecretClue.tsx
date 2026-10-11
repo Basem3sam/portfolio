@@ -55,10 +55,9 @@ export default function SecretClue({
     const footer = document.querySelector("footer");
     if (!footer) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => setFooterNear(entry.isIntersecting),
-      { threshold: 0.35 },
-    );
+    const observer = new IntersectionObserver(([entry]) => setFooterNear(entry.isIntersecting), {
+      threshold: 0.35,
+    });
 
     observer.observe(footer);
     return () => observer.disconnect();
@@ -115,7 +114,7 @@ export default function SecretClue({
       ref={containerRef}
       onPointerEnter={cancelClose}
       onPointerLeave={scheduleClose}
-      className={`fixed bottom-[30px] start-[30px] print:hidden max-[481px]:bottom-[25px] max-[481px]:start-5 ${
+      className={`fixed start-[30px] bottom-[30px] max-[481px]:start-5 max-[481px]:bottom-[25px] print:hidden ${
         open && revealed ? "z-[10050]" : "z-[1000]"
       }`}
     >
@@ -123,7 +122,7 @@ export default function SecretClue({
         <div
           role="menu"
           aria-label={t.title}
-          className="absolute bottom-full mb-3 start-0 w-56 overflow-hidden rounded-lg border border-[rgba(251,191,36,0.4)] bg-[#14110a] font-mono shadow-[0_10px_40px_rgba(0,0,0,0.5),0_0_30px_rgba(251,191,36,0.15)] motion-safe:animate-pop-in"
+          className="absolute start-0 bottom-full mb-3 w-56 overflow-hidden rounded-lg border border-[rgba(251,191,36,0.4)] bg-[#14110a] font-mono shadow-[0_10px_40px_rgba(0,0,0,0.5),0_0_30px_rgba(251,191,36,0.15)] motion-safe:animate-pop-in"
         >
           <p className="border-b border-[rgba(251,191,36,0.2)] px-3 py-2 text-[10px] font-semibold tracking-[0.2em] text-[#a8a29e] uppercase">
             {t.title}

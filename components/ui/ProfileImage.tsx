@@ -25,7 +25,7 @@ export default function ProfileImage({
         />
       </picture>
       <span
-        className="absolute bottom-2 end-2 size-4 rounded-full bg-status shadow-[0_0_8px_rgba(74,222,128,0.6)] ring-4 ring-[var(--c-surface)]"
+        className="absolute end-2 bottom-2 size-4 rounded-full bg-status shadow-[0_0_8px_rgba(74,222,128,0.6)] ring-4 ring-[var(--c-surface)]"
         aria-hidden="true"
       ></span>
     </span>

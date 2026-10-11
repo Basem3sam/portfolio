@@ -4,9 +4,7 @@ const locales = ["en", "ar"] as const;
 const defaultLocale = "en";
 
 function hasLocalePrefix(pathname: string) {
-  return locales.some(
-    (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`),
-  );
+  return locales.some((locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`));
 }
 
 export function proxy(request: NextRequest) {
@@ -14,8 +12,7 @@ export function proxy(request: NextRequest) {
 
   if (hasLocalePrefix(pathname)) return NextResponse.next();
 
-  const trimmed =
-    pathname.length > 1 && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+  const trimmed = pathname.length > 1 && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
 
   const url = request.nextUrl.clone();
   url.pathname = `/${defaultLocale}${trimmed === "/" ? "" : trimmed}`;

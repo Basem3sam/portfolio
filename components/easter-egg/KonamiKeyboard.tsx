@@ -35,14 +35,16 @@ const keys = [
 const keyStyles = {
   direction: {
     idle: "border-[rgba(251,191,36,0.3)] shadow-[0_4px_15px_rgba(251,191,36,0.15)]",
-    hover: "hover:-translate-y-0.5 hover:border-[rgba(251,191,36,0.7)] hover:shadow-[0_0_20px_rgba(251,191,36,0.3)]",
+    hover:
+      "hover:-translate-y-0.5 hover:border-[rgba(251,191,36,0.7)] hover:shadow-[0_0_20px_rgba(251,191,36,0.3)]",
     pressed: "scale-90 border-[rgba(251,191,36,0.8)] shadow-[0_0_25px_rgba(251,191,36,0.5)]",
     color: "bg-[rgba(251,191,36,0.08)] text-[#fbbf24]",
     glow: "bg-[radial-gradient(circle_at_center,rgba(251,191,36,0.2)_0%,transparent_70%)]",
   },
   letter: {
     idle: "border-[rgba(248,113,113,0.3)] shadow-[0_4px_15px_rgba(248,113,113,0.15)]",
-    hover: "hover:-translate-y-0.5 hover:border-[rgba(248,113,113,0.7)] hover:shadow-[0_0_20px_rgba(248,113,113,0.3)]",
+    hover:
+      "hover:-translate-y-0.5 hover:border-[rgba(248,113,113,0.7)] hover:shadow-[0_0_20px_rgba(248,113,113,0.3)]",
     pressed: "scale-90 border-[rgba(248,113,113,0.8)] shadow-[0_0_25px_rgba(248,113,113,0.5)]",
     color: "bg-[rgba(248,113,113,0.08)] text-[#f87171]",
     glow: "bg-[radial-gradient(circle_at_center,rgba(248,113,113,0.2)_0%,transparent_70%)]",
@@ -138,7 +140,7 @@ export default function KonamiKeyboard({ onClose, onBack, onSuccess }: KonamiKey
         </div>
       }
     >
-      <div className="p-5 max-[481px]:p-3.5 font-mono">
+      <div className="p-5 font-mono max-[481px]:p-3.5">
         <div className="mb-4 rounded-xl border-2 border-[rgba(251,191,36,0.2)] bg-black/60 p-3 shadow-[inset_0_2px_10px_rgba(0,0,0,0.5),0_0_25px_rgba(251,191,36,0.08)]">
           <p className="mb-1.5 px-1 text-[10px] font-semibold tracking-[0.25em] text-[#78716c] uppercase">
             sequence
@@ -227,7 +229,7 @@ export default function KonamiKeyboard({ onClose, onBack, onSuccess }: KonamiKey
                 onClick={() => press(key)}
               >
                 <span
-                  className={`absolute inset-0 opacity-0 transition-opacity duration-300 group-active:opacity-100 group-hover:opacity-60 ${style.glow}`}
+                  className={`absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-60 group-active:opacity-100 ${style.glow}`}
                 ></span>
                 <span className="relative z-[2] block">{DISPLAY[key]}</span>
               </button>

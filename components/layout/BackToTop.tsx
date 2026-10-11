@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState, type MouseEvent } from 'react';
-import Icon from '@/components/ui/Icon';
-import { scrollBehavior } from '@/lib/scroll';
+import { useEffect, useRef, useState, type MouseEvent } from "react";
+import Icon from "@/components/ui/Icon";
+import { scrollBehavior } from "@/lib/scroll";
 
 const THRESHOLD = 300;
 
-const hidden = 'pointer-events-none invisible translate-y-5 opacity-0';
-const shown = 'translate-y-0 opacity-100';
+const hidden = "pointer-events-none invisible translate-y-5 opacity-0";
+const shown = "translate-y-0 opacity-100";
 
 type BackToTopProps = {
   label?: string;
 };
 
-export default function BackToTop({ label = 'Back to top' }: BackToTopProps) {
+export default function BackToTop({ label = "Back to top" }: BackToTopProps) {
   const [visible, setVisible] = useState(false);
   const linkRef = useRef<HTMLAnchorElement>(null);
   const scrollingToTop = useRef(false);
@@ -38,10 +38,10 @@ export default function BackToTop({ label = 'Back to top' }: BackToTopProps) {
     };
 
     update();
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener("scroll", handleScroll);
       window.clearTimeout(timeout);
     };
   }, []);
@@ -63,7 +63,7 @@ export default function BackToTop({ label = 'Back to top' }: BackToTopProps) {
     <a
       ref={linkRef}
       href="#"
-      className={`group fixed end-5 bottom-5 z-[1030] flex size-11 cursor-pointer items-center justify-center rounded-full border border-hairline bg-surface text-dark-text no-underline shadow-md transition-all duration-300 select-none [-webkit-tap-highlight-color:transparent] [touch-action:manipulation] hover:border-signal hover:text-signal hover:shadow-lg md:end-8 md:bottom-8 pointer-coarse:active:scale-95 print:hidden ${visible ? shown : hidden}`}
+      className={`group fixed end-5 bottom-5 z-[1030] flex size-11 cursor-pointer [touch-action:manipulation] items-center justify-center rounded-full border border-hairline bg-surface text-dark-text no-underline shadow-md transition-all duration-300 select-none [-webkit-tap-highlight-color:transparent] hover:border-signal hover:text-signal hover:shadow-lg md:end-8 md:bottom-8 print:hidden pointer-coarse:active:scale-95 ${visible ? shown : hidden}`}
       aria-label={label}
       onClick={handleClick}
     >
