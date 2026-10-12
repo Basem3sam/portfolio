@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { getNavbarHeight, scrollBehavior, scrollToPosition } from "@/lib/scroll";
 
@@ -22,6 +23,35 @@ function findTarget(hash: string) {
 }
 
 export default function ScrollManager() {
+  const pathname = usePathname();
+
+  // Reconcile the hash after a cross-route navigation.
+  //
+  // This component lives in the root layout, so it never unmounts between
+  // routes: React has committed the destination DOM by the time this effect
+  // runs, which is what makes "scroll once the section exists" reliable without
+  // polling or timeouts. It covers client-side navigation to `/#section`,
+  // direct loads of such URLs, and back/forward.
+  //
+  // In-page clicks never reach here — they call `preventDefault()` and update
+  // the URL with `pushState`, which does not change the pathname.
+  useEffect(() => {
+    const { hash } = window.location;
+    if (!hash || hash === "#" || hash === "#0") return;
+
+    const target = findTarget(hash);
+    if (!target) return;
+
+    // Arriving at a destination, not moving within a page: the browser was
+    // reset to the top by the navigation, so jump rather than animate.
+    const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - getOffset());
+    window.scrollTo({ top, behavior: "instant" });
+
+    target.setAttribute("tabindex", "-1");
+    target.focus({ preventScroll: true });
+    window.dispatchEvent(new CustomEvent("navbar-sync-section"));
+  }, [pathname]);
+
   useEffect(() => {
     let cancelScroll = () => {};
 

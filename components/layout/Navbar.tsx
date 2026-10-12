@@ -1,7 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, type MouseEvent } from "react";
+import { usePathname } from "next/navigation";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type MouseEvent,
+  type ReactNode,
+} from "react";
 import ThemeToggle from "@/components/behavior/ThemeToggle";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import { useCommandPalette } from "@/components/palette/CommandPalette";
@@ -9,7 +17,7 @@ import Icon from "@/components/ui/Icon";
 import { CV_PATH } from "@/data/site";
 import type { Dictionary } from "@/lib/dictionaries/en";
 import type { Locale } from "@/lib/i18n";
-import { getNavbarHeight } from "@/lib/scroll";
+import { getNavbarHeight, homeAnchorHref } from "@/lib/scroll";
 
 type NavbarProps = {
   labels: Dictionary["nav"];
@@ -64,6 +72,78 @@ const menuRowLabel =
 const menuRowArrow =
   "size-4 text-signal opacity-0 -translate-x-1 transition-all duration-200 group-hover/row:translate-x-0 group-hover/row:opacity-100 rtl:rotate-180 rtl:translate-x-1 rtl:group-hover/row:translate-x-0";
 
+type SectionAnchorProps = {
+  /** Raw section hash, e.g. `#work`. */
+  href: string;
+  /** True when the current route is the home page, where the section exists. */
+  isHome: boolean;
+  locale: Locale;
+  className?: string;
+  style?: CSSProperties;
+  active?: boolean;
+  /** Adds `data-nav-logo`, which `getNavbarHeight()` measures. */
+  logo?: boolean;
+  ariaLabel?: string;
+  children: ReactNode;
+};
+
+/**
+ * The navbar's section links target sections that only exist on the home page.
+ *
+ * On the home route they stay plain `<a href="#…">`, leaving ScrollManager in
+ * charge of smooth scroll, focus and history — unchanged behaviour.
+ *
+ * Off the home route a bare `#…` resolves against the current page, producing
+ * URLs like `/work/trosc#work` where the element does not exist and nothing
+ * scrolls. There they become route links to `/#…`, and ScrollManager scrolls
+ * once the destination has mounted. `data-nav-section` marks both forms so the
+ * mobile menu can close on either.
+ */
+function SectionAnchor({
+  href,
+  isHome,
+  locale,
+  className,
+  style,
+  active,
+  logo,
+  ariaLabel,
+  children,
+}: SectionAnchorProps) {
+  const current = active ? "page" : undefined;
+  const dataNavLogo = logo ? { "data-nav-logo": true } : {};
+
+  if (isHome) {
+    return (
+      <a
+        href={href}
+        className={className}
+        style={style}
+        aria-current={current}
+        aria-label={ariaLabel}
+        data-nav-section
+        {...dataNavLogo}
+      >
+        {children}
+      </a>
+    );
+  }
+
+  return (
+    <Link
+      href={homeAnchorHref(locale, href)}
+      className={className}
+      style={style}
+      aria-current={current}
+      aria-label={ariaLabel}
+      data-nav-section
+      {...dataNavLogo}
+    >
+      {children}
+    </Link>
+  );
+}
+
 export default function Navbar({ labels, theme, locale, languageSwitch, palette }: NavbarProps) {
   const { openPalette } = useCommandPalette();
   const [scrolled, setScrolled] = useState(false);
@@ -73,6 +153,11 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
   const navRef = useRef<HTMLElement>(null);
   const scrimRef = useRef<HTMLDivElement>(null);
   const linksHref = locale === "ar" ? "/ar/links" : "/links";
+  const pathname = usePathname();
+
+  // `proxy.ts` rewrites `/` to `/en`, so the English home is reachable at both
+  // URLs. Anywhere else the section anchors below do not exist in the DOM.
+  const isHome = pathname === "/" || pathname === `/${locale}`;
 
   // Scroll-spy: the active section is the LAST section whose top edge has
   // crossed above the detection line (32px below the navbar).
@@ -195,7 +280,9 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
   const closeMenu = () => setMenuOpen(false);
 
   const handleClick = (event: MouseEvent<HTMLElement>) => {
-    if ((event.target as Element).closest('a[href^="#"]')) setMenuOpen(false);
+    // Matches both the local `<a href="#…">` and the cross-route route link,
+    // so the menu closes whichever form a section link currently takes.
+    if ((event.target as Element).closest("a[data-nav-section]")) setMenuOpen(false);
   };
 
   return (
@@ -225,15 +312,17 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
         onClick={handleClick}
       >
         <div className="container flex flex-wrap items-center justify-between lg:flex-nowrap">
-          <a
+          <SectionAnchor
             href="#hero"
-            data-nav-logo
+            isHome={isHome}
+            locale={locale}
+            logo
+            ariaLabel={labels.ariaHome}
             className="inline-flex min-h-11 items-center gap-2 font-mono text-base font-semibold text-dark-text no-underline transition-colors duration-200 hover:text-secondary"
-            aria-label={labels.ariaHome}
           >
             <span className="size-2 rounded-full bg-status" aria-hidden="true"></span>
             <span>basem.esam</span>
-          </a>
+          </SectionAnchor>
 
           <button
             type="button"
@@ -259,10 +348,12 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                     {sections.map((section, index) => {
                       const active = activeSection === section.href.slice(1);
                       return (
-                        <a
+                        <SectionAnchor
                           key={section.href}
                           href={section.href}
-                          aria-current={active ? "page" : undefined}
+                          isHome={isHome}
+                          locale={locale}
+                          active={active}
                           style={{ animationDelay: `${80 + index * 50}ms` }}
                           className={`${menuRow} ${active ? "bg-surface/80 ring-1 ring-hairline" : ""} ${
                             menuOpen ? "motion-safe:animate-menu-item-in" : ""
@@ -277,7 +368,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                             {labels[section.labelKey]}
                           </span>
                           <Icon name="arrowRight" className={menuRowArrow} />
-                        </a>
+                        </SectionAnchor>
                       );
                     })}
                   </div>
@@ -346,13 +437,15 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                     const active = activeSection === section.href.slice(1);
                     return (
                       <li key={section.href}>
-                        <a
+                        <SectionAnchor
                           className={sectionLink(active)}
                           href={section.href}
-                          aria-current={active ? "page" : undefined}
+                          isHome={isHome}
+                          locale={locale}
+                          active={active}
                         >
                           {labels[section.labelKey]}
-                        </a>
+                        </SectionAnchor>
                       </li>
                     );
                   })}
