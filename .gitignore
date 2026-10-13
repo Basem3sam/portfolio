@@ -1,13 +1,12 @@
 # Dependencies
 /node_modules/
 
-# Build output
+# Build output and generated archives
 /dist/
 /build/
 /.next/
 /out/
 /export/
-/scripts/
 
 # Environment files and secrets
 .env
@@ -36,13 +35,27 @@ Thumbs.db
 /playwright/.cache/
 /.lighthouseci/
 
-# OpenCode and AI workflow files
+# Private AI-assisted development workflow. These directories and files are
+# kept locally for the maintainer's own use and deliberately never committed:
+#   .opencode/                 local agent state and the project-local kit
+#   scripts/                   personal export/packaging tooling (archives the
+#                              project for AI review); contains no application
+#                              code - if real project scripts are ever added,
+#                              prefer a negation rule over removing this line
+#   docs/                      internal audit reports, implementation plans,
+#                              working notes, redesign evidence (screenshots,
+#                              test logs) and third-party design references
+#   prompts/                   AI prompt templates for the private workflow
+#   AGENTS.md                  agent instructions for the private workflow
+#   PLAN-TO-PRODUCTION.md      internal implementation plan
+#   README-SETUP.md            internal workflow-kit setup notes
 /.opencode/
+/scripts/
+/docs/
+/prompts/
 /AGENTS.md
 /PLAN-TO-PRODUCTION.md
 /README-SETUP.md
-/docs/
-/prompts/
 
 # Temporary local files
 /commit-message.txt

@@ -2,7 +2,30 @@ name: CI
 
 # Runs on every push (any branch), every pull request, and manually.
 # Public repository: free, unlimited minutes. Private: 2,000 free
-# minutes per month - one full run is roughly 10-12 minutes.
+# minutes per month - three parallel jobs use more minutes than one.
+#
+# STRUCTURE (restructured 2026-10-13, owner decision):
+#   verify      - typecheck + lint + format
+#   e2e         - Playwright + axe, builds its own app (webServer)
+#   lighthouse  - Lighthouse CI against a fresh build
+#
+# The three jobs are deliberately independent (no `needs:`): E2E must not
+# be skipped or masked by a Lighthouse result, or vice versa. Each gate
+# reports its own verdict on every run.
+#
+# THRESHOLDS: see lighthouserc.js. Accessibility, best-practices and SEO
+# are asserted at 1.0 on every route; performance uses per-route floors
+# with a documented ratchet plan. No threshold was weakened in this
+# restructure - the Lighthouse job runs the exact same assertions as
+# before, and E2E runs the same suite.
+#
+# GITHUB_TOKEN: the deployment token lives only in Vercel. It is never
+# passed to these jobs, their build steps, or their logs, and no job here
+# needs it (the GitHub API route is force-dynamic and falls back to
+# unauthenticated requests when the token is absent). Checkout uses the
+# run's ephemeral token with `persist-credentials: false` so no credential
+# is written into the local git config either.
+
 on:
   push:
   pull_request:
@@ -14,12 +37,45 @@ concurrency:
 
 jobs:
   verify:
+    name: Typecheck, lint, format
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      # Fails fast on style drift.
+      - name: Format check
+        run: npm run format:check
+
+  e2e:
+    name: Playwright + axe
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Setup Node 20
         uses: actions/setup-node@v4
@@ -33,26 +89,11 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Typecheck
-        run: npm run typecheck
-
-      - name: Lint
-        run: npm run lint
-
-      # Fails fast on style drift. Runs before Build so a formatting
-      # error is reported in seconds, not after the ~2 min build.
-      - name: Format check
-        run: npm run format:check
-
-      - name: Build
-        run: npm run build
-
-      - name: Lighthouse CI
-        run: npx lhci autorun
-
-      # Serves the built app again and runs the Playwright + axe suite.
-      # The build is cached from the previous step, so this webServer
-      # only runs `npm start`.
+      # NO separate Build step here: playwright.config.ts owns the server,
+      # so the suite always runs against a build made for THIS run. It
+      # never reuses a stale server (stale-build reuse produced invalid
+      # evidence earlier in this project), which is why
+      # `reuseExistingServer` is false even locally.
       - name: E2E tests
         run: npx playwright test
 
@@ -64,6 +105,35 @@ jobs:
           path: test-results/
           retention-days: 7
           if-no-files-found: ignore
+
+  lighthouse:
+    name: Lighthouse CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # One build for this job; `npx lhci autorun` serves it via the
+      # startServerCommand in lighthouserc.js and asserts 3 runs per route
+      # on the median.
+      - name: Build
+        run: npm run build
+
+      - name: Lighthouse CI
+        run: npx lhci autorun
 
       - name: Upload Lighthouse reports
         if: always()

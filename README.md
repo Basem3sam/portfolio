@@ -146,7 +146,7 @@ portfolio/
 ├── .github/workflows/          # CI workflow definitions
 ├── proxy.ts                    # Locale URL rewriting
 ├── playwright.config.ts
-├── lighthouserc.json
+├── lighthouserc.js
 └── package.json
 ```
 
@@ -193,7 +193,7 @@ Try exploring the interface and its keyboard shortcuts to discover the available
 
 ## Testing and quality checks
 
-The repository uses Playwright for end-to-end browser tests and axe-core for automated accessibility checks. The test suite covers important navigation, theme, localization, overlay, Easter egg, and responsive-layout behavior.
+The repository uses Playwright for end-to-end browser tests and axe-core for automated accessibility checks. The test suite covers important navigation, theme, localization, overlay, Easter egg, and responsive-layout behavior, plus an SEO spec that asserts `robots.txt`, the sitemap, canonical URLs, and `hreflang` alternates on `/`, `/ar`, `/work/trosc`, and `/links`.
 
 Install Chromium when required:
 
@@ -226,7 +226,13 @@ Test counts, accessibility results, and Lighthouse scores can change as the code
 
 ## Continuous integration
 
-The GitHub Actions workflow runs the quality checks configured for the repository, which may include dependency installation, type checking, linting, building, Lighthouse CI, and Playwright tests. See `.github/workflows/` and `lighthouserc.json` for the exact jobs and enforced thresholds.
+The GitHub Actions workflow runs three independent jobs on every push and pull
+request — `verify` (typecheck, lint, format check), `e2e` (Playwright + axe),
+and `lighthouse` (Lighthouse CI). They are deliberately not linked with
+`needs:`, so an E2E result is never skipped or masked by a Lighthouse failure,
+or vice versa. Each gate reports its own verdict on every run. See
+`.github/workflows/ci.yml` and `lighthouserc.js` for the exact jobs and
+enforced thresholds.
 
 ## Configuration and customization
 
@@ -239,10 +245,34 @@ The GitHub Actions workflow runs the quality checks configured for the repositor
 | Theme colors and visual tokens          | `app/globals.css`                             |
 | Terminal commands and aliases           | `lib/terminalCommands.ts`                     |
 | Terminal font files                     | `app/fonts/`                                  |
-| Lighthouse thresholds                   | `lighthouserc.json`                           |
+| Lighthouse thresholds                   | `lighthouserc.js`                             |
+| Environment variables (server-only)     | `.env.example` and the table below            |
 | Formatting and lint rules               | `.prettierrc.json` and `eslint.config.mjs`    |
 
 Check the relevant source file before changing configuration; some behavior is shared across locales or components.
+
+### Environment variables
+
+| Variable       | Where it is read                | Notes                                                                    |
+| -------------- | ------------------------------- | ------------------------------------------------------------------------ |
+| `GITHUB_TOKEN` | `app/api/github/repos/route.ts` | Server-only. Raises the GitHub API rate limit for the repositories feed. |
+
+`GITHUB_TOKEN` is a **server-only secret**:
+
+- Create a fine-grained personal access token with read-only access to public
+  repositories, or a classic token with the `public_repo` scope disabled and no
+  extra scopes.
+- In production, set it once in Vercel under
+  **Settings → Environment Variables**. Never commit it, and never put it in a
+  workflow file or a build log.
+- Locally, copy `.env.example` to `.env` and set `GITHUB_TOKEN=<your token>`.
+  Never print the value and never paste it into an issue, chat, or AI tool.
+- **Never prefix it with `NEXT_PUBLIC_`.** Next.js inlines every
+  `NEXT_PUBLIC_*` variable into the client bundle, which would publish the
+  token to every visitor. The route above reads `process.env.GITHUB_TOKEN`
+  server-side only, so the token cannot reach client code.
+- The site still works without the token; GitHub API requests are simply
+  unauthenticated and rate-limited more tightly (60 requests/hour).
 
 ## Deployment
 
