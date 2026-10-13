@@ -23,9 +23,16 @@ export default defineConfig({
   ],
 
   webServer: {
+    // Always build here, and never reuse anything already listening on the
+    // port: an earlier local server was serving a STALE build once and the
+    // suite happily tested it, producing invalid evidence. Failing loudly
+    // on "port already in use" is the truthful behaviour - stop the other
+    // server (or let this one build) instead of testing old code.
+    // CI relies on this too: the E2E job has no separate Build step, so the
+    // suite always runs against a build made for that exact run.
     command: "npm run build && npm start",
     url: `http://localhost:${PORT}`,
-    reuseExistingServer: !process.env.CI,
-    timeout: 180_000,
+    reuseExistingServer: false,
+    timeout: 300_000,
   },
 });
