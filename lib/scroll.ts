@@ -1,4 +1,22 @@
+import type { Locale } from "@/lib/i18n";
+
 const SCROLL_DURATION = 800;
+
+/**
+ * Absolute href for a section that only exists on the home page.
+ *
+ * Section anchors such as `#work` resolve only on `/`. Rendered unchanged on
+ * any other route they produce URLs like `/work/trosc#work`, where the element
+ * does not exist and nothing scrolls — so callers that can render outside the
+ * home page must prefix them.
+ *
+ * English home is `/` because `proxy.ts` rewrites it to `/en`; this matches the
+ * convention already used by the work index redirect and the TROSC case study
+ * back-link.
+ */
+export function homeAnchorHref(locale: Locale, hash: string) {
+  return locale === "ar" ? `/ar${hash}` : `/${hash}`;
+}
 
 export function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;

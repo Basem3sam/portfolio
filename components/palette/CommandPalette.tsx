@@ -19,6 +19,7 @@ import Icon, { type IconName } from "@/components/ui/Icon";
 import { CV_PATH, GITHUB_URL, LINKEDIN_URL, MAILTO } from "@/data/site";
 import type { Dictionary } from "@/lib/dictionaries/en";
 import type { Locale } from "@/lib/i18n";
+import { homeAnchorHref } from "@/lib/scroll";
 import { lockScroll, unlockScroll } from "@/lib/scrollLock";
 import { toggleTheme } from "@/lib/theme";
 
@@ -215,7 +216,9 @@ function PaletteDialog({
     if (document.querySelector(href)) return;
 
     event.preventDefault();
-    router.push(locale === "ar" ? `/ar${href}` : href);
+    // A bare `#…` would resolve against the current page, so English was
+    // landing on `/work/trosc#work` with no such element. Always target home.
+    router.push(homeAnchorHref(locale, href));
   };
 
   const handleInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
