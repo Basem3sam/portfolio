@@ -52,9 +52,9 @@ export default function Footer({ locale = "en" }: FooterProps) {
         </div>
 
         <p className="mt-10 text-center font-mono text-sm text-muted-text md:mt-8 md:text-start">
-          <span className="font-bold text-secondary">$</span> session end — thanks for visiting
+          <span className="font-bold text-note">$</span> session end — thanks for visiting
           <span
-            className="ms-1 inline-block h-3.5 w-2 animate-pulse bg-secondary align-middle motion-reduce:animate-none"
+            className="ms-1 inline-block h-3.5 w-2 animate-pulse bg-note align-middle motion-reduce:animate-none"
             aria-hidden="true"
           ></span>
         </p>

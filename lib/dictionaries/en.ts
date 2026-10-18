@@ -1,5 +1,16 @@
 type ProjectStatus = "production" | "development" | "complete" | "research" | "academic";
 
+type ExperienceEntry = {
+  role: string;
+  org: string;
+  period: string;
+  text: string;
+  /** The role held now; gets the highlighted card and the case-study link. */
+  current?: boolean;
+  /** Short facts, each one taken from the entry's own text. */
+  chips: string[];
+};
+
 type WorkProject = {
   id: string;
   name: string;
@@ -239,26 +250,32 @@ const en = {
   },
   experience: {
     title: "Experience",
+    currentLabel: "Current role",
+    caseStudy: "Read the case study",
     entries: [
       {
         role: "IT Head & Backend Lead",
         org: "Trosc Student Club",
         period: "Jan 2025 – Present",
+        current: true,
+        chips: ["100+ endpoints", "200+ members", "7-layer security"],
         text: "Architected and deployed the club's production REST API — 100+ endpoints across 12 Mongoose collections and 17 dedicated services — serving tracks, courses, sessions, events, and announcements to 200+ members, with dual-token JWT auth, 3-tier RBAC, and a 7-layer security model. Leads the club's IT team.",
       },
       {
         role: "OOP Instructor",
         org: "Google Developer Groups on Campus — SCU",
         period: "Apr – May 2025",
+        chips: ["50+ students", "8 weeks", "C++ · OOP"],
         text: "Taught C++ and object-oriented programming to 50+ students over 8 weeks — from classes and inheritance to clean design habits.",
       },
       {
         role: "HR Coordinator & Member",
         org: "Mech Hackers Community",
         period: "2 terms",
+        chips: ["2 terms", "Hackathons", "Events"],
         text: "Coordinated HR across two terms and stayed an active community member — hackathons, events, and knowledge sharing.",
       },
-    ],
+    ] as ExperienceEntry[],
   },
   education: {
     title: "Education",

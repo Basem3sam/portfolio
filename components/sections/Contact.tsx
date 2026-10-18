@@ -65,7 +65,7 @@ export default function Contact({ dict }: ContactProps) {
     },
     {
       icon: "mapPin",
-      tint: "bg-status/10 text-status",
+      tint: "bg-muted-text/10 text-muted-text",
       label: dict.locationLabel,
       value: dict.location,
     },
@@ -139,7 +139,7 @@ export default function Contact({ dict }: ContactProps) {
             data-stagger
           >
             <div className="flex items-center justify-between gap-3 border-b border-hairline px-4 py-3.5 sm:px-5">
-              <p className="font-mono text-[11px] font-semibold tracking-normal whitespace-nowrap text-secondary uppercase sm:text-xs sm:tracking-wide">
+              <p className="font-mono text-[11px] font-semibold tracking-normal whitespace-nowrap text-note uppercase sm:text-xs sm:tracking-wide">
                 <span className="font-bold" aria-hidden="true">
                   ${" "}
                 </span>

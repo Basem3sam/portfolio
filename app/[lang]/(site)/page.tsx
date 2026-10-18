@@ -26,7 +26,7 @@ export default async function HomePage({ params }: HomePageProps) {
       <Work dict={dict.work} github={dict.github} locale={lang} />
       <Stack dict={dict.stack} />
       <About dict={dict.about} />
-      <Experience dict={dict.experience} />
+      <Experience dict={dict.experience} locale={lang} />
       <Education dict={dict.education} />
       <Contact dict={dict.contact} />
     </main>

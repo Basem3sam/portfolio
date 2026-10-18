@@ -58,7 +58,7 @@ export default function Education({ dict }: EducationProps) {
                     className="flex items-start gap-2.5 text-sm leading-relaxed text-light-text"
                   >
                     <span
-                      className="mt-1.5 size-2 shrink-0 rounded-full bg-status"
+                      className="mt-1.5 size-2 shrink-0 rounded-full bg-note"
                       aria-hidden="true"
                     ></span>
                     <span>{item}</span>
@@ -78,7 +78,7 @@ export default function Education({ dict }: EducationProps) {
                     className="flex items-start gap-2.5 text-sm leading-relaxed text-light-text"
                   >
                     <span
-                      className="mt-1.5 size-2 shrink-0 rounded-full bg-secondary"
+                      className="mt-1.5 size-2 shrink-0 rounded-full bg-muted-text"
                       aria-hidden="true"
                     ></span>
                     <span>{cert}</span>

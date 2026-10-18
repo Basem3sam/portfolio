@@ -13,7 +13,7 @@ const tile =
   "flex size-11 shrink-0 items-center justify-center rounded-md bg-note/10 text-note";
 
 const chip =
-  "rounded-md border border-hairline px-2.5 py-1 text-sm text-light-text transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:text-signal hover:shadow-xs";
+  "rounded-md border border-hairline px-2.5 py-1 font-mono text-[13px] text-light-text transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:text-signal hover:shadow-xs";
 
 export default function Stack({ dict }: StackProps) {
   return (
@@ -40,7 +40,7 @@ export default function Stack({ dict }: StackProps) {
                   <span className="font-mono text-xs font-medium tracking-wide text-muted-text uppercase">
                     {group.label}
                   </span>
-                  <span className="font-mono text-[10px] font-semibold text-secondary" dir="ltr">
+                  <span className="font-mono text-[10px] font-semibold text-note" dir="ltr">
                     ×{group.items.length}
                   </span>
                 </span>

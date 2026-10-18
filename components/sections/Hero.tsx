@@ -110,7 +110,7 @@ export default function Hero({ dict }: HeroProps) {
                   </dt>
                   <dd
                     data-testid="metric-value"
-                    className="font-mono text-2xl font-semibold text-secondary"
+                    className="font-mono text-2xl font-semibold text-note"
                     dir="ltr"
                   >
                     <CountUp value={metric.value} suffix={metric.suffix} />

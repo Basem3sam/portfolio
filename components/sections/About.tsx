@@ -17,7 +17,7 @@ export default function About({ dict }: AboutProps) {
             className="max-w-2xl space-y-4 data-[revealed=false]:opacity-0 data-[revealed=true]:animate-reveal-up"
             data-reveal
           >
-            <p className="text-lg leading-relaxed text-dark-text">{dict.intro}</p>
+            <p className="text-lead text-dark-text">{dict.intro}</p>
             <p className="leading-relaxed text-light-text">{dict.story}</p>
             <p className="leading-relaxed text-light-text">{dict.community}</p>
             <p className="leading-relaxed text-light-text">{dict.today}</p>
