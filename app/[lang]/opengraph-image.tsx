@@ -19,7 +19,7 @@ export default function OpengraphImage() {
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        backgroundColor: "#f9f7f2",
+        backgroundColor: "#fbfbfd",
         padding: "64px 72px",
       }}
     >
@@ -33,10 +33,10 @@ export default function OpengraphImage() {
             display: "flex",
           }}
         />
-        <div style={{ display: "flex", fontSize: 26, color: "#6a6252", letterSpacing: 4 }}>
+        <div style={{ display: "flex", fontSize: 26, color: "#4d5873", letterSpacing: 4 }}>
           OPERATIONAL
         </div>
-        <div style={{ display: "flex", fontSize: 26, color: "#6a6252" }}>— open to work</div>
+        <div style={{ display: "flex", fontSize: 26, color: "#4d5873" }}>— open to work</div>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column" }}>
@@ -45,13 +45,13 @@ export default function OpengraphImage() {
             display: "flex",
             fontSize: 88,
             fontWeight: 700,
-            color: "#201b12",
+            color: "#0b1230",
             letterSpacing: -3,
           }}
         >
           Basem Esam
         </div>
-        <div style={{ display: "flex", fontSize: 36, color: "#a34809", marginTop: 12 }}>
+        <div style={{ display: "flex", fontSize: 36, color: "#965800", marginTop: 12 }}>
           Backend Engineer — Node.js · Express · MongoDB
         </div>
       </div>
@@ -69,10 +69,10 @@ export default function OpengraphImage() {
               backgroundColor: "#ffffff",
             }}
           >
-            <div style={{ display: "flex", fontSize: 46, fontWeight: 700, color: "#a34809" }}>
+            <div style={{ display: "flex", fontSize: 46, fontWeight: 700, color: "#965800" }}>
               {metric.value}
             </div>
-            <div style={{ display: "flex", fontSize: 22, color: "#5a5244", marginTop: 6 }}>
+            <div style={{ display: "flex", fontSize: 22, color: "#343f5a", marginTop: 6 }}>
               {metric.label}
             </div>
           </div>
@@ -87,7 +87,7 @@ export default function OpengraphImage() {
               flex: 4,
               height: 6,
               borderRadius: 3,
-              backgroundColor: "#a34809",
+              backgroundColor: "#c77a06",
             }}
           />
           <div
@@ -96,15 +96,15 @@ export default function OpengraphImage() {
               flex: 1,
               height: 6,
               borderRadius: 3,
-              backgroundColor: "#0c6a84",
+              backgroundColor: "#3b5bf5",
             }}
           />
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div style={{ display: "flex", fontSize: 26, color: "#5a5244" }}>
+          <div style={{ display: "flex", fontSize: 26, color: "#343f5a" }}>
             basemesam.vercel.app
           </div>
-          <div style={{ display: "flex", fontSize: 26, color: "#6a6252" }}>
+          <div style={{ display: "flex", fontSize: 26, color: "#4d5873" }}>
             class of 2027 · Suez Canal University
           </div>
         </div>

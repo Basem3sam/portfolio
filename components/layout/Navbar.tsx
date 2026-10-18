@@ -64,7 +64,7 @@ const paletteButton =
 const menuRow =
   "group/row flex min-h-12 [@media(max-height:720px)]:min-h-11 w-full items-center gap-3 rounded-lg px-3 text-start no-underline transition-colors duration-150 active:bg-light-bg";
 
-const menuRowIndex = "font-mono text-xs font-semibold text-secondary/70 dark:text-[#fbbf24]/60";
+const menuRowIndex = "font-mono text-xs font-semibold text-note";
 
 const menuRowLabel =
   "flex-1 text-base font-medium text-dark-text transition-colors duration-150 group-hover/row:text-signal";

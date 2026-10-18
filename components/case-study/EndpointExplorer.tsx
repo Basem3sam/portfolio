@@ -16,18 +16,18 @@ type EndpointExplorerProps = {
 };
 
 const methodClass: Record<HttpMethod, string> = {
-  GET: "bg-[#15803d] text-white dark:bg-[#4ade80] dark:text-[#0f1215]",
-  POST: "bg-[#a04a07] text-white dark:bg-[#fbbf24] dark:text-[#0f1215]",
-  PUT: "bg-[#a04a07] text-white dark:bg-[#fbbf24] dark:text-[#0f1215]",
-  PATCH: "bg-[#a04a07] text-white dark:bg-[#fbbf24] dark:text-[#0f1215]",
-  DELETE: "bg-[#b3261e] text-white dark:bg-[#f87171] dark:text-[#0f1215]",
+  GET: "bg-status text-page",
+  POST: "bg-note text-page",
+  PUT: "bg-note text-page",
+  PATCH: "bg-note text-page",
+  DELETE: "bg-accent text-page",
 };
 
 const jsonClass = {
   punc: "text-muted-text",
   key: "font-medium text-dark-text",
   str: "text-status",
-  num: "text-secondary",
+  num: "text-note",
 };
 
 function MethodBadge({ method }: { method: HttpMethod }) {
@@ -189,7 +189,7 @@ export default function EndpointExplorer({ dict }: EndpointExplorerProps) {
               type="button"
               onClick={run}
               disabled={runState.status === "running"}
-              className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md bg-secondary px-4 text-sm font-semibold text-on-secondary transition-colors duration-200 hover:bg-[#8a3f06] disabled:cursor-not-allowed disabled:opacity-70 dark:hover:bg-[#fcd34d]"
+              className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md bg-secondary px-4 text-sm font-semibold text-on-secondary transition-colors duration-200 hover:bg-signal disabled:cursor-not-allowed disabled:opacity-70"
             >
               <Icon name="code" className="size-4" />
               {dict.run}
@@ -217,7 +217,7 @@ export default function EndpointExplorer({ dict }: EndpointExplorerProps) {
 
           <pre
             dir="ltr"
-            className="mt-4 overflow-x-auto rounded-md border border-hairline bg-[#f5f2ea] p-4 font-mono text-xs leading-relaxed whitespace-pre-wrap text-dark-text dark:border-[#2c313c] dark:bg-[#0d1015] dark:text-[#f2f1ee]"
+            className="mt-4 overflow-x-auto rounded-md border border-hairline bg-light-bg p-4 font-mono text-xs leading-relaxed whitespace-pre-wrap text-dark-text"
           >
             {renderJson(selected.response, 0)}
           </pre>

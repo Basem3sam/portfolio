@@ -133,11 +133,11 @@ export default async function LinksPage({ params }: LinksPageProps) {
 
         <h1 className="mt-6 text-3xl font-bold tracking-tight text-dark-text">
           {t.name}
-          <span className="text-secondary" aria-hidden="true">
+          <span className="text-note" aria-hidden="true">
             .
           </span>
         </h1>
-        <p className="mt-2 font-mono text-xs font-semibold tracking-[0.2em] text-secondary uppercase">
+        <p className="mt-2 font-mono text-xs font-semibold tracking-[0.2em] text-note uppercase">
           {t.role}
         </p>
         <p className="mt-1.5 text-sm text-muted-text">{t.tagline}</p>

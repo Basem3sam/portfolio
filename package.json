@@ -21,6 +21,7 @@
     "export": "node scripts/export.mjs",
     "export:design": "node scripts/export.mjs design",
     "export:full": "node scripts/export.mjs full",
+    "export:full-lean": "node scripts/export.mjs full-lean",
     "export:claude": "node scripts/export.mjs claude"
   },
   "dependencies": {

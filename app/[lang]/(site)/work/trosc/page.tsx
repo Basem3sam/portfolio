@@ -82,7 +82,7 @@ function CaseSection({
       aria-labelledby={headingId}
       className="border-t border-hairline py-12 md:py-16"
     >
-      <p className="flex items-center gap-2 font-mono text-xs font-medium tracking-wide text-secondary uppercase">
+      <p className="flex items-center gap-2 font-mono text-xs font-medium tracking-wide text-note uppercase">
         <Icon name={icon} className="size-3.5" />
         <span dir="ltr">{label}</span>
       </p>
@@ -93,7 +93,7 @@ function CaseSection({
         {title}
       </h2>
       <div className="mt-3 flex items-center gap-2" aria-hidden="true">
-        <span className="h-0.5 w-12 rounded-full bg-secondary motion-safe:animate-rule-grow"></span>
+        <span className="h-0.5 w-12 rounded-full bg-honey motion-safe:animate-rule-grow"></span>
         <span className="h-0.5 w-3 rounded-full bg-signal [animation-delay:250ms] motion-safe:animate-rule-grow"></span>
         <span className="h-px flex-1 bg-hairline"></span>
       </div>
@@ -135,7 +135,7 @@ export default async function TroscCaseStudyPage({ params }: CaseStudyPageProps)
           >
             trosc-backend
           </h1>
-          <p className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(22,101,52,0.1)] px-2.5 py-1 font-mono text-xs font-semibold tracking-wide text-[#166534] uppercase dark:bg-[rgba(74,222,128,0.12)] dark:text-[#4ade80]">
+          <p className="inline-flex items-center gap-1.5 rounded-full bg-status/10 px-2.5 py-1 font-mono text-xs font-semibold tracking-wide text-status uppercase">
             <span className="size-1.5 rounded-full bg-current" aria-hidden="true"></span>
             {t.statusLabel}
           </p>
@@ -155,7 +155,7 @@ export default async function TroscCaseStudyPage({ params }: CaseStudyPageProps)
               className="flex flex-col-reverse items-center justify-between gap-1 bg-surface p-4 text-center transition-colors duration-200 hover:bg-light-bg"
             >
               <dt className="text-xs leading-snug text-light-text">{metric.label}</dt>
-              <dd className="font-mono text-2xl font-semibold text-secondary" dir="ltr">
+              <dd className="font-mono text-2xl font-semibold text-note" dir="ltr">
                 <CountUp value={metric.value} suffix={metric.suffix} />
               </dd>
             </div>
@@ -198,7 +198,7 @@ export default async function TroscCaseStudyPage({ params }: CaseStudyPageProps)
                 className="rounded-xl border border-hairline bg-surface p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:shadow-md md:p-6"
               >
                 <p className="flex items-baseline gap-2.5">
-                  <span className="font-mono text-sm font-semibold text-secondary" dir="ltr">
+                  <span className="font-mono text-sm font-semibold text-note" dir="ltr">
                     {String(index + 1).padStart(2, "0")}
                   </span>
                   <span className="text-lg font-semibold text-dark-text">{entry.title}</span>
@@ -225,7 +225,7 @@ export default async function TroscCaseStudyPage({ params }: CaseStudyPageProps)
                 className="flex items-center gap-4 border-b border-hairline px-5 py-4 transition-colors duration-200 last:border-b-0 hover:bg-light-bg"
               >
                 <span
-                  className="flex size-8 shrink-0 items-center justify-center rounded-md bg-[rgba(163,72,9,0.08)] font-mono text-xs font-semibold text-secondary dark:bg-[rgba(251,191,36,0.1)] dark:text-[#fbbf24]"
+                  className="flex size-8 shrink-0 items-center justify-center rounded-md bg-note/10 font-mono text-xs font-semibold text-note"
                   dir="ltr"
                 >
                   {String(index + 1).padStart(2, "0")}
@@ -289,7 +289,7 @@ export default async function TroscCaseStudyPage({ params }: CaseStudyPageProps)
           <dl className="mt-8 grid max-w-md grid-cols-3 gap-px overflow-hidden rounded-lg border border-hairline bg-hairline">
             {t.sections.testing.stats.map((stat) => (
               <div key={stat.label} className="bg-surface p-4 text-center">
-                <dd className="font-mono text-xl font-semibold text-secondary" dir="ltr">
+                <dd className="font-mono text-xl font-semibold text-note" dir="ltr">
                   {stat.value}
                 </dd>
                 <dt className="mt-1 text-xs text-light-text">{stat.label}</dt>

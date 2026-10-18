@@ -10,7 +10,7 @@ type StackProps = {
 const GROUP_ICONS: IconName[] = ["server", "database", "box", "monitor", "shield", "layers"];
 
 const tile =
-  "flex size-11 shrink-0 items-center justify-center rounded-md bg-[rgba(163,72,9,0.08)] text-secondary dark:bg-[rgba(251,191,36,0.1)] dark:text-[#fbbf24]";
+  "flex size-11 shrink-0 items-center justify-center rounded-md bg-note/10 text-note";
 
 const chip =
   "rounded-md border border-hairline px-2.5 py-1 text-sm text-light-text transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:text-signal hover:shadow-xs";

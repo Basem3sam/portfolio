@@ -10,6 +10,10 @@
   --breakpoint-xl: 1200px;
   --breakpoint-2xl: 1400px;
 
+  --radius-ui-1: 4px;
+  --radius-ui-2: 6px;
+  --radius-ui-3: 10px;
+
   /* Hero entrance cascade. Delays are kept short on purpose: `heroIn` starts at
      opacity 0 with `both` fill, so a long delay removes that content from
      Largest-Contentful-Paint candidacy. Measured on mobile/4x-CPU, the old
@@ -374,13 +378,21 @@
 }
 
 @theme inline {
+  --color-page: var(--c-page);
   --color-primary: var(--c-primary);
   --color-secondary: var(--c-secondary);
   --color-on-secondary: var(--c-on-secondary);
   --color-signal: var(--c-signal);
   --color-accent: var(--c-accent);
   --color-hairline: var(--c-hairline);
+  --color-rule-strong: var(--c-rule-strong);
   --color-status: var(--c-status);
+  --color-note: var(--c-note);
+  --color-honey: var(--c-honey);
+  --color-honey-hi: var(--c-honey-hi);
+  --color-mark: var(--c-mark);
+  --color-glass: var(--c-glass);
+  --color-glass-edge: var(--c-glass-edge);
   --color-light-bg: var(--c-light-bg);
   --color-surface: var(--c-surface);
   --color-dark-bg: var(--c-dark-bg);
@@ -398,34 +410,58 @@
   --font-mono: var(--font-mono-body);
 }
 
+/* ================================================================
+   DESIGN TOKENS (redesign phase 1)
+
+   Roles. One meaning per colour, so the page never has to guess:
+     secondary / signal  ACTION   buttons, links, focus (cobalt)
+     note / honey        IDENTITY marks, numerals, eyebrows, rules (warm gold)
+     status              LIVE     production only (green)
+     accent              ERROR    destructive and error states (red)
+   Everything else is a cool neutral on one ladder. The ladder means the
+   same thing in both themes: dark-bg (deepest) < light-bg (recessed panel)
+   < page < surface (raised card).
+
+   note is the TEXT-safe gold (4.7:1 or better on every light surface).
+   honey is for graphics (rules, dots, progress), 3:1 against the page.
+   honey-hi is the bright wash and glow gold, never used for text.
+   ================================================================ */
 :root {
-  --c-page: #f9f7f2;
-  --c-primary: #201b12;
-  --c-secondary: #a34809;
+  --c-page: #fbfbfd;
+  --c-primary: #0b1230;
+  --c-secondary: #3b5bf5;
   --c-on-secondary: #ffffff;
-  --c-signal: #0c6a84;
+  --c-signal: #2a44d8;
   --c-accent: #b3261e;
-  --c-hairline: #e4dfd3;
-  --c-status: #166534;
-  --c-light-bg: #f0ede4;
+  --c-hairline: #d8dde8;
+  --c-rule-strong: #a0a9bd;
+  --c-status: #12703a;
+  --c-note: #965800;
+  --c-honey: #c77a06;
+  --c-honey-hi: #f0ae2a;
+  --c-mark: #fbd68c;
+  --c-light-bg: #f2f4f9;
   --c-surface: #ffffff;
-  --c-dark-bg: #f0ede4;
-  --c-dark-text: #201b12;
-  --c-light-text: #5a5244;
-  --c-muted-text: #6a6252;
+  --c-dark-bg: #e8ebf3;
+  --c-dark-text: #0b1230;
+  --c-light-text: #343f5a;
+  --c-muted-text: #4d5873;
+  --c-glass: rgba(255, 255, 255, 0.9);
+  --c-glass-edge: rgba(14, 23, 38, 0.12);
   --c-inner-light: rgba(255, 255, 255, 0.5);
-  --sh-xs: 0 1px 2px rgba(32, 27, 18, 0.06), inset 0 1px 0 var(--c-inner-light);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --sh-xs: 0 1px 2px rgba(11, 18, 48, 0.06), inset 0 1px 0 var(--c-inner-light);
   --sh-sm:
-    0 1px 2px rgba(32, 27, 18, 0.05), 0 2px 8px rgba(32, 27, 18, 0.06),
+    0 1px 2px rgba(11, 18, 48, 0.05), 0 2px 8px rgba(11, 18, 48, 0.06),
     inset 0 1px 0 var(--c-inner-light);
   --sh-md:
-    0 2px 4px rgba(32, 27, 18, 0.04), 0 8px 20px rgba(32, 27, 18, 0.08),
+    0 2px 4px rgba(11, 18, 48, 0.04), 0 8px 20px rgba(11, 18, 48, 0.08),
     inset 0 1px 0 var(--c-inner-light);
   --sh-lg:
-    0 4px 8px rgba(32, 27, 18, 0.04), 0 16px 32px rgba(32, 27, 18, 0.1),
+    0 4px 8px rgba(11, 18, 48, 0.04), 0 16px 32px rgba(11, 18, 48, 0.1),
     inset 0 1px 0 var(--c-inner-light);
   --sh-xl:
-    0 8px 16px rgba(32, 27, 18, 0.05), 0 24px 48px rgba(32, 27, 18, 0.12),
+    0 8px 16px rgba(11, 18, 48, 0.05), 0 24px 48px rgba(11, 18, 48, 0.12),
     inset 0 1px 0 var(--c-inner-light);
   --bg-ambient: radial-gradient(
     ellipse 120% 50% at 50% -20%,
@@ -442,21 +478,28 @@ html[lang="ar"] {
 }
 
 .dark-mode {
-  --c-page: #12141a;
-  --c-primary: #12141a;
-  --c-secondary: #fbbf24;
-  --c-on-secondary: #12141a;
-  --c-signal: #2dd4bf;
+  --c-page: #0e1522;
+  --c-primary: #0e1522;
+  --c-secondary: #6b9bff;
+  --c-on-secondary: #06101f;
+  --c-signal: #8fb2ff;
   --c-accent: #ff8a7a;
-  --c-hairline: #2c313c;
+  --c-hairline: #1f2b42;
+  --c-rule-strong: #3b4c6c;
   --c-status: #4ade80;
-  --c-light-bg: #1e232c;
-  --c-surface: #1a1e26;
-  --c-dark-bg: #0b0d11;
-  --c-dark-text: #f2f1ee;
-  --c-light-text: #b8bcc7;
-  --c-muted-text: #9298a5;
-  --c-inner-light: rgba(244, 236, 221, 0.045);
+  --c-note: #e0a458;
+  --c-honey: #e0a458;
+  --c-honey-hi: #e0a458;
+  --c-mark: #d9993f;
+  --c-light-bg: #0a101a;
+  --c-surface: #162033;
+  --c-dark-bg: #070b13;
+  --c-dark-text: #e8edf7;
+  --c-light-text: #b0bbd0;
+  --c-muted-text: #8f9db6;
+  --c-glass: rgba(14, 22, 38, 0.82);
+  --c-glass-edge: rgba(255, 255, 255, 0.15);
+  --c-inner-light: rgba(232, 237, 247, 0.045);
   --sh-xs: 0 1px 2px rgba(0, 0, 0, 0.3), inset 0 1px 0 var(--c-inner-light);
   --sh-sm:
     0 1px 3px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.3), inset 0 1px 0 var(--c-inner-light);
@@ -464,8 +507,8 @@ html[lang="ar"] {
   --sh-lg: 0 10px 26px rgba(0, 0, 0, 0.45), inset 0 1px 0 var(--c-inner-light);
   --sh-xl: 0 18px 42px rgba(0, 0, 0, 0.55), inset 0 1px 0 var(--c-inner-light);
   --bg-ambient:
-    radial-gradient(ellipse 130% 60% at 50% -15%, rgba(45, 212, 191, 0.025) 0%, transparent 55%),
-    radial-gradient(ellipse 100% 45% at 50% 115%, rgba(251, 191, 36, 0.02) 0%, transparent 50%);
+    radial-gradient(ellipse 130% 60% at 50% -15%, rgba(107, 155, 255, 0.035) 0%, transparent 55%),
+    radial-gradient(ellipse 100% 45% at 50% 115%, rgba(224, 164, 88, 0.025) 0%, transparent 50%);
   --grain-opacity: 0.028;
 }
 
@@ -547,17 +590,17 @@ html[lang="ar"] {
   background-image:
     radial-gradient(
       50% 45% at 15% 18%,
-      color-mix(in srgb, var(--c-secondary) 11%, transparent),
+      color-mix(in srgb, var(--c-honey-hi) 11%, transparent),
       transparent 70%
     ),
     radial-gradient(
       42% 38% at 82% 78%,
-      color-mix(in srgb, var(--c-signal) 9%, transparent),
+      color-mix(in srgb, var(--c-secondary) 9%, transparent),
       transparent 70%
     ),
     radial-gradient(
       60% 50% at 50% 50%,
-      color-mix(in srgb, var(--c-secondary) 3%, transparent),
+      color-mix(in srgb, var(--c-honey-hi) 3%, transparent),
       transparent 80%
     );
 }
@@ -646,18 +689,18 @@ html[lang="ar"] {
   }
 
   ::-webkit-scrollbar-thumb {
-    background: rgba(163, 72, 9, 0.5);
+    background: color-mix(in srgb, var(--c-secondary) 50%, transparent);
     border: 2px solid transparent;
     border-radius: 10px;
     background-clip: padding-box;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(163, 72, 9, 0.75);
+    background: color-mix(in srgb, var(--c-secondary) 75%, transparent);
   }
 
   ::-webkit-scrollbar-thumb:active {
-    background: rgba(163, 72, 9, 0.85);
+    background: color-mix(in srgb, var(--c-secondary) 85%, transparent);
   }
 
   /* Dark mode: PAGE scrollbar (html owns it; :has() detects the
@@ -667,12 +710,12 @@ html[lang="ar"] {
   }
 
   html:has(.dark-mode)::-webkit-scrollbar-thumb {
-    background: #fbbf24;
+    background: var(--c-secondary);
     border: 2px solid var(--c-page);
   }
 
   html:has(.dark-mode)::-webkit-scrollbar-thumb:hover {
-    background: #fde68a;
+    background: var(--c-signal);
   }
 
   /* Dark mode: INNER scrollbars (terminal output, overflow containers) —
@@ -683,12 +726,12 @@ html[lang="ar"] {
   }
 
   .dark-mode ::-webkit-scrollbar-thumb {
-    background: #fbbf24;
+    background: var(--c-secondary);
     border: 2px solid var(--c-page);
   }
 
   .dark-mode ::-webkit-scrollbar-thumb:hover {
-    background: #fde68a;
+    background: var(--c-signal);
   }
 
   [data-reveal][data-stagger][data-revealed="false"] > * {
@@ -710,74 +753,82 @@ html[lang="ar"] {
       scroll-behavior: auto !important;
     }
   }
+}
 
-  @media print {
-    :root,
-    .dark-mode {
-      --c-page: #ffffff;
-      --c-primary: #ffffff;
-      --c-secondary: #7a3705;
-      --c-on-secondary: #ffffff;
-      --c-signal: #0c6a84;
-      --c-accent: #7a3705;
-      --c-hairline: #d4d4d0;
-      --c-status: #15803d;
-      --c-light-bg: #f3f3f0;
-      --c-surface: #ffffff;
-      --c-dark-bg: #ffffff;
-      --c-dark-text: #1a1d21;
-      --c-light-text: #3f3f46;
-      --c-muted-text: #52525b;
-      --sh-xs: none;
-      --sh-sm: none;
-      --sh-md: none;
-      --sh-lg: none;
-      --sh-xl: none;
-    }
+/* Print rules live OUTSIDE @layer base on purpose. Unlayered rules beat layered
+   ones, so inside the layer the unlayered .dark-mode tokens won and a dark-mode
+   visitor printed a dark page. Here they come last and win. */
+@media print {
+  :root,
+  .dark-mode {
+    --c-page: #ffffff;
+    --c-primary: #ffffff;
+    --c-secondary: #1f35b8;
+    --c-on-secondary: #ffffff;
+    --c-signal: #1f35b8;
+    --c-accent: #8f1d17;
+    --c-hairline: #d4d4d0;
+    --c-rule-strong: #a1a1aa;
+    --c-status: #15803d;
+    --c-note: #7a4a00;
+    --c-honey: #7a4a00;
+    --c-honey-hi: #7a4a00;
+    --c-mark: #ffffff;
+    --c-light-bg: #f3f3f0;
+    --c-surface: #ffffff;
+    --c-dark-bg: #ffffff;
+    --c-dark-text: #1a1d21;
+    --c-light-text: #3f3f46;
+    --c-muted-text: #52525b;
+    --sh-xs: none;
+    --sh-sm: none;
+    --sh-md: none;
+    --sh-lg: none;
+    --sh-xl: none;
+  }
 
-    html {
-      overflow-x: visible;
-      scroll-padding-top: 0;
-    }
+  html {
+    overflow-x: visible;
+    scroll-padding-top: 0;
+  }
 
-    body {
-      background: #ffffff;
-      background-image: none;
-    }
+  body {
+    background: #ffffff;
+    background-image: none;
+  }
 
-    body::after {
-      display: none;
-    }
+  body::after {
+    display: none;
+  }
 
-    [data-reveal] {
-      opacity: 1 !important;
-    }
+  [data-reveal] {
+    opacity: 1 !important;
+  }
 
-    [data-reveal][data-stagger] > * {
-      opacity: 1 !important;
-      animation: none !important;
-    }
+  [data-reveal][data-stagger] > * {
+    opacity: 1 !important;
+    animation: none !important;
+  }
 
-    h1,
-    h2,
-    h3 {
-      break-after: avoid;
-    }
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+  }
 
-    article {
-      break-inside: avoid;
-    }
+  article {
+    break-inside: avoid;
+  }
 
-    a {
-      text-decoration: none !important;
-    }
+  a {
+    text-decoration: none !important;
+  }
 
-    #work article a[href^="http"]::after,
-    #contact a[href^="http"]::after {
-      content: " <" attr(href) ">";
-      font-size: 0.8em;
-      color: #52525b;
-      word-break: break-all;
-    }
+  #work article a[href^="http"]::after,
+  #contact a[href^="http"]::after {
+    content: " <" attr(href) ">";
+    font-size: 0.8em;
+    color: #52525b;
+    word-break: break-all;
   }
 }

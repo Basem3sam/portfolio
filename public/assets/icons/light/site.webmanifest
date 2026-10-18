@@ -4,8 +4,8 @@
   "description": "Backend engineer — Node.js, Express, MongoDB. Portfolio, work, and case studies.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f9f7f2",
-  "theme_color": "#f9f7f2",
+  "background_color": "#fbfbfd",
+  "theme_color": "#fbfbfd",
   "icons": [
     {
       "src": "/assets/icons/light/android-chrome-192x192.png",
