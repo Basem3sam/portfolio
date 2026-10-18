@@ -12,7 +12,7 @@ export default function SectionHeader({ number, title }: SectionHeaderProps) {
       <p className="font-mono text-sm font-medium text-note">
         <span dir="ltr">§ {number}</span>
       </p>
-      <h2 className="mt-1 text-3xl font-semibold tracking-tight text-dark-text md:text-4xl">
+      <h2 className="mt-1 text-h2 font-semibold tracking-tight text-dark-text">
         {title}
       </h2>
       <div className="mt-4 flex items-center gap-2" aria-hidden="true">

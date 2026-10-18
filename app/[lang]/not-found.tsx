@@ -7,7 +7,7 @@ export default function NotFound() {
         <p className="font-mono text-sm font-medium tracking-[0.2em] text-note uppercase">
           <span aria-hidden="true">● </span>HTTP 404
         </p>
-        <h1 className="mt-4 text-4xl font-bold text-dark-text sm:text-5xl">Page not found</h1>
+        <h1 className="mt-4 text-h1 font-bold text-dark-text">Page not found</h1>
         <p className="mt-2 text-2xl font-semibold text-dark-text" dir="rtl" lang="ar">
           الصفحة غير موجودة
         </p>

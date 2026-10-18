@@ -1,5 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Mono, IBM_Plex_Sans, IBM_Plex_Sans_Arabic } from "next/font/google";
+import {
+  Instrument_Sans,
+  JetBrains_Mono,
+  Plus_Jakarta_Sans,
+  Readex_Pro,
+} from "next/font/google";
 import localFont from "next/font/local";
 import type { ReactNode } from "react";
 import "@/app/globals.css";
@@ -11,29 +16,33 @@ import JsonLd from "@/components/seo/JsonLd";
 import { SITE_URL } from "@/data/site";
 import { getDictionary, getDirection, isLocale, locales, type Locale } from "@/lib/i18n";
 
-const plexSans = IBM_Plex_Sans({
-  weight: ["400", "500", "600", "700"],
+// Variable fonts: no `weight` list, so Next serves one variable file per face.
+const instrumentSans = Instrument_Sans({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-plex-sans",
+  variable: "--font-instrument",
 });
 
-const plexSansArabic = IBM_Plex_Sans_Arabic({
-  weight: ["400", "500", "600", "700"],
+const jakartaDisplay = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-jakarta",
+});
+
+const readexPro = Readex_Pro({
   subsets: ["arabic", "latin"],
   display: "swap",
   // English routes never render Arabic glyphs, but Next preloads every font
-  // declared in this module. Without this, `/` downloads ~196 KB of Arabic
-  // subsets it cannot use. `/ar` still gets them via `font-display: swap`.
+  // declared in this module. Without this, `/` downloads Arabic subsets it
+  // cannot use. `/ar` still gets them via `font-display: swap`.
   preload: false,
-  variable: "--font-plex-arabic",
+  variable: "--font-readex",
 });
 
-const plexMono = IBM_Plex_Mono({
-  weight: ["400", "500", "600"],
+const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-plex-mono",
+  variable: "--font-jetbrains",
 });
 
 const terminalFont = localFont({
@@ -114,8 +123,8 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
   const locale: Locale = isLocale(lang) ? lang : "en";
   const fontVariables =
     locale === "ar"
-      ? `${plexSansArabic.variable} ${plexMono.variable} ${terminalFont.variable}`
-      : `${plexSans.variable} ${plexMono.variable} ${terminalFont.variable}`;
+      ? `${readexPro.variable} ${jetbrainsMono.variable} ${terminalFont.variable}`
+      : `${instrumentSans.variable} ${jakartaDisplay.variable} ${jetbrainsMono.variable} ${terminalFont.variable}`;
 
   return (
     <html

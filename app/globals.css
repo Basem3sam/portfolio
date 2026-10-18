@@ -14,6 +14,19 @@
   --radius-ui-2: 6px;
   --radius-ui-3: 10px;
 
+  /* Type scale (redesign phase 2). Utilities: text-display, text-h1, text-h2,
+     text-h3, text-lead. Each carries its own line-height. */
+  --text-display: clamp(2.75rem, 7.4vw, 5.25rem);
+  --text-display--line-height: 1.02;
+  --text-h1: clamp(2.25rem, 5.4vw, 3.75rem);
+  --text-h1--line-height: 1.05;
+  --text-h2: clamp(1.75rem, 3.6vw, 2.5rem);
+  --text-h2--line-height: 1.1;
+  --text-h3: 1.5rem;
+  --text-h3--line-height: 1.25;
+  --text-lead: 1.25rem;
+  --text-lead--line-height: 1.55;
+
   /* Hero entrance cascade. Delays are kept short on purpose: `heroIn` starts at
      opacity 0 with `both` fill, so a long delay removes that content from
      Largest-Contentful-Paint candidacy. Measured on mobile/4x-CPU, the old
@@ -408,6 +421,7 @@
 
   --font-sans: var(--font-body);
   --font-mono: var(--font-mono-body);
+  --font-display: var(--font-display-body);
 }
 
 /* ================================================================
@@ -469,12 +483,18 @@
     transparent 55%
   );
   --grain-opacity: 0.015;
-  --font-body: var(--font-plex-sans, "Segoe UI"), "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  --font-mono-body: var(--font-plex-mono, "Courier New"), "Courier New", monospace;
+  --font-body: var(--font-instrument, "Instrument Sans"), system-ui, -apple-system, "Segoe UI",
+    sans-serif;
+  --font-display-body: var(--font-jakarta, "Plus Jakarta Sans"), var(--font-body);
+  --font-mono-body: var(--font-jetbrains, "JetBrains Mono"), ui-monospace, "SF Mono", Menlo,
+    Consolas, monospace;
 }
 
+/* Arabic: one family for body and headings (Latin display face has no Arabic glyphs). */
 html[lang="ar"] {
-  --font-body: var(--font-plex-arabic, "Segoe UI"), "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  --font-body: var(--font-readex, "Readex Pro"), "IBM Plex Sans Arabic", "Segoe UI",
+    "Noto Sans Arabic", Tahoma, sans-serif;
+  --font-display-body: var(--font-body);
 }
 
 .dark-mode {
@@ -636,6 +656,14 @@ html[lang="ar"] {
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Display face on headings; utilities (font-mono, font-sans) still win. */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display-body);
+    text-wrap: balance;
   }
 
   body::after {
@@ -831,4 +859,20 @@ html[lang="ar"] {
     color: #52525b;
     word-break: break-all;
   }
+}
+
+/* Arabic is a cursive script: any letter-spacing breaks the joins, and Readex
+   needs more leading. Unlayered on purpose so it beats Tailwind's layered
+   tracking-* utilities. Latin snippets inside Arabic pages lose tracking too,
+   which is the correct trade-off. */
+html[lang="ar"] body {
+  line-height: 1.9;
+}
+
+html[lang="ar"] * {
+  letter-spacing: 0 !important;
+}
+
+html[lang="ar"] :is(h1, h2, h3) {
+  line-height: 1.3;
 }

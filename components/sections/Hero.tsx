@@ -59,14 +59,14 @@ export default function Hero({ dict }: HeroProps) {
             </p>
             <h1
               id="hero-title"
-              className="mt-4 text-4xl leading-tight font-bold tracking-tight text-dark-text motion-safe:animate-hero-in-2 sm:text-5xl"
+              className="mt-4 text-h1 font-bold tracking-tight text-dark-text motion-safe:animate-hero-in-2"
             >
               {dict.name}
               <span className="text-secondary" aria-hidden="true">
                 .
               </span>
             </h1>
-            <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-light-text motion-safe:animate-hero-in-3 sm:text-xl lg:mx-0">
+            <p className="mx-auto mt-5 max-w-xl text-lead text-light-text motion-safe:animate-hero-in-3 lg:mx-0">
               {dict.lead}
             </p>
 
