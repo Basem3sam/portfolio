@@ -26,6 +26,8 @@
   --text-h3--line-height: 1.25;
   --text-lead: 1.25rem;
   --text-lead--line-height: 1.55;
+  --text-wordmark: clamp(3.5rem, 11vw, 7.5rem);
+  --text-wordmark--line-height: 0.92;
 
   /* Hero entrance cascade. Delays are kept short on purpose: `heroIn` starts at
      opacity 0 with `both` fill, so a long delay removes that content from
@@ -68,6 +70,14 @@
   --animate-pop-in: popIn 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
   --animate-attention: ringPulse 2s ease-in-out 3;
   --animate-menu-item-in: menuItemIn 0.28s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+
+  --animate-marquee: marquee 80s linear infinite;
+
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
 
   @keyframes heroIn {
     from {
@@ -618,6 +628,43 @@ html[lang="ar"] {
   height: 0.1875rem;
   opacity: var(--np, 0);
   pointer-events: none;
+}
+
+/* Hero portrait halo (redesign phase 4): a warm-to-cobalt glow and one thin
+   concentric ring. Decorative only; both layers sit behind the photo. */
+@utility hero-halo {
+  position: relative;
+  isolation: isolate;
+
+  &::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: -22%;
+    border-radius: 9999px;
+    pointer-events: none;
+    background: radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--c-honey-hi) 30%, transparent),
+      color-mix(in srgb, var(--c-secondary) 12%, transparent) 55%,
+      transparent 72%
+    );
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: -9%;
+    border-radius: 9999px;
+    pointer-events: none;
+    border: 1px solid color-mix(in srgb, var(--c-honey) 45%, transparent);
+  }
+}
+
+@utility marquee-mask {
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
 }
 
 @utility nav-menu-panel {

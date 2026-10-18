@@ -44,7 +44,7 @@ const statusDot: Record<string, string> = {
 };
 
 const caseStudyLink =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-secondary px-4 text-sm font-semibold text-on-secondary no-underline shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-signal hover:shadow-md dark:shadow-[0_0_28px_rgba(251,191,36,0.22)]";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-secondary px-4 text-sm font-semibold text-on-secondary no-underline shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-signal hover:shadow-md dark:shadow-[0_0_28px_color-mix(in_srgb,var(--c-secondary)_30%,transparent)]";
 
 const repoLink =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-hairline bg-surface px-4 text-sm font-medium text-dark-text no-underline shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:text-signal hover:shadow-md";

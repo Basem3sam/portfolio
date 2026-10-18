@@ -17,7 +17,7 @@ type ContactProps = {
 };
 
 const primaryCta =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-secondary px-5 text-sm font-semibold text-on-secondary no-underline shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-signal hover:shadow-md active:translate-y-0 max-sm:w-full dark:shadow-[0_0_28px_rgba(251,191,36,0.22)]";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-secondary px-5 text-sm font-semibold text-on-secondary no-underline shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-signal hover:shadow-md active:translate-y-0 max-sm:w-full dark:shadow-[0_0_28px_color-mix(in_srgb,var(--c-secondary)_30%,transparent)]";
 
 const ghostCta =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-hairline bg-surface px-5 text-sm font-semibold text-dark-text no-underline shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:text-signal hover:shadow-md active:translate-y-0 max-sm:w-full";

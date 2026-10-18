@@ -2,7 +2,14 @@ import { Fragment } from "react";
 import CountUp from "@/components/ui/CountUp";
 import Icon, { type IconName } from "@/components/ui/Icon";
 import ProfileImage from "@/components/ui/ProfileImage";
-import { CV_PATH, GITHUB_URL, LINKEDIN_URL, MAILTO, PHONE_TEL } from "@/data/site";
+import {
+  CV_PATH,
+  GITHUB_URL,
+  LINKEDIN_URL,
+  MAILTO,
+  PHONE_DISPLAY,
+  PHONE_TEL,
+} from "@/data/site";
 import type { Dictionary } from "@/lib/dictionaries/en";
 
 type HeroProps = {
@@ -13,7 +20,7 @@ const socialLink =
   "flex size-11 items-center justify-center rounded-md border border-hairline bg-surface text-light-text no-underline transition-colors duration-200 hover:border-signal hover:text-signal";
 
 const primaryCta =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-secondary px-5 text-sm font-semibold text-on-secondary no-underline shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-signal hover:shadow-md active:translate-y-0 max-sm:w-full dark:shadow-[0_0_28px_rgba(251,191,36,0.22)]";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-secondary px-5 text-sm font-semibold text-on-secondary no-underline shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-signal hover:shadow-md active:translate-y-0 max-sm:w-full dark:shadow-[0_0_28px_color-mix(in_srgb,var(--c-secondary)_30%,transparent)]";
 
 const ghostCta =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-hairline bg-surface px-5 text-sm font-semibold text-dark-text no-underline shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:text-signal hover:shadow-md active:translate-y-0 max-sm:w-full";
@@ -29,11 +36,14 @@ type Social = {
 };
 
 export default function Hero({ dict }: HeroProps) {
+  // Two stacked lines. A real space stays between the spans so the h1 still
+  // reads "Basem Esam" to assistive tech, search and tests.
+  const nameParts = dict.name.split(" ");
+
   const socials: Social[] = [
     { href: LINKEDIN_URL, icon: "linkedIn", label: dict.socials.linkedin, external: true },
     { href: GITHUB_URL, icon: "github", label: dict.socials.github, external: true },
     { href: MAILTO, icon: "mail", label: dict.socials.email },
-    { href: PHONE_TEL, icon: "phone", label: dict.socials.phone },
   ];
 
   return (
@@ -50,23 +60,37 @@ export default function Hero({ dict }: HeroProps) {
       <div className="relative z-[1] container">
         <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-16">
           <div className="text-center max-lg:order-2 lg:order-1 lg:text-start">
-            <p className="font-mono text-sm font-medium text-secondary motion-safe:animate-hero-in-1">
+            <p className="flex items-center gap-3 font-mono text-sm font-medium text-note motion-safe:animate-hero-in-1 max-lg:justify-center">
               <span dir="ltr">{dict.whoami}</span>
-              <span
-                className="ms-1 inline-block h-4 w-2 animate-pulse bg-secondary align-middle motion-reduce:animate-none"
-                aria-hidden="true"
-              ></span>
+              <span className="h-px w-10 bg-rule-strong" aria-hidden="true"></span>
+              <span className="inline-flex items-center gap-1.5 text-light-text">
+                <span className="size-1.5 rounded-full bg-note" aria-hidden="true"></span>
+                {dict.location}
+              </span>
             </p>
             <h1
               id="hero-title"
-              className="mt-4 text-h1 font-bold tracking-tight text-dark-text motion-safe:animate-hero-in-2"
+              className="mt-4 text-wordmark font-bold tracking-tighter text-dark-text motion-safe:animate-hero-in-2"
             >
-              {dict.name}
-              <span className="text-secondary" aria-hidden="true">
-                .
-              </span>
+              {nameParts.map((part, index) => (
+                <Fragment key={part}>
+                  {index > 0 && " "}
+                  <span className="block">
+                    {part}
+                    {index === nameParts.length - 1 && (
+                      <span
+                        className="ms-[0.12em] inline-block h-[0.72em] w-[0.1em] animate-pulse bg-note align-baseline motion-reduce:animate-none"
+                        aria-hidden="true"
+                      ></span>
+                    )}
+                  </span>
+                </Fragment>
+              ))}
             </h1>
-            <p className="mx-auto mt-5 max-w-xl text-lead text-light-text motion-safe:animate-hero-in-3 lg:mx-0">
+            <p className="mt-3 text-h3 font-medium text-light-text motion-safe:animate-hero-in-2">
+              {dict.role}
+            </p>
+            <p className="mx-auto mt-6 max-w-xl text-lead text-light-text motion-safe:animate-hero-in-3 lg:mx-0">
               {dict.lead}
             </p>
 
@@ -136,9 +160,20 @@ export default function Hero({ dict }: HeroProps) {
             </div>
 
             <ul
-              className="mt-8 flex items-center justify-center gap-2 lg:justify-start"
+              className="mt-8 flex flex-wrap items-center justify-center gap-2 lg:justify-start"
               aria-label={dict.socialsAria}
             >
+              <li>
+                <a
+                  href={PHONE_TEL}
+                  aria-label={dict.socials.phone}
+                  dir="ltr"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-md pe-3 font-mono text-sm font-medium text-dark-text no-underline transition-colors duration-200 hover:text-signal"
+                >
+                  <Icon name="phone" className="size-4 text-note" />
+                  {PHONE_DISPLAY}
+                </a>
+              </li>
               {socials.map((social) => (
                 <li key={social.href}>
                   <a
@@ -155,7 +190,7 @@ export default function Hero({ dict }: HeroProps) {
             </ul>
           </div>
 
-          <div className="justify-self-center motion-safe:animate-hero-in-1 max-lg:order-1 lg:order-2">
+          <div className="hero-halo justify-self-center motion-safe:animate-hero-in-1 max-lg:order-1 lg:order-2">
             <ProfileImage
               alt="Basem Esam — Backend Developer"
               imgClassName="size-[240px] max-lg:size-[184px] max-md:size-[168px] max-xs:size-[140px]"

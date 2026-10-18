@@ -22,7 +22,9 @@ export const EXEMPT: ReadonlyArray<{ prefix: string; reason: string }> = [
 ];
 
 const HEX = /#[0-9a-fA-F]{3,8}\b/g;
-const FUNC = /\b(?:rgba?|hsla?|oklch|oklab|lab|lch)\(/g;
+// Lookbehind instead of \b: Tailwind arbitrary values write spaces as "_", and "_" is a word
+// character, so `shadow-[0_0_8px_rgba(` has no \b before "rgba".
+const FUNC = /(?<![A-Za-z0-9-])(?:rgba?|hsla?|oklch|oklab|lab|lch)\(/g;
 const ARBITRARY_COLOUR =
   /\b(?:bg|text|border|ring|outline|fill|stroke|from|to|via|decoration|shadow|accent|caret|divide|placeholder)-\[(?:color:)?(?:#|rgb|hsl|oklch)/g;
 const OFF_PALETTE =

@@ -104,6 +104,9 @@ const en = {
   hero: {
     whoami: "$ whoami",
     name: "Basem Esam",
+    role: "Backend engineer",
+    location: "Port Said, Egypt",
+    builtWith: "Built with",
     lead: "Backend engineer who built and runs a 100+ endpoint production API for 200+ real users — while finishing a Computer Science degree (class of 2027).",
     status: "operational",
     statusDetail:

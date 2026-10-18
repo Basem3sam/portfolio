@@ -4,6 +4,7 @@ import Contact from "@/components/sections/Contact";
 import Education from "@/components/sections/Education";
 import Experience from "@/components/sections/Experience";
 import Hero from "@/components/sections/Hero";
+import Marquee from "@/components/sections/Marquee";
 import Stack from "@/components/sections/Stack";
 import Work from "@/components/sections/Work";
 import { getDictionary, isLocale } from "@/lib/i18n";
@@ -21,6 +22,7 @@ export default async function HomePage({ params }: HomePageProps) {
   return (
     <main id="main-content">
       <Hero dict={dict.hero} />
+      <Marquee label={dict.hero.builtWith} />
       <Work dict={dict.work} github={dict.github} locale={lang} />
       <Stack dict={dict.stack} />
       <About dict={dict.about} />
