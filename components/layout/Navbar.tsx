@@ -45,15 +45,29 @@ const sectionIds = sections.map((section) => section.href.slice(1));
 
 const NAV_SYNC_EVENT = "navbar-sync-section";
 
+/** Scroll distance over which the bar turns into the glass capsule. Short on
+ *  purpose: a long ramp leaves page content under a bare bar. */
+const NAV_RAMP_PX = 80;
+
+const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
+
 const sectionLink = (active: boolean) =>
-  `relative flex min-h-11 items-center px-2.5 text-sm font-medium transition-colors duration-200 after:absolute after:inset-x-2.5 after:bottom-2 after:h-0.5 after:rounded-full after:transition-transform after:duration-200 after:content-[''] max-lg:after:hidden ${
+  `relative flex min-h-11 items-center px-2.5 text-sm font-medium transition-colors duration-200 after:absolute after:inset-x-2.5 after:bottom-2 after:h-0.5 after:rounded-full after:origin-left after:transition-transform after:duration-200 after:content-[''] max-lg:after:hidden rtl:after:origin-right ${
     active
-      ? "text-secondary after:scale-x-100 after:bg-secondary"
-      : "text-light-text hover:text-signal after:scale-x-0 after:bg-signal hover:after:scale-x-100"
+      ? "text-dark-text after:scale-x-100 after:bg-note"
+      : "text-light-text hover:text-dark-text after:scale-x-0 after:bg-note hover:after:scale-x-100"
   }`;
 
 const auxLink =
   "flex min-h-11 items-center gap-1.5 px-2.5 text-sm font-medium text-light-text no-underline transition-colors duration-200 hover:text-signal";
+
+// Between lg and xl the bar is too narrow for text labels, so the secondary
+// links collapse to icon buttons (the label stays for assistive tech).
+const auxLinkBar = `${auxLink} max-xl:min-w-11 max-xl:justify-center`;
+const auxLabel = "max-xl:sr-only";
+
+const talkButton =
+  "hidden min-h-11 items-center gap-2 rounded-full bg-dark-text px-5 text-sm font-semibold text-page no-underline transition-colors duration-200 hover:bg-secondary hover:text-on-secondary aria-[current=page]:bg-secondary aria-[current=page]:text-on-secondary xl:inline-flex";
 
 const themeButton =
   "flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md border border-hairline bg-surface/50 text-light-text transition-colors duration-200 hover:border-signal hover:text-signal max-lg:w-full";
@@ -152,6 +166,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
   const [modKey] = useState(getModKey);
   const navRef = useRef<HTMLElement>(null);
   const scrimRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
   const linksHref = locale === "ar" ? "/ar/links" : "/links";
   const pathname = usePathname();
 
@@ -199,6 +214,75 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
       if (frame) cancelAnimationFrame(frame);
     };
   }, []);
+
+  // Capsule progress (--np) and the section progress rail. Both are written
+  // straight to the DOM from one rAF-throttled scroll handler, so scrolling
+  // never re-renders React. While the mobile menu is open the capsule is held
+  // fully formed.
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+
+    let frame = 0;
+    const segments = Array.from(progressRef.current?.children ?? []) as HTMLElement[];
+
+    const paintProgress = () => {
+      if (menuOpen || segments.length === 0) return;
+
+      // Same detection line the scroll-spy uses, so the rail and the active
+      // link agree about which section is being read.
+      const line = getNavbarHeight() + 32;
+      const sectionEls = sectionIds
+        .map((id) => document.getElementById(id))
+        .filter((el): el is HTMLElement => el !== null);
+
+      if (sectionEls.length === 0) {
+        // Routes without the home sections (case study): one segment that
+        // tracks the whole document.
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        segments.forEach((segment, index) => {
+          segment.style.display = index === 0 ? "" : "none";
+        });
+        segments[0].style.flexGrow = "1";
+        const fill = segments[0].firstElementChild as HTMLElement | null;
+        if (fill) fill.style.width = `${clamp01(max > 0 ? window.scrollY / max : 0) * 100}%`;
+        return;
+      }
+
+      segments.forEach((segment, index) => {
+        const el = sectionEls[index];
+        segment.style.display = el ? "" : "none";
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        segment.style.flexGrow = String(Math.max(1, Math.round(rect.height)));
+        const fill = segment.firstElementChild as HTMLElement | null;
+        if (fill) fill.style.width = `${clamp01((line - rect.top) / rect.height) * 100}%`;
+      });
+    };
+
+    const update = () => {
+      frame = 0;
+      const np = menuOpen ? 1 : clamp01(window.scrollY / NAV_RAMP_PX);
+      nav.style.setProperty("--np", np.toFixed(3));
+      paintProgress();
+    };
+
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    window.addEventListener(NAV_SYNC_EVENT, schedule);
+
+    return () => {
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      window.removeEventListener(NAV_SYNC_EVENT, schedule);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, [menuOpen]);
 
   // Scrolled state: IntersectionObserver on #hero (homepage), scroll
   // listener fallback for pages without #hero (case study).
@@ -298,20 +382,27 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
 
       <nav
         ref={navRef}
-        className={`group/nav fixed inset-x-0 top-0 z-[1030] border-b transition-[padding,background-color,border-color,box-shadow] duration-300 print:hidden ${
-          scrolled ? "py-2" : "py-3"
-        } ${
-          menuOpen
-            ? "border-hairline shadow-xs max-lg:nav-menu-glass"
-            : scrolled
-              ? "border-hairline nav-glass shadow-xs hover:nav-glass-hover"
-              : "border-transparent bg-(--c-page)"
-        }`}
+        className="group/nav fixed inset-x-0 top-0 z-[1030] nav-shell print:hidden"
         aria-label={labels.mainNavigation}
         data-scrolled={scrolled}
         onClick={handleClick}
       >
-        <div className="container flex flex-wrap items-center justify-between lg:flex-nowrap">
+        <div className="container flex flex-wrap items-center justify-between nav-capsule lg:flex-nowrap">
+          <div
+            ref={progressRef}
+            className={`nav-progress ${menuOpen ? "invisible" : ""}`}
+            aria-hidden="true"
+          >
+            {sections.map((section) => (
+              <i
+                key={section.href}
+                className="relative block h-full min-w-1.5 flex-1 overflow-hidden rounded-full bg-muted-text/25"
+              >
+                <b className="absolute inset-y-0 start-0 block w-0 rounded-full bg-linear-to-r from-note to-honey-hi rtl:bg-linear-to-l"></b>
+              </i>
+            ))}
+          </div>
+
           <SectionAnchor
             href="#hero"
             isHome={isHome}
@@ -436,7 +527,9 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                   {sections.map((section) => {
                     const active = activeSection === section.href.slice(1);
                     return (
-                      <li key={section.href}>
+                      // At xl the Contact link is replaced by the "Let's talk" button
+                      // on the right, so exactly one visible link targets #contact.
+                      <li key={section.href} className={section.href === "#contact" ? "xl:hidden" : undefined}>
                         <SectionAnchor
                           className={sectionLink(active)}
                           href={section.href}
@@ -444,6 +537,13 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                           locale={locale}
                           active={active}
                         >
+                          <span
+                            className="me-1.5 hidden font-mono text-xs text-note xl:inline"
+                            dir="ltr"
+                            aria-hidden="true"
+                          >
+                            {String(sections.indexOf(section) + 1).padStart(2, "0")}
+                          </span>
                           {labels[section.labelKey]}
                         </SectionAnchor>
                       </li>
@@ -466,13 +566,13 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                           {modKey} K
                         </span>
                       </button>
-                      <Link href={linksHref} className={auxLink}>
+                      <Link href={linksHref} className={auxLinkBar}>
                         <Icon name="externalLink" className="size-4" />
-                        {labels.allLinks}
+                        <span className={auxLabel}>{labels.allLinks}</span>
                       </Link>
-                      <a href={CV_PATH} download className={auxLink}>
+                      <a href={CV_PATH} download className={auxLinkBar}>
                         <Icon name="fileDown" className="size-4" />
-                        {labels.resume}
+                        <span className={auxLabel}>{labels.resume}</span>
                       </a>
                       <LanguageSwitcher {...languageSwitch} />
                       <ThemeToggle
@@ -481,6 +581,16 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                         className={themeButton}
                         iconClassName="size-5"
                       />
+                      <SectionAnchor
+                        href="#contact"
+                        isHome={isHome}
+                        locale={locale}
+                        active={activeSection === "contact"}
+                        className={talkButton}
+                      >
+                        {labels.letsTalk}
+                        <Icon name="arrowRight" className="size-4 rtl:rotate-180" />
+                      </SectionAnchor>
                     </div>
                   </li>
                 </ul>

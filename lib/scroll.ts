@@ -70,6 +70,7 @@ export function getNavbarHeight() {
   const logo = nav?.querySelector<HTMLElement>("[data-nav-logo]");
   if (!nav || !logo) return 70;
 
-  const padding = nav.dataset.scrolled === "true" ? 16 : 24;
+  // Matches `nav-shell`: 22px per side at the top, 16px once the capsule forms.
+  const padding = nav.dataset.scrolled === "true" ? 32 : 44;
   return logo.offsetHeight + padding + 1;
 }

@@ -19,6 +19,7 @@ const ar: Dictionary = {
     education: "التعليم",
     contact: "تواصل معي",
     allLinks: "كل روابطي",
+    letsTalk: "لنتحدث",
     resume: "السيرة الذاتية",
     backToTop: "العودة إلى الأعلى",
     skipToContent: "تخطَّ إلى المحتوى الرئيسي",

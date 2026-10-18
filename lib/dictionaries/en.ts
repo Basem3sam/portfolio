@@ -78,6 +78,7 @@ const en = {
     education: "Education",
     contact: "Contact",
     allLinks: "All My Links",
+    letsTalk: "Let's talk",
     resume: "Resume",
     backToTop: "Back to top",
     skipToContent: "Skip to main content",
