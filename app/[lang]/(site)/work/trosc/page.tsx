@@ -130,7 +130,7 @@ export default async function TroscCaseStudyPage({ params }: CaseStudyPageProps)
 
         <div className="mt-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
           <h1
-            className="font-mono text-3xl font-semibold tracking-tight text-dark-text md:text-4xl"
+            className="font-mono text-h1 font-semibold tracking-tight text-dark-text"
             dir="ltr"
           >
             trosc-backend

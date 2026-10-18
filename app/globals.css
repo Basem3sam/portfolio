@@ -667,6 +667,61 @@ html[lang="ar"] {
   mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
 }
 
+/* Work cards (redesign phase 5). --mx / --my are written by Spotlight.tsx.
+   The glow and edge bar appear on hover or keyboard focus inside the card and
+   are removed under reduced motion. */
+@utility spotlight {
+  position: relative;
+  isolation: isolate;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease-out;
+    background: radial-gradient(
+      420px circle at var(--mx, 30%) var(--my, 40%),
+      color-mix(in srgb, var(--c-honey-hi) 16%, transparent),
+      transparent 70%
+    );
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset-block: 12px;
+    inset-inline-start: 0;
+    width: 3px;
+    border-radius: 3px;
+    pointer-events: none;
+    background: var(--c-note);
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 0.3s ease-out;
+  }
+
+  &:hover::before,
+  &:focus-within::before {
+    opacity: 1;
+  }
+
+  &:hover::after,
+  &:focus-within::after {
+    transform: scaleY(1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &::before,
+    &::after {
+      display: none;
+    }
+  }
+}
+
 @utility nav-menu-panel {
   background-color: color-mix(
     in srgb,

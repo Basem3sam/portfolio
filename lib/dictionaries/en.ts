@@ -4,6 +4,10 @@ type WorkProject = {
   id: string;
   name: string;
   status: ProjectStatus;
+  /** Plain-words origin of the project (freelance, coursework...). Optional. */
+  provenance?: string;
+  /** Headline facts for the featured project, all taken from its description. */
+  stats?: { value: string; label: string }[];
   description: string;
   detail: string;
   tech: string[];
@@ -14,6 +18,13 @@ const projects: WorkProject[] = [
     id: "trosc",
     name: "trosc-backend",
     status: "production",
+    provenance: "Open source · student club",
+    stats: [
+      { value: "100+", label: "endpoints" },
+      { value: "12", label: "collections" },
+      { value: "17", label: "services" },
+      { value: "200+", label: "members" },
+    ],
     description:
       "Open-source production backend for a student-club learning platform — 100+ endpoints across 12 Mongoose collections and 17 dedicated services, serving tracks, courses, sessions, events, and announcements to 200+ members. Service-layer architecture with thin controllers, reusable factory middleware, and MongoDB querying with compound indexes and virtual population.",
     detail:
@@ -24,6 +35,7 @@ const projects: WorkProject[] = [
     id: "store-advisor",
     name: "store-advisor",
     status: "development",
+    provenance: "Product build",
     description:
       "A cross-source monitoring agent for e-commerce merchants: connects a store and its ad accounts, runs checks that join data across both, finds problems no single dashboard can see, prices them in dollars, explains them in plain language — and, with the merchant's approval, fixes them.",
     detail:
@@ -34,6 +46,7 @@ const projects: WorkProject[] = [
     id: "zabthalahak",
     name: "zabthalahak",
     status: "development",
+    provenance: "Freelance",
     description:
       "Freelance build for a real 3D-printing business: an Arabic-first, RTL storefront and admin dashboard — orders, custom requests, inventory, printers, customers, reports, and an audit log — in React 19 + Vite + Tailwind, over a data layer already shaped for the real API.",
     detail: "Node.js / Express / MongoDB modular-monolith backend currently in development.",
@@ -52,6 +65,7 @@ const projects: WorkProject[] = [
     id: "neuroscan",
     name: "neuroscan-ai",
     status: "academic",
+    provenance: "Coursework",
     description:
       "A hybrid brain-tumor detection pipeline across 6+ CNN-KNN-KMeans ensemble models with OpenCV preprocessing and multi-model consensus scoring, plus data augmentation, cross-validation, and a swappable classifier architecture for reproducible A/B testing.",
     detail: "Team project — third-year practical exam.",
