@@ -1,0 +1,678 @@
+/* ================================================================
+   Stack (section 03) — ALWAYS DARK in both themes.
+
+   Mockup source of truth: `Portfolio Design Mockup.html`
+   - token overrides + dark surface ......... #sec-stack 1710
+   - five-layer gradient background ......... 1990–1992 (grid + glows),
+                                              2005–2007 (final colours)
+   - soft inset feather edges ................ 2357
+   - request flow (stages/lines/nodes) ....... 1510–1562, 1711–1714
+   - 3D plate stack `.xl` .................... 2135–2145
+   - packet comet keyframes .................. 1529–1531
+   - scrub/hover polish ...................... 2229–2231, 1557–1562
+
+   Because the section is dark in both themes, every `--c-*` token is
+   re-declared on `#stack` (brief: always-dark sections). `@theme inline`
+   maps `--color-x: var(--c-x)`, so all Tailwind token utilities used by
+   Stack.tsx (`text-dark-text`, `border-hairline`, `bg-surface`, …)
+   invert automatically — no colour literals may appear in the .tsx.
+   ================================================================ */
+
+/* Registered so the scroll-driven plate animation interpolates smoothly.
+   Namespaced (--stk-*) to avoid colliding with the --sp written on .sh
+   by other behaviour. Harmless where @property is unsupported. */
+@property --stk-sp {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+#stack {
+  position: relative;
+  isolation: isolate; /* keeps the z-index:-1 mist inside the section */
+  overflow: clip; /* the 3D plates may bleed past the 320×250 xl box */
+  color: var(--c-dark-text);
+
+  /* ---- token inversion (mockup 1710) ---- */
+  --c-dark-text: #f4f8ff;
+  --c-light-text: rgba(236, 243, 255, 0.86);
+  --c-muted-text: rgba(236, 243, 255, 0.66);
+  --c-hairline: rgba(255, 255, 255, 0.16);
+  --c-rule-strong: rgba(255, 255, 255, 0.36);
+  --c-page: #071538;
+  --c-dark-bg: #050b2c;
+  --c-surface: rgba(255, 255, 255, 0.09);
+  --c-light-bg: rgba(255, 255, 255, 0.07);
+  --c-note: #f4c77d;
+  --c-honey: #f4c77d;
+  --c-honey-hi: #f4c77d;
+  --c-mark: #f4c77d;
+  --c-secondary: #9fbcff;
+  --c-signal: #c9d9ff;
+  --c-on-secondary: #071538;
+
+  /* Abbreviation-tile ink (mockup 1714: `#sec-stack .tech i` → #9fe3f1). */
+  --sc-abbr: #9fe3f1;
+
+  /* ---- the five-layer gradient (mockup 1990 grid + 2005 final colours) ---- */
+  --sc-1: rgba(139, 108, 255, 0.5);
+  --sc-2: rgba(48, 110, 255, 0.42);
+  --sc-3: rgba(70, 60, 190, 0.35);
+  --sc-4: rgba(255, 255, 255, 0.035);
+  --sc-5: linear-gradient(160deg, #101f63 0, #0a1648 50%, #060d33 100%);
+  /* Position/size live in their own longhands: the `0 0 / 56px 56px`
+     shorthand syntax is rejected inside the background-image longhand
+     (the mockup used the `background:` shorthand). */
+  background-image:
+    radial-gradient(60% 55% at 92% 0%, var(--sc-1), transparent 65%),
+    radial-gradient(55% 50% at 0% 100%, var(--sc-2), transparent 66%),
+    radial-gradient(40% 36% at 55% 55%, var(--sc-3), transparent 70%),
+    var(--sc-5);
+  background-position: 0 0, 0 0, 0 0, 0 0;
+  background-size: auto, auto, auto, auto;
+  background-repeat: no-repeat;
+  /* Soft feather into the neighbouring light sections (mockup 2357). */
+  box-shadow:
+    inset 0 190px 120px -120px var(--c-light-bg),
+    inset 0 -190px 120px -120px var(--c-page);
+}
+
+/* Dark theme keeps the same tokens but cools the glows (mockup 2007). */
+.dark-mode #stack {
+  --sc-1: rgba(150, 115, 255, 0.42);
+  --sc-2: rgba(244, 199, 125, 0.17);
+  --sc-3: rgba(80, 70, 200, 0.3);
+  --sc-5: linear-gradient(160deg, #141f57 0, #0b1240 50%, #070b28 100%);
+}
+
+/* ---- request lanes (replaces the square grid) ---- */
+#stack .stx-lanes {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(110% 85% at 50% 50%, #000 25%, transparent 85%);
+  mask-image: radial-gradient(110% 85% at 50% 50%, #000 25%, transparent 85%);
+}
+
+#stack .stx-lanes line {
+  fill: none;
+  stroke: var(--c-secondary);
+  stroke-width: 2;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.34;
+  animation: lane-flow linear infinite;
+}
+
+#stack .stx-lanes line.trace {
+  stroke-width: 1;
+  stroke-dasharray: none;
+  opacity: 0.09;
+  animation: none;
+}
+
+#stack .stx-lanes line.hot {
+  stroke: var(--c-honey);
+  stroke-width: 2;
+  opacity: 0.5;
+}
+
+@keyframes lane-flow {
+  to {
+    stroke-dashoffset: calc(var(--p) * -1);
+  }
+}
+
+[dir="rtl"] #stack .stx-lanes {
+  transform: scaleX(-1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #stack .stx-lanes line {
+    animation: none;
+  }
+}
+
+/* Mist tuning (mockup markup 2646: --ag-speed:.6; --ag-opacity:.8). */
+#stack .ag {
+  --ag-speed: 0.6;
+  --ag-opacity: 0.8;
+}
+
+/* ---- section header + lead (mockup 1993/1994, 1510) ---- */
+#stack .sh {
+  margin-bottom: 0;
+}
+
+#stack .sh p {
+  margin-top: 10px;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  max-width: 46ch;
+}
+
+/* ================================================================
+   Five-stage request flow
+   ================================================================ */
+#stack .sflow {
+  position: relative;
+  margin-top: 40px;
+}
+
+#stack .fl-stages {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#stack .stx {
+  position: relative;
+  min-width: 0;
+  padding-block: 36px 6px;
+  padding-inline-end: 24px;
+}
+
+/* Connector line behind the stage. It defaults to DRAWN: with JS off or
+   reduced motion on, data-revealed is never set and the final state shows.
+   RevealOnScroll snaps it back only after it has booted. */
+#stack .stx-seg {
+  position: absolute;
+  top: 5px;
+  inset-inline: 0;
+  height: 2px;
+  background: var(--c-rule-strong);
+}
+
+#stack .stx-seg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--c-secondary);
+  transform: scaleX(1);
+  transform-origin: left center;
+  transition: transform 1.8s linear;
+  transition-delay: calc(var(--i, 0) * 0.5s + 0.4s);
+}
+
+html[dir="rtl"] #stack .stx-seg::after {
+  transform-origin: right center;
+}
+
+#stack .stx[data-revealed="false"] .stx-seg::after {
+  transform: scaleX(0);
+  transition: none;
+}
+
+/* Node on the line: lit (honey) by default; unlit until revealed. */
+#stack .stx-node {
+  position: absolute;
+  top: 0;
+  inset-inline-start: 0;
+  z-index: 1;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--c-honey);
+  border: 2px solid var(--c-honey);
+  transition:
+    background-color 0.6s ease,
+    border-color 0.6s ease,
+    transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+#stack .stx[data-revealed="false"] .stx-node {
+  background: var(--c-page);
+  border-color: var(--c-secondary);
+  transition: none;
+}
+
+#stack .stx:hover .stx-node {
+  transform: scale(1.35);
+}
+
+/* Mono key row: index (note-coloured) + stage key (mockup 1520–1522). */
+#stack .stx-k {
+  display: flex;
+  gap: 10px;
+  font-family: var(--font-mono-body);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c-muted-text);
+}
+
+#stack .stx-n {
+  color: var(--c-note);
+}
+
+html[lang="ar"] #stack .stx-k {
+  font-family: var(--font-body);
+  text-transform: none;
+}
+
+#stack .stx h3 {
+  margin-top: 10px;
+  font-size: 1.3125rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+#stack .stx-c {
+  margin-top: 8px;
+  min-height: 3.1em;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--c-muted-text);
+}
+
+/* Tech chips: one column per stage on wide screens (mockup 1526–1528),
+   wrapping rows below. Tokens make the stack override (1713) automatic. */
+#stack .stx .chips {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+#stack .chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  min-height: 46px;
+  padding: 7px 12px 7px 7px;
+  overflow-wrap: anywhere;
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  border-color: var(--c-hairline); /* rgba(255,255,255,.16), mockup 1713 */
+  background: var(--c-light-bg); /* rgba(255,255,255,.07), mockup 1713 */
+}
+
+html[dir="rtl"] #stack .chip {
+  justify-content: flex-end; /* mockup 273 */
+}
+
+/* Abbreviation shown in place of an icon (mockup 1250 + 1714). */
+#stack .chip b {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--sc-abbr);
+  font-family: var(--font-mono-body);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0;
+  direction: ltr;
+}
+
+/* Focus dims the other stages so the hovered one leads (mockup 1561–1562). */
+#stack .stx h3,
+#stack .stx .chips {
+  transition: opacity 0.6s ease;
+}
+
+#stack .sflow:has(.stx:hover) .stx:not(:hover) :is(h3, .chips) {
+  opacity: 0.62;
+}
+
+/* ---- packet comet riding the connector line (mockup 1529–1531) ---- */
+#stack .stx-pkt {
+  position: absolute;
+  z-index: 2;
+  top: 2px;
+  inset-inline-start: 0;
+  width: 30px;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, transparent, var(--c-honey));
+  box-shadow: 0 0 16px var(--c-honey);
+  opacity: 0;
+  animation: stx-pkt 12s cubic-bezier(0.45, 0.05, 0.4, 1) 4s infinite;
+  pointer-events: none;
+}
+
+html[dir="rtl"] #stack .stx-pkt {
+  background: linear-gradient(270deg, transparent, var(--c-honey));
+}
+
+@keyframes stx-pkt {
+  0% {
+    inset-inline-start: 0;
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    inset-inline-start: calc(100% - 30px);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #stack .stx-pkt {
+    display: none;
+  }
+}
+
+/* ---- "Also writes" row (mockup 1532–1535) ---- */
+#stack .stx-also {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 22px;
+  margin-top: 48px;
+  padding-top: 26px;
+  border-top: 1px dashed var(--c-rule-strong);
+}
+
+#stack .stx-also .chips {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+#stack .stx-also .chip {
+  display: inline-flex;
+  min-height: 40px;
+  padding: 6px 12px 6px 6px;
+  font-size: 0.875rem;
+}
+
+#stack .stx-also .chip b {
+  width: 26px;
+  height: 26px;
+}
+
+/* ================================================================
+   3D plate stack `.xl` (mockup 2135–2145) — decorative, aria-hidden.
+   ================================================================ */
+#stack .xl {
+  display: none;
+  position: absolute;
+  z-index: 1;
+  top: clamp(20px, 3vw, 44px);
+  /* Track the content column's edge (the container is capped at 1320px
+     with 12px padding; the mockup offsets --gx by 10px). */
+  inset-inline-end: max(22px, calc((100% - 1320px) / 2 + 22px));
+  width: 320px;
+  height: 250px;
+  pointer-events: none;
+  --xp: 0;
+  --gap: 8px;
+}
+
+#stack .xl-s {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: perspective(1100px) rotateX(60deg) rotateZ(calc(-36deg + var(--xp) * 10deg));
+}
+
+#stack .xl-s i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 150px;
+  height: 150px;
+  margin: -75px 0 0 -75px;
+  border: 1.5px solid var(--c-muted-text);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--c-page) 78%, transparent);
+  transform: translateZ(calc((2 - var(--n)) * var(--gap) * 2));
+  transition:
+    border-color 0.5s,
+    background-color 0.5s,
+    box-shadow 0.5s;
+}
+
+#stack .xl-s i b {
+  position: absolute;
+  inset-inline-start: 9px;
+  bottom: 7px;
+  font-family: var(--font-mono-body);
+  font-size: 0.625rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--c-muted-text);
+  transition: color 0.5s;
+}
+
+html[lang="ar"] #stack .xl-s i b {
+  font-family: var(--font-body);
+  text-transform: none;
+}
+
+#stack .xl-p {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  background: var(--c-honey);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--c-honey) 22%, transparent);
+  transform: translateZ(calc((2 - var(--pk, 0)) * var(--gap) * 2));
+}
+
+#stack .xl-c {
+  position: absolute;
+  inset-inline-end: 0;
+  bottom: -18px;
+  margin: 0;
+  font-family: var(--font-mono-body);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-muted-text);
+}
+
+html[lang="ar"] #stack .xl-c {
+  font-family: var(--font-body);
+  text-transform: none;
+}
+
+/* ================================================================
+   Responsive (mockup container queries → viewport media queries).
+   Content column: 1116px inner at ≥1200vw, 936px at 992–1199,
+   696px below — so the mockup's 1100/1000/900/560 container
+   thresholds map to 1200 / 1199 / 991 / 767 viewport.
+   ================================================================ */
+
+/* Mockup 2145: give the header room, drop the flow below the plates. */
+@media (min-width: 1200px) {
+  #stack .xl {
+    display: block;
+  }
+
+  #stack .sh {
+    max-width: calc(100% - 360px);
+  }
+
+  #stack .sflow {
+    margin-top: 112px;
+  }
+}
+
+/* Mockup 1536: slightly tighter columns. */
+@media (max-width: 1199px) {
+  #stack .stx {
+    padding-inline-end: 16px;
+  }
+
+  #stack .stx h3 {
+    font-size: 1.1875rem;
+  }
+}
+
+/* Mockup 1537–1549: one vertical timeline instead of five columns. */
+@media (max-width: 991px) {
+  #stack .fl-stages {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #stack .stx {
+    padding-block: 0 38px;
+    padding-inline: 36px 0;
+  }
+
+  #stack .stx-seg {
+    top: 12px;
+    bottom: -12px;
+    height: auto;
+    width: 2px;
+    inset-inline: 5px auto;
+  }
+
+  #stack .stx-seg::after {
+    transform: scaleY(1);
+    transform-origin: top center;
+  }
+
+  #stack .stx[data-revealed="false"] .stx-seg::after {
+    transform: scaleY(0);
+  }
+
+  #stack .stx:last-child .stx-seg {
+    display: none;
+  }
+
+  #stack .stx-c {
+    min-height: 0;
+  }
+
+  #stack .stx .chips {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 4px;
+    margin-top: 16px;
+  }
+
+  #stack .stx .chip {
+    display: inline-flex;
+  }
+
+  #stack .stx-pkt {
+    display: none;
+  }
+}
+
+/* Mockup 1551: breathing room back on phones. */
+@media (max-width: 767px) {
+  #stack .sflow {
+    margin-top: 28px;
+  }
+
+  #stack .stx-also {
+    margin-top: 12px;
+  }
+}
+
+/* ================================================================
+   Optional scroll flow: the packet travels EDGE → SHIP through the
+   plates and lights each one in turn (mockup JS 4259–4267), but
+   CSS-only. Progressive enhancement — inert under reduced motion,
+   on touch, and where scroll-driven animations don't exist; the
+   static state above is the complete design.
+   ================================================================ */
+@keyframes stx-travel {
+  from {
+    --stk-sp: 0;
+  }
+  to {
+    --stk-sp: 1;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+  @supports (animation-timeline: view()) {
+    #stack .xl {
+      animation: stx-travel linear both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 100%;
+    }
+
+    #stack .xl-s {
+      --gap: calc(5px + var(--stk-sp) * 14px);
+      --pk: calc(var(--stk-sp) * 4);
+    }
+
+    /* Light plate i when the packet (--pk) is within reach of --n:i. */
+    #stack .xl-s i {
+      --pkd: calc(var(--pk) - var(--n));
+      --f: clamp(0, 1 - max(var(--pkd), calc(0 - var(--pkd))) * 1.6, 1);
+      transition: none;
+      border-color: color-mix(in srgb, var(--c-signal) calc(var(--f) * 100%), var(--c-muted-text));
+      background: color-mix(
+        in srgb,
+        color-mix(in srgb, var(--c-signal) 16%, var(--c-page)) calc(var(--f) * 100%),
+        color-mix(in srgb, var(--c-page) 78%, transparent)
+      );
+      box-shadow: 0 0 24px color-mix(in srgb, var(--c-signal) calc(var(--f) * 30%), transparent);
+    }
+
+    #stack .xl-s i b {
+      transition: none;
+      color: color-mix(in srgb, var(--c-signal) calc(var(--f) * 100%), var(--c-muted-text));
+    }
+  }
+}
+
+/* ================================================================
+   Print: globals.css forces light tokens on :root/.dark-mode, but the
+   #stack re-declaration would still win inside the section. Restore
+   the same print palette and drop the dark surface (globals 933–960).
+   ================================================================ */
+@media print {
+  #stack {
+    --c-dark-text: #1a1d21;
+    --c-light-text: #3f3f46;
+    --c-muted-text: #52525b;
+    --c-hairline: #d4d4d0;
+    --c-rule-strong: #a1a1aa;
+    --c-page: #ffffff;
+    --c-dark-bg: #ffffff;
+    --c-surface: #ffffff;
+    --c-light-bg: #f3f3f0;
+    --c-note: #7a4a00;
+    --c-honey: #7a4a00;
+    --c-honey-hi: #7a4a00;
+    --c-mark: #ffffff;
+    --c-secondary: #1f35b8;
+    --c-signal: #1f35b8;
+    --c-on-secondary: #ffffff;
+    --sc-abbr: #7a4a00;
+    background-image: none;
+    box-shadow: none;
+  }
+
+  #stack .xl,
+  #stack .ag,
+  #stack .stx-lanes,
+  #stack .stx-pkt {
+    display: none;
+  }
+}

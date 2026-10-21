@@ -2,7 +2,9 @@ import { expect, test } from "@playwright/test";
 
 /** Remaining sections (redesign phase 6). Needs a running app. */
 
-test("experience is a timeline: three entries, one current, case-study link on it", async ({ page }) => {
+test("experience is a timeline: three entries, one current, case-study link on it", async ({
+  page,
+}) => {
   await page.goto("/");
   const entries = page.locator("#experience ol > li");
   await expect(entries).toHaveCount(3);
@@ -39,10 +41,12 @@ test("timeline dots sit on the rail in LTR and RTL", async ({ page }) => {
   }
 });
 
-test("green is only for live things: education bullets are not status-coloured", async ({ page }) => {
+test("green is only for live things: About (incl. education) is not status-coloured", async ({
+  page,
+}) => {
   await page.goto("/");
-  await expect(page.locator("#education .bg-status")).toHaveCount(0);
-  await expect(page.locator("#education .bg-secondary")).toHaveCount(0);
+  await expect(page.locator("#about .bg-status")).toHaveCount(0);
+  await expect(page.locator("#about .bg-secondary")).toHaveCount(0);
 });
 
 test("no horizontal overflow in the lower sections at phone width", async ({ page }) => {

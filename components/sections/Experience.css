@@ -1,0 +1,470 @@
+/* Experience section — implemented from `Portfolio Design Mockup.html`:
+   base timeline rules ~790–809, Rev 23 sticky story panel + scroll scrub
+   ~2232–2281, Rev 25 card depth ~2297–2298. Colour tokens per the
+   AGENT-BRIEF mapping table (`--note` graphics -> `--c-honey`, `--raise`
+   -> `--c-surface`, `--rule-2` -> `--c-rule-strong`, …). All rules are
+   scoped to `#experience` so nothing here can bleed into sibling sections. */
+
+/* ---------- wrap: block by default, sticky-panel grid at the mockup's
+     1101px breakpoint (mockup uses a container query; the repo uses
+     viewport media queries) ---------- */
+#experience .xp-wrap {
+  display: block;
+}
+
+#experience .xp-side {
+  display: none;
+}
+
+@media (min-width: 1101px) {
+  #experience .xp-wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 250px) minmax(0, 1fr);
+    gap: 56px;
+    align-items: start;
+  }
+
+  #experience .xp-side {
+    display: block;
+    position: sticky;
+    top: 84px;
+  }
+}
+
+/* ---------- timeline rail (the <ol> itself, mockup .tl) ---------- */
+#experience .tl {
+  --tlp: 36px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  padding-inline-start: var(--tlp);
+  list-style: none;
+}
+
+/* base rail: honey at the top fading into the neutral rules */
+#experience .tl::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: calc(var(--tlp) / 2 - 1px);
+  top: 39px; /* the first dot's centre: 32px offset + 7px radius */
+  bottom: 26px;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(var(--c-honey), var(--c-rule-strong) 35%, var(--c-hairline));
+}
+
+/* progress overlay: fills as the viewport midpoint travels down the rail
+   (Rev 23 `.tl::after`; `--tp` is written by the scroll effect) */
+#experience .tl::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: calc(var(--tlp) / 2 - 1px);
+  top: 39px;
+  bottom: 26px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--c-honey);
+  transform: scaleY(var(--tp, 0));
+  transform-origin: top center;
+  box-shadow: 0 0 14px color-mix(in srgb, var(--c-honey) 70%, transparent);
+}
+
+/* ---------- entry card (mockup .xp2) ---------- */
+#experience .xp2 {
+  --f: 1;
+  position: relative;
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+  gap: 10px 28px;
+  padding: 26px 28px;
+  border: 1px solid var(--c-rule-strong);
+  border-radius: 20px;
+  background: var(--c-surface);
+  box-shadow: var(--sh-md);
+  /* focus factor from the scroll effect: cards scale up near the centre */
+  scale: calc(0.972 + var(--f) * 0.028);
+  transform-origin: calc(var(--tlp) / -2) 50%;
+  transition:
+    border-color 0.2s,
+    background-color 0.2s,
+    box-shadow 0.3s;
+}
+
+[dir="rtl"] #experience .xp2 {
+  transform-origin: calc(100% + var(--tlp) / 2) 50%;
+}
+
+#experience .xp2:hover {
+  border-color: var(--c-muted-text);
+  background: var(--c-light-bg);
+}
+
+/* the current role: a soft signal wash, per the mockup — amber stays on the
+   rail, dots and pill; green (--c-status) is never used decoratively here */
+#experience .xp2.is-now {
+  border-color: color-mix(in srgb, var(--c-signal) 45%, var(--c-rule-strong));
+  background:
+    linear-gradient(
+      100deg,
+      color-mix(in srgb, var(--c-secondary) 10%, transparent),
+      transparent 62%
+    ),
+    var(--c-surface);
+}
+
+#experience .xp2.is-now:hover {
+  background:
+    linear-gradient(
+      100deg,
+      color-mix(in srgb, var(--c-secondary) 10%, transparent),
+      transparent 62%
+    ),
+    var(--c-light-bg);
+}
+
+/* the card currently in focus (set by the scroll effect) */
+#experience .xp2.act {
+  border-color: color-mix(in srgb, var(--c-honey) 60%, var(--c-rule-strong));
+  box-shadow: var(--sh-lg);
+}
+
+/* unfocused cards dim their inner columns, never the card itself; with JS
+   off or reduced motion `--f` stays 1 so everything is fully visible */
+#experience .xp2-when,
+#experience .xp2-body {
+  opacity: calc(0.48 + var(--f) * 0.52);
+  transition: opacity 0.35s ease;
+}
+
+/* ---------- timeline dot (direct child of the <li>, sits on the rail) ---------- */
+#experience .tl-dot {
+  position: absolute;
+  inset-block-start: 32px;
+  /* -7px keeps the 14px dot's centre exactly on the 2px rail in LTR and RTL */
+  inset-inline-start: calc(var(--tlp) / -2 - 7px);
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--c-muted-text);
+  border-radius: 50%;
+  background: var(--c-page);
+  transition:
+    background-color 0.25s,
+    border-color 0.25s,
+    box-shadow 0.45s,
+    scale 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+#experience .xp2:hover .tl-dot {
+  border-color: var(--c-honey);
+}
+
+#experience .xp2.is-now .tl-dot {
+  background: var(--c-honey);
+  border-color: var(--c-honey);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--c-honey) 22%, transparent);
+}
+
+#experience .xp2.passed .tl-dot {
+  background: var(--c-honey);
+  border-color: var(--c-honey);
+  scale: 1.25;
+}
+
+#experience .xp2.passed:not(.act) .tl-dot {
+  scale: 1;
+}
+
+#experience .xp2.act .tl-dot {
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--c-honey) 24%, transparent);
+}
+
+/* ---------- period column, icon, pill ---------- */
+#experience .xp2-when {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+#experience .xp-ic {
+  width: 22px;
+  height: 22px;
+  color: var(--c-muted-text);
+  stroke-width: 1.75;
+}
+
+#experience .now-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border: 1px solid color-mix(in srgb, var(--c-honey) 60%, transparent);
+  border-radius: 999px;
+  color: var(--c-note);
+  font-family: var(--font-mono-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+#experience .now-pill i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--c-honey);
+}
+
+html[lang="ar"] #experience .now-pill {
+  font-family: var(--font-body);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* ---------- body column ---------- */
+#experience .xp2 h3 {
+  font-family: var(--font-display-body);
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+#experience .xp2 .org {
+  margin-top: 2px;
+  font-size: 0.9375rem;
+  color: var(--c-light-text);
+}
+
+#experience .xp2-body > p:not(.org) {
+  margin-top: 10px;
+  max-width: 62ch;
+  color: var(--c-light-text);
+}
+
+#experience .xp2-chips {
+  gap: 8px;
+  margin-top: 16px;
+}
+
+/* ---------- case-study pill: the mockup's richer `.more`, scoped so the
+     plainer global `.more` keeps its behaviour everywhere else ---------- */
+#experience .xp-more {
+  gap: 10px;
+  margin-top: 16px;
+  padding-inline: 18px 8px;
+  border: 1px solid var(--c-rule-strong);
+  border-radius: 999px;
+  color: var(--c-dark-text);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+}
+
+[dir="rtl"] #experience .xp-more {
+  padding-inline: 8px 18px;
+}
+
+#experience .xp-more-arrow {
+  width: 30px;
+  height: 30px;
+  padding: 7px;
+  border-radius: 50%;
+  background: var(--c-dark-text);
+  color: var(--c-page);
+  transition:
+    transform 0.25s ease-out,
+    background-color 0.2s,
+    color 0.2s;
+}
+
+#experience .xp-more:hover,
+#experience .xp-more:focus-visible {
+  background: var(--c-dark-text);
+  color: var(--c-page);
+  border-color: var(--c-dark-text);
+}
+
+#experience .xp-more:hover .xp-more-arrow,
+#experience .xp-more:focus-visible .xp-more-arrow {
+  background: var(--c-honey);
+  color: var(--c-page);
+  transform: translateX(3px);
+}
+
+[dir="rtl"] #experience .xp-more:hover .xp-more-arrow,
+[dir="rtl"] #experience .xp-more:focus-visible .xp-more-arrow {
+  transform: translateX(-3px);
+}
+
+/* ---------- sticky story panel (mockup .xp-side / .xs-*) ---------- */
+@keyframes xp-story-in {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+#experience .xs-count {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  direction: ltr;
+}
+
+/* The numeral used to be a hollow outline (text-stroke). On a variable font
+   the stroke traces every overlapping contour, so the digits showed stray
+   inner lines. It is now a solid numeral with a honey-to-transparent
+   gradient fill, which keeps the quiet "ghost" feel with clean glyphs. */
+#experience .xs-count b {
+  font-family: var(--font-display-body);
+  font-size: clamp(4rem, 8vw, 6.5rem);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--c-honey);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--c-honey) 92%, transparent) 0%,
+    color-mix(in srgb, var(--c-honey) 34%, transparent) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+#experience .xs-count span {
+  font-family: var(--font-mono-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--c-muted-text);
+}
+
+#experience .xs-t {
+  margin-top: 18px;
+  font-family: var(--font-display-body);
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--c-dark-text);
+  text-wrap: balance;
+}
+
+#experience .xs-w {
+  margin-top: 8px;
+  font-family: var(--font-mono-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--c-note);
+}
+
+html[lang="ar"] #experience .xs-t,
+html[lang="ar"] #experience .xs-w,
+html[lang="ar"] #experience .xs-count span {
+  font-family: var(--font-body);
+  letter-spacing: 0;
+}
+
+#experience .xs-bar {
+  display: flex;
+  gap: 6px;
+  margin-top: 22px;
+}
+
+#experience .xs-bar i {
+  flex: 1;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--c-rule-strong);
+  opacity: 0.5;
+  transition:
+    background-color 0.5s,
+    opacity 0.5s;
+}
+
+#experience .xs-bar i.on {
+  background: var(--c-honey);
+  opacity: 1;
+}
+
+#experience .xs-hint {
+  margin-top: 22px;
+  font-size: 1.125rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--c-muted-text);
+  rotate: -2deg;
+}
+
+html[lang="ar"] #experience .xs-hint {
+  font-size: 0.9375rem;
+  rotate: 0deg;
+}
+
+/* the story lines fade+rise when React remounts them on an index change
+   (keys in the JSX). Reduced motion collapses this to an instant swap via
+   the global `animation-duration: 0.01ms` guard in globals.css. */
+#experience .xs-count b,
+#experience .xs-t,
+#experience .xs-w {
+  animation: xp-story-in 0.7s var(--ease-out) both;
+}
+
+/* ---------- responsive (mockup container breakpoints ~900/560px) ---------- */
+@media (max-width: 900px) {
+  #experience .xp2 {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 22px;
+  }
+}
+
+@media (max-width: 560px) {
+  #experience .tl {
+    --tlp: 26px;
+  }
+
+  #experience .xp2 {
+    padding: 18px;
+  }
+
+  #experience .xp2 h3 {
+    font-size: 1.25rem;
+  }
+}
+
+/* ---------- reduced motion: hold the timeline in its static, fully
+     readable state (the JS scrub never attaches either) ---------- */
+@media (prefers-reduced-motion: reduce) {
+  #experience .xp2 {
+    scale: 1;
+  }
+
+  #experience .xp2-when,
+  #experience .xp2-body {
+    opacity: 1;
+    transition: none;
+  }
+
+  #experience .tl::after {
+    transform: scaleY(0);
+  }
+
+  #experience .tl-dot {
+    transition: none;
+  }
+}

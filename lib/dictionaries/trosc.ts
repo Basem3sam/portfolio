@@ -1,161 +1,215 @@
 import type { Locale } from "@/lib/i18n";
 
-const en = {
+/**
+ * Case-study copy for the Trosc backend page.
+ *
+ * The wording follows the approved reference (`Portfolio Design Mockup.html`,
+ * `main[data-page="case"]`) so the rendered page matches it line for line:
+ * the hero label, the seven request-path stages, the three architecture
+ * entries, the five security controls, and the explorer / frontend copy are
+ * transcribed from there, in both locales.
+ *
+ * Figures are the ones the owner confirmed (see
+ * `docs/portfolio-redesign/CLAIMS-VERIFICATION.md`): 100+ endpoints, 12
+ * collections, 17 services, 60+ test suites, 94.8% statement coverage, 200+
+ * members. The 131 mounted endpoints figure is deliberately confined to the
+ * metrics note, where the counting method is stated.
+ */
+
+export type TroscMetric = {
+  label: string;
+  value: number;
+  /** Suffix rendered in the honey-coloured `em` (e.g. "+", "%"). */
+  suffix: string;
+};
+
+export type TroscStage = {
+  /** Step number shown in the node. */
+  n: string;
+  name: string;
+  desc: string;
+};
+
+export type TroscEntry = {
+  title: string;
+  desc: string;
+};
+
+export type TroscDictionary = {
+  metadata: {
+    title: string;
+    description: string;
+  };
+  back: {
+    label: string;
+  };
+  hero: {
+    label: string;
+    title: string;
+    slug: string;
+    status: string;
+    intro: string;
+  };
+  metrics: TroscMetric[];
+  metricsNote: string;
+  actions: {
+    repository: string;
+    liveSite: string;
+    apiReference: string;
+  };
+  sections: {
+    requestPath: {
+      title: string;
+      lead: string;
+      stages: TroscStage[];
+    };
+    architecture: {
+      title: string;
+      entries: TroscEntry[];
+    };
+    security: {
+      title: string;
+      items: TroscEntry[];
+      note: string;
+    };
+    explorer: {
+      title: string;
+      lead: string;
+      run: string;
+      /** Footnote while nothing has been simulated yet. */
+      idle: string;
+      /** Footnote after a simulated run. */
+      note: string;
+      /** Group headings in the endpoint list, by who may call them. */
+      groups: { public: string; protected: string; admin: string };
+      /** Labels of the response strip. */
+      status: string;
+      time: string;
+      size: string;
+      limit: string;
+      /** Unit that follows the rate-limit number. */
+      limitUnit: string;
+      running: string;
+      typical: string;
+    };
+    frontend: {
+      title: string;
+      lead: string;
+      addr: string;
+      placeholder: string;
+      body: string;
+    };
+  };
+};
+
+const en: TroscDictionary = {
   metadata: {
     title: "trosc-backend — Case Study | Basem Esam",
     description:
       "How a student-club API grew into a 100+ endpoint production system serving 200+ members: service-layer architecture, policy-based authorization, MongoDB transactions, and a zero-cost media pipeline.",
   },
-  back: "work",
-  statusLabel: "production",
-  role: "IT Head & Backend Lead · Jan 2025 – Present",
-  brief:
-    "The API behind Trosc Student Club's learning platform at Suez Canal University. What began in January 2025 as a club website grew into a production system: 100+ endpoints over 12 collections and 17 services, serving tracks, courses, video sessions, events, announcements, assignments, weekly tasks, and reviews to 200+ members — on infrastructure that costs nothing to run.",
-  metricsNote: "Figures from the live API documentation.",
-  links: {
-    repo: "View repository",
-    live: "Live site",
-    api: "API reference",
+  back: {
+    label: "Work",
+  },
+  hero: {
+    label: "Case study · IT Head & Backend Lead · Jan 2025 – present",
+    title: "Trosc backend",
+    slug: "trosc-backend",
+    status: "In production",
+    intro:
+      "The API behind Trosc Student Club's learning platform at Suez Canal University. It began in January 2025 as a club website and grew into a production system for tracks, courses, video sessions, events, announcements, assignments, weekly tasks, and reviews, on infrastructure that costs nothing to run.",
   },
   metrics: [
-    { value: 100, suffix: "+", label: "endpoints" },
-    { value: 12, suffix: "", label: "collections" },
-    { value: 17, suffix: "", label: "services" },
-    { value: 60, suffix: "+", label: "test suites" },
-    { value: 95, suffix: "%+", label: "statement coverage" },
-    { value: 200, suffix: "+", label: "members served" },
+    { label: "endpoints", value: 100, suffix: "+" },
+    { label: "collections", value: 12, suffix: "" },
+    { label: "services", value: 17, suffix: "" },
+    { label: "test suites", value: 60, suffix: "+" },
+    { label: "statement coverage", value: 94.8, suffix: "%" },
+    { label: "members", value: 200, suffix: "+" },
   ],
+  metricsNote:
+    "131 mounted endpoints counted from the router stack and coverage from clover.xml, both Oct 2026. Member count confirmed by the owner.",
+  actions: {
+    repository: "Repository",
+    liveSite: "Live site",
+    apiReference: "API reference",
+  },
   sections: {
+    requestPath: {
+      title: "Request path",
+      lead: "What happens to one request before it reaches the database. Simplified from the project README.",
+      stages: [
+        { n: "1", name: "Client", desc: "Browser or app" },
+        { n: "2", name: "Rate limit", desc: "300 requests / 15 min globally, 5 / 15 min on auth" },
+        { n: "3", name: "Auth", desc: "Dual-token JWT: bearer header and httpOnly cookie" },
+        { n: "4", name: "RBAC", desc: "Student, instructor, admin" },
+        {
+          n: "5",
+          name: "Policy",
+          desc: "Current role and staff membership, never who created the item",
+        },
+        { n: "6", name: "Service", desc: "17 services behind thin controllers" },
+        { n: "7", name: "MongoDB", desc: "12 collections, 10 s query deadline" },
+      ],
+    },
     architecture: {
       title: "Architecture",
       entries: [
         {
-          title: "Service layer",
-          text: "Controllers stay thin; all business logic lives in 17 dedicated services. One home per rule, so a change in enrollment policy happens in exactly one file.",
+          title: "Thin controllers, one home per rule",
+          desc: "All business logic lives in 17 services, so a change in enrollment policy happens in exactly one file.",
         },
         {
-          title: "Policy-based authorization",
-          text: "Every mutation is authorized from the caller's current role and current staff membership — never from who created the item; createdBy is attribution only. Drafts (published: false) are invisible to anyone who doesn't manage them: a 404, not a redacted response.",
+          title: "Authorization from current facts",
+          desc: "Every mutation is authorized from the caller's current role and staff membership, never from who created the item. Drafts return a 404, not a redacted response.",
         },
         {
-          title: "Cascade enrollment, transactional",
-          text: "A dedicated service keeps User, Track, Course, and Session enrollments in sync inside MongoDB transactions, so join, leave, and approve operations can never leave a dangling reference — even under concurrency.",
-        },
-        {
-          title: "Resource-type factories",
-          text: "Reviews and assignments attach to three parent types with identical rules. A single route factory is mounted per parent, so the logic is written once and behaves the same everywhere.",
-        },
-        {
-          title: "One query builder",
-          text: "Every list endpoint runs through APIFeatures: 8 MongoDB operators, sorting, field selection, pagination metadata, and full-text search — one class, one behavior.",
-        },
-        {
-          title: "Counted by the database",
-          text: "Rosters are answered with projection-only aggregations — studentCount, isEnrolled, submissionCount — instead of loading whole arrays and deleting them before responding.",
-        },
-        {
-          title: "Live vs. snapshot analytics",
-          text: "The same computation powers the never-persisted /dashboard-stats/live and the upserted daily, weekly, and monthly snapshots behind the trend charts.",
+          title: "One query class",
+          desc: "Every list endpoint runs through APIFeatures: 8 MongoDB operators, sorting, field selection, pagination metadata, and full-text search.",
         },
       ],
     },
     security: {
-      title: "Security — seven layers",
-      intro: "Defense in depth, each layer independent:",
-      layers: [
-        "Helmet — secure HTTP headers (CSP, HSTS, X-Frame-Options).",
-        "express-mongo-sanitize — strips $ and . from user input (NoSQL injection).",
-        "HPP — parameter-pollution protection with per-route whitelists.",
-        "CORS whitelisting — credentials only from known origins.",
-        "Tiered rate limiting — 300 requests / 15 min globally; 5 / 15 min on auth endpoints.",
-        "Dual-token JWT — httpOnly secure cookie + bearer header, rememberMe lifetimes, invalidation on password change.",
-        "3-tier RBAC — student / instructor / admin, enforced by the policy layer on every request.",
-      ],
-      extra:
-        "Beyond the seven: Joi validation co-located with Swagger docs, sensitive fields stripped from request bodies to block privilege escalation, audit writes that are internal-only and never fail a request, and 10-second deadlines on every list query.",
-    },
-    media: {
-      title: "Zero-cost media",
-      paragraphs: [
-        "No file uploads, anywhere. Images, videos, and PDFs are referenced by URL from 11 trusted hosts — YouTube, Google Drive, Cloudinary, Imgur, GitHub, Dropbox, and more — validated at both the Joi and Mongoose layers from a single allowlist.",
-        "Assignment submissions follow the same rule: a submission is an HTTPS link, and multipart uploads are rejected with the full list of allowed hosts. The allowlist itself is served by the API at GET /v1/config/trusted-hosts, so the frontend can warn before submitting.",
-        "The payoff: a stateless server with zero storage cost that scales horizontally by adding instances.",
-      ],
-    },
-    operations: {
-      title: "Operations",
-      entries: [
+      title: "13 documented security controls",
+      items: [
+        { title: "Helmet", desc: "HTTP security headers." },
         {
-          title: "Email in the background",
-          text: "Welcome, enrollment, and contact notifications are sent after the response; a failed send is logged, never thrown. Password reset is the one exception — it waits.",
+          title: "express-mongo-sanitize · HPP",
+          desc: "Query sanitizing and parameter-pollution protection.",
         },
+        { title: "CORS whitelist", desc: "Named origins only." },
+        { title: "Tiered rate limiting", desc: "Tighter limits on auth endpoints." },
         {
-          title: "Audit trail with retention",
-          text: "Activity logs are written as a side effect of real actions — there is deliberately no public POST — and pruned automatically after 180 days.",
-        },
-        {
-          title: "Query deadlines",
-          text: "List endpoints abort database work after 10 seconds; a slow query can't hold the pool hostage.",
-        },
-        {
-          title: "Observability",
-          text: "Winston logging with rotation, a /metrics endpoint behind a bearer token, and health checks for server and database.",
+          title: "Dual-token JWT + 3-tier RBAC",
+          desc: "Enforced by the policy layer on every request.",
         },
       ],
-    },
-    testing: {
-      title: "Testing & CI",
-      paragraphs: [
-        "The suite runs against an in-memory MongoDB replica set — a real MongoDB, not a mock — so the transaction paths in the cascade service are genuinely exercised on every run.",
-        "60+ suites cover auth (including cookie lifetimes and user-enumeration protection), enrollment rules, draft visibility, ownership and role gating, error mapping, and the analytics period math. Email is mocked globally; no test ever touches SMTP.",
-        "CI runs the linter with a zero-warning policy and the full suite on every push.",
-      ],
-      stats: [
-        { value: "60+", label: "suites" },
-        { value: "95%+", label: "statements" },
-        { value: "98%+", label: "functions" },
-      ],
+      note: "The repository README documents 13 controls in total. Seven are covered by the five entries above.",
     },
     explorer: {
-      title: "Try the API",
-      subtitle:
-        "A curated slice of the 100+ endpoints — select one, run it, and inspect the response.",
+      title: "Endpoint explorer",
+      lead: "14 of the 100+ endpoints, grouped by who may call them. Responses are simulated on this page and no request is sent.",
       run: "Run",
-      running: "running",
-      ok: "OK",
-      simulatedNote:
-        "Responses are mocked from the API documentation. The live API requires authentication and is rate-limited.",
-      apiReference: "Full API reference",
-      access: {
-        public: "public",
-        protected: "protected · JWT",
-        admin: "admin / staff",
-      },
-      endpoints: {
-        health: "Server and database health check.",
-        login:
-          "Authenticate with email + password; returns a JWT and sets an httpOnly cookie. rememberMe extends both to ~30 days.",
-        me: "Current user profile, including pendingTrack — a pending enrollment request, computed live.",
-        tracks:
-          "The list-endpoint envelope: filtering, sorting, field selection, pagination metadata, full-text search.",
-        popular: "Most-enrolled tracks, ordered by studentCount.",
-        enroll: "Self-enroll in a track — the request goes to the track staff for approval.",
-        session:
-          "Session detail with the caller's own progress; media URLs stripped for non-enrolled callers.",
-        progress: "Mark a session as watched — per-student, idempotent.",
-        submit:
-          "Submit an assignment as an HTTPS link from a trusted host; resubmitting clears the old grade.",
-        grade: "Grade a submission (0–100) with optional written feedback.",
-        trustedHosts: "The single source of truth for every allowed media host.",
-        feed: "The dashboard feed: pinned announcements plus upcoming events.",
-        liveStats: "Admin-only platform stats, computed on demand — never persisted.",
-        activityMe: "The caller's own activity timeline, newest first.",
-      },
+      idle: "simulated · idle · pick an endpoint and press Run",
+      note: "simulated · no request sent",
+      groups: { public: "Public", protected: "Signed in", admin: "Admin only" },
+      status: "Status",
+      time: "Response time",
+      size: "Payload",
+      limit: "Rate limit",
+      limitUnit: "req / 15 min",
+      running: "Running…",
+      typical: "typical",
+    },
+    frontend: {
+      title: "The frontend",
+      lead: "The API runs behind a live web app used by club members.",
+      addr: "trosc.vercel.app",
+      placeholder: "placeholder · supply a real capture",
+      body: "Screenshot of trosc.vercel.app goes here. Same plate frame, hairline border, no shadow.",
     },
   },
 };
-
-export type TroscDictionary = typeof en;
 
 const ar: TroscDictionary = {
   metadata: {
@@ -163,148 +217,105 @@ const ar: TroscDictionary = {
     description:
       "كيف نما API لنادٍ طلابي إلى نظام إنتاجي بأكثر من 100 نقطة نهاية يخدم أكثر من 200 عضو: معمارية بطبقة خدمات، وتحكّم بالصلاحيات عبر طبقة سياسات، ومعاملات MongoDB، وخط وسائط بلا تكلفة.",
   },
-  back: "أعمالي",
-  statusLabel: "إنتاج",
-  role: "رئيس قسم IT وقائد فريق Backend · يناير 2025 – حتى الآن",
-  brief:
-    "الواجهة البرمجية خلف منصة التعلّم لنادي طلاب Trosc بجامعة قناة السويس. ما بدأ في يناير 2025 كموقع لنادٍ طلابي تحوّل إلى نظام إنتاجي: أكثر من 100 نقطة نهاية فوق 12 مجموعة بيانات و17 خدمة، تخدم المسارات والدورات والجلسات المرئية والفعاليات والإعلانات والواجبات والمهام الأسبوعية والتقييمات لأكثر من 200 عضو — على بنية تحتية لا تكلّف شيئًا في تشغيلها.",
-  metricsNote: "الأرقام من وثائق الـ API الحية.",
-  links: {
-    repo: "عرض المستودع",
-    live: "الموقع الحيّ",
-    api: "مرجع الـ API",
+  back: {
+    label: "الأعمال",
+  },
+  hero: {
+    label: "دراسة حالة · رئيس قسم IT وقائد فريق Backend · يناير 2025 – حتى الآن",
+    title: "الواجهة الخلفية لـ Trosc",
+    slug: "trosc-backend",
+    status: "قيد الإنتاج",
+    intro:
+      "الواجهة البرمجية خلف منصة التعلّم لنادي Trosc الطلابي في جامعة قناة السويس. بدأت في يناير 2025 كموقع للنادي ثم تحوّلت إلى نظام إنتاجي للمسارات والدورات والجلسات المرئية والفعاليات والإعلانات والواجبات والمهام الأسبوعية والتقييمات، على بنية تحتية لا تكلّف شيئًا في تشغيلها.",
   },
   metrics: [
-    { value: 100, suffix: "+", label: "نقطة نهاية" },
-    { value: 12, suffix: "", label: "مجموعة بيانات" },
-    { value: 17, suffix: "", label: "خدمة" },
-    { value: 60, suffix: "+", label: "حزمة اختبارات" },
-    { value: 95, suffix: "%+", label: "تغطية السطور" },
-    { value: 200, suffix: "+", label: "عضو مستفيد" },
+    { label: "نقطة نهاية", value: 100, suffix: "+" },
+    { label: "مجموعة بيانات", value: 12, suffix: "" },
+    { label: "خدمة", value: 17, suffix: "" },
+    { label: "مجموعة اختبار", value: 60, suffix: "+" },
+    { label: "تغطية بيانية", value: 94.8, suffix: "%" },
+    { label: "عضو مستفيد", value: 200, suffix: "+" },
   ],
+  metricsNote:
+    "131 نقطة نهاية مفعّلة محسوبة من مكدّس الموجّه، وتغطية الاختبارات من clover.xml، كلاهما أكتوبر 2026. عدد الأعضاء بتأكيد المالك.",
+  actions: {
+    repository: "المستودع",
+    liveSite: "الموقع المباشر",
+    apiReference: "مرجع الـ API",
+  },
   sections: {
+    requestPath: {
+      title: "مسار الطلب",
+      lead: "ما يحدث لطلب واحد قبل أن يصل إلى قاعدة البيانات. مبسّط من README المشروع.",
+      stages: [
+        { n: "1", name: "العميل", desc: "متصفح أو تطبيق" },
+        { n: "2", name: "تحديد المعدل", desc: "300 طلب / 15 دقيقة عالميًا، و5 / 15 دقيقة للمصادقة" },
+        { n: "3", name: "المصادقة", desc: "JWT مزدوج: ترويسة Bearer وكوكي httpOnly" },
+        { n: "4", name: "الصلاحيات", desc: "طالب، مدرّب، مشرف" },
+        {
+          n: "5",
+          name: "السياسات",
+          desc: "الدور الحالي وعضوية الفريق، لا منشئ العنصر",
+        },
+        { n: "6", name: "الخدمة", desc: "17 خدمة خلف متحكمات نحيفة" },
+        { n: "7", name: "MongoDB", desc: "12 مجموعة بيانات، ومهلة 10 ثوانٍ للاستعلام" },
+      ],
+    },
     architecture: {
       title: "المعمارية",
       entries: [
         {
-          title: "طبقة الخدمات",
-          text: "المتحكمات تبقى نحيفة؛ كل منطق العمل في 17 خدمة مخصّصة. قاعدة واحدة لكل حكم، فتغيير سياسة التسجيل يحدث في ملف واحد بالضبط.",
+          title: "متحكمات نحيفة، ومكان واحد لكل قاعدة",
+          desc: "كل منطق العمل في 17 خدمة مخصّصة، فتغيير سياسة التسجيل يحدث في ملف واحد بالضبط.",
         },
         {
-          title: "التحكّم بالصلاحيات عبر السياسات",
-          text: "كل عملية تعديل تُقيَّم من الدور الحالي للمستدعي وعضويته الحالية في فريق الإدارة — لا من منشئ العنصر أبدًا؛ createdBy للتوثيق التاريخي فقط. والمسودات (published: false) غير مرئية لمن لا يديرها: خطأ 404، لا استجابة منقّحة.",
+          title: "صلاحيات من الوقائع الحالية",
+          desc: "كل عملية تعديل تُقيَّم من الدور الحالي للمستدعي وعضويته في فريق الإدارة، لا من منشئ العنصر. والمسودات تعطي 404 لا استجابة منقّحة.",
         },
         {
-          title: "تسلسل التسجيل بمعاملات",
-          text: "خدمة مخصّصة تُبقي تسجيلات المستخدم والمسار والدورة والجلسة متزامنة داخل معاملات MongoDB، فلا يمكن لعمليات الانضمام والمغادرة والموافقة أن تترك مرجعًا معلّقًا — حتى مع التزامن.",
-        },
-        {
-          title: "مصانع أنواع الموارد",
-          text: "التقييمات والواجبات ترتبط بثلاثة أنواع أم بالقواعد نفسها. مصنع مسارات واحد يُركَّب لكل نوع أب، فتُكتب المنطق مرة واحدة وتتصرف بالمثل في كل مكان.",
-        },
-        {
-          title: "مُنشئ استعلامات واحد",
-          text: "كل نقطة نهاية للقوائم تمر عبر APIFeatures: 8 معاملات MongoDB، وترتيب، واختيار حقول، وبيانات تقسيم صفحات، وبحث نصي كامل — صنف واحد، سلوك واحد.",
-        },
-        {
-          title: "العدّ من قاعدة البيانات",
-          text: "قوائم الطلاب تُجاب بتجميعات إسقاطية فقط — studentCount و isEnrolled و submissionCount — بدل تحميل المصفوفات كاملة ثم حذفها قبل الرد.",
-        },
-        {
-          title: "تحليلات حية مقابل لقطات",
-          text: "نفس الحساب يشغّل /dashboard-stats/live (لا يُخزَّن أبدًا) واللقطات اليومية والأسبوعية والشهرية القابلة للتحديث خلف رسوم الاتجاهات.",
+          title: "صنف واحد للاستعلام",
+          desc: "كل نقطة نهاية للقوائم تمر عبر APIFeatures: 8 معاملات MongoDB، وترتيب، واختيار حقول، وبيانات تقسيم صفحات، وبحث نصي كامل.",
         },
       ],
     },
     security: {
-      title: "الأمان — سبع طبقات",
-      intro: "دفاع في العمق، كل طبقة مستقلة:",
-      layers: [
-        "Helmet — ترويسات HTTP آمنة (CSP و HSTS و X-Frame-Options).",
-        "express-mongo-sanitize — يحذف $ و . من مدخلات المستخدم (حقن NoSQL).",
-        "HPP — حماية من تلوث المعاملات مع قوائم سماح لكل مسار.",
-        "قوائم CORS — بيانات الاعتماد من أصول معروفة فقط.",
-        "تحديد معدل متدرّج — 300 طلب / 15 دقيقة عالميًا؛ 5 / 15 دقيقة لنقاط المصادقة.",
-        "JWT ثنائي — كوكي httpOnly آمن + ترويسة Bearer، مع أعمار rememberMe وإبطال عند تغيير كلمة المرور.",
-        "RBAC بثلاثة مستويات — طالب / مدرّس / مشرف، تفرضه طبقة السياسات في كل طلب.",
-      ],
-      extra:
-        "وراء السبع: تحقق Joi مُجاور لوثائق Swagger، وحذف الحقول الحساسة من أجسام الطلبات لمنع تصعيد الصلاحيات، وكتابات تدقيق داخلية لا تفشل طلبًا أبدًا، ومهلة 10 ثوانٍ لكل استعلام قوائم.",
-    },
-    media: {
-      title: "وسائط بلا تكلفة",
-      paragraphs: [
-        "لا رفع ملفات، في أي مكان. الصور والفيديوهات وملفات PDF تُشار بروابط من 11 مضيفًا موثوقًا — YouTube و Google Drive و Cloudinary و Imgur و GitHub و Dropbox وغيرها — ويُتحقق منها على مستويي Joi و Mongoose من قائمة سماح واحدة.",
-        "تسليمات الواجبات تتبع القاعدة نفسها: التسليم رابط HTTPS، ورفوع multipart تُرفض مع قائمة المضيفات المسموحة كاملة. القائمة نفسها تقدّمها الـ API على GET /v1/config/trusted-hosts ليحذّر الواجهة قبل الإرسال.",
-        "الحصيلة: خادم عديم الحالة بلا تكلفة تخزين يتوسّع أفقيًا بإضافة نسخ.",
-      ],
-    },
-    operations: {
-      title: "التشغيل",
-      entries: [
+      title: "13 إجراءً أمنيًا موثّقًا",
+      items: [
+        { title: "Helmet", desc: "ترويسات أمان HTTP." },
         {
-          title: "البريد في الخلفية",
-          text: "رسائل الترحيب والتسجيل والتواصل تُرسل بعد الاستجابة؛ الإرسال الفاشل يُسجَّل ولا يُرمى. إعادة تعيين كلمة المرور هي الاستثناء الوحيد — تنتظر.",
+          title: "express-mongo-sanitize · HPP",
+          desc: "تنقية استعلامات MongoDB والحماية من تلوث المعاملات.",
         },
+        { title: "قائمة سماح CORS", desc: "أصول محددة فقط." },
+        { title: "تحديد معدل متدرّج", desc: "حدود أضيق على نقاط المصادقة." },
         {
-          title: "سجل تدقيق بمدة احتفاظ",
-          text: "سجلات النشاط تُكتب كأثر جانبي لأفعال حقيقية — لا توجد POST عامة عمدًا — وتُقلَّم تلقائيًا بعد 180 يومًا.",
-        },
-        {
-          title: "مُهَل الاستعلامات",
-          text: "نقاط القوائم تُجهض عمل قاعدة البيانات بعد 10 ثوانٍ؛ الاستعلام البطيء لا يحتجز الـ pool.",
-        },
-        {
-          title: "المراقبة",
-          text: "تسجيل Winston مع تدوير، ونقطة /metrics خلف Bearer token، وفحوص صحة للخادم وقاعدة البيانات.",
+          title: "JWT مزدوج + RBAC بثلاث مستويات",
+          desc: "يُطبَّق بطبقة السياسات في كل طلب.",
         },
       ],
-    },
-    testing: {
-      title: "الاختبارات والتكامل المستمر",
-      paragraphs: [
-        "الحزمة تعمل ضد مجموعة MongoDB في الذاكرة — MongoDB حقيقية لا محاكاة — فتُختبر مسارات المعاملات في خدمة التسلسل فعليًا في كل تشغيل.",
-        "أكثر من 60 حزمة تغطي المصادقة (بما فيها أعمار الكوكيز والحماية من تعداد المستخدمين)، وقواعد التسجيل، ورؤية المسودات، وبوابات الملكية والأدوار، وربط الأخطاء، وحسابات فترات التحليلات. البريد يُحاكى عالميًا؛ لا اختبار يلمس SMTP.",
-        "التكامل المستمر يشغّل الـ linter بسياسة صفر تحذير والحزمة كاملة مع كل دفعة.",
-      ],
-      stats: [
-        { value: "60+", label: "حزمة" },
-        { value: "95%+", label: "سطور" },
-        { value: "98%+", label: "دوال" },
-      ],
+      note: "يوثّق README المستودع 13 إجراءً أمنيًا في المجموع، وهنا خمسة بنود تضم سبعة منها.",
     },
     explorer: {
-      title: "جرّب الـ API",
-      subtitle: "شريحة مختارة من أكثر من 100 نقطة نهاية — اختر واحدة، شغّلها، وافحص الاستجابة.",
+      title: "مستكشف نقاط النهاية",
+      lead: "14 نقطة نهاية من أكثر من 100، مجمّعة بحسب من يحق له استدعاؤها. الاستجابات هنا محاكاة ولا يُرسَل أي طلب فعلي.",
       run: "تشغيل",
-      running: "جارٍ التنفيذ",
-      ok: "OK",
-      simulatedNote:
-        "الاستجابات محاكاة من وثائق الـ API — الـ API الحقيقية تتطلب مصادقة وتحدّ من معدل الطلبات.",
-      apiReference: "مرجع الـ API الكامل",
-      access: {
-        public: "عام",
-        protected: "محمي · JWT",
-        admin: "مشرف / إدارة",
-      },
-      endpoints: {
-        health: "فحص صحة الخادم وقاعدة البيانات.",
-        login:
-          "المصادقة بالبريد وكلمة المرور؛ تُعيد JWT وتضبط كوكي httpOnly. rememberMe يمدّ الاثنين إلى ~30 يومًا.",
-        me: "ملف المستخدم الحالي، بما فيه pendingTrack — طلب تسجيل معلّق يُحسب لحظيًا.",
-        tracks:
-          "غلاف نقاط النهاية للقوائم: تصفية وترتيب واختيار حقول وبيانات تقسيم صفحات وبحث نصي كامل.",
-        popular: "المسارات الأكثر تسجيلًا، مرتّبة بـ studentCount.",
-        enroll: "تسجيل ذاتي في مسار — يذهب الطلب لفريق المسار للموافقة.",
-        session: "تفاصيل الجلسة مع تقدّم المستدعي نفسه؛ روابط الوسائط تُحجب عن غير المسجّلين.",
-        progress: "وضع علامة مشاهدة على الجلسة — لكل طالب، وتكرارها آمن.",
-        submit: "تسليم واجب كرابط HTTPS من مضيف موثوق؛ إعادة التسليم تمحو الدرجة القديمة.",
-        grade: "تصحيح تسليم (0–100) مع ملاحظة مكتوبة اختيارية.",
-        trustedHosts: "مصدر الحقيقة الوحيد لكل مضيف وسائط مسموح.",
-        feed: "لوحة البداية: إعلانات مثبتة وفعاليات قادمة.",
-        liveStats: "إحصاءات المنصة للمشرفين فقط، تُحسب عند الطلب — ولا تُخزَّن أبدًا.",
-        activityMe: "الخط الزمني لنشاط المستدعي، الأحدث أولًا.",
-      },
+      idle: "محاكاة · في الانتظار · اختر نقطة نهاية ثم اضغط تشغيل",
+      note: "محاكاة · لم يُرسَل أي طلب",
+      groups: { public: "عامة", protected: "للمسجّلين", admin: "للمشرفين فقط" },
+      status: "الحالة",
+      time: "زمن الاستجابة",
+      size: "الحجم",
+      limit: "حد الطلبات",
+      limitUnit: "طلب / 15 دقيقة",
+      running: "جارٍ التشغيل…",
+      typical: "المعتاد",
+    },
+    frontend: {
+      title: "الواجهة الأمامية",
+      lead: "يعمل الـ API خلف تطبيق ويب حي لأعضاء النادي.",
+      addr: "trosc.vercel.app",
+      placeholder: "placeholder · supply a real capture",
+      body: "Screenshot of trosc.vercel.app goes here. Same plate frame, hairline border, no shadow.",
     },
   },
 };

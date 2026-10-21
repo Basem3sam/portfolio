@@ -1,0 +1,108 @@
+/* ================================================================
+   Tide band — the always-dark closing band.
+
+   Shared by the Contact section (home) and the case-study hero, both of
+   which sit on the same deep-blue tide. The tokens below re-declare the
+   app colour tokens on the band so every Tailwind token utility used
+   inside picks up the inverted values, and so the canvas in
+   components/sections/TideCanvas.tsx can read --tide-a … --tide-d back
+   out of getComputedStyle() — the JS therefore stays colour-literal
+   free.
+
+   Token mapping (mockup → repo): sheet→page panel→light-bg deep→dark-bg
+   raise→surface rule→hairline rule-2→rule-strong ink→dark-text
+   ink-2→light-text ink-3→muted-text signal→secondary signal-hi→signal
+   signal-ink→on-secondary note→honey/note live→status.
+
+   All colour lives here: tests/color-discipline.spec.ts scans .ts/.tsx
+   but not .css.
+   ================================================================ */
+
+@layer components {
+  .contact,
+  .tide {
+    /* --- always-dark token inversion (mockup line 1216) --- */
+    --c-page: #071538;
+    --c-light-bg: rgba(255, 255, 255, 0.08);
+    --c-dark-bg: #04103a;
+    --c-surface: rgba(255, 255, 255, 0.12);
+    --c-hairline: rgba(255, 255, 255, 0.26);
+    --c-rule-strong: rgba(255, 255, 255, 0.44);
+    --c-dark-text: #f4f8ff;
+    --c-light-text: rgba(236, 243, 255, 0.86);
+    --c-muted-text: rgba(236, 243, 255, 0.68);
+    --c-secondary: #a9c4ff;
+    --c-signal: #d0deff;
+    --c-on-secondary: #06101f;
+    --c-note: #f4c77d;
+    --c-honey: #f4c77d;
+    --c-status: #5be08e;
+    --c-glass: rgba(8, 20, 64, 0.55);
+    --c-glass-edge: rgba(255, 255, 255, 0.24);
+
+    /* --- tide shader palette (mockup PRE.tide, line 4067). Read at runtime
+         by lib/tide.ts; also the static fallback painted underneath. --- */
+    --tide-a: #020721;
+    --tide-b: #0f47c7;
+    --tide-c: #338fe6;
+    --tide-d: #579deb;
+
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    color: var(--c-dark-text);
+
+    /* CSS fallback tide. Always painted: the (opaque) WebGL canvas sits at
+     z-index -2 on top of it, so this only shows when the canvas is absent
+     (no WebGL, no reduced-motion still frame) — never a blank/black band. */
+    background-color: var(--c-dark-bg);
+    background-image:
+      radial-gradient(
+        120% 80% at 50% 130%,
+        color-mix(in srgb, var(--tide-c) 55%, transparent) 0%,
+        transparent 58%
+      ),
+      radial-gradient(
+        90% 70% at 12% 120%,
+        color-mix(in srgb, var(--tide-d) 32%, transparent) 0%,
+        transparent 62%
+      ),
+      linear-gradient(180deg, var(--c-dark-bg) 0%, var(--tide-a) 100%);
+    background-repeat: no-repeat;
+  }
+
+  /* ---------- tide canvas + scrim (mockup lines 1214, 1217–1218) ---------- */
+
+  .contact .tide-cv,
+  .tide .tide-cv {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    display: block;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  /* Degraded mode: lib/tide.ts refused to start (no WebGL / palette / shader). */
+  .contact .tide-cv[data-tide="off"],
+  .tide .tide-cv[data-tide="off"] {
+    display: none;
+  }
+
+  /* Readability scrim from the reading edge, over the canvas (mockup 1217). */
+  .contact::after,
+  .tide::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(90deg, rgba(2, 8, 32, 0.6), rgba(2, 8, 32, 0.15) 70%, transparent);
+  }
+
+  html[dir="rtl"] .contact::after,
+  html[dir="rtl"] .tide::after {
+    background: linear-gradient(270deg, rgba(2, 8, 32, 0.6), rgba(2, 8, 32, 0.15) 70%, transparent);
+  }
+}

@@ -1,0 +1,377 @@
+/* Footer — always dark in both themes, ported from `Portfolio Design Mockup.html`:
+   `.foot` base (L822–845) + the rev 24 token block (L1636–1665) + rev 26
+   full-bleed fix (L2309–2311). The `--c-*` tokens are re-declared on `.foot`
+   itself so every Tailwind token utility inside inverts with it. Shared
+   primitives (.lbl, .ag) come from app/globals.css. */
+
+.foot {
+  --c-dark-text: #f2f6ff;
+  --c-light-text: rgba(232, 240, 255, 0.84);
+  --c-muted-text: rgba(232, 240, 255, 0.62);
+  --c-hairline: rgba(255, 255, 255, 0.14);
+  --c-rule-strong: rgba(255, 255, 255, 0.3);
+  --c-page: #0a1736;
+  --c-surface: rgba(255, 255, 255, 0.08);
+  --c-light-bg: rgba(255, 255, 255, 0.06);
+  --c-note: #f4c77d;
+  --c-secondary: #a9c4ff;
+  --c-status: #5be08e;
+  --wash-a: rgba(98, 140, 255, 0.26);
+  --wash-b: rgba(244, 199, 125, 0.12);
+
+  position: relative;
+  overflow: hidden;
+  color: var(--c-dark-text);
+  background-image: linear-gradient(180deg, #05123a 0, #030a22 100%);
+}
+
+.foot .ag {
+  --ag-speed: 0.6;
+  --ag-opacity: 0.8;
+}
+
+.foot-in {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 44px;
+  padding: 64px var(--pad) 28px;
+}
+
+/* --- four columns --------------------------------------------------------- */
+.ft-top {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.3fr) minmax(0, 0.6fr) minmax(0, 1.45fr)
+    minmax(0, 0.9fr);
+  gap: 40px 48px;
+  align-items: start;
+}
+
+.ft-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font-family: var(--font-mono-body);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--c-dark-text);
+  text-decoration: none;
+}
+
+.mrk {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  color: var(--c-note);
+}
+
+.ft-line {
+  margin: 0;
+  max-width: 34ch;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--c-light-text);
+}
+
+.foot-avail {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 1px solid var(--c-rule-strong);
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  color: var(--c-dark-text);
+  background-color: var(--c-page);
+}
+
+.foot-avail i {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--c-status);
+}
+
+.ft-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.ft-col > .lbl {
+  margin-bottom: 10px;
+  color: var(--c-muted-text);
+}
+
+.ft-col a:not(.ft-up) {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  max-width: 100%;
+  font-size: 0.9375rem;
+  color: var(--c-light-text);
+  text-decoration: none;
+  transition: color 0.4s ease;
+}
+
+.ft-col a:not(.ft-up) span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.ft-col a:not(.ft-up)::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 9px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+[dir="rtl"] .ft-col a:not(.ft-up)::after {
+  transform-origin: right;
+}
+
+.ft-col a:not(.ft-up):hover,
+.ft-col a:not(.ft-up):focus-visible {
+  color: var(--c-dark-text);
+}
+
+.ft-col a:not(.ft-up):hover::after,
+.ft-col a:not(.ft-up):focus-visible::after {
+  transform: scaleX(1);
+}
+
+.ft-col a:not(.ft-up) svg {
+  flex: none;
+  color: var(--c-note);
+}
+
+.ft-col a.tel {
+  font-family: var(--font-mono-body);
+  font-weight: 500;
+  font-size: 1rem;
+  direction: ltr;
+  color: var(--c-dark-text);
+}
+
+.ft-city {
+  margin: 0;
+  font-family: var(--font-display-body);
+  font-size: 1.375rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--c-dark-text);
+}
+
+.ft-time {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 4px;
+  color: var(--c-muted-text);
+}
+
+.ft-time span {
+  font-family: var(--font-mono-body);
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--c-note);
+  direction: ltr;
+}
+
+.ft-time small {
+  font-size: 0.8125rem;
+}
+
+.ft-up {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  padding: 6px 6px 6px 16px;
+  min-height: 44px;
+  border: 1px solid var(--c-rule-strong);
+  border-radius: 999px;
+  font-family: var(--font-mono-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--c-dark-text);
+  text-decoration: none;
+  transition:
+    background-color 0.4s ease,
+    border-color 0.4s ease;
+}
+
+[dir="rtl"] .ft-up {
+  padding: 6px 16px 6px 6px;
+}
+
+.ft-up i {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--c-dark-text);
+  color: #06101f;
+  transition: transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.ft-up:hover,
+.ft-up:focus-visible {
+  background: rgb(255 255 255 / 0.1);
+  border-color: var(--c-light-text);
+}
+
+.ft-up:hover i,
+.ft-up:focus-visible i {
+  transform: translateY(-3px);
+}
+
+[dir="rtl"] .ft-up:hover i,
+[dir="rtl"] .ft-up:focus-visible i {
+  transform: translateY(-3px);
+}
+
+/* --- the wordmark ---------------------------------------------------------
+   A single gradient painted through the glyphs (background-clip: text). The
+   old version used -webkit-text-stroke with negative tracking, which drew every
+   overlapping glyph contour and the variable font's internal paths on top of
+   each other. One fill has no contours to cross, so overlaps are invisible. */
+/* The box is the size container: the word is sized from ITS width (cqi), so
+   it always fits the column whichever display face actually loaded. */
+.foot-word-box {
+  container-type: inline-size;
+  margin-block: -4px -10px;
+  overflow: hidden;
+}
+
+.foot-word {
+  direction: ltr;
+  font-family: var(--font-display-body);
+  font-size: min(12rem, 14cqi);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.035em;
+  text-align: center;
+  white-space: nowrap;
+  padding-bottom: 0.06em;
+  color: transparent;
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--c-dark-text) 22%, transparent) 0%,
+    color-mix(in srgb, var(--c-secondary) 9%, transparent) 55%,
+    transparent 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-rendering: geometricPrecision;
+  user-select: none;
+}
+
+/* --- bottom row ----------------------------------------------------------- */
+.foot-bot {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20px;
+  /* clear of the floating back-to-top button */
+  padding-inline-end: 88px;
+  border-top: 1px solid var(--c-hairline);
+  font-size: var(--text-sm);
+  color: var(--c-muted-text);
+}
+
+.foot-end {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+
+.foot-quiet {
+  font-size: 0.8125rem;
+  font-style: italic;
+  color: var(--c-muted-text);
+  opacity: 0.9;
+}
+
+.foot-glyph {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--c-muted-text);
+  opacity: 0.55;
+  transition:
+    opacity 0.8s ease,
+    color 0.8s ease,
+    background-color 0.8s ease;
+}
+
+.foot-glyph:hover,
+.foot-glyph:focus-visible {
+  opacity: 1;
+  color: var(--c-note);
+  background: var(--c-light-bg);
+}
+
+/* --- responsive ----------------------------------------------------------- */
+@media (max-width: 900px) {
+  .ft-top {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px;
+  }
+
+  .foot-in {
+    padding-top: 48px;
+    gap: 32px;
+  }
+}
+
+@media (max-width: 560px) {
+  .ft-top {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+
+  .foot-bot {
+    flex-direction: column;
+    align-items: flex-start;
+    padding-inline-end: 72px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ft-col a:not(.ft-up)::after,
+  .ft-up i {
+    transition: none;
+  }
+}

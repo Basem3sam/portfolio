@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { isMobileViewport } from "@/components/easter-egg/constants";
 import Icon from "@/components/ui/Icon";
+import Mark from "@/components/ui/Mark";
 import { lockScroll, unlockScroll } from "@/lib/scrollLock";
 import { prefersReducedMotion } from "@/lib/scroll";
 import {
@@ -32,13 +33,13 @@ type NewLine = Omit<Line, "id">;
 
 const toneClasses: Record<Tone, string> = {
   plain: "",
-  prompt: "font-bold text-[#fbbf24]",
-  success: "text-[#fbbf24]",
-  info: "text-[#fde68a] [text-shadow:0_0_6px_rgba(251,191,36,0.55)]",
-  error: "text-[#f87171] [text-shadow:0_0_6px_rgba(248,113,113,0.55)]",
+  prompt: "hd",
+  success: "ok",
+  info: "info",
+  error: "err",
 };
 
-const lineClass = "mb-2 animate-terminal-line max-md:text-[13px] max-md:leading-[1.5]";
+const lineClass = "ln";
 
 const TYPE_CHUNK = 4;
 const TYPE_INTERVAL = 12;
@@ -51,13 +52,11 @@ type QueueEntry = {
   full: string;
 };
 
-const BANNER_COLORS = ["#fef3c7", "#fde68a", "#fcd34d", "#fbbf24", "#f59e0b", "#d97706", "#fbbf24"];
-
 const escapeHtml = (value: string) =>
   value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 const PROMPT_HTML =
-  '<span class="font-bold text-[#4ade80]">guest@basem</span><span class="text-[#fde68a]">:</span><span class="font-bold text-[#60a5fa]">~</span><span class="text-[#fde68a]">$</span>';
+  '<span class="pr"><span class="u">guest@basem</span>:<span class="p">~</span>$</span>';
 
 const splitAtoms = (text: string): string[] => text.match(/&[a-zA-Z#][a-zA-Z0-9]*;|[\s\S]/g) ?? [];
 
@@ -151,7 +150,7 @@ type TerminalProps = {
 
 export default function Terminal({ open, onClose }: TerminalProps) {
   const [lines, setLines] = useState<Line[]>(() => {
-    const ok = '[<span class="font-bold text-[#4ade80]"> OK </span>]';
+    const ok = '[<span class="ok"> OK </span>]';
     return [
       { id: 0, tone: "plain", kind: "ascii", text: ASCII_BANNER, delay: 0 },
       { id: 1, tone: "plain", html: `${ok} mounting portfolio.fs`, delay: 200 },
@@ -303,6 +302,8 @@ export default function Terminal({ open, onClose }: TerminalProps) {
 
     document.addEventListener("keydown", handleGlobalKeys);
     return () => document.removeEventListener("keydown", handleGlobalKeys);
+    // finishTyping only touches refs, so re-binding it every render is pointless.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, onClose]);
 
   const run = (input: string) => {
@@ -337,6 +338,18 @@ export default function Terminal({ open, onClose }: TerminalProps) {
     }
   };
 
+  /** Echo a command in the transcript, then run it. Enter and the quick
+      command chips share this path, so both read the same in history. */
+  const submit = (raw: string) => {
+    history.current.push(raw);
+    historyIndex.current = history.current.length;
+    append([
+      { tone: "plain", html: `${PROMPT_HTML} <span class="cmd">${escapeHtml(raw)}</span>` },
+    ]);
+    run(raw.toLowerCase());
+    if (inputRef.current) inputRef.current.value = "";
+  };
+
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     finishTyping();
     const input = event.currentTarget;
@@ -344,19 +357,8 @@ export default function Terminal({ open, onClose }: TerminalProps) {
     if (event.key === "Enter") {
       const raw = input.value.trim();
 
-      if (raw) {
-        history.current.push(raw);
-        historyIndex.current = history.current.length;
-        append([
-          {
-            tone: "plain",
-            html: `${PROMPT_HTML} <span class="font-bold text-[#fde68a]">${escapeHtml(raw)}</span>`,
-          },
-        ]);
-        run(raw.toLowerCase());
-      }
-
-      input.value = "";
+      if (raw) submit(raw);
+      else input.value = "";
     } else if (event.key === "ArrowUp") {
       event.preventDefault();
       if (historyIndex.current > 0) {
@@ -381,105 +383,63 @@ export default function Terminal({ open, onClose }: TerminalProps) {
   };
 
   return (
-    <>
+    <div className="egg">
       <div
-        className={`fixed inset-0 z-[9999] bg-black/85 backdrop-blur-[5px] transition-opacity duration-300 ${open ? "opacity-100" : "pointer-events-none opacity-0"}`}
-        onClick={close}
-      ></div>
-      <div
-        id="secret-terminal"
-        dir="ltr"
-        className={`fixed top-1/2 left-1/2 z-[10000] flex h-[600px] w-[90%] max-w-[800px] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border-2 border-[#fbbf24] bg-[#131007] [font-family:var(--font-terminal),var(--font-mono-body),monospace] shadow-[0_0_70px_rgba(251,191,36,0.3),inset_0_0_60px_rgba(251,191,36,0.05)] transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] after:pointer-events-none after:absolute after:inset-0 after:z-[5] after:rounded-[inherit] after:bg-[radial-gradient(ellipse_at_center,transparent_65%,rgba(0,0,0,0.35)_100%)] after:content-[''] max-md:h-auto max-md:max-h-[calc(100dvh_-_6rem)] max-md:min-h-[50dvh] max-md:w-[calc(100%_-_2rem)] max-md:max-w-none max-md:rounded-2xl ${open ? "scale-100 opacity-100" : "pointer-events-none scale-0 opacity-0"}`}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Secret terminal"
-        inert={!open}
+        className={`eov dim${open ? " show" : ""}`}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) close();
+        }}
       >
         <div
-          className="pointer-events-none absolute inset-x-0 top-0 z-[2] h-12 animate-crt-sweep bg-gradient-to-b from-transparent via-[rgba(251,191,36,0.06)] to-transparent"
-          aria-hidden="true"
-        ></div>
-        <div
-          className="pointer-events-none absolute inset-0 z-[2] animate-scanline bg-[linear-gradient(transparent_50%,rgba(251,191,36,0.06)_50%)] bg-[length:100%_4px]"
-          aria-hidden="true"
-        ></div>
-
-        <div className="relative z-[3] flex shrink-0 items-center justify-between border-b border-[#fbbf24] bg-[linear-gradient(135deg,#1a150b_0%,#0e0b07_100%)] px-5 py-3 shadow-[0_2px_10px_rgba(251,191,36,0.2)] max-md:px-4">
-          <div className="text-[14px] font-bold tracking-[2px] text-[#fbbf24] uppercase [text-shadow:0_0_12px_rgba(251,191,36,0.6)] max-[481px]:text-[12px]">
-            <Icon name="terminal" className="inline size-[1em]" /> BASEM_TERMINAL
-            <span className="font-medium text-[rgba(251,191,36,0.5)]"> v1.0.0</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              className="flex size-11 cursor-pointer items-center justify-end"
-              aria-label="Close terminal"
-              onClick={close}
-            >
-              <span className="size-3 rounded-full bg-[#ff5f56] shadow-[0_0_8px_rgba(255,95,86,0.7)] transition-transform duration-200 hover:scale-125"></span>
-            </button>
-            <span
-              aria-hidden="true"
-              className="size-3 rounded-full bg-[#ffbd2e] shadow-[0_0_8px_rgba(255,189,46,0.6)]"
-            ></span>
-            <span
-              aria-hidden="true"
-              className="size-3 rounded-full bg-[#27c93f] shadow-[0_0_8px_rgba(39,201,63,0.6)]"
-            ></span>
-          </div>
-        </div>
-        <div
-          ref={bodyRef}
-          onClick={finishTyping}
-          className={`relative z-[1] min-h-0 flex-auto overflow-y-auto bg-[rgba(19,16,10,0.95)] p-5 ${glitch ? "animate-glitch" : ""}`}
+          id="secret-terminal"
+          dir="ltr"
+          className="eterm"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Secret terminal"
+          inert={!open}
         >
+          <div className="eth">
+            <b>
+              <Mark className="i" />
+              <span>basem@portfolio: ~</span>
+              <em>zsh</em>
+            </b>
+            <span className="r">
+              <span>Esc to close</span>
+              <button
+                type="button"
+                className="egx"
+                aria-label="Close terminal"
+                onClick={close}
+              >
+                <Icon name="x" className="i" />
+              </button>
+            </span>
+          </div>
           <div
-            className="relative z-[1] text-[14px] leading-[1.6] whitespace-pre-wrap text-[#fbbf24] [text-shadow:0_0_7px_rgba(251,191,36,0.45)] max-md:p-2"
+            ref={bodyRef}
+            onClick={finishTyping}
+            className={`etb${glitch ? " gl" : ""}`}
             id="terminal-output"
+            tabIndex={0}
+            aria-label="Terminal output"
           >
             {lines.map((line) => {
               const style = line.delay ? { animationDelay: `${line.delay}ms` } : undefined;
 
               if (line.kind === "ascii") {
                 return (
-                  <pre
-                    key={line.id}
-                    style={style}
-                    className="my-4 animate-terminal-line [font-family:inherit] text-[13px] leading-[1.32] whitespace-pre max-md:text-[9px]"
-                  >
-                    {(line.text ?? "").split("\n").map((row, index) => (
-                      <span
-                        key={index}
-                        className="block"
-                        style={{
-                          color: BANNER_COLORS[Math.min(index, BANNER_COLORS.length - 1)],
-                          textShadow: "0 0 8px rgba(251,191,36,0.45)",
-                        }}
-                      >
-                        {row || " "}
-                      </span>
-                    ))}
+                  <pre key={line.id} style={style} className="ascii">
+                    {line.text ?? ""}
                   </pre>
                 );
               }
 
               if (line.kind === "banner") {
                 return (
-                  <div
-                    key={line.id}
-                    style={style}
-                    className="mt-[5px] mb-[15px] flex animate-terminal-line items-center justify-center gap-[15px] rounded-lg border-2 border-[rgba(251,191,36,0.3)] bg-[linear-gradient(135deg,rgba(251,191,36,0.1)_0%,rgba(253,230,138,0.08)_100%)] px-2.5 py-5"
-                  >
-                    <div className="animate-banner-icon text-[20px]">⚡</div>
-                    <div className="flex flex-col items-center gap-0.5">
-                      <strong className="bg-[linear-gradient(135deg,#fbbf24_0%,#fde68a_100%)] bg-clip-text text-[24px] font-black tracking-[3px] text-transparent">
-                        BASEM
-                      </strong>
-                      <span className="text-[11px] font-semibold tracking-[2px] text-[#fbbf24] uppercase opacity-90">
-                        Secret Terminal
-                      </span>
-                    </div>
-                    <div className="animate-banner-icon text-[20px]">⚡</div>
+                  <div key={line.id} style={style} className="ln hd">
+                    BASEM · Secret Terminal
                   </div>
                 );
               }
@@ -511,28 +471,35 @@ export default function Terminal({ open, onClose }: TerminalProps) {
               );
             })}
           </div>
-        </div>
-        <div className="relative z-[3] flex shrink-0 items-center gap-2.5 border-t border-[#fbbf24] bg-[rgba(26,22,14,0.95)] px-5 py-3">
-          <span className="text-[14px] font-bold whitespace-nowrap text-[#fbbf24] [text-shadow:0_0_6px_rgba(251,191,36,0.55)] max-md:text-[12px]">
-            <span className="text-[#4ade80]">guest@basem</span>
-            <span className="text-[#fde68a]">:</span>
-            <span className="text-[#60a5fa]">~</span>
-            <span className="text-[#fde68a]">$</span>
-          </span>
-          <input
-            ref={inputRef}
-            id="terminal-input"
-            type="text"
-            className="flex-1 bg-transparent text-[14px] text-[#fde68a] caret-[#fbbf24] outline-none [caret-shape:block] [text-shadow:0_0_5px_rgba(251,191,36,0.4)] placeholder:text-[rgba(251,191,36,0.35)] max-md:text-[12px]"
-            placeholder="Type 'help' for available commands..."
-            autoComplete="off"
-            autoCapitalize="off"
-            spellCheck={false}
-            aria-label="Terminal command"
-            onKeyDown={handleKeyDown}
-          />
+
+          <div className="etc" role="group" aria-label="Quick commands">
+            {COMMAND_NAMES.map((name) => (
+              <button key={name} type="button" onClick={() => submit(name)}>
+                {name}
+              </button>
+            ))}
+          </div>
+
+          <div className="eti">
+            <label htmlFor="terminal-input">
+              <span className="u">guest@basem</span>:<span className="p">~</span>$
+            </label>
+            <input
+              ref={inputRef}
+              id="terminal-input"
+              type="text"
+              placeholder={
+                isMobileViewport() ? "Type a command" : "Type 'help' for available commands…"
+              }
+              autoComplete="off"
+              autoCapitalize="off"
+              spellCheck={false}
+              aria-label="Terminal command"
+              onKeyDown={handleKeyDown}
+            />
+          </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

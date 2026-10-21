@@ -29,32 +29,41 @@ export function getCurrentTheme(): Theme {
   return document.body.classList.contains(DARK_CLASS) ? "dark" : "light";
 }
 
+const ICON_SELECTOR = 'link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]';
+
+function iconHref(link: HTMLLinkElement, icons: (typeof FAVICONS)[Theme]) {
+  if (link.rel === "apple-touch-icon") return icons.apple;
+  return link.getAttribute("sizes") === "16x16" ? icons.png16 : icons.png32;
+}
+
+// The metadata API renders these <link> tags and React owns them: removing
+// one makes React throw "Cannot read properties of null (reading
+// 'removeChild')" when it later unmounts it. Swap the href in place instead.
 function updateFavicons(theme: Theme) {
   const icons = FAVICONS[theme];
+  const links = Array.from(document.head.querySelectorAll<HTMLLinkElement>(ICON_SELECTOR));
 
-  // Remove ALL icon links at once, then recreate them fresh. Merely
-  // changing href on an existing <link> doesn't trigger a favicon
-  // re-render in Chrome/Firefox — the browser caches the initial
-  // render and ignores subsequent href mutations. Removing and
-  // re-inserting the elements forces an immediate re-fetch.
-  document
-    .querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]')
-    .forEach((link) => link.remove());
+  if (links.length > 0) {
+    links.forEach((link) => {
+      const href = iconHref(link, icons);
+      if (link.getAttribute("href") !== href) link.setAttribute("href", href);
+    });
+    return;
+  }
 
-  const head = document.head;
+  const fallback: [string, string, string?][] = [
+    ["icon", icons.png32, "32x32"],
+    ["icon", icons.png16, "16x16"],
+    ["apple-touch-icon", icons.apple, "180x180"],
+  ];
 
-  const createLink = (rel: string, href: string, sizes?: string, type?: string) => {
+  fallback.forEach(([rel, href, sizes]) => {
     const link = document.createElement("link");
     link.rel = rel;
     link.href = href;
     if (sizes) link.setAttribute("sizes", sizes);
-    if (type) link.setAttribute("type", type);
-    head.appendChild(link);
-  };
-
-  createLink("icon", icons.png32, "32x32", "image/png");
-  createLink("icon", icons.png16, "16x16", "image/png");
-  createLink("apple-touch-icon", icons.apple, "180x180");
+    document.head.appendChild(link);
+  });
 }
 
 export function applyTheme(theme: Theme) {

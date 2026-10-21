@@ -14,10 +14,12 @@ import ThemeToggle from "@/components/behavior/ThemeToggle";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import { useCommandPalette } from "@/components/palette/CommandPalette";
 import Icon from "@/components/ui/Icon";
-import { CV_PATH } from "@/data/site";
+import Mark from "@/components/ui/Mark";
+import { CV_PATH, GITHUB_URL, LINKEDIN_URL, MAILTO, PHONE_DISPLAY, PHONE_TEL } from "@/data/site";
 import type { Dictionary } from "@/lib/dictionaries/en";
 import type { Locale } from "@/lib/i18n";
 import { getNavbarHeight, homeAnchorHref } from "@/lib/scroll";
+import "./Navbar.css";
 
 type NavbarProps = {
   labels: Dictionary["nav"];
@@ -32,14 +34,22 @@ function getModKey() {
   return /mac/i.test(navigator.userAgent) ? "⌘" : "Ctrl";
 }
 
+/**
+ * The five home sections, in mockup order: scroll-spy targets, the progress
+ * rail's segments, and the mobile menu rows. Education no longer exists.
+ */
 const sections: { href: string; labelKey: keyof Dictionary["nav"] }[] = [
   { href: "#work", labelKey: "work" },
+  { href: "#experience", labelKey: "experience" },
   { href: "#stack", labelKey: "stack" },
   { href: "#about", labelKey: "about" },
-  { href: "#experience", labelKey: "experience" },
-  { href: "#education", labelKey: "education" },
   { href: "#contact", labelKey: "contact" },
 ];
+
+/** The four section links that always fit in the desktop bar. Contact becomes
+ *  the "Let's talk" button at xl, and /links only joins the bar at xl (below
+ *  that it is the icon link in the utility group). */
+const barSections = sections.slice(0, 4);
 
 const sectionIds = sections.map((section) => section.href.slice(1));
 
@@ -51,11 +61,14 @@ const NAV_RAMP_PX = 80;
 
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
 
+/**
+ * Desktop section link. The mockup's final state has no per-link underline:
+ * one shared `.nav-ind` pill (or, at the top of the page, a 2px honey rule)
+ * slides underneath instead — see Navbar.css and the indicator effect below.
+ */
 const sectionLink = (active: boolean) =>
-  `relative flex min-h-11 items-center px-2.5 text-sm font-medium transition-colors duration-200 after:absolute after:inset-x-2.5 after:bottom-2 after:h-0.5 after:rounded-full after:origin-left after:transition-transform after:duration-200 after:content-[''] max-lg:after:hidden rtl:after:origin-right ${
-    active
-      ? "text-dark-text after:scale-x-100 after:bg-note"
-      : "text-light-text hover:text-dark-text after:scale-x-0 after:bg-note hover:after:scale-x-100"
+  `relative z-[1] flex min-h-11 items-center px-2.5 text-sm font-medium transition-colors duration-200 ${
+    active ? "text-dark-text" : "text-light-text hover:text-dark-text"
   }`;
 
 const auxLink =
@@ -63,28 +76,26 @@ const auxLink =
 
 // Between lg and xl the bar is too narrow for text labels, so the secondary
 // links collapse to icon buttons (the label stays for assistive tech).
-const auxLinkBar = `${auxLink} max-xl:min-w-11 max-xl:justify-center`;
+const auxLinkBar = `${auxLink} nav-ctl nav-ctl-quiet rounded-md max-xl:min-w-11 max-xl:justify-center`;
 const auxLabel = "max-xl:sr-only";
 
 const talkButton =
-  "hidden min-h-11 items-center gap-2 rounded-full bg-dark-text px-5 text-sm font-semibold text-page no-underline transition-colors duration-200 hover:bg-secondary hover:text-on-secondary aria-[current=page]:bg-secondary aria-[current=page]:text-on-secondary xl:inline-flex";
+  "nav-cta hidden min-h-11 items-center rounded-full text-sm font-semibold no-underline xl:inline-flex";
 
 const themeButton =
-  "flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md border border-hairline bg-surface/50 text-light-text transition-colors duration-200 hover:border-signal hover:text-signal max-lg:w-full";
+  "nav-ctl nav-ctl-quiet flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md max-lg:w-full";
 
 const paletteButton =
-  "hidden min-h-11 cursor-pointer items-center gap-2 rounded-md border border-hairline bg-surface/50 px-3 text-sm font-medium text-light-text transition-colors duration-200 hover:border-signal hover:text-signal lg:inline-flex";
+  "nav-ctl hidden min-h-11 cursor-pointer items-center gap-2 rounded-md px-3 text-sm font-medium lg:inline-flex max-xl:min-w-11 max-xl:justify-center max-xl:px-0";
 
-const menuRow =
-  "group/row flex min-h-12 [@media(max-height:720px)]:min-h-11 w-full items-center gap-3 rounded-lg px-3 text-start no-underline transition-colors duration-150 active:bg-light-bg";
+/** The phone bar carries the search control too (reference mobile nav). */
+const mobilePaletteButton =
+  "nav-mobile-btn nav-ctl ms-auto flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md";
 
-const menuRowIndex = "font-mono text-xs font-semibold text-note";
+const menuRow = "menu-row relative w-full no-underline";
 
-const menuRowLabel =
-  "flex-1 text-base font-medium text-dark-text transition-colors duration-150 group-hover/row:text-signal";
-
-const menuRowArrow =
-  "size-4 text-signal opacity-0 -translate-x-1 transition-all duration-200 group-hover/row:translate-x-0 group-hover/row:opacity-100 rtl:rotate-180 rtl:translate-x-1 rtl:group-hover/row:translate-x-0";
+const menuThemeButton =
+  "flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-hairline bg-surface/50 text-light-text transition-colors duration-200 hover:border-signal hover:text-signal";
 
 type SectionAnchorProps = {
   /** Raw section hash, e.g. `#work`. */
@@ -95,6 +106,8 @@ type SectionAnchorProps = {
   className?: string;
   style?: CSSProperties;
   active?: boolean;
+  /** Section-style link that the sliding `.nav-ind` pill may follow. */
+  ind?: boolean;
   /** Adds `data-nav-logo`, which `getNavbarHeight()` measures. */
   logo?: boolean;
   ariaLabel?: string;
@@ -120,12 +133,16 @@ function SectionAnchor({
   className,
   style,
   active,
+  ind,
   logo,
   ariaLabel,
   children,
 }: SectionAnchorProps) {
   const current = active ? "page" : undefined;
-  const dataNavLogo = logo ? { "data-nav-logo": true } : {};
+  const dataNavLogo = {
+    ...(logo ? { "data-nav-logo": true } : {}),
+    ...(ind ? { "data-nav-ind": true } : {}),
+  };
 
   if (isHome) {
     return (
@@ -167,12 +184,20 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
   const navRef = useRef<HTMLElement>(null);
   const scrimRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
+  const indicatorRef = useRef<HTMLSpanElement>(null);
   const linksHref = locale === "ar" ? "/ar/links" : "/links";
   const pathname = usePathname();
 
   // `proxy.ts` rewrites `/` to `/en`, so the English home is reachable at both
   // URLs. Anywhere else the section anchors below do not exist in the DOM.
   const isHome = pathname === "/" || pathname === `/${locale}`;
+
+  // The case study is its own route. Its hero is the deep-blue tide band, so
+  // the bar keeps light ink over it until the glass capsule takes over, and
+  // the Work link is the section the reader is actually in.
+  const onCaseStudy = pathname.endsWith("/work/trosc");
+  const activeId = onCaseStudy ? "work" : activeSection;
 
   // Scroll-spy: the active section is the LAST section whose top edge has
   // crossed above the detection line (32px below the navbar).
@@ -215,6 +240,54 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
     };
   }, []);
 
+  // One shared indicator slides under the hovered link and parks on the active
+  // section (mockup rev 21: `.nav-ind`). It is written straight to the DOM like
+  // the progress rail, so pointing and scrolling never re-render React; the
+  // reduced-motion path just drops the slide (Navbar.css). Re-runs when the
+  // active section changes so it re-parks on the new link.
+  useEffect(() => {
+    const bar = barRef.current;
+    const indicator = indicatorRef.current;
+    if (!bar || !indicator) return;
+
+    const currentLink = () => bar.querySelector<HTMLElement>("a[data-nav-ind][aria-current='page']");
+
+    const move = (el: HTMLElement | null) => {
+      // `offsetParent` is null when the desktop list is collapsed (mobile).
+      if (!el || el.offsetParent === null) {
+        indicator.classList.remove("on");
+        return;
+      }
+      const box = bar.getBoundingClientRect();
+      const rect = el.getBoundingClientRect();
+      indicator.style.setProperty("--ix", `${rect.left - box.left}px`);
+      indicator.style.setProperty("--iw", `${rect.width}px`);
+      indicator.classList.add("on");
+    };
+
+    move(currentLink());
+
+    const enter = (event: Event) => move(event.currentTarget as HTMLElement);
+    const leave = () => move(currentLink());
+    const anchors = Array.from(bar.querySelectorAll<HTMLElement>("a[data-nav-ind]"));
+
+    for (const anchor of anchors) {
+      anchor.addEventListener("pointerenter", enter);
+      anchor.addEventListener("focus", enter);
+      anchor.addEventListener("pointerleave", leave);
+      anchor.addEventListener("blur", leave);
+    }
+
+    return () => {
+      for (const anchor of anchors) {
+        anchor.removeEventListener("pointerenter", enter);
+        anchor.removeEventListener("focus", enter);
+        anchor.removeEventListener("pointerleave", leave);
+        anchor.removeEventListener("blur", leave);
+      }
+    };
+  }, [activeSection]);
+
   // Capsule progress (--np) and the section progress rail. Both are written
   // straight to the DOM from one rAF-throttled scroll handler, so scrolling
   // never re-renders React. While the mobile menu is open the capsule is held
@@ -249,6 +322,12 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
         return;
       }
 
+      // Fractional-DPI screens can stop a pixel or two short of the end, so the
+      // rail snaps to complete within 2px of the bottom (the standalone top
+      // bar used to do this; the rail is now the only progress indicator).
+      const root = document.documentElement;
+      const atBottom = root.scrollHeight - window.innerHeight - window.scrollY <= 2;
+
       segments.forEach((segment, index) => {
         const el = sectionEls[index];
         segment.style.display = el ? "" : "none";
@@ -256,7 +335,9 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
         const rect = el.getBoundingClientRect();
         segment.style.flexGrow = String(Math.max(1, Math.round(rect.height)));
         const fill = segment.firstElementChild as HTMLElement | null;
-        if (fill) fill.style.width = `${clamp01((line - rect.top) / rect.height) * 100}%`;
+        if (fill) {
+          fill.style.width = atBottom ? "100%" : `${clamp01((line - rect.top) / rect.height) * 100}%`;
+        }
       });
     };
 
@@ -385,20 +466,24 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
         className="group/nav fixed inset-x-0 top-0 z-[1030] nav-shell print:hidden"
         aria-label={labels.mainNavigation}
         data-scrolled={scrolled}
+        data-tide={onCaseStudy ? "true" : undefined}
         onClick={handleClick}
       >
-        <div className="container flex flex-wrap items-center justify-between nav-capsule lg:flex-nowrap">
+        <div className="nav-capsule container flex flex-wrap items-center justify-between lg:flex-nowrap">
           <div
             ref={progressRef}
             className={`nav-progress ${menuOpen ? "invisible" : ""}`}
             aria-hidden="true"
+            // Progress always reads left to right, in Arabic too: it tracks
+            // scroll depth, not text flow, so it is deliberately not mirrored.
+            dir="ltr"
           >
             {sections.map((section) => (
               <i
                 key={section.href}
                 className="relative block h-full min-w-1.5 flex-1 overflow-hidden rounded-full bg-muted-text/25"
               >
-                <b className="absolute inset-y-0 start-0 block w-0 rounded-full bg-linear-to-r from-note to-honey-hi rtl:bg-linear-to-l"></b>
+                <b className="absolute inset-y-0 start-0 block w-0 rounded-full bg-linear-to-r from-note to-honey-hi"></b>
               </i>
             ))}
           </div>
@@ -411,13 +496,22 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
             ariaLabel={labels.ariaHome}
             className="inline-flex min-h-11 items-center gap-2 font-mono text-base font-semibold text-dark-text no-underline transition-colors duration-200 hover:text-secondary"
           >
-            <span className="size-2 rounded-full bg-status" aria-hidden="true"></span>
+            <Mark className="size-[22px] text-note" />
             <span>basem.esam</span>
           </SectionAnchor>
 
           <button
             type="button"
-            className="flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md border border-hairline bg-surface/50 text-dark-text transition-all duration-200 hover:border-signal hover:text-signal active:scale-95 lg:hidden"
+            onClick={openPalette}
+            aria-label={palette.trigger}
+            className={`${mobilePaletteButton} lg:hidden`}
+          >
+            <Icon name="search" className="size-4" />
+          </button>
+
+          <button
+            type="button"
+            className="nav-mobile-btn nav-ctl ms-2 flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md active:scale-95 lg:hidden"
             aria-controls="navbarNav"
             aria-expanded={menuOpen}
             aria-label={labels.toggleNavigation}
@@ -435,9 +529,9 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
             <div className="min-h-0 max-lg:max-h-[calc(100dvh-5rem)] max-lg:[scrollbar-width:none] max-lg:overflow-y-auto max-lg:overscroll-contain max-lg:pb-[env(safe-area-inset-bottom)] lg:ms-auto lg:overflow-visible max-lg:[&::-webkit-scrollbar]:hidden">
               <div className="mt-3 border-t border-hairline px-2.5 pt-3 pb-3 lg:hidden">
                 <div className="flex flex-col rounded-2xl border border-hairline nav-menu-panel p-3">
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col">
                     {sections.map((section, index) => {
-                      const active = activeSection === section.href.slice(1);
+                      const active = activeId === section.href.slice(1);
                       return (
                         <SectionAnchor
                           key={section.href}
@@ -446,103 +540,100 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                           locale={locale}
                           active={active}
                           style={{ animationDelay: `${80 + index * 50}ms` }}
-                          className={`${menuRow} ${active ? "bg-surface/80 ring-1 ring-hairline" : ""} ${
+                          className={`${menuRow} ${active ? "is-active" : ""} ${
                             menuOpen ? "motion-safe:animate-menu-item-in" : ""
                           }`}
                         >
-                          <span className={menuRowIndex} dir="ltr">
+                          <span className="mn" dir="ltr">
                             {String(index + 1).padStart(2, "0")}
                           </span>
-                          <span
-                            className={active ? `${menuRowLabel} text-secondary` : menuRowLabel}
-                          >
-                            {labels[section.labelKey]}
-                          </span>
-                          <Icon name="arrowRight" className={menuRowArrow} />
+                          <span className="t">{labels[section.labelKey]}</span>
+                          <Icon name="arrowRight" className="go rtl:rotate-180" />
                         </SectionAnchor>
                       );
                     })}
                   </div>
 
-                  <button
-                    type="button"
-                    className={`${menuRow} mt-2 cursor-pointer`}
+                  <div
+                    className="menu-tiles"
                     style={{ animationDelay: `${80 + sections.length * 50}ms` }}
-                    onClick={() => {
-                      setMenuOpen(false);
-                      openPalette();
-                    }}
                   >
-                    <span className={menuRowIndex} dir="ltr">
-                      ⌕
-                    </span>
-                    <span className={menuRowLabel}>{palette.trigger}</span>
-                    <Icon name="arrowRight" className={menuRowArrow} />
-                  </button>
+                    <Link href={linksHref} className="menu-tile menu-tile-links">
+                      <span className="mn" dir="ltr">
+                        /links
+                      </span>
+                      <b>{labels.allLinks}</b>
+                      <Icon name="externalLink" className="i" />
+                    </Link>
+                    <a href={CV_PATH} download className="menu-tile">
+                      <span className="mn" dir="ltr">
+                        PDF
+                      </span>
+                      <b>{labels.resume}</b>
+                      <Icon name="fileDown" className="i" />
+                    </a>
+                  </div>
 
                   <div
-                    className="mt-auto pt-4"
+                    className="menu-foot"
                     style={{ animationDelay: `${80 + (sections.length + 1) * 50}ms` }}
                   >
-                    <div className="mb-3 flex items-center gap-2" aria-hidden="true">
-                      <span className="font-mono text-[10px] font-semibold tracking-[0.2em] text-muted-text uppercase">
-                        {labels.allLinks}
-                      </span>
-                      <span className="h-px flex-1 bg-hairline"></span>
-                    </div>
+                    <a href={PHONE_TEL} dir="ltr" className="menu-phone">
+                      <Icon name="phone" className="size-5" />
+                      {PHONE_DISPLAY}
+                    </a>
 
-                    <div className="grid grid-cols-2 gap-2">
-                      <Link
-                        href={linksHref}
-                        className={`${auxLink} justify-center rounded-lg border border-hairline bg-surface/70 py-2`}
-                      >
-                        <Icon name="externalLink" className="size-4" />
-                        {labels.allLinks}
-                      </Link>
-                      <a
-                        href={CV_PATH}
-                        download
-                        className={`${auxLink} justify-center rounded-lg border border-hairline bg-surface/70 py-2`}
-                      >
-                        <Icon name="fileDown" className="size-4" />
-                        {labels.resume}
-                      </a>
-                    </div>
-
-                    <div className="mt-2 grid grid-cols-2 gap-2">
+                    <div className="menu-util">
                       <LanguageSwitcher {...languageSwitch} />
                       <ThemeToggle
                         id="darkModeToggleMobile"
                         labels={theme}
-                        className={themeButton}
-                        iconClassName="size-5"
+                        className={menuThemeButton}
+                        iconClassName="size-4"
                       />
+                      <span className="menu-soc">
+                        <a
+                          href={GITHUB_URL}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={palette.items.github}
+                        >
+                          <Icon name="github" className="size-4" />
+                        </a>
+                        <a
+                          href={LINKEDIN_URL}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={palette.items.linkedin}
+                        >
+                          <Icon name="linkedIn" className="size-4" />
+                        </a>
+                        <a href={MAILTO} aria-label={palette.items.email}>
+                          <Icon name="mail" className="size-4" />
+                        </a>
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="hidden lg:block">
+              <div className="nav-links hidden lg:block" ref={barRef}>
+                <span ref={indicatorRef} className="nav-ind" aria-hidden="true"></span>
                 <ul className="flex list-none items-center">
-                  {sections.map((section) => {
-                    const active = activeSection === section.href.slice(1);
+                  {barSections.map((section, index) => {
+                    const active = activeId === section.href.slice(1);
                     return (
-                      // At xl the Contact link is replaced by the "Let's talk" button
-                      // on the right, so exactly one visible link targets #contact.
-                      <li key={section.href} className={section.href === "#contact" ? "xl:hidden" : undefined}>
+                      <li key={section.href}>
                         <SectionAnchor
                           className={sectionLink(active)}
                           href={section.href}
                           isHome={isHome}
                           locale={locale}
                           active={active}
+                          ind
                         >
-                          <span
-                            className="me-1.5 hidden font-mono text-xs text-note xl:inline"
-                            dir="ltr"
-                            aria-hidden="true"
-                          >
-                            {String(sections.indexOf(section) + 1).padStart(2, "0")}
+                          <span className="nn" dir="ltr" aria-hidden="true">
+                            {String(index + 1).padStart(2, "0")}
                           </span>
                           {labels[section.labelKey]}
                         </SectionAnchor>
@@ -550,31 +641,59 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                     );
                   })}
 
+                  {/* At xl the plain Contact link is replaced by the CTA below,
+                      so exactly one visible link targets #contact at a time. */}
+                  <li className="xl:hidden">
+                    <SectionAnchor
+                      className={sectionLink(activeId === "contact")}
+                      href="#contact"
+                      isHome={isHome}
+                      locale={locale}
+                      active={activeId === "contact"}
+                      ind
+                    >
+                      <span className="nn" dir="ltr" aria-hidden="true">
+                        05
+                      </span>
+                      {labels.contact}
+                    </SectionAnchor>
+                  </li>
+
+                  {/* /links joins the bar at xl only; below that the utility
+                      group carries it as an icon. */}
+                  <li className="hidden xl:block">
+                    <Link href={linksHref} className={sectionLink(false)} data-nav-ind>
+                      <span className="nn" dir="ltr" aria-hidden="true">
+                        ↗
+                      </span>
+                      {labels.links}
+                    </Link>
+                  </li>
+
                   <li className="ms-2">
-                    <div className="flex items-center gap-2">
+                    <div className="nav-util flex items-center gap-2">
                       <button
                         type="button"
                         onClick={openPalette}
                         aria-label={palette.trigger}
-                        className={paletteButton}
+                        className={`${paletteButton} group/palette`}
                       >
                         <Icon name="search" className="size-4" />
+                        <span className="palette-word" aria-hidden="true">
+                          {labels.search}
+                        </span>
                         <span
-                          className="font-mono text-xs text-muted-text"
+                          className="font-mono text-xs text-muted-text max-xl:sr-only"
                           suppressHydrationWarning
                         >
                           {modKey} K
                         </span>
                       </button>
-                      <Link href={linksHref} className={auxLinkBar}>
+                      <Link href={linksHref} className={`${auxLinkBar} xl:hidden`}>
                         <Icon name="externalLink" className="size-4" />
                         <span className={auxLabel}>{labels.allLinks}</span>
                       </Link>
-                      <a href={CV_PATH} download className={auxLinkBar}>
-                        <Icon name="fileDown" className="size-4" />
-                        <span className={auxLabel}>{labels.resume}</span>
-                      </a>
-                      <LanguageSwitcher {...languageSwitch} />
+                      <LanguageSwitcher {...languageSwitch} className="nav-ctl nav-ctl-quiet" />
                       <ThemeToggle
                         id="darkModeToggle"
                         labels={theme}
@@ -585,11 +704,13 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                         href="#contact"
                         isHome={isHome}
                         locale={locale}
-                        active={activeSection === "contact"}
+                        active={activeId === "contact"}
                         className={talkButton}
                       >
-                        {labels.letsTalk}
-                        <Icon name="arrowRight" className="size-4 rtl:rotate-180" />
+                        <span>{labels.letsTalk}</span>
+                        <span className="nav-cta-ic" aria-hidden="true">
+                          <Icon name="arrowRight" className="size-4 rtl:rotate-180" />
+                        </span>
                       </SectionAnchor>
                     </div>
                   </li>

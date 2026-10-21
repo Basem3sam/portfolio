@@ -1,25 +1,38 @@
 type SectionHeaderProps = {
+  /** Two-digit section index shown above the title, e.g. "01". */
   number: string;
   title: string;
+  /** Optional lead line under the title (max 60ch). */
+  lead?: string;
+  /**
+   * Optional id for the heading, so a wrapping section can point
+   * `aria-labelledby` at it.
+   */
+  headingId?: string;
 };
 
-export default function SectionHeader({ number, title }: SectionHeaderProps) {
+/**
+ * Section header: mono index + hairline rule, then the title with its
+ * hand-drawn underline (the `.sh` primitives in globals.css). The index is
+ * decorative, so the top row is hidden from assistive tech; the h2 carries
+ * the section's accessible name.
+ */
+export default function SectionHeader({
+  number,
+  title,
+  lead,
+  headingId,
+}: SectionHeaderProps) {
   return (
-    <div
-      className="mb-10 data-[revealed=false]:opacity-0 data-[revealed=true]:animate-reveal-up md:mb-14"
-      data-reveal
-    >
-      <p className="font-mono text-sm font-medium text-note">
-        <span dir="ltr">§ {number}</span>
-      </p>
-      <h2 className="mt-1 text-h2 font-semibold tracking-tight text-dark-text">
-        {title}
-      </h2>
-      <div className="mt-4 flex items-center gap-2" aria-hidden="true">
-        <span className="h-0.5 w-12 rounded-full bg-honey motion-safe:animate-rule-grow"></span>
-        <span className="h-0.5 w-3 rounded-full bg-signal [animation-delay:250ms] motion-safe:animate-rule-grow"></span>
-        <span className="h-px flex-1 bg-hairline"></span>
+    <div className="sh" data-reveal>
+      <div className="sh-top" aria-hidden="true">
+        <span className="idx" dir="ltr">
+          {number}
+        </span>
+        <span className="rule"></span>
       </div>
+      <h2 id={headingId}>{title}</h2>
+      {lead ? <p>{lead}</p> : null}
     </div>
   );
 }

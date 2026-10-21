@@ -1,0 +1,773 @@
+/* ================================================================
+   Work section — port of the mockup's spread, rows, plates and KPI
+   wall (template 2929–3011; rules 246–290, 517–547, 805–890,
+   851–898, 1082–1099, 1182–1211, 1613–1633, 1727–1735, 2048–2068,
+   2122–2133, 2282–2314). The LAST definition of each mockup rule
+   wins here too (rev 11's halftone plate corner supersedes the
+   earlier prompt-mark watermark, rev 14 flips the KPI tile to
+   label → value → graphic, rev 23 turns the request path into a
+   two-column numbered grid).
+
+   Everything is scoped to `#work`: `.row`, `.plate`, `.desc` and
+   friends are far too generic to leak onto sibling sections. All
+   colour comes from the shared `--c-*` tokens; the section follows
+   the theme (the tonal washes already come from `.sec-wash`).
+   ================================================================ */
+
+/* ---------- featured spread ---------- */
+
+#work .spread-wrap {
+  padding-bottom: clamp(24px, 4vw, 48px);
+  border-bottom: 1px solid var(--c-rule-strong);
+}
+
+/* The featured spread is a panel like the rows below it: it bleeds 20px past
+   the column, fills on hover and clips the pointer glow to its own corners. */
+#work .spread {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: clamp(24px, 4cqi, 56px);
+  align-items: start;
+  padding: clamp(20px, 3vw, 32px) 20px;
+  margin-inline: -20px;
+  border: 1px solid transparent;
+  border-radius: 20px;
+  transition:
+    background-color 0.3s ease-out,
+    border-color 0.3s ease-out;
+}
+
+#work .spread:hover,
+#work .spread:focus-within {
+  background: var(--c-light-bg);
+  border-color: var(--c-hairline);
+}
+
+#work .spread-media {
+  display: grid;
+  gap: 16px;
+  align-self: stretch;
+  min-width: 0;
+}
+
+#work .row-media {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  min-width: 0;
+}
+
+#work .spread .plate {
+  transition:
+    transform 0.3s ease-out,
+    border-color 0.25s,
+    box-shadow 0.3s;
+}
+
+#work .spread:hover .plate {
+  transform: translateY(-4px);
+  border-color: var(--c-muted-text);
+  box-shadow: var(--sh-lg);
+}
+
+#work .spread .plate::before {
+  transition: opacity 0.25s;
+}
+
+#work .spread:hover .plate::before {
+  opacity: 0.9;
+}
+
+#work .spread .btn-primary svg {
+  transition: transform 0.25s ease-out;
+}
+
+#work .spread .btn-primary:hover svg {
+  transform: translateX(3px);
+}
+
+#work .spread-title {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: 1.05;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  margin-top: 14px;
+}
+
+/* ---------- provenance line ---------- */
+/* `.slug`, `.prov` and `.prov .sep` are shared primitives and live in
+   app/globals.css, so the case-study hero can use them too. */
+
+#work .dot-dev {
+  background: transparent;
+  border: 1.5px solid var(--c-muted-text);
+  box-shadow: none;
+}
+
+#work .dot-done {
+  background: var(--c-muted-text);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-muted-text) 14%, transparent);
+}
+
+/* ---------- copy ---------- */
+
+#work .desc {
+  color: var(--c-light-text);
+  max-width: 56ch;
+  margin-block: 18px 24px;
+}
+
+#work .sub {
+  color: var(--c-muted-text);
+  font-size: 0.875rem;
+  max-width: 62ch;
+  margin-top: 8px;
+}
+
+#work .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* Row tech pills (mockup rev 15 `.stk`); the spread's tech lives in the
+   case study, its KPI wall carries the weight here. */
+#work .stk {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+  direction: ltr;
+}
+
+[dir="rtl"] #work .stk {
+  justify-content: flex-end;
+}
+
+#work .stk li {
+  font: 500 0.75rem/1 var(--font-mono-body);
+  padding: 7px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--c-hairline);
+  background: var(--c-light-bg);
+  color: var(--c-light-text);
+  transition:
+    border-color 0.4s ease,
+    color 0.4s ease,
+    background-color 0.4s ease;
+}
+
+#work .stk li:hover {
+  border-color: var(--c-honey);
+  color: var(--c-dark-text);
+  background: var(--c-surface);
+}
+
+/* ---------- rows ---------- */
+
+#work .rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+#work .row {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: 44px 240px minmax(0, 1fr) 52px;
+  gap: 24px;
+  padding: 32px 20px;
+  margin-inline: -20px;
+  border-bottom: 1px solid var(--c-hairline);
+  transition: background-color 0.25s ease-out;
+}
+
+#work .row:hover {
+  background: var(--c-light-bg);
+}
+
+#work .row .rx,
+#work .row .plate,
+#work .row .go {
+  position: relative;
+  z-index: 1;
+}
+
+#work .rx {
+  font: 500 0.8125rem var(--font-mono-body);
+  color: var(--c-note);
+  padding-top: 6px;
+  direction: ltr;
+  transition: color 0.2s;
+}
+
+#work .row:hover .rx {
+  color: var(--c-dark-text);
+}
+
+#work .row h3 {
+  font-size: var(--text-h3);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin-top: 6px;
+  transition: transform 0.25s ease-out;
+}
+
+#work .row:hover h3 {
+  transform: translateX(8px);
+}
+
+[dir="rtl"] #work .row:hover h3 {
+  transform: translateX(-8px);
+}
+
+#work .row h3 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Stretch link: the whole row is one big hit target; the action buttons
+   sit above it (z-index 3) so they keep their own destinations. */
+#work .row h3 a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+#work .row .actions,
+#work .row .actions a {
+  position: relative;
+  z-index: 3;
+}
+
+#work .row .desc {
+  max-width: 62ch;
+  margin-top: 10px;
+}
+
+#work .row .actions {
+  margin-top: 12px;
+}
+
+#work .row .plate {
+  transition:
+    transform 0.3s ease-out,
+    border-color 0.25s,
+    box-shadow 0.3s;
+}
+
+#work .row:hover .plate {
+  transform: translateY(-4px);
+  border-color: var(--c-muted-text);
+  box-shadow: var(--sh-lg);
+}
+
+#work .row .plate::before {
+  transition: opacity 0.25s;
+}
+
+#work .row:hover .plate::before {
+  opacity: 0.9;
+}
+
+#work .go {
+  align-self: center;
+  justify-self: end;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--c-rule-strong);
+  display: grid;
+  place-items: center;
+  color: var(--c-dark-text);
+  transition:
+    background-color 0.25s,
+    color 0.25s,
+    border-color 0.25s,
+    transform 0.3s ease-out;
+}
+
+#work .row:hover .go {
+  background: var(--c-dark-text);
+  color: var(--c-page);
+  border-color: var(--c-dark-text);
+  transform: rotate(-45deg);
+}
+
+[dir="rtl"] #work .row:hover .go {
+  transform: rotate(45deg);
+}
+
+/* ---------- plates (diagram panels) ---------- */
+
+#work .plate {
+  margin: 0;
+  position: relative;
+  border: 1px solid var(--c-hairline);
+  border-radius: var(--radius-ui-2);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--c-dark-bg) 88%, var(--c-surface)),
+    var(--c-dark-bg)
+  );
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  isolation: isolate;
+  box-shadow: var(--sh-sm);
+}
+
+/* Halftone corner that echoes the hero sky (rev 11's `.plate::before`,
+   which superseded the original prompt-mark watermark). */
+#work .plate::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto auto;
+  bottom: auto;
+  width: 190px;
+  height: 130px;
+  z-index: -1;
+  opacity: 0.55;
+  background: radial-gradient(circle, var(--c-secondary) 1.1px, transparent 1.5px) 0 0 / 11px 11px;
+  -webkit-mask: radial-gradient(90% 100% at 100% 0, #000, transparent 72%);
+  mask: radial-gradient(90% 100% at 100% 0, #000, transparent 72%);
+}
+
+[dir="rtl"] #work .plate::before {
+  inset: 0 auto auto 0;
+  -webkit-mask: radial-gradient(90% 100% at 0 0, #000, transparent 72%);
+  mask: radial-gradient(90% 100% at 0 0, #000, transparent 72%);
+}
+
+#work .plate-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--c-hairline);
+  background: color-mix(in srgb, var(--c-surface) 45%, transparent);
+}
+
+#work .plate-head .slug {
+  margin: 0;
+  font-size: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--c-light-text);
+}
+
+#work .plate-head .slug::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--c-honey);
+  flex: none;
+}
+
+#work .plate-body {
+  padding: 22px 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+  justify-content: center;
+}
+
+#work .spread .plate {
+  align-self: stretch;
+  min-height: 240px;
+  box-shadow: var(--sh-md);
+}
+
+#work .spread .plate-body {
+  justify-content: flex-start;
+  padding: 28px 18px 22px;
+  gap: 14px;
+}
+
+#work .row .plate {
+  align-self: start;
+  min-width: 0;
+  width: 100%;
+  gap: 0;
+}
+
+/* Request path: a two-column numbered grid (rev 12 replaced the connector
+   chain; `.cn` connectors are gone for good). Nodes pulse once per cycle,
+   staggered by --i. */
+#work .rpath {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  counter-reset: st;
+  align-items: stretch;
+  direction: ltr;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#work .rpath li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 9px 12px;
+  border: 1px solid var(--c-hairline);
+  border-radius: 10px;
+  background: var(--c-surface);
+  font: 500 0.75rem var(--font-mono-body);
+  color: var(--c-dark-text);
+  overflow-wrap: break-word;
+  counter-increment: st;
+  animation: wp-lit 14s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * 0.9s);
+}
+
+#work .rpath li::before {
+  content: counter(st, decimal-leading-zero);
+  color: var(--c-note);
+  font-size: 0.6875rem;
+  flex: none;
+  white-space: nowrap;
+}
+
+#work .rpath li.hot {
+  border-color: var(--c-secondary);
+  background: color-mix(in srgb, var(--c-secondary) 10%, transparent);
+  animation-name: wp-lit-hot;
+}
+
+#work .rpath li.live {
+  border-color: var(--c-status);
+  animation-name: wp-lit-live;
+}
+
+@keyframes wp-lit {
+  0%,
+  16%,
+  100% {
+    border-color: var(--c-rule-strong);
+  }
+  6% {
+    border-color: var(--c-honey);
+    background: color-mix(in srgb, var(--c-honey) 16%, var(--c-surface));
+  }
+}
+
+@keyframes wp-lit-hot {
+  0%,
+  16%,
+  100% {
+    border-color: var(--c-secondary);
+  }
+  6% {
+    border-color: var(--c-honey);
+    background: color-mix(in srgb, var(--c-honey) 16%, var(--c-surface));
+  }
+}
+
+@keyframes wp-lit-live {
+  0%,
+  16%,
+  100% {
+    border-color: var(--c-status);
+  }
+  6% {
+    border-color: var(--c-honey);
+    background: color-mix(in srgb, var(--c-honey) 16%, var(--c-surface));
+  }
+}
+
+#work .spread .rpath {
+  flex: 1;
+  grid-auto-rows: 1fr;
+  gap: 12px;
+}
+
+#work .spread .rpath li {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 14px 16px;
+  font-size: 0.875rem;
+}
+
+#work .spread .rpath li::before {
+  font-size: 0.75rem;
+}
+
+/* Grouped services in a dashed box; the caption rides the border. */
+#work .rgroup {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  border: 1px dashed var(--c-rule-strong);
+  border-radius: 12px;
+  padding: 18px 12px 12px;
+  direction: ltr;
+  list-style: none;
+  margin: 0;
+}
+
+#work .rgroup::before {
+  content: attr(data-cap);
+  position: absolute;
+  top: -8px;
+  inset-inline-start: 12px;
+  padding: 0 6px;
+  background: var(--c-dark-bg);
+  font: 500 0.625rem var(--font-mono-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-muted-text);
+}
+
+html[lang="ar"] #work .rgroup::before {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+#work .rgroup li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  font: 500 0.75rem/1 var(--font-mono-body);
+  padding: 6px 9px;
+  border: 1px solid var(--c-rule-strong);
+  border-radius: 8px;
+  background: var(--c-surface);
+  color: var(--c-dark-text);
+  overflow-wrap: break-word;
+}
+
+#work .rgroup li::before {
+  content: "";
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--c-rule-strong);
+}
+
+#work .rgroup li.hot {
+  border-color: var(--c-secondary);
+  background: color-mix(in srgb, var(--c-secondary) 10%, transparent);
+}
+
+#work .rgroup li.hot::before {
+  background: var(--c-secondary);
+}
+
+#work .plate-cap {
+  font: 500 0.75rem var(--font-mono-body);
+  letter-spacing: 0.02em;
+  color: var(--c-muted-text);
+  direction: ltr;
+  margin: 0;
+}
+
+html[lang="ar"] #work .plate-cap {
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+}
+
+#work .plate-foot {
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--c-rule-strong);
+  padding-top: 16px;
+}
+
+#work .plate-foot div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+#work .plate-foot div + div {
+  padding-inline-start: 18px;
+  border-inline-start: 1px solid var(--c-hairline);
+}
+
+#work .plate-foot b {
+  font: 500 1.75rem/1 var(--font-mono-body);
+  color: var(--c-dark-text);
+  direction: ltr;
+  text-align: start;
+  unicode-bidi: isolate;
+}
+
+#work .plate-foot span {
+  font-size: 0.8125rem;
+  color: var(--c-light-text);
+  line-height: 1.35;
+}
+
+/* ---------- live from GitHub ---------- */
+
+#work .live-block {
+  margin-top: clamp(56px, 8vw, 88px);
+}
+
+#work .live-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: clamp(28px, 4vw, 40px);
+}
+
+#work .live-lbl {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--c-light-text);
+}
+
+#work .live-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--c-status);
+}
+
+#work .live-dot::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1px solid var(--c-status);
+  opacity: 0;
+  animation: live-ping 2.4s ease-out infinite;
+}
+
+@keyframes live-ping {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.7;
+  }
+  70%,
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+#work .live-rule {
+  flex: 1;
+  min-width: 24px;
+  height: 1px;
+  background: var(--c-rule-strong);
+}
+
+#work .quiet {
+  margin-top: 32px;
+  color: var(--c-muted-text);
+  font-size: 0.875rem;
+  max-width: 60ch;
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 900px) {
+  #work .spread {
+    grid-template-columns: minmax(0, 1fr);
+    margin-inline: 0;
+    padding: 0 0 12px;
+    border-color: transparent;
+    border-radius: 0;
+  }
+
+  #work .spread:hover,
+  #work .spread:focus-within {
+    background: transparent;
+    border-color: transparent;
+  }
+
+  #work .spread:hover .plate {
+    transform: none;
+  }
+
+  #work .spread-media {
+    order: -1;
+    align-self: auto;
+  }
+
+  #work .spread-title {
+    font-size: 2.25rem;
+  }
+
+  /* Rows become cards. */
+  #work .row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    padding: 18px;
+    margin-inline: 0;
+    margin-bottom: 16px;
+    border: 1px solid var(--c-rule-strong);
+    border-radius: 20px;
+    background: var(--c-surface);
+  }
+
+  #work .row .rx {
+    order: -1;
+    padding: 0;
+  }
+
+  #work .row-media {
+    max-width: 340px;
+  }
+
+  #work .go {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+
+  #work .spread .rpath {
+    grid-auto-rows: auto;
+  }
+
+  #work .spread .rpath li {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+}
+
+/* ---------- reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  #work .rpath li,
+  #work .live-dot::after {
+    animation: none;
+  }
+
+  #work .spread:hover .plate {
+    transform: none;
+  }
+
+}

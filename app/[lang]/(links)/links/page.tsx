@@ -1,11 +1,11 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import ThemeToggle from "@/components/behavior/ThemeToggle";
 import LinkCard from "@/components/links/LinkCard";
-import CairoClock from "@/components/ui/CairoClock";
-import Icon, { type IconName } from "@/components/ui/Icon";
-import ProfileImage from "@/components/ui/ProfileImage";
+import LinksStage from "@/components/links/LinksStage";
+import Icon from "@/components/ui/Icon";
 import {
   CV_PATH,
   EMAIL,
@@ -16,7 +16,9 @@ import {
   PHONE_TEL,
   TROSC_URL,
 } from "@/data/site";
+import { linksPageStrings } from "@/lib/dictionaries/links-page";
 import { getDictionary, isLocale, type Locale } from "@/lib/i18n";
+import "@/components/links/LinksPage.css";
 
 type LinksPageProps = {
   params: Promise<{ lang: string }>;
@@ -48,16 +50,13 @@ export async function generateMetadata({ params }: LinksPageProps): Promise<Meta
   };
 }
 
-type LinkItem = {
-  href: string;
-  icon: IconName;
-  title: string;
-  description: string;
-  external?: boolean;
-  download?: boolean;
-  ltr?: boolean;
-};
-
+/**
+ * The /links hub: navbar-less, one bar (back + language + theme), then a
+ * sticky profile card beside grouped link rows (mockup lines 2804–2837).
+ * Reuses `dict.links` for every string that already exists; new copy (chip,
+ * group labels) comes from lib/dictionaries/links-page.ts. RTL mirrors via
+ * logical properties; the GlassFold canvas lives in LinksStage.
+ */
 export default async function LinksPage({ params }: LinksPageProps) {
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
@@ -65,104 +64,116 @@ export default async function LinksPage({ params }: LinksPageProps) {
   const locale: Locale = lang;
   const dict = getDictionary(locale);
   const t = dict.links;
+  const lp = linksPageStrings[locale];
   const homeHref = locale === "ar" ? "/ar" : "/";
-
-  const links: LinkItem[] = [
-    {
-      href: homeHref,
-      icon: "briefcase",
-      title: t.cards.portfolio,
-      description: t.cards.portfolioDesc,
-    },
-    {
-      href: GITHUB_URL,
-      icon: "github",
-      title: t.cards.github,
-      description: t.cards.githubDesc,
-      external: true,
-    },
-    {
-      href: LINKEDIN_URL,
-      icon: "linkedIn",
-      title: t.cards.linkedin,
-      description: t.cards.linkedinDesc,
-      external: true,
-    },
-    {
-      href: MAILTO,
-      icon: "mail",
-      title: t.cards.email,
-      description: EMAIL,
-    },
-    {
-      href: PHONE_TEL,
-      icon: "phone",
-      title: t.cards.phone,
-      description: PHONE_DISPLAY,
-      ltr: true,
-    },
-    {
-      href: TROSC_URL,
-      icon: "globe",
-      title: t.cards.trosc,
-      description: t.cards.troscDesc,
-      external: true,
-    },
-    {
-      href: CV_PATH,
-      icon: "fileDown",
-      title: t.cards.cv,
-      description: t.cards.cvDesc,
-      download: true,
-    },
-  ];
-
-  const floatingButton =
-    "fixed top-4 z-[1030] flex size-11 items-center justify-center rounded-full border border-hairline bg-surface text-light-text no-underline shadow-sm transition-all duration-200 hover:scale-105 hover:border-signal hover:text-signal hover:shadow-md active:scale-95 print:hidden";
+  const languageSwitch =
+    locale === "en"
+      ? { href: "/ar/links", hrefLang: "ar", label: "العربية" }
+      : { href: "/links", hrefLang: "en", label: "English" };
 
   return (
-    <main className="relative flex min-h-screen flex-col bg-grid">
-      <Link href={homeHref} className={`${floatingButton} start-4`} aria-label={t.backToPortfolio}>
-        <Icon name="arrowLeft" className="size-5 rtl:rotate-180" />
-      </Link>
-
-      <ThemeToggle id="themeToggle" className={`${floatingButton} end-4`} labels={dict.theme} />
-
-      <div className="container flex flex-1 flex-col items-center justify-center py-24 text-center">
-        <ProfileImage alt={t.name} imgClassName="size-[144px] max-xs:size-[116px]" />
-
-        <h1 className="mt-6 text-3xl font-bold tracking-tight text-dark-text">
-          {t.name}
-          <span className="text-note" aria-hidden="true">
-            .
+    <main id="main-content" className="lk-page">
+      <div className="links-bar">
+        <Link href={homeHref} className="lb-back">
+          <span className="lb-arrow" aria-hidden="true">
+            <Icon name="arrowLeft" className="size-4" />
           </span>
-        </h1>
-        <p className="mt-2 font-mono text-xs font-semibold tracking-[0.2em] text-note uppercase">
-          {t.role}
-        </p>
-        <p className="mt-1.5 text-sm text-muted-text">{t.tagline}</p>
+          <span>{t.backToPortfolio}</span>
+        </Link>
 
-        <p className="mt-5 inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-hairline bg-surface px-4 py-1.5 text-sm text-light-text">
-          <Icon name="mapPin" className="size-4" />
-          {t.location}
-          <span aria-hidden="true" className="text-muted-text">
-            ·
-          </span>
-          <CairoClock className="text-sm" />
-        </p>
-
-        <div className="mt-10 flex w-full max-w-md flex-col gap-3">
-          {links.map((link, index) => (
-            <LinkCard key={link.title} {...link} index={index} />
-          ))}
+        <div className="lb-ctl">
+          <LanguageSwitcher {...languageSwitch} className="lb-lang" />
+          <ThemeToggle id="linksThemeToggle" labels={dict.theme} className="lb-theme" />
         </div>
       </div>
 
-      <footer className="py-6 text-center text-sm text-light-text">
-        <p>
-          &copy; {new Date().getFullYear()} Basem Esam. {dict.footer.rights}
-        </p>
-      </footer>
+      <div className="links2">
+        <div className="lk-side">
+          <aside className="lk-card" data-reveal>
+            <LinksStage alt={t.name} />
+            <div className="lk-body">
+              <span className="lk-chip">
+                <span className="dot" aria-hidden="true"></span>
+                <span>{lp.chip}</span>
+              </span>
+              <h1>
+                {t.name}
+                <span className="cursor" aria-hidden="true"></span>
+              </h1>
+              <p>{t.role}</p>
+              <p className="lbl">{t.location}</p>
+            </div>
+          </aside>
+        </div>
+
+        <div className="lk-list">
+          <div className="lk-g" data-reveal>
+            <p className="lbl">{lp.groupStart}</p>
+            <LinkCard
+              href={homeHref}
+              icon="briefcase"
+              trailing="arrowRight"
+              primary
+              title={t.cards.portfolio}
+              description={t.cards.portfolioDesc}
+            />
+            <LinkCard
+              href={CV_PATH}
+              icon="fileDown"
+              trailing="fileDown"
+              download
+              title={t.cards.cv}
+              description={t.cards.cvDesc}
+            />
+          </div>
+
+          <div className="lk-g" data-reveal>
+            <p className="lbl">{lp.groupReach}</p>
+            <LinkCard
+              href={PHONE_TEL}
+              icon="phone"
+              trailing="arrowRight"
+              title={t.cards.phone}
+              value={PHONE_DISPLAY}
+            />
+            <LinkCard
+              href={MAILTO}
+              icon="mail"
+              trailing="arrowRight"
+              title={t.cards.email}
+              value={EMAIL}
+            />
+            <LinkCard
+              href={LINKEDIN_URL}
+              icon="linkedIn"
+              trailing="externalLink"
+              external
+              title={t.cards.linkedin}
+              description={t.cards.linkedinDesc}
+            />
+          </div>
+
+          <div className="lk-g" data-reveal>
+            <p className="lbl">{lp.groupCode}</p>
+            <LinkCard
+              href={GITHUB_URL}
+              icon="github"
+              trailing="externalLink"
+              external
+              title={t.cards.github}
+              description={t.cards.githubDesc}
+            />
+            <LinkCard
+              href={TROSC_URL}
+              icon="globe"
+              trailing="externalLink"
+              external
+              title={t.cards.trosc}
+              description={t.cards.troscDesc}
+            />
+          </div>
+        </div>
+      </div>
     </main>
   );
 }

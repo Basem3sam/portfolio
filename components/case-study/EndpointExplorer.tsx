@@ -1,44 +1,51 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import Icon from "@/components/ui/Icon";
-import {
-  EXPLORER_ENDPOINTS,
-  type EndpointId,
-  type ExplorerEndpoint,
-  type HttpMethod,
-} from "@/data/trosc";
+import { EXPLORER_CASE_SLICE, type EndpointAccess, type ExplorerEndpoint } from "@/data/trosc";
 import type { TroscDictionary } from "@/lib/dictionaries/trosc";
-import { prefersReducedMotion } from "@/lib/scroll";
 
 type EndpointExplorerProps = {
   dict: TroscDictionary["sections"]["explorer"];
 };
 
-const methodClass: Record<HttpMethod, string> = {
-  GET: "bg-status text-page",
-  POST: "bg-note text-page",
-  PUT: "bg-note text-page",
-  PATCH: "bg-note text-page",
-  DELETE: "bg-accent text-page",
+/**
+ * The endpoints the case study shows — the reference's curated slice of the
+ * 100+ mounted endpoints, grouped by who may call them. Responses are
+ * simulated on this page: no request is sent, and the latency is drawn from
+ * the range the endpoint documents.
+ */
+const ENDPOINTS = EXPLORER_CASE_SLICE;
+const ACCESS_GROUPS: EndpointAccess[] = ["public", "protected", "admin"];
+
+const STATUS_TEXT: Record<number, string> = {
+  200: "OK",
+  201: "Created",
+  204: "No Content",
+  400: "Bad Request",
+  401: "Unauthorized",
+  403: "Forbidden",
+  404: "Not Found",
+  429: "Too Many Requests",
 };
 
-const jsonClass = {
-  punc: "text-muted-text",
-  key: "font-medium text-dark-text",
-  str: "text-status",
-  num: "text-note",
-};
-
-function MethodBadge({ method }: { method: HttpMethod }) {
-  return (
-    <span
-      className={`inline-flex min-w-14 justify-center rounded px-1.5 py-0.5 font-mono text-[11px] font-semibold ${methodClass[method]}`}
-    >
-      {method}
-    </span>
-  );
+/** Size of the JSON body as it would travel over the wire. */
+function payloadBytes(value: unknown): number {
+  return new TextEncoder().encode(JSON.stringify(value)).length;
 }
+
+type RunState =
+  | { phase: "idle" }
+  | { phase: "running" }
+  | { phase: "done"; ms: number };
+
+/** Syntax colours are scoped to the code pane (see CaseStudy.css). */
+const jsonClass = {
+  punc: undefined,
+  key: "k",
+  str: "s",
+  num: "n",
+} as const;
 
 function renderJson(value: unknown, indent: number): ReactNode {
   const pad = "  ".repeat(indent);
@@ -95,133 +102,161 @@ function renderJson(value: unknown, indent: number): ReactNode {
   );
 }
 
-type RunState = { status: "idle" | "running" | "done"; ms: number };
-
 export default function EndpointExplorer({ dict }: EndpointExplorerProps) {
-  const [selectedId, setSelectedId] = useState(EXPLORER_ENDPOINTS[0].id);
-  const [runState, setRunState] = useState<RunState>({ status: "idle", ms: 0 });
+  const [selectedId, setSelectedId] = useState<ExplorerEndpoint["id"]>(ENDPOINTS[0].id);
+  // `idle` is what the server sent and what a reader sees with JavaScript off;
+  // the first endpoint is simulated right after mount, like the reference.
+  const [run, setRun] = useState<RunState>({ phase: "idle" });
   const timer = useRef<number | undefined>(undefined);
 
-  const selected: ExplorerEndpoint =
-    EXPLORER_ENDPOINTS.find((endpoint) => endpoint.id === selectedId) ?? EXPLORER_ENDPOINTS[0];
+  const selected = ENDPOINTS.find((endpoint) => endpoint.id === selectedId) ?? ENDPOINTS[0];
 
-  useEffect(() => () => window.clearTimeout(timer.current), []);
-
-  const run = () => {
+  const simulate = useCallback((endpoint: ExplorerEndpoint) => {
     window.clearTimeout(timer.current);
-    const [min, max] = selected.latency;
+    const [min, max] = endpoint.latency;
     const ms = min + Math.floor(Math.random() * (max - min + 1));
-
-    if (prefersReducedMotion()) {
-      setRunState({ status: "done", ms });
-      return;
-    }
-
-    setRunState({ status: "running", ms: 0 });
+    setRun({ phase: "running" });
+    // A short beat so a run is visibly a run; the number shown is the drawn
+    // latency, not this delay.
     timer.current = window.setTimeout(
-      () => setRunState({ status: "done", ms }),
-      Math.min(ms + 200, 800),
+      () => setRun({ phase: "done", ms }),
+      Math.min(520, Math.max(160, Math.round(ms * 0.9))),
     );
-  };
+  }, []);
 
-  const select = (id: EndpointId) => {
-    if (id === selectedId) return;
-    window.clearTimeout(timer.current);
-    setRunState({ status: "idle", ms: 0 });
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => simulate(ENDPOINTS[0]));
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timer.current);
+    };
+  }, [simulate]);
+
+  const pick = (id: ExplorerEndpoint["id"]) => {
+    const endpoint = ENDPOINTS.find((item) => item.id === id);
+    if (!endpoint) return;
     setSelectedId(id);
+    simulate(endpoint);
   };
 
-  const rowClass = (active: boolean) =>
-    `flex w-full min-h-11 cursor-pointer items-center gap-2.5 border-b border-hairline px-3 text-start transition-colors duration-100 last:border-b-0 ${
-      active
-        ? "bg-light-bg text-dark-text shadow-[inset_2px_0_0_0_var(--c-signal)]"
-        : "text-light-text hover:bg-light-bg hover:text-dark-text"
-    }`;
+  const [min, max] = selected.latency;
+  const done = run.phase === "done";
+  const ms = done ? run.ms : null;
+  // Where this run landed inside the endpoint's own documented range.
+  const spot = ms === null ? 0 : Math.min(1, Math.max(0, (ms - min) / Math.max(1, max - min)));
+  const tier = spot < 0.34 ? "fast" : spot < 0.67 ? "mid" : "slow";
+  const statusText = STATUS_TEXT[selected.status] ?? "";
 
   return (
-    <div className="overflow-hidden rounded-lg border border-hairline">
-      <div className="grid lg:grid-cols-[300px_1fr]">
-        <div className="max-h-[420px] overflow-y-auto border-b border-hairline lg:border-e lg:border-b-0 lg:border-hairline">
-          {EXPLORER_ENDPOINTS.map((endpoint) => {
-            const active = endpoint.id === selectedId;
-            return (
-              <button
-                key={endpoint.id}
-                type="button"
-                aria-pressed={active}
-                onClick={() => select(endpoint.id)}
-                className={rowClass(active)}
-              >
-                <MethodBadge method={endpoint.method} />
-                <span
-                  dir="ltr"
-                  className={`min-w-0 flex-1 font-mono text-xs break-all ${
-                    active ? "font-medium text-dark-text" : "text-light-text"
-                  }`}
+    <div className="explorer">
+      <div className="ex-list">
+        {ACCESS_GROUPS.map((access) => {
+          const items = ENDPOINTS.filter((endpoint) => endpoint.access === access);
+          if (items.length === 0) return null;
+          return (
+            <div key={access} className="ex-group" data-access={access}>
+              <p className="ex-grp">
+                <span>{dict.groups[access]}</span>
+                <b>{items.length}</b>
+              </p>
+              {items.map((endpoint) => (
+                <button
+                  key={endpoint.id}
+                  type="button"
+                  aria-pressed={endpoint.id === selectedId}
+                  onClick={() => pick(endpoint.id)}
                 >
-                  {endpoint.path}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+                  <span className="verb" data-m={endpoint.method}>
+                    {endpoint.method}
+                  </span>
+                  <span className="ex-path">{endpoint.path}</span>
+                </button>
+              ))}
+            </div>
+          );
+        })}
+      </div>
 
-        <div className="p-5 md:p-6">
-          <div className="flex flex-wrap items-center gap-2.5">
-            <MethodBadge method={selected.method} />
-            <code
-              dir="ltr"
-              className="min-w-0 flex-1 font-mono text-sm font-medium break-all text-dark-text"
-            >
-              {selected.path}
-            </code>
-            <span className="rounded-full border border-hairline px-2.5 py-1 text-[11px] font-medium text-light-text">
-              {dict.access[selected.access]}
+      <div className="ex-main">
+        <div className="ex-bar">
+          <span className="code">
+            <span className="verb" data-m={selected.method}>
+              {selected.method}
             </span>
-          </div>
-
-          <p className="mt-3 text-sm leading-relaxed text-light-text">
-            {dict.endpoints[selected.id]}
-          </p>
-
-          <div className="mt-4 flex flex-wrap items-center gap-4">
-            <button
-              type="button"
-              onClick={run}
-              disabled={runState.status === "running"}
-              className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md bg-secondary px-4 text-sm font-semibold text-on-secondary transition-colors duration-200 hover:bg-signal disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              <Icon name="code" className="size-4" />
-              {dict.run}
-            </button>
-            <span role="status" dir="ltr" className="font-mono text-xs">
-              {runState.status === "running" && (
-                <span className="animate-pulse text-light-text motion-reduce:animate-none">
-                  ··· {dict.running}
-                </span>
-              )}
-              {runState.status === "done" && (
-                <span className="font-semibold text-status">
-                  {selected.status} {dict.ok} · {runState.ms}ms
-                </span>
-              )}
-            </span>
-          </div>
-
-          {runState.status === "done" && (
-            <p className="mt-2 font-mono text-[11px] text-muted-text" dir="ltr">
-              X-RateLimit-Limit: {selected.rateLimit} · X-RateLimit-Remaining:{" "}
-              {selected.rateLimit - (runState.ms % 24)}
-            </p>
-          )}
-
-          <pre
-            dir="ltr"
-            className="mt-4 overflow-x-auto rounded-md border border-hairline bg-light-bg p-4 font-mono text-xs leading-relaxed whitespace-pre-wrap text-dark-text"
+            {selected.path}
+          </span>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => simulate(selected)}
+            disabled={run.phase === "running"}
           >
-            {renderJson(selected.response, 0)}
-          </pre>
+            <Icon name="play" className="size-4" />
+            {dict.run}
+          </button>
         </div>
+
+        <div className="ex-meta">
+          <span className="ex-chip" data-access={selected.access}>
+            {dict.groups[selected.access]}
+          </span>
+          <span className="ex-chip">
+            {dict.limit}: <b dir="ltr">{selected.rateLimit}</b> {dict.limitUnit}
+          </span>
+        </div>
+
+        {/* The response strip: status, time and size, big enough to read at a glance. */}
+        <div
+          className="ex-stats"
+          role="status"
+          aria-live="polite"
+          data-state={run.phase}
+          data-tier={done ? tier : undefined}
+        >
+          <div className="ex-stat">
+            <span className="ex-k">{dict.status}</span>
+            <strong className="ex-pill" dir="ltr">
+              <i aria-hidden="true" />
+              {done ? (
+                <>
+                  {selected.status} <small>{statusText}</small>
+                </>
+              ) : run.phase === "running" ? (
+                dict.running
+              ) : (
+                "—"
+              )}
+            </strong>
+          </div>
+
+          <div className="ex-stat ex-time">
+            <span className="ex-k">{dict.time}</span>
+            <strong dir="ltr">
+              <span className="ex-ms">{ms ?? "—"}</span>
+              {ms !== null && <span className="ex-unit"> ms</span>}
+            </strong>
+            <span className="ex-meter" aria-hidden="true">
+              <i style={{ "--spot": spot } as CSSProperties} />
+            </span>
+            <small dir="ltr">
+              {min}–{max} ms {dict.typical}
+            </small>
+          </div>
+
+          <div className="ex-stat">
+            <span className="ex-k">{dict.size}</span>
+            <strong dir="ltr">
+              <span className="ex-ms">{done ? payloadBytes(selected.response) : "—"}</span>
+              {done && <span className="ex-unit"> B</span>}
+            </strong>
+          </div>
+        </div>
+
+        <div className="code-pane" data-state={run.phase}>
+          <pre>{done ? renderJson(selected.response, 0) : ""}</pre>
+        </div>
+
+        <div className="ex-res">{done ? dict.note : dict.idle}</div>
       </div>
     </div>
   );

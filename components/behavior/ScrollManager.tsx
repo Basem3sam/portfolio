@@ -4,14 +4,34 @@ import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { getNavbarHeight, scrollBehavior, scrollToPosition } from "@/lib/scroll";
 
-function getOffset() {
-  const navbar = document.querySelector<HTMLElement>("nav[data-scrolled]");
-  const height = getNavbarHeight();
-  let offset = navbar?.dataset.scrolled === "true" ? height - 10 : height + 10;
+// The section's own top padding already clears the floating bar, so the
+// section edge lands under it and the heading sits just below. A fixed
+// offset used to leave the previous section peeking above, or cut the
+// heading, depending on the section's padding.
+function getOffset(target: HTMLElement) {
+  const padding = parseFloat(window.getComputedStyle(target).paddingTop) || 0;
+  return Math.max(0, getNavbarHeight() - padding + 16);
+}
 
-  if (window.innerWidth < 768) offset *= 0.8;
+function topFor(target: HTMLElement) {
+  return Math.max(0, target.getBoundingClientRect().top + window.scrollY - getOffset(target));
+}
 
-  return Math.max(50, offset);
+// Images and the GitHub cards finish loading after a jump and move everything
+// below them, so the landing is checked again and nudged back into place -
+// unless the reader has already scrolled on their own.
+function settleOn(target: HTMLElement) {
+  let expected = window.scrollY;
+
+  [140, 900].forEach((delay) =>
+    window.setTimeout(() => {
+      if (!target.isConnected || Math.abs(window.scrollY - expected) > 3) return;
+      const drift = topFor(target) - window.scrollY;
+      if (Math.abs(drift) < 3) return;
+      window.scrollBy({ top: drift, behavior: "instant" });
+      expected = window.scrollY;
+    }, delay),
+  );
 }
 
 function findTarget(hash: string) {
@@ -21,6 +41,11 @@ function findTarget(hash: string) {
     return null;
   }
 }
+
+/** Hashes that pointed at sections which have since moved or merged. */
+const LEGACY_HASHES: Record<string, string> = {
+  "#education": "#about",
+};
 
 export default function ScrollManager() {
   const pathname = usePathname();
@@ -36,20 +61,48 @@ export default function ScrollManager() {
   // In-page clicks never reach here — they call `preventDefault()` and update
   // the URL with `pushState`, which does not change the pathname.
   useEffect(() => {
-    const { hash } = window.location;
-    if (!hash || hash === "#" || hash === "#0") return;
+    const raw = window.location.hash;
+    if (!raw || raw === "#" || raw === "#0") return;
+
+    // Education was merged into About: old bookmarks and shared links still
+    // carry `#education`, which no longer exists. Rewrite the URL in place so
+    // they land on the section that absorbed it instead of nowhere.
+    const hash = LEGACY_HASHES[raw] ?? raw;
+    if (hash !== raw) window.history.replaceState(null, "", hash);
 
     const target = findTarget(hash);
     if (!target) return;
 
     // Arriving at a destination, not moving within a page: the browser was
     // reset to the top by the navigation, so jump rather than animate.
-    const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - getOffset());
-    window.scrollTo({ top, behavior: "instant" });
+    window.scrollTo({ top: topFor(target), behavior: "instant" });
 
     target.setAttribute("tabindex", "-1");
     target.focus({ preventScroll: true });
     window.dispatchEvent(new CustomEvent("navbar-sync-section"));
+
+    // Late layout above the target - the live GitHub block swapping its
+    // skeleton for cards, an image load - grows the page and leaves the
+    // reader short of the section they asked for (the browser's own scroll
+    // anchoring does not correct hash landings after a route change).
+    // Track the target's document position and compensate for shifts while
+    // the landing settles; the window is time-boxed so the correction can
+    // never follow the reader around later.
+    let anchorTop = target.getBoundingClientRect().top + window.scrollY;
+    const reflow = new ResizeObserver(() => {
+      if (!target.isConnected) return;
+      const nextTop = target.getBoundingClientRect().top + window.scrollY;
+      const delta = nextTop - anchorTop;
+      anchorTop = nextTop;
+      if (delta !== 0) window.scrollBy({ top: delta, behavior: "instant" });
+    });
+    reflow.observe(document.body);
+    const settle = window.setTimeout(() => reflow.disconnect(), 3000);
+
+    return () => {
+      reflow.disconnect();
+      window.clearTimeout(settle);
+    };
   }, [pathname]);
 
   useEffect(() => {
@@ -83,10 +136,9 @@ export default function ScrollManager() {
       event.preventDefault();
       cancelScroll();
 
-      const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - getOffset());
-
-      cancelScroll = scrollToPosition(top, () => {
+      cancelScroll = scrollToPosition(topFor(target), () => {
         history.pushState(null, "", hash);
+        settleOn(target);
         window.setTimeout(() => {
           target.setAttribute("tabindex", "-1");
           target.focus({ preventScroll: true });

@@ -1,5 +1,7 @@
 export const SITE_URL = "https://basemesam.vercel.app/";
 export const PROFILE_IMAGE = "/assets/images/profile_256.webp";
+/** The hero/link-stage portrait: a transparent cut-out (mockup `PHOTO`, 640×598). */
+export const PROFILE_CUTOUT = "/assets/images/portrait-cutout.webp";
 export const CV_PATH = "/assets/documents/basem-esam-cv.pdf";
 export const LINKEDIN_URL = "https://linkedin.com/in/BasemEsam";
 export const GITHUB_URL = "https://github.com/basem3sam";

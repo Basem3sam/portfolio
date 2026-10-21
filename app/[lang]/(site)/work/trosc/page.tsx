@@ -1,13 +1,19 @@
-import Link from "next/link";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties } from "react";
 import EndpointExplorer from "@/components/case-study/EndpointExplorer";
+import WorkKpis from "@/components/sections/WorkPlates";
+import TideCanvas from "@/components/sections/TideCanvas";
 import CountUp from "@/components/ui/CountUp";
-import Icon, { type IconName } from "@/components/ui/Icon";
+import Icon from "@/components/ui/Icon";
+import SectionHeader from "@/components/ui/SectionHeader";
 import { TROSC_API_DOCS_URL, TROSC_REPO_URL, TROSC_URL } from "@/data/site";
 import { getTroscDictionary } from "@/lib/dictionaries/trosc";
 import { isLocale, type Locale } from "@/lib/i18n";
+import "@/components/ui/KpiLedger.css";
+import "@/components/sections/TideBand.css";
+import "@/components/case-study/CaseStudy.css";
 
 type CaseStudyPageProps = {
   params: Promise<{ lang: string }>;
@@ -15,7 +21,7 @@ type CaseStudyPageProps = {
 
 export async function generateMetadata({ params }: CaseStudyPageProps): Promise<Metadata> {
   const { lang } = await params;
-  const locale: Locale = isLocale(lang) ? lang : "en";
+  const locale: Locale = isLocale(lang) ? "en" : "ar";
   const t = getTroscDictionary(locale);
 
   return {
@@ -39,66 +45,50 @@ export async function generateMetadata({ params }: CaseStudyPageProps): Promise<
   };
 }
 
-const sectionLabels = {
-  architecture: "// architecture",
-  security: "// security",
-  media: "// media",
-  operations: "// operations",
-  testing: "// testing",
-  explorer: "// api",
-} as const;
+/**
+ * The decorative micro-graphic at the foot of each KPI tile. The shapes are
+ * bespoke per fact — HTTP verbs, segment meters, avatars — so they are keyed
+ * by tile position, exactly like the home work section. Everything here is
+ * aria-hidden; the numbers live in the tile's `dd`.
+ */
+function CaseKpiGraphic({ index }: { index: number }) {
+  if (index === 0) {
+    return (
+      <span className="pt-v pv-m" aria-hidden="true">
+        <b>GET</b>
+        <b>POST</b>
+        <b>PUT</b>
+        <b>DEL</b>
+      </span>
+    );
+  }
 
-const sectionIcons: Record<keyof typeof sectionLabels, IconName> = {
-  architecture: "layers",
-  security: "shield",
-  media: "globe",
-  operations: "activity",
-  testing: "checkCircle",
-  explorer: "terminal",
-};
+  if (index === 5) {
+    return (
+      <span className="pt-v pv-a" aria-hidden="true">
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+        <em>+</em>
+      </span>
+    );
+  }
 
-const revealClass = "data-[revealed=false]:opacity-0 data-[revealed=true]:animate-reveal-up";
-
-const linkButton =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-hairline bg-surface px-4 text-sm font-medium text-dark-text no-underline shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:text-signal hover:shadow-md";
-
-function CaseSection({
-  label,
-  title,
-  icon,
-  children,
-}: {
-  label: string;
-  title: string;
-  icon: IconName;
-  children: ReactNode;
-}) {
-  const id = label.replace(/[^a-z]/g, "");
-  const headingId = `${id}-heading`;
+  // Segment meters: 12 collections and 17 services light every segment,
+  // 60+ test suites light six of seven, and statement coverage lights 19 of
+  // 20 — 94.8% rounded to a twentieth.
+  const segments = index === 1 ? 12 : index === 2 ? 17 : index === 3 ? 7 : 20;
+  const lit = index === 3 ? 6 : index === 4 ? 19 : segments;
+  const variant = index === 1 ? " pv-k" : index === 3 ? " pv-t" : "";
 
   return (
-    <section
-      id={id}
-      aria-labelledby={headingId}
-      className="border-t border-hairline py-12 md:py-16"
-    >
-      <p className="flex items-center gap-2 font-mono text-xs font-medium tracking-wide text-note uppercase">
-        <Icon name={icon} className="size-3.5" />
-        <span dir="ltr">{label}</span>
-      </p>
-      <h2
-        id={headingId}
-        className="mt-1.5 text-2xl font-semibold tracking-tight text-dark-text md:text-3xl"
-      >
-        {title}
-      </h2>
-      <div className="mt-3 flex items-center gap-2" aria-hidden="true">
-        <span className="h-0.5 w-12 rounded-full bg-honey motion-safe:animate-rule-grow"></span>
-        <span className="h-0.5 w-3 rounded-full bg-signal [animation-delay:250ms] motion-safe:animate-rule-grow"></span>
-        <span className="h-px flex-1 bg-hairline"></span>
-      </div>
-      <div className="mt-6">{children}</div>
-    </section>
+    <span className={`pt-v pv-s${variant}`} aria-hidden="true">
+      {Array.from({ length: segments }, (_, k) => (
+        <i key={k} className={k < lit ? "on" : undefined} style={{ "--k": k } as CSSProperties}></i>
+      ))}
+    </span>
   );
 }
 
@@ -111,245 +101,180 @@ export default async function TroscCaseStudyPage({ params }: CaseStudyPageProps)
   const backHref = locale === "ar" ? "/ar#work" : "/#work";
 
   return (
-    <main id="main-content">
-      <div className="relative container bg-grid pt-28 pb-4 md:pt-32">
-        <div
-          className="pointer-events-none absolute inset-0 bg-ember-glow motion-safe:animate-glow-breathe"
-          aria-hidden="true"
-        ></div>
-        <Link
-          href={backHref}
-          className="group/back inline-flex min-h-11 items-center gap-2 rounded-full border border-hairline bg-surface px-4 font-mono text-sm font-medium text-light-text no-underline shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:text-signal hover:shadow-md active:translate-y-0"
-        >
-          <Icon
-            name="arrowLeft"
-            className="size-4 transition-transform duration-200 group-hover/back:-translate-x-0.5 rtl:rotate-180 rtl:group-hover/back:translate-x-0.5"
-          />
-          {t.back}
-        </Link>
+    <main id="main-content" data-page="case">
+      <section className="case-hero tide" aria-labelledby="h-case">
+        <TideCanvas />
 
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
-          <h1
-            className="font-mono text-h1 font-semibold tracking-tight text-dark-text"
-            dir="ltr"
-          >
-            trosc-backend
+        <div className="container">
+          <Link href={backHref} className="back">
+            <Icon name="arrowLeft" className="size-4 rtl:rotate-180" />
+            {t.back.label}
+          </Link>
+
+          <p className="lbl">{t.hero.label}</p>
+
+          <h1 className="cs-title" id="h-case">
+            {t.hero.title}
           </h1>
-          <p className="inline-flex items-center gap-1.5 rounded-full bg-status/10 px-2.5 py-1 font-mono text-xs font-semibold tracking-wide text-status uppercase">
-            <span className="size-1.5 rounded-full bg-current" aria-hidden="true"></span>
-            {t.statusLabel}
+
+          <p className="prov">
+            <span className="slug">{t.hero.slug}</span>
+            <span className="sep" aria-hidden="true">
+              ·
+            </span>
+            <span className="status">
+              <span className="dot" aria-hidden="true"></span>
+              <span className="st st-live">{t.hero.status}</span>
+            </span>
           </p>
-        </div>
-        <p className="mt-2 text-sm font-medium text-light-text">{t.role}</p>
-        <div className="mt-6 max-w-3xl rounded-xl border border-hairline bg-surface p-6 shadow-sm md:p-7">
-          <p className="text-lg leading-relaxed text-dark-text">{t.brief}</p>
-        </div>
 
-        <dl
-          className={`mx-auto mt-10 grid auto-rows-fr grid-cols-2 gap-px overflow-hidden rounded-lg border border-hairline bg-hairline sm:grid-cols-3 lg:mx-0 lg:grid-cols-6 ${revealClass}`}
-          data-reveal
-        >
-          {t.metrics.map((metric) => (
-            <div
-              key={metric.label}
-              className="flex flex-col-reverse items-center justify-between gap-1 bg-surface p-4 text-center transition-colors duration-200 hover:bg-light-bg"
-            >
-              <dt className="text-xs leading-snug text-light-text">{metric.label}</dt>
-              <dd className="font-mono text-2xl font-semibold text-note" dir="ltr">
-                <CountUp value={metric.value} suffix={metric.suffix} />
-              </dd>
-            </div>
-          ))}
-        </dl>
-        <p className="mt-3 font-mono text-xs text-muted-text">{t.metricsNote}</p>
+          <p className="cs-intro">{t.hero.intro}</p>
 
-        <div className="mt-8 flex flex-wrap gap-3">
-          <a href={TROSC_REPO_URL} target="_blank" rel="noopener noreferrer" className={linkButton}>
-            <Icon name="github" className="size-4" />
-            {t.links.repo}
-          </a>
-          <a href={TROSC_URL} target="_blank" rel="noopener noreferrer" className={linkButton}>
-            <Icon name="externalLink" className="size-4" />
-            {t.links.live}
-          </a>
-          <a
-            href={TROSC_API_DOCS_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={linkButton}
-          >
-            <Icon name="code" className="size-4" />
-            {t.links.api}
-          </a>
-        </div>
-      </div>
-
-      <div className="container pb-16 md:pb-24">
-        <CaseSection
-          icon={sectionIcons.architecture}
-          label={sectionLabels.architecture}
-          title={t.sections.architecture.title}
-        >
-          <div className="grid gap-4 stagger-60 md:grid-cols-2" data-reveal data-stagger>
-            {t.sections.architecture.entries.map((entry, index) => (
-              <div
-                key={entry.title}
-                style={{ "--stagger-index": index } as CSSProperties}
-                className="rounded-xl border border-hairline bg-surface p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:shadow-md md:p-6"
-              >
-                <p className="flex items-baseline gap-2.5">
-                  <span className="font-mono text-sm font-semibold text-note" dir="ltr">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <span className="text-lg font-semibold text-dark-text">{entry.title}</span>
-                </p>
-                <p className="mt-1.5 text-sm leading-relaxed text-light-text">{entry.text}</p>
+          <WorkKpis>
+            {t.metrics.map((metric, index) => (
+              <div key={metric.label} className={index === 4 ? "kpi kpi-cov" : "kpi"}>
+                <dt>{metric.label}</dt>
+                <dd>
+                  <CountUp value={metric.value} />
+                  {metric.suffix ? <em>{metric.suffix}</em> : null}
+                </dd>
+                <CaseKpiGraphic index={index} />
               </div>
             ))}
-          </div>
-        </CaseSection>
+          </WorkKpis>
 
-        <CaseSection
-          icon={sectionIcons.security}
-          label={sectionLabels.security}
-          title={t.sections.security.title}
-        >
-          <p className="max-w-3xl text-light-text">{t.sections.security.intro}</p>
-          <ol
-            className={`mt-6 overflow-hidden rounded-xl border border-hairline bg-surface shadow-xs ${revealClass}`}
-            data-reveal
-          >
-            {t.sections.security.layers.map((layer, index) => (
-              <li
-                key={layer}
-                className="flex items-center gap-4 border-b border-hairline px-5 py-4 transition-colors duration-200 last:border-b-0 hover:bg-light-bg"
-              >
-                <span
-                  className="flex size-8 shrink-0 items-center justify-center rounded-md bg-note/10 font-mono text-xs font-semibold text-note"
-                  dir="ltr"
-                >
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <p className="text-sm leading-relaxed text-light-text">{layer}</p>
+          <p className="lbl note">{t.metricsNote}</p>
+
+          <div className="actions">
+            <a
+              className="btn btn-primary"
+              href={TROSC_REPO_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Icon name="github" className="size-4" />
+              {t.actions.repository}
+            </a>
+            <a
+              className="btn btn-ghost"
+              href={TROSC_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Icon name="externalLink" className="size-4" />
+              {t.actions.liveSite}
+            </a>
+            <a
+              className="btn btn-ghost"
+              href={TROSC_API_DOCS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Icon name="code" className="size-4" />
+              {t.actions.apiReference}
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section className="case-sec" aria-labelledby="h-path">
+        <div className="container">
+          <SectionHeader
+            number="01"
+            title={t.sections.requestPath.title}
+            lead={t.sections.requestPath.lead}
+            headingId="h-path"
+          />
+
+          <ol className="flow" data-reveal>
+            {t.sections.requestPath.stages.map((stage) => (
+              <li key={stage.n} className="stage">
+                <div className={stage.n === "7" ? "node node-live" : "node"}>
+                  <span className="n">{stage.n}</span>
+                  <span>{stage.name}</span>
+                </div>
+                <p>{stage.desc}</p>
               </li>
             ))}
           </ol>
-          <p className="mt-4 max-w-3xl text-sm leading-relaxed text-muted-text">
-            {t.sections.security.extra}
-          </p>
-        </CaseSection>
+        </div>
+      </section>
 
-        <CaseSection
-          icon={sectionIcons.media}
-          label={sectionLabels.media}
-          title={t.sections.media.title}
-        >
-          <div className={`max-w-3xl space-y-4 ${revealClass}`} data-reveal>
-            {t.sections.media.paragraphs.map((paragraph, index) => (
-              <p key={index} className="leading-relaxed text-light-text">
-                {paragraph}
-              </p>
-            ))}
-          </div>
-        </CaseSection>
-
-        <CaseSection
-          icon={sectionIcons.operations}
-          label={sectionLabels.operations}
-          title={t.sections.operations.title}
-        >
-          <ul className={`max-w-3xl space-y-6 ${revealClass}`} data-reveal>
-            {t.sections.operations.entries.map((entry) => (
-              <li key={entry.title} className="flex items-start gap-2.5">
-                <span
-                  className="mt-2 size-1.5 shrink-0 rounded-full bg-status"
-                  aria-hidden="true"
-                ></span>
-                <div>
-                  <h3 className="font-semibold text-dark-text">{entry.title}</h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-light-text">{entry.text}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </CaseSection>
-
-        <CaseSection
-          icon={sectionIcons.testing}
-          label={sectionLabels.testing}
-          title={t.sections.testing.title}
-        >
-          <div className={`max-w-3xl space-y-4 ${revealClass}`} data-reveal>
-            {t.sections.testing.paragraphs.map((paragraph, index) => (
-              <p key={index} className="leading-relaxed text-light-text">
-                {paragraph}
-              </p>
-            ))}
-          </div>
-          <dl className="mt-8 grid max-w-md grid-cols-3 gap-px overflow-hidden rounded-lg border border-hairline bg-hairline">
-            {t.sections.testing.stats.map((stat) => (
-              <div key={stat.label} className="bg-surface p-4 text-center">
-                <dd className="font-mono text-xl font-semibold text-note" dir="ltr">
-                  {stat.value}
-                </dd>
-                <dt className="mt-1 text-xs text-light-text">{stat.label}</dt>
-              </div>
-            ))}
-          </dl>
-        </CaseSection>
-
-        <CaseSection
-          icon={sectionIcons.explorer}
-          label={sectionLabels.explorer}
-          title={t.sections.explorer.title}
-        >
-          <p className="max-w-3xl text-light-text">{t.sections.explorer.subtitle}</p>
-          <div className="mt-6 print:hidden">
-            <EndpointExplorer dict={t.sections.explorer} />
-          </div>
-          <p className="mt-4 max-w-3xl text-sm text-muted-text">
-            {t.sections.explorer.simulatedNote}
-          </p>
-          <a
-            href={TROSC_API_DOCS_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-3 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-signal no-underline transition-colors duration-200 hover:text-dark-text"
-          >
-            {t.sections.explorer.apiReference}
-            <Icon name="externalLink" className="size-4" />
-          </a>
-        </CaseSection>
-        <div className="mt-16 border-t border-hairline pt-8">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <Link
-              href={backHref}
-              className="group/back inline-flex min-h-11 items-center gap-2 rounded-full border border-hairline bg-surface px-4 font-mono text-sm font-medium text-light-text no-underline shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:text-signal hover:shadow-md active:translate-y-0"
-            >
-              <Icon
-                name="arrowLeft"
-                className="size-4 transition-transform duration-200 group-hover/back:-translate-x-0.5 rtl:rotate-180 rtl:group-hover/back:translate-x-0.5"
+      <section className="case-sec sec-panel" aria-labelledby="h-arch">
+        <div className="container">
+          <div className="two">
+            <div>
+              <SectionHeader
+                number="02"
+                title={t.sections.architecture.title}
+                headingId="h-arch"
               />
-              {t.back}
-            </Link>
-            <div className="flex flex-wrap gap-3">
-              <a
-                href={TROSC_REPO_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={linkButton}
-              >
-                <Icon name="github" className="size-4" />
-                {t.links.repo}
-              </a>
-              <a href={TROSC_URL} target="_blank" rel="noopener noreferrer" className={linkButton}>
-                <Icon name="externalLink" className="size-4" />
-                {t.links.live}
-              </a>
+              <ul className="list-r" data-reveal>
+                {t.sections.architecture.entries.map((entry) => (
+                  <li key={entry.title}>
+                    <b>{entry.title}</b>
+                    <span>{entry.desc}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <SectionHeader
+                number="03"
+                title={t.sections.security.title}
+                headingId="h-security"
+              />
+              <ul className="list-r" data-reveal>
+                {t.sections.security.items.map((item) => (
+                  <li key={item.title}>
+                    <b>{item.title}</b>
+                    <span>{item.desc}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="lbl note">{t.sections.security.note}</p>
             </div>
           </div>
         </div>
-      </div>
+      </section>
+
+      <section className="case-sec" aria-labelledby="h-ex">
+        <div className="container">
+          <SectionHeader
+            number="04"
+            title={t.sections.explorer.title}
+            lead={t.sections.explorer.lead}
+            headingId="h-ex"
+          />
+
+          <EndpointExplorer dict={t.sections.explorer} />
+        </div>
+      </section>
+
+      <section className="case-sec sec-panel" aria-labelledby="h-fe">
+        <div className="container">
+          <SectionHeader
+            number="05"
+            title={t.sections.frontend.title}
+            lead={t.sections.frontend.lead}
+            headingId="h-fe"
+          />
+
+          <div className="shot" style={{ maxWidth: "880px" }}>
+            <div className="shot-bar">
+              <i></i>
+              <i></i>
+              <i></i>
+              <span className="addr">{t.sections.frontend.addr}</span>
+            </div>
+            <div className="shot-body">
+              <span className="ph">{t.sections.frontend.placeholder}</span>
+              <p>{t.sections.frontend.body}</p>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }

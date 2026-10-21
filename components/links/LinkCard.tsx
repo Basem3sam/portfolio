@@ -5,64 +5,76 @@ type LinkCardProps = {
   href: string;
   icon: IconName;
   title: string;
-  description: string;
+  /** Row subcopy under the title (mockup `<small>`). */
+  description?: string;
+  /** Mono contact value (phone / email) instead of the description. */
+  value?: string;
+  /** Icon in the trailing circle: arrow for internal, ext/download otherwise. */
+  trailing: IconName;
   external?: boolean;
   download?: boolean;
-  index?: number;
-  ltr?: boolean;
+  /** The one primary row (Portfolio website): signal border and wash. */
+  primary?: boolean;
 };
 
-const card =
-  "group relative flex items-center gap-4 rounded-lg border border-hairline bg-surface p-4 no-underline shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:shadow-md focus-visible:-translate-y-0.5 focus-visible:border-signal focus-visible:shadow-md motion-safe:animate-hero-in md:p-5";
-
+/**
+ * One grouped link row on /links (mockup `.lk`, lines 2822–2832): icon tile,
+ * title + subcopy (or a mono contact value), trailing circle. Hover and
+ * focus-visible share the same states (edge bar, tile fill, circle fill);
+ * the markup mirrors the reference and stays readable to assistive tech —
+ * both icon slots are decorative and hidden from it.
+ */
 export default function LinkCard({
   href,
   icon,
   title,
   description,
+  value,
+  trailing,
   external,
   download,
-  index = 0,
-  ltr = false,
+  primary,
 }: LinkCardProps) {
-  const style = { animationDelay: `${index * 70}ms` };
-
   const content = (
     <>
-      <span className="flex size-11 shrink-0 items-center justify-center rounded-md border border-hairline bg-light-bg text-light-text transition-colors duration-200 group-hover:border-signal group-hover:text-signal">
+      <span className="ico" aria-hidden="true">
         <Icon name={icon} className="size-5" />
       </span>
-      <span className="min-w-0 flex-1">
-        <span className="block font-semibold text-dark-text">{title}</span>
-        <span className="block truncate text-sm text-light-text" dir={ltr ? "ltr" : undefined}>
-          {description}
-        </span>
+      <span className="txt">
+        <b>{title}</b>
+        {value ? (
+          <span className="val">{value}</span>
+        ) : (
+          <small className="sub">{description}</small>
+        )}
       </span>
-      <Icon
-        name="arrowRight"
-        className="size-5 shrink-0 text-muted-text transition-all duration-200 group-hover:translate-x-1 group-hover:text-signal rtl:rotate-180 rtl:group-hover:-translate-x-1"
-      />
+      <span className="go" aria-hidden="true">
+        <Icon name={trailing} className="size-4" />
+      </span>
     </>
   );
 
-  if (href.startsWith("/") && !download) {
+  const className = primary ? "lk primary" : "lk";
+
+  if (external) {
     return (
-      <Link href={href} className={card} style={style}>
+      <a href={href} className={className} target="_blank" rel="noopener noreferrer">
         {content}
-      </Link>
+      </a>
+    );
+  }
+
+  if (download) {
+    return (
+      <a href={href} className={className} download>
+        {content}
+      </a>
     );
   }
 
   return (
-    <a
-      href={href}
-      className={card}
-      style={style}
-      target={external ? "_blank" : undefined}
-      rel={external ? "noopener noreferrer" : undefined}
-      download={download}
-    >
+    <Link href={href} className={className}>
       {content}
-    </a>
+    </Link>
   );
 }

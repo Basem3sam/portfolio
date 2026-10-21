@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { KONAMI_CODE, type TerminalMode } from "@/components/easter-egg/constants";
 import type { Locale } from "@/lib/i18n";
+import { bindPortraitCursor, isOnPortrait } from "@/lib/portrait-hit";
 
 const EasterEggCore = dynamic(() => import("./EasterEggCore"), { ssr: false });
 
@@ -79,9 +80,16 @@ export default function EasterEgg({ locale }: { locale: Locale }) {
 
     const image = document.querySelector<HTMLElement>("#hero picture img");
     if (!image) return;
+    // The portrait is a real button (mockup `#pf-hit`), so keyboard and
+    // touch users play too. The image keeps the animation targets; clicks
+    // land on the button sitting over it.
+    const hit = document.querySelector<HTMLElement>("#pf-hit");
+    const target = hit ?? image;
 
     const handleClick = (event: MouseEvent) => {
       event.preventDefault();
+      // Only the person counts, not the transparent corners of the photo's box.
+      if (event.detail > 0 && !isOnPortrait(image, event.clientX, event.clientY)) return;
       const now = Date.now();
       if (now - lastClick.current < MIN_CLICK_INTERVAL) return;
       lastClick.current = now;
@@ -89,11 +97,12 @@ export default function EasterEgg({ locale }: { locale: Locale }) {
       if (clicks.current === 1) arm(null);
     };
 
-    image.classList.add("cursor-pointer");
-    image.addEventListener("click", handleClick);
+    const unbindCursor =
+      image instanceof HTMLImageElement ? bindPortraitCursor(target, image) : () => {};
+    target.addEventListener("click", handleClick);
     return () => {
-      image.removeEventListener("click", handleClick);
-      if (!armed.current) image.classList.remove("cursor-pointer");
+      target.removeEventListener("click", handleClick);
+      unbindCursor();
     };
   }, [load, arm]);
 

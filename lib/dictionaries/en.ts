@@ -11,36 +11,83 @@ type ExperienceEntry = {
   chips: string[];
 };
 
+type StackTech = {
+  /** Two-letter chip abbreviation shown in the tech's icon slot. */
+  abbr: string;
+  name: string;
+};
+
+type WorkPlate = {
+  /** Caption under the plate's node diagram. */
+  caption: string;
+  /** Ordered request path; `hot` highlights a step, `live` marks the store. */
+  path?: { label: string; hot?: boolean; live?: boolean }[];
+  /** Grouped services list (Docker Compose, RTL storefront…). */
+  group?: { label: string; hot?: boolean }[];
+  /** Caption above the grouped list. */
+  groupCaption?: string;
+  /** Two figure facts pinned to the plate's foot. */
+  foot?: { value: string; label: string }[];
+};
+
 type WorkProject = {
   id: string;
   name: string;
+  /** Display title; defaults to `name`. */
+  title?: string;
   status: ProjectStatus;
   /** Plain-words origin of the project (freelance, coursework...). Optional. */
   provenance?: string;
-  /** Headline facts for the featured project, all taken from its description. */
+  /** Who it was for and since when — featured project only. */
+  org?: string;
+  period?: string;
+  /** Headline facts for the featured project, all verified in the repo. */
   stats?: { value: string; label: string }[];
   description: string;
   detail: string;
   tech: string[];
+  /** Decorative plate diagram; rendered as a figure, hidden from a11y tree. */
+  plate?: WorkPlate;
+  /** Which link buttons this project shows: case study, repo, live site. */
+  actions?: ("case" | "repo" | "live")[];
 };
 
 const projects: WorkProject[] = [
   {
     id: "trosc",
     name: "trosc-backend",
+    title: "Trosc backend",
     status: "production",
-    provenance: "Open source · student club",
+    org: "Trosc Student Club, Suez Canal University",
+    period: "Jan 2025 – present",
     stats: [
       { value: "100+", label: "endpoints" },
       { value: "12", label: "collections" },
       { value: "17", label: "services" },
+      { value: "94.8%", label: "statement coverage" },
       { value: "200+", label: "members" },
     ],
     description:
-      "Open-source production backend for a student-club learning platform — 100+ endpoints across 12 Mongoose collections and 17 dedicated services, serving tracks, courses, sessions, events, and announcements to 200+ members. Service-layer architecture with thin controllers, reusable factory middleware, and MongoDB querying with compound indexes and virtual population.",
+      "The API behind Trosc Student Club's learning platform at Suez Canal University. It began in January 2025 as a club website and grew into a production system serving tracks, courses, video sessions, events, announcements, assignments, weekly tasks, and reviews, on infrastructure that costs nothing to run.",
     detail:
       "3-tier RBAC with dual-token auth, enrollment prerequisites (public / track-only / private), bulk user operations with admin-protection guards, and a background email service. Swagger/OpenAPI 3.0 docs served interactively at /api-docs.",
     tech: ["Node.js", "Express", "MongoDB", "Mongoose", "JWT", "Swagger", "Joi"],
+    plate: {
+      caption: "request path, in order",
+      path: [
+        { label: "client" },
+        { label: "rate limit" },
+        { label: "JWT", hot: true },
+        { label: "RBAC" },
+        { label: "services" },
+        { label: "MongoDB", live: true },
+      ],
+      foot: [
+        { value: "13", label: "documented security controls" },
+        { value: "14", label: "trusted hosts" },
+      ],
+    },
+    actions: ["case", "repo", "live"],
   },
   {
     id: "store-advisor",
@@ -48,39 +95,85 @@ const projects: WorkProject[] = [
     status: "development",
     provenance: "Product build",
     description:
-      "A cross-source monitoring agent for e-commerce merchants: connects a store and its ad accounts, runs checks that join data across both, finds problems no single dashboard can see, prices them in dollars, explains them in plain language — and, with the merchant's approval, fixes them.",
+      "A cross-source monitoring agent for e-commerce merchants. It connects a store and its ad accounts, runs checks that join data across both, finds problems no single dashboard can see, prices them in dollars, explains them in plain language, and fixes them with the merchant's approval.",
     detail:
-      "Six Docker Compose services: a NestJS API and scheduler worker, a Python AI service, a Next.js dashboard, Postgres, and Redis — with 241 tests across the three codebases. Design rule: the check finds the problem, the LLM explains it, and never invents a number.",
+      "Six Docker Compose services: a NestJS API and scheduler worker, a Python AI service, a Next.js dashboard, Postgres, and Redis. Design rule: the check finds the problem, the LLM explains it, and it never invents a number.",
     tech: ["NestJS", "PostgreSQL", "Redis", "Python", "Next.js", "Docker"],
+    plate: {
+      caption: "six services, one compose file",
+      groupCaption: "docker compose · 6 services",
+      group: [
+        { label: "api" },
+        { label: "worker" },
+        { label: "ai", hot: true },
+        { label: "dashboard" },
+        { label: "postgres" },
+        { label: "redis" },
+      ],
+    },
   },
   {
     id: "zabthalahak",
     name: "zabthalahak",
     status: "development",
-    provenance: "Freelance",
+    provenance: "Freelance, live site",
     description:
-      "Freelance build for a real 3D-printing business: an Arabic-first, RTL storefront and admin dashboard — orders, custom requests, inventory, printers, customers, reports, and an audit log — in React 19 + Vite + Tailwind, over a data layer already shaped for the real API.",
-    detail: "Node.js / Express / MongoDB modular-monolith backend currently in development.",
+      "A freelance build for a real 3D-printing business: an Arabic-first, RTL storefront and admin dashboard covering orders, custom requests, inventory, printers, customers, reports, and an audit log. Built with React 19, Vite, and Tailwind over a data layer already shaped for the real API.",
+    detail: "The Node.js / Express / MongoDB modular-monolith backend is in development.",
     tech: ["React", "Vite", "Tailwind CSS", "Node.js", "Express", "MongoDB"],
+    plate: {
+      caption: "arabic-first, right to left",
+      groupCaption: "rtl storefront",
+      group: [
+        { label: "storefront" },
+        { label: "admin", hot: true },
+        { label: "orders" },
+        { label: "inventory" },
+        { label: "audit log" },
+      ],
+    },
+    actions: ["live"],
   },
   {
     id: "laravel",
     name: "laravel-ecommerce-app",
     status: "complete",
+    provenance: "Full-stack project",
     description:
-      "Built a full-stack e-commerce app — auth, admin dashboard, cart, and order placement — using Eloquent ORM relationships with eager loading, MVC architecture, and Laravel form-request validation with database transaction wrappers.",
+      "A full-stack e-commerce app with auth, an admin dashboard, a cart, and order placement. It uses Eloquent ORM relationships with eager loading, MVC architecture, and Laravel form-request validation with database transaction wrappers.",
     detail: "",
     tech: ["PHP", "Laravel", "MySQL", "Blade"],
+    plate: {
+      caption: "mvc",
+      path: [
+        { label: "routes" },
+        { label: "controller" },
+        { label: "Eloquent", hot: true },
+        { label: "MySQL" },
+      ],
+    },
+    actions: ["repo"],
   },
   {
     id: "neuroscan",
     name: "neuroscan-ai",
     status: "academic",
-    provenance: "Coursework",
+    provenance: "Team project, third-year practical exam",
     description:
       "A hybrid brain-tumor detection pipeline across 6+ CNN-KNN-KMeans ensemble models with OpenCV preprocessing and multi-model consensus scoring, plus data augmentation, cross-validation, and a swappable classifier architecture for reproducible A/B testing.",
     detail: "Team project — third-year practical exam.",
     tech: ["Python", "PyTorch", "CNN", "KNN", "KMeans", "OpenCV"],
+    plate: {
+      caption: "pipeline",
+      path: [
+        { label: "OpenCV" },
+        { label: "CNN", hot: true },
+        { label: "KNN" },
+        { label: "KMeans" },
+        { label: "consensus" },
+      ],
+    },
+    actions: ["repo"],
   },
 ];
 
@@ -100,9 +193,10 @@ const en = {
     stack: "Stack",
     about: "About",
     experience: "Experience",
-    education: "Education",
     contact: "Contact",
-    allLinks: "All My Links",
+    allLinks: "All my links",
+    links: "Links",
+    search: "Search",
     letsTalk: "Let's talk",
     resume: "Resume",
     backToTop: "Back to top",
@@ -118,6 +212,15 @@ const en = {
     rights: "All rights reserved.",
     openTerminal: "Open the secret terminal",
     navLabel: "Footer navigation",
+    line: "Backend engineer building scalable systems with Node.js and Express.",
+    avail: "Open to internships, junior roles and freelance",
+    exploreLabel: "Explore",
+    reachLabel: "Reach me",
+    basedLabel: "Based in",
+    city: "Port Said, Egypt",
+    timeLabel: "local time",
+    backToTop: "Back to top",
+    quiet: "Not everything here is on the menu.",
   },
   notFound: {
     label: "HTTP 404",
@@ -131,17 +234,13 @@ const en = {
     name: "Basem Esam",
     role: "Backend engineer",
     location: "Port Said, Egypt",
+    portraitAlt: "Portrait of Basem Esam",
     builtWith: "Built with",
-    lead: "Backend engineer who built and runs a 100+ endpoint production API for 200+ real users — while finishing a Computer Science degree (class of 2027).",
-    status: "operational",
-    statusDetail:
-      "open to internships, junior roles & freelance · remote worldwide or on-site in Egypt",
-    metrics: [
-      { value: 100, suffix: "+", label: "endpoints in production" },
-      { value: 200, suffix: "+", label: "members served" },
-      { value: 7, suffix: "", label: "security layers" },
-      { value: 95, suffix: "%+", label: "test coverage" },
-    ],
+    lead: "I build and run the backend behind a real platform: authentication, roles, and tests included, while finishing my Computer Science degree (class of 2027).",
+    statusKey: "STATUS",
+    status: "Open to work",
+    statusDetail: "Internships · junior backend · freelance · remote or on-site in Egypt",
+    note: "yes, that's me",
     viewWork: "View my work",
     downloadCv: "Download CV",
     socialsAria: "Social media links",
@@ -154,138 +253,125 @@ const en = {
   },
   work: {
     title: "Work",
+    lead: "One system in production, two builds in progress, and two earlier projects.",
     liveLabel: "live from github",
-    viewRepo: "View repository",
+    viewRepo: "Repository",
     viewLive: "Live site",
     caseStudy: "Case study",
+    viewProfile: "View profile on GitHub",
+    moreOnGithub: "More on GitHub",
+    moreOnGithubText:
+      "The live repository list renders here, fetched in the browser. Repositories shown above are excluded so nothing appears twice.",
     status: {
-      production: "production",
-      development: "in development",
-      complete: "complete",
-      research: "research",
-      academic: "academic",
+      production: "In production",
+      development: "In development",
+      complete: "Complete",
+      research: "Research",
+      academic: "Academic",
     },
     projects,
   },
   stack: {
     title: "Stack",
-    groups: [
+    lead: "Follow one request through the stack.",
+    caption: "one request · five layers",
+    stages: [
       {
-        label: "backend & apis",
-        items: [
-          "Node.js",
-          "Express.js",
-          "NestJS",
-          "REST API design",
-          "JWT authentication",
-          "PHP",
-          "Laravel",
-          "JavaScript",
-          "Python",
-          "C++",
+        n: "01",
+        key: "Edge",
+        title: "Security",
+        cap: "Every request is checked before it reaches the app.",
+        techs: [
+          { abbr: "He", name: "Helmet" },
+          { abbr: "RL", name: "express-rate-limit" },
+          { abbr: "Sz", name: "express-mongo-sanitize" },
+          { abbr: "HP", name: "HPP" },
+          { abbr: "Co", name: "CORS" },
         ],
       },
       {
-        label: "databases",
-        items: [
-          "MongoDB (Mongoose ODM)",
-          "Schema design",
-          "Compound & text indexing",
-          "Aggregation pipelines",
-          "MySQL",
-          "PostgreSQL",
+        n: "02",
+        key: "Gate",
+        title: "Validation & auth",
+        cap: "Who you are, and whether what you sent is valid.",
+        techs: [
+          { abbr: "Jo", name: "Joi validation" },
+          { abbr: "JW", name: "JWT authentication" },
+          { abbr: "Sw", name: "Swagger / OpenAPI 3.0" },
         ],
       },
       {
-        label: "devops & tools",
-        items: ["Docker", "Git", "Linux", "Bash", "Nodemon", "ESLint (Airbnb config)", "Prettier"],
-      },
-      {
-        label: "frontend",
-        items: ["Next.js", "React", "TypeScript", "Tailwind CSS"],
-      },
-      {
-        label: "security & docs",
-        items: [
-          "Swagger / OpenAPI 3.0",
-          "Joi validation",
-          "Helmet",
-          "express-rate-limit",
-          "express-mongo-sanitize",
-          "HPP",
-          "CORS",
+        n: "03",
+        key: "App",
+        title: "Backend & APIs",
+        cap: "Where the logic lives.",
+        techs: [
+          { abbr: "Nd", name: "Node.js" },
+          { abbr: "Ex", name: "Express.js" },
+          { abbr: "Ns", name: "NestJS" },
+          { abbr: "Rt", name: "REST API design" },
+          { abbr: "Ph", name: "PHP · Laravel" },
         ],
       },
       {
-        label: "architecture & patterns",
-        items: [
-          "Service layer",
-          "Factory pattern",
-          "RBAC",
-          "Middleware",
-          "Data modeling",
-          "Pagination",
-          "MVC",
+        n: "04",
+        key: "Data",
+        title: "Data",
+        cap: "Stored, indexed and queried.",
+        techs: [
+          { abbr: "Mg", name: "MongoDB (Mongoose)" },
+          { abbr: "Sc", name: "Schema design" },
+          { abbr: "Ix", name: "Compound & text indexing" },
+          { abbr: "Ag", name: "Aggregation pipelines" },
+          { abbr: "Pg", name: "PostgreSQL" },
+          { abbr: "My", name: "MySQL" },
         ],
       },
-    ],
+      {
+        n: "05",
+        key: "Ship",
+        title: "Tools & delivery",
+        cap: "Linted, versioned and shipped.",
+        techs: [
+          { abbr: "Dk", name: "Docker" },
+          { abbr: "Gt", name: "Git" },
+          { abbr: "Lx", name: "Linux · Bash" },
+          { abbr: "Es", name: "ESLint · Prettier" },
+        ],
+      },
+    ] as { n: string; key: string; title: string; cap: string; techs: StackTech[] }[],
+    alsoLabel: "Also writes",
+    also: [
+      { abbr: "JS", name: "JavaScript" },
+      { abbr: "TS", name: "TypeScript" },
+      { abbr: "Py", name: "Python" },
+      { abbr: "C+", name: "C++" },
+      { abbr: "Rx", name: "React" },
+      { abbr: "Nx", name: "Next.js" },
+      { abbr: "Tw", name: "Tailwind CSS" },
+    ] as StackTech[],
   },
   about: {
     title: "About",
-    intro:
-      "I'm Basem — a backend engineer from Port Said, Egypt, in my fourth year of Computer Science at Suez Canal University (class of 2027). I build and run the production backend that powers Trosc Student Club: an Express + MongoDB API with 100+ endpoints serving 200+ members.",
-    story:
-      "My path into software started early: a teacher's encouragement led to my first website at age 11, and growing up around a family electronics repair shop taught me to treat technology from the inside out — understand it first, then make it work for you.",
-    community:
-      "Since 2022 I've been programming seriously. ICPC competitive programming sharpened how I break down problems, teaching OOP with C++ to 50+ students at GDG SCU (8 weeks, Apr–May 2025) taught me to explain complex things simply, and two terms as HR Coordinator at Mech Hackers keep me close to the community that got me started.",
-    today:
-      "Today, as IT Head & Backend Lead at Trosc, I care about the unglamorous parts done well: clean architecture, layered security, and APIs another engineer can pick up without asking me anything.",
-    chips: ["Node.js", "Express", "MongoDB", "REST APIs", "TypeScript", "Competitive Programming"],
-    facts: [
-      { label: "Location", value: "Port Said, Egypt" },
-      { label: "Education", value: "B.Sc. Computer Science — Suez Canal University" },
-      { label: "Class", value: "2027 · 4th year · GPA 3.48/4.0" },
-      { label: "Availability", value: "Internships · Junior roles · Freelance" },
-    ],
-  },
-  experience: {
-    title: "Experience",
-    currentLabel: "Current role",
-    caseStudy: "Read the case study",
-    entries: [
+    lead: "I'm Basem, a backend engineer from Port Said, Egypt, studying Computer Science at Suez Canal University (class of 2027). I care about the parts of a system that are easy to skip: clear architecture, layered security, and APIs another engineer can pick up without asking me anything.",
+    body: "Growing up around a family electronics repair shop taught me to understand a thing from the inside before making it work. I compete in ICPC, taught OOP at GDG SCU, and served two terms as HR Coordinator at Mech Hackers.",
+    timelineLabel: "Timeline",
+    timeline: [
+      { year: "Age 11", title: "First website", text: "A teacher's encouragement started it." },
+      { year: "2022", title: "Programming seriously", text: "Competing in ICPC since." },
+      { year: "2025", title: "Trosc backend", text: "Also taught OOP at GDG SCU." },
       {
-        role: "IT Head & Backend Lead",
-        org: "Trosc Student Club",
-        period: "Jan 2025 – Present",
-        current: true,
-        chips: ["100+ endpoints", "200+ members", "7-layer security"],
-        text: "Architected and deployed the club's production REST API — 100+ endpoints across 12 Mongoose collections and 17 dedicated services — serving tracks, courses, sessions, events, and announcements to 200+ members, with dual-token JWT auth, 3-tier RBAC, and a 7-layer security model. Leads the club's IT team.",
+        year: "2027",
+        title: "B.Sc. Computer Science",
+        text: "Expected, Suez Canal University.",
+        next: true,
       },
-      {
-        role: "OOP Instructor",
-        org: "Google Developer Groups on Campus — SCU",
-        period: "Apr – May 2025",
-        chips: ["50+ students", "8 weeks", "C++ · OOP"],
-        text: "Taught C++ and object-oriented programming to 50+ students over 8 weeks — from classes and inheritance to clean design habits.",
-      },
-      {
-        role: "HR Coordinator & Member",
-        org: "Mech Hackers Community",
-        period: "2 terms",
-        chips: ["2 terms", "Hackathons", "Events"],
-        text: "Coordinated HR across two terms and stayed an active community member — hackathons, events, and knowledge sharing.",
-      },
-    ] as ExperienceEntry[],
-  },
-  education: {
-    title: "Education",
-    facts: [
-      { label: "institution", value: "Suez Canal University" },
-      { label: "program", value: "B.Sc. Computer Science" },
-      { label: "class", value: "2027 · 4th year" },
-      { label: "gpa", value: "3.48 / 4.0" },
-    ],
-    courseworkHeading: "Relevant coursework",
+    ] as { year: string; title: string; text: string; next?: boolean }[],
+    educationLabel: "Education",
+    degree: "B.Sc. Computer Science",
+    university: "Suez Canal University",
+    degreePills: ["Class of 2027 (expected)", "GPA 3.48 / 4.0"],
+    courseworkLabel: "Coursework",
     coursework: [
       "Software Engineering",
       "Operating Systems",
@@ -293,32 +379,57 @@ const en = {
       "Data Structures",
       "Database Systems",
     ],
-    achievementsHeading: "Highlights",
-    achievements: [
-      "ICPC competitive programmer",
-      "IT Head & Backend Lead at Trosc Student Club",
-      "Taught OOP to 50+ students at GDG SCU",
-      "Active in the Mech Hackers community",
-    ],
-    certificationsHeading: "Certifications",
+    certificationsLabel: "Certifications",
     certifications: [
-      "Cloud Architecture — Professional Certification, ITI",
-      "PHP Web Development — 120-hour Full Stack Track, ITI",
-      "Web Development using React JS — 144-hour Track, ITI (Jul–Aug 2026)",
-      "Certificate of Appreciation — OOP Instructor, GDG SCU (2025)",
-      "Vice IT Head Certificate — Trosc Student Club",
-    ],
+      { name: "Cloud Architecture, Professional Certification", org: "ITI" },
+      { name: "PHP Web Development, 120-hour Full Stack Track", org: "ITI" },
+      { name: "Web Development using React JS, 144-hour Track (Jul–Aug 2026)", org: "ITI" },
+      { name: "Certificate of Appreciation, OOP Instructor (2025)", org: "GDG SCU" },
+    ] as { name: string; org: string }[],
+  },
+  experience: {
+    title: "Experience",
+    currentLabel: "Current role",
+    caseStudy: "Read the case study",
+    hint: "keep scrolling, it's a short story",
+    entries: [
+      {
+        role: "IT Head & Backend Lead",
+        org: "Trosc Student Club",
+        period: "Jan 2025 – present",
+        current: true,
+        chips: ["100+ endpoints", "94.8% statement coverage", "200+ members"],
+        text: "Built and runs the club's production API, and leads its IT team.",
+      },
+      {
+        role: "OOP Instructor",
+        org: "Google Developer Groups on Campus, SCU",
+        period: "Apr – May 2025",
+        chips: ["50+ students", "8 weeks", "C++ · OOP"],
+        text: "Taught C++ and object-oriented programming to 50+ students over 8 weeks, from classes and inheritance to clean design habits.",
+      },
+      {
+        role: "HR Coordinator & Member",
+        org: "Mech Hackers Community",
+        period: "2 terms",
+        chips: ["2 terms", "Hackathons", "Events"],
+        text: "Coordinated HR across two terms and stayed an active member: hackathons, events, and knowledge sharing.",
+      },
+    ] as ExperienceEntry[],
   },
   contact: {
     title: "Contact",
-    lead: "Open to internships, junior backend roles, and freelance work. Email is the fastest way to reach me — I typically reply within hours.",
+    big: "Let's build something reliable.",
+    lead: "Open to internships, junior backend roles, and freelance work. Email is the fastest way to reach me.",
     sendEmail: "Send an email",
     status: "operational",
     emailLabel: "email",
-    phoneLabel: "phone",
-    locationLabel: "location",
-    timeLabel: "local time",
+    phoneLabel: "Phone",
+    linkedinLabel: "LinkedIn",
+    githubLabel: "GitHub",
+    locationLabel: "Location",
     location: "Port Said, Egypt",
+    timeLabel: "local time",
     socialsAria: "Social profiles",
     linkedin: "LinkedIn profile",
     github: "GitHub profile",

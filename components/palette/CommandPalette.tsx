@@ -64,13 +64,6 @@ function buildItems(palette: PaletteLabels, nav: NavLabels, locale: Locale): Pal
       icon: "arrowRight",
       href: "#experience",
     },
-    {
-      id: "education",
-      label: nav.education,
-      group: "navigate",
-      icon: "arrowRight",
-      href: "#education",
-    },
     { id: "contact", label: nav.contact, group: "navigate", icon: "arrowRight", href: "#contact" },
     { id: "links", label: nav.allLinks, group: "navigate", icon: "externalLink", href: linksHref },
     {

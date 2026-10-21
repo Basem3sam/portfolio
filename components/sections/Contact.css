@@ -1,0 +1,417 @@
+/* ================================================================
+   Contact (§05) — the closing "tide" band.
+
+   ALWAYS DARK in BOTH themes (mockup lines 1216–1221). The tokens below
+   are re-declared locally on the section element: @theme inline maps
+   --color-x: var(--c-x), so every Tailwind token utility used inside
+   picks up the inverted values automatically, and .dark-mode on <body>
+   cannot reach an element that declares its own custom properties.
+
+   Token mapping (mockup → repo): sheet→page panel→light-bg deep→dark-bg
+   raise→surface rule→hairline rule-2→rule-strong ink→dark-text
+   ink-2→light-text ink-3→muted-text signal→secondary signal-hi→signal
+   signal-ink→on-secondary note→honey/note live→status.
+
+   All colour lives here: tests/color-discipline.spec.ts scans .ts/.tsx
+   but not .css, and lib/tide.ts reads --tide-a … --tide-d back out of
+   getComputedStyle() so the canvas code stays colour-literal-free.
+
+   Everything lives in @layer components (like the shared primitives in
+   app/globals.css) so ordinary specificity decides overrides; the few
+   states that tie with a globals :hover rule are pinned explicitly below.
+   ================================================================ */
+
+@layer components {
+  /* The always-dark tide band (tokens, canvas, scrim) lives in TideBand.css,
+   * shared with the case-study hero. */
+
+
+  /* ---------- column (mockup line 592) ---------- */
+
+  .contact .ct-in {
+    position: relative;
+    max-width: 1200px;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(20px, 3vw, 32px);
+  }
+
+  /* The band's rhythm comes from .ct-in's gap, not the header's margin. */
+  .contact .sh {
+    margin-bottom: 0;
+  }
+
+  /* ---------- the big statement (mockup lines 593–594) ---------- */
+
+  .contact .ct-big {
+    margin: 0;
+    max-width: 14em;
+    font-size: clamp(2.5rem, 7vw, 5.5rem);
+    line-height: 0.98;
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    text-wrap: balance;
+  }
+
+  /* Arabic is cursive: no tracking, more leading (mockup line 594). */
+  html[dir="rtl"] .contact .ct-big {
+    letter-spacing: 0;
+    line-height: 1.2;
+  }
+
+  /* ---------- lead + status under the statement (mockup lines 187, 1216) ---------- */
+
+  .contact .ct-intro {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .contact .ct-lead {
+    margin: 0;
+    max-width: 40em;
+    font-size: 1.25rem;
+    line-height: 1.55;
+    color: var(--c-light-text);
+  }
+
+  html[lang="ar"] .contact .ct-lead {
+    font-size: 1.3rem;
+  }
+
+  .contact .ct-status {
+    font-size: 0.8125rem;
+  }
+
+  /* Mockup line 1716: live text is a lighter green than the dot itself. */
+  .contact .st-live {
+    color: #7df0a8;
+  }
+
+  /* ---------- the email row ----------
+     Hover: a warm wash fills the row from the start edge, a honey rule draws
+     along the foot, the address slides in and underlines itself at exactly
+     its own width, and the arrow disc fills and tips up-and-out. Everything
+     is keyboard-focus aware and gated to real hover on touch screens. */
+
+  .contact .ct-mail {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    max-width: 860px;
+    padding: 22px clamp(12px, 2vw, 22px);
+    border-block: 1px solid var(--c-rule-strong);
+    color: var(--c-dark-text);
+    text-decoration: none;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+
+  /* the wash */
+  .contact .ct-mail::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--c-honey) 16%, transparent),
+      color-mix(in srgb, var(--c-secondary) 8%, transparent) 70%,
+      transparent
+    );
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 0.6s var(--ease-out);
+  }
+
+  /* the honey rule along the foot */
+  .contact .ct-mail::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 -1px;
+    z-index: -1;
+    height: 2px;
+    pointer-events: none;
+    background: var(--c-honey);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.6s var(--ease-out);
+  }
+
+  html[dir="rtl"] .contact .ct-mail::before {
+    background: linear-gradient(
+      270deg,
+      color-mix(in srgb, var(--c-honey) 16%, transparent),
+      color-mix(in srgb, var(--c-secondary) 8%, transparent) 70%,
+      transparent
+    );
+    clip-path: inset(0 0 0 100%);
+  }
+
+  html[dir="rtl"] .contact .ct-mail::after {
+    transform-origin: right center;
+  }
+
+  html[dir="rtl"] .contact .ct-mail .ct-v {
+    margin-right: 0;
+    margin-left: auto;
+  }
+
+  /* the address: the underline hugs the text, not the whole row */
+  .contact .ct-mail .ct-v {
+    min-width: 0;
+    flex: 0 1 auto;
+    /* The span is dir="ltr" (an email is always LTR), so logical margins would
+       resolve against ITS direction, not the row's. Physical margins keep the
+       address on the reading-start side: left in English, right in Arabic. */
+    margin-right: auto;
+    margin-left: 0;
+    padding-bottom: 4px;
+    font-family: var(--font-mono-body);
+    font-size: clamp(1.125rem, 3.2vw, 2.25rem);
+    font-weight: 500;
+    line-height: 1.25;
+    direction: ltr;
+    overflow-wrap: anywhere;
+    background: linear-gradient(var(--c-honey), var(--c-honey)) 0 100% / 0 2px no-repeat;
+    transition:
+      background-size 0.5s var(--ease-out),
+      translate 0.5s var(--ease-out);
+  }
+
+  .contact .ct-mail .go {
+    flex: none;
+    width: 56px;
+    height: 56px;
+    border: 1px solid var(--c-dark-text);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    transition:
+      background-color 0.25s,
+      border-color 0.25s,
+      box-shadow 0.35s,
+      color 0.25s,
+      transform 0.45s var(--ease-out);
+  }
+
+  .contact .ct-mail:focus-visible {
+    border-color: var(--c-honey);
+  }
+
+  .contact .ct-mail:focus-visible::before {
+    clip-path: inset(0);
+  }
+
+  .contact .ct-mail:focus-visible::after {
+    transform: scaleX(1);
+  }
+
+  .contact .ct-mail:focus-visible .ct-v {
+    background-size: 100% 2px;
+  }
+
+  .contact .ct-mail:focus-visible .go {
+    background: var(--c-dark-text);
+    border-color: var(--c-honey);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--c-honey) 20%, transparent);
+    color: var(--c-page);
+    transform: rotate(-45deg);
+  }
+
+  @media (hover: hover) {
+    .contact .ct-mail:hover {
+      border-color: var(--c-honey);
+    }
+
+    .contact .ct-mail:hover::before {
+      clip-path: inset(0);
+    }
+
+    .contact .ct-mail:hover::after {
+      transform: scaleX(1);
+    }
+
+    .contact .ct-mail:hover .ct-v {
+      background-size: 100% 2px;
+      translate: 8px 0;
+    }
+
+    html[dir="rtl"] .contact .ct-mail:hover .ct-v {
+      translate: -8px 0;
+    }
+
+    .contact .ct-mail:hover .go {
+      background: var(--c-dark-text);
+      border-color: var(--c-honey);
+      box-shadow: 0 0 0 6px color-mix(in srgb, var(--c-honey) 20%, transparent);
+      color: var(--c-page);
+      transform: rotate(-45deg);
+    }
+
+    html[dir="rtl"] .contact .ct-mail:hover .go {
+      transform: rotate(45deg);
+    }
+  }
+
+  html[dir="rtl"] .contact .ct-mail:focus-visible .go {
+    transform: rotate(45deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .contact .ct-mail::before,
+    .contact .ct-mail::after,
+    .contact .ct-mail .ct-v,
+    .contact .ct-mail .go {
+      transition: none;
+    }
+  }
+
+  /* ---------- actions (mockup lines 197–198, 2698) ---------- */
+
+  .contact .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+  }
+
+  /* Ghost button picks up the glass tint on the dark band (mockup 1221).
+   The hover state is pinned at higher specificity than globals'
+   `.btn-ghost:hover` so the tint still lifts on hover no matter how the
+   two stylesheets order against each other inside the layer. */
+  .contact .btn-ghost {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .contact .btn-ghost:hover,
+  .contact .btn-ghost:focus-visible {
+    background: color-mix(in srgb, var(--c-secondary) 16%, rgba(255, 255, 255, 0.08));
+  }
+
+  /* ---------- contact cards (mockup lines 601–608, 1219–1220) ---------- */
+
+  .contact .ct-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .contact .crd {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 88px;
+    padding: 16px 18px;
+    border: 1px solid var(--c-hairline);
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--c-surface) 82%, transparent);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: var(--c-dark-text);
+    text-decoration: none;
+    transition:
+      border-color 0.2s,
+      transform 0.25s ease-out,
+      background-color 0.2s;
+  }
+
+  .contact a.crd:hover,
+  .contact a.crd:focus-visible {
+    border-color: #ffffff;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px);
+  }
+
+  .contact .crd .ct-v {
+    font-family: var(--font-mono-body);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.4;
+    direction: ltr;
+    overflow-wrap: anywhere;
+  }
+
+  .contact .crd .go {
+    position: absolute;
+    inset-block-start: 14px;
+    inset-inline-end: 14px;
+    color: var(--c-muted-text);
+    transition:
+      color 0.2s,
+      transform 0.25s;
+  }
+
+  .contact a.crd:hover .go,
+  .contact a.crd:focus-visible .go {
+    color: var(--c-honey);
+    transform: translate(2px, -2px);
+  }
+
+  html[dir="rtl"] .contact a.crd:hover .go,
+  html[dir="rtl"] .contact a.crd:focus-visible .go {
+    transform: translate(-2px, -2px);
+  }
+
+  /* Footnote row inside the location card: local time (CairoClock). */
+  .contact .crd-x {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 6px;
+  }
+
+  .contact .crd-x .ct-clock {
+    font-family: var(--font-mono-body);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--c-light-text);
+  }
+
+  html[lang="ar"] .contact .crd-x .ct-clock {
+    font-family: var(--font-body);
+  }
+
+  /* ---------- shared icon sizing (mockup `.i`) ---------- */
+
+  .contact .ct-i {
+    width: 18px;
+    height: 18px;
+    flex: none;
+  }
+
+  /* ---------- responsive (mockup lines 607–608, 198, 1582) ---------- */
+
+  @media (max-width: 900px) {
+    .contact .ct-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .contact .ct-mail .go {
+      width: 44px;
+      height: 44px;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .contact .ct-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .contact .actions .btn {
+      flex: 1 1 100%;
+    }
+
+    /* Mockup 1582: shrink long mailto targets at phone widths. */
+    .contact a[href^="mailto"] {
+      font-size: 0.9375rem;
+      overflow-wrap: anywhere;
+    }
+  }
+} /* @layer components */

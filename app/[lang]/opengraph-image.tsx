@@ -7,7 +7,7 @@ export const contentType = "image/png";
 const metrics = [
   { value: "100+", label: "endpoints in production" },
   { value: "200+", label: "members served" },
-  { value: "7", label: "security layers" },
+  { value: "13", label: "documented security controls" },
 ];
 
 export default function OpengraphImage() {

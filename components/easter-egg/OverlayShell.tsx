@@ -1,57 +1,123 @@
-import type { ReactNode } from "react";
+"use client";
+
+import { useEffect, useRef, type ReactNode } from "react";
+import Icon from "@/components/ui/Icon";
+import TideCanvas from "@/components/sections/TideCanvas";
+import "@/components/easter-egg/Egg.css";
 
 type OverlayShellProps = {
-  icon: string;
+  /** The mono eyebrow in the card header (mockup `.egk`, "Restricted"). */
+  chip: string;
+  /** Accessible name for the dialog. */
   title: string;
   visible: boolean;
   containerVisible: boolean;
   onClose: () => void;
-  background: ReactNode;
+  closeLabel: string;
+  /** Extra class for card variants (`.master`, `.good`, `.bad`). */
+  cardClassName?: string;
+  /** Paint the tide behind the card (the prompt and keypad overlays). */
+  tide?: boolean;
+  /** Extra header controls, before the close button (sound toggle). */
+  headerActions?: ReactNode;
   children: ReactNode;
 };
 
+/**
+ * The shared shell behind every easter-egg overlay: a fixed backdrop (the
+ * tide, dimmed) holding one calm glass card. Behaviour from the mockup's
+ * spec page: Esc closes, focus is trapped inside the card while it is open
+ * and returns to the opener on close, clicking the backdrop closes.
+ */
 export default function OverlayShell({
-  icon,
+  chip,
   title,
   visible,
   containerVisible,
   onClose,
-  background,
+  closeLabel,
+  cardClassName,
+  tide,
+  headerActions,
   children,
 }: OverlayShellProps) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const restoreRef = useRef<HTMLElement | null>(null);
+
+  // Remember the opener once, on mount: focus moves into the card so the
+  // keyboard starts inside the dialog.
+  useEffect(() => {
+    restoreRef.current = document.activeElement as HTMLElement | null;
+    cardRef.current?.focus();
+    return () => restoreRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    if (!containerVisible) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.stopPropagation();
+        onClose();
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+
+      // Focus trap: the card has no other focusable surfaces than the ones
+      // it renders, so cycling within it is enough.
+      const focusable = cardRef.current?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input, [tabindex]:not([tabindex="-1"])',
+      );
+      if (!focusable?.length) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+
+      if (event.shiftKey && (active === first || active === cardRef.current)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown, true);
+    return () => document.removeEventListener("keydown", onKeyDown, true);
+  }, [containerVisible, onClose]);
+
+  if (!containerVisible) return null;
+
   return (
-    <div
-      dir="ltr"
-      className={`fixed inset-0 z-[10005] flex items-center justify-center overflow-y-auto bg-[rgba(10,8,5,0.97)] p-3 backdrop-blur-[20px] transition-opacity duration-[400ms] sm:p-5 ${visible ? "opacity-100" : "opacity-0"}`}
-      onClick={(event) => {
-        if (event.target === event.currentTarget) onClose();
-      }}
-    >
+    <div dir="ltr" className="egg">
       <div
-        className={`relative flex max-h-[calc(100dvh_-_1.5rem)] w-full max-w-[420px] flex-col overflow-hidden rounded-[20px] border-2 border-[#fbbf24] bg-[linear-gradient(135deg,#14110a_0%,#0b0906_100%)] font-mono text-white shadow-[0_0_60px_rgba(251,191,36,0.25),inset_0_0_60px_rgba(251,191,36,0.04)] transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] sm:max-h-[calc(100dvh_-_2.5rem)] ${
-          containerVisible
-            ? "translate-y-0 scale-100 opacity-100"
-            : "translate-y-5 scale-90 opacity-0"
-        }`}
+        className={`eov${tide ? " tide" : " dim"}${visible ? " show" : ""}`}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) onClose();
+        }}
       >
-        <div className="relative z-[1] shrink-0 overflow-hidden border-b-2 border-[rgba(251,191,36,0.3)] bg-[linear-gradient(135deg,#1a150b_0%,#0e0b07_100%)] py-4 pr-[60px] pl-5">
-          <div className="absolute top-0 left-[-100%] h-full w-full animate-header-sweep bg-[linear-gradient(90deg,transparent_0%,rgba(251,191,36,0.1)_50%,transparent_100%)]"></div>
-          <h3 className="relative m-0 flex max-w-[calc(100%_-_50px)] flex-wrap items-center gap-2.5 text-[15px] leading-[1.3] font-medium tracking-[1px] text-[#fbbf24] [text-shadow:0_0_10px_rgba(251,191,36,0.5)]">
-            <span className="animate-icon-float text-[20px]">{icon}</span>
-            <span>{title}</span>
-          </h3>
-          <button
-            className="absolute top-1/2 right-3 z-10 flex size-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-[rgba(248,113,113,0.3)] bg-[rgba(248,113,113,0.1)] text-[22px] text-[#f87171] transition-all duration-300 active:scale-90 active:rotate-90 active:bg-[rgba(248,113,113,0.2)]"
-            aria-label="Close"
-            onClick={onClose}
-          >
-            &times;
-          </button>
-        </div>
-        <div className="relative z-[1] min-h-0 flex-1 overflow-y-auto overscroll-contain">
+        {tide && <TideCanvas />}
+        <div
+          ref={cardRef}
+          tabIndex={-1}
+          role="dialog"
+          aria-modal="true"
+          aria-label={title}
+          className={`egc${cardClassName ? ` ${cardClassName}` : ""}`}
+        >
+          <div className="egh">
+            <span className="egk">{chip}</span>
+            <span className="egh-actions">
+              {headerActions}
+              <button type="button" className="egx" aria-label={closeLabel} onClick={onClose}>
+                <Icon name="x" className="i" />
+              </button>
+            </span>
+          </div>
           {children}
         </div>
-        {background}
       </div>
     </div>
   );

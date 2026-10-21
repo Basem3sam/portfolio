@@ -5,9 +5,9 @@ const box = (title: string) => {
   const left = Math.floor((inner - title.length) / 2);
   const right = inner - title.length - left;
   const edge = (l: string, r: string) =>
-    `<span class="text-[rgba(251,191,36,0.7)]">${l}${"═".repeat(inner)}${r}</span>`;
-  const bar = `<span class="text-[rgba(251,191,36,0.7)]">║</span>`;
-  const name = `<span class="font-bold text-[#fde68a]">${" ".repeat(left)}${title}${" ".repeat(right)}</span>`;
+    `<span class="dim">${l}${"═".repeat(inner)}${r}</span>`;
+  const bar = `<span class="dim">║</span>`;
+  const name = `<span class="hd">${" ".repeat(left)}${title}${" ".repeat(right)}</span>`;
   return `<span class="inline-block leading-[1.32]">${edge("╔", "╗")}\n${bar}${name}${bar}\n${edge("╚", "╝")}</span>`;
 };
 
@@ -145,7 +145,7 @@ You are one of the few who think like a
 developer. Curiosity and exploration are
 the hallmarks of great engineers.
 
-<span class="my-2.5 inline-block animate-badge-pulse rounded-sm border-2 border-[#fbbf24] bg-[#14110a] px-4 py-2 font-bold tracking-[1px] text-[#fbbf24] uppercase shadow-[0_0_20px_rgba(251,191,36,0.4)]">ACHIEVEMENT UNLOCKED: TERMINAL HACKER</span>
+<span class="badge">ACHIEVEMENT UNLOCKED: TERMINAL HACKER</span>
 
 Secret Message:
 ----------------------------------
@@ -175,8 +175,8 @@ Knock, knock, Neo.
 01010111 01100001 01101011 01100101
 01010101 01110000
 
-<span class="text-[#fbbf24]">System Status: Reality.exe has stopped working</span>
-<span class="text-[#ffa502] [text-shadow:0_0_5px_rgba(255,165,2,0.5)]">WARNING: You are now in the Matrix</span>
+<span class="hl">System Status: Reality.exe has stopped working</span>
+<span class="warn">WARNING: You are now in the Matrix</span>
 
 Would you like to take the red pill or
 blue pill?
@@ -184,16 +184,16 @@ blue pill?
 Just kidding! You're still in Basem's
 portfolio. But that was cool, right?
 `,
-  hack: `<span class="text-[#ffa502] [text-shadow:0_0_5px_rgba(255,165,2,0.5)]">Initializing hack sequence...</span>
+  hack: `<span class="warn">Initializing hack sequence...</span>
 Connecting to mainframe...
 Bypassing firewall...
-<span class="text-[#fbbf24]">Access granted!</span>
+<span class="hl">Access granted!</span>
 Downloading files...
 portfolio_secrets.zip [########] 100%
 cool_dev_facts.txt [########] 100%
-<span class="text-[#f87171] [text-shadow:0_0_5px_rgba(248,113,113,0.5)]">ERROR: Nice try, hacker!</span>
+<span class="err">ERROR: Nice try, hacker!</span>
 
-<span class="text-[#fde68a] [text-shadow:0_0_5px_rgba(251,191,36,0.5)]">Just kidding! There's nothing to hack here.</span>
+<span class="hl">Just kidding! There's nothing to hack here.</span>
 
 But I appreciate your spirit!
 
@@ -217,7 +217,7 @@ Check out my GitHub: github.com/basem3sam
 
 Here's a virtual coffee!
 
-<span class="text-[#fbbf24]">Coffee.exe is brewing...</span>
+<span class="hl">Coffee.exe is brewing...</span>
 
 Fun fact: Developers run on coffee and
 semicolons.

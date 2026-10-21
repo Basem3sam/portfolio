@@ -238,3 +238,14 @@ export const EXPLORER_ENDPOINTS: ExplorerEndpoint[] = [
     },
   },
 ];
+
+/**
+ * The endpoints the case-study explorer shows: the reference's curated slice
+ * of the 100+ mounted endpoints, in list order (public first, then signed-in,
+ * then admin). All are simulated on the page; no request is sent.
+ */
+const ACCESS_ORDER: Record<EndpointAccess, number> = { public: 0, protected: 1, admin: 2 };
+
+export const EXPLORER_CASE_SLICE: ExplorerEndpoint[] = [...EXPLORER_ENDPOINTS].sort(
+  (a, b) => ACCESS_ORDER[a.access] - ACCESS_ORDER[b.access],
+);

@@ -164,9 +164,19 @@ export function createEpicCelebration() {
   });
 }
 
-export function createDirectionalParticles(element: HTMLElement, clickCount: number) {
+export type ClickPoint = { x: number; y: number };
+
+export function createDirectionalParticles(
+  element: HTMLElement,
+  clickCount: number,
+  point?: ClickPoint,
+) {
   const directions = ["↑", "↓", "←", "→", "B", "A"];
   const rect = element.getBoundingClientRect();
+  // Emit from the spot that was clicked; the middle of the photo is only the
+  // fallback (keyboard activation has no pointer position).
+  const originX = point ? point.x : rect.left + rect.width / 2;
+  const originY = point ? point.y : rect.top + rect.height / 2;
 
   for (let index = 0; index < Math.min(clickCount, 4); index++) {
     const x = (Math.random() - 0.5) * 2;
@@ -174,8 +184,8 @@ export function createDirectionalParticles(element: HTMLElement, clickCount: num
     const particle = spawn(
       "pointer-events-none fixed z-[10002] font-bold text-[#fbbf24]",
       {
-        left: `${rect.left + rect.width / 2}px`,
-        top: `${rect.top + rect.height / 2}px`,
+        left: `${originX}px`,
+        top: `${originY}px`,
         fontSize: `${12 + clickCount * 1.5}px`,
       },
       1200,
@@ -194,6 +204,8 @@ export function createDirectionalParticles(element: HTMLElement, clickCount: num
   }
 }
 
+// The glow uses filter: drop-shadow, which follows the portrait's cut-out
+// silhouette. box-shadow lit up the photo's whole (transparent) square box.
 const CLICK_ANIMATIONS: Keyframe[][] = [
   [
     { transform: "translateY(0)" },
@@ -216,22 +228,61 @@ const CLICK_ANIMATIONS: Keyframe[][] = [
     { transform: "translateX(0)" },
   ],
   [
-    { transform: "scale(1)", boxShadow: "0 0 0 rgba(255, 107, 107, 0.4)" },
-    { transform: "scale(1.1)", boxShadow: "0 0 20px rgba(255, 107, 107, 0.8)" },
-    { transform: "scale(1)", boxShadow: "0 0 0 rgba(255, 107, 107, 0.4)" },
+    { transform: "scale(1)", filter: "drop-shadow(0 0 0 rgba(255, 107, 107, 0.4))" },
+    { transform: "scale(1.1)", filter: "drop-shadow(0 0 20px rgba(255, 107, 107, 0.8))" },
+    { transform: "scale(1)", filter: "drop-shadow(0 0 0 rgba(255, 107, 107, 0.4))" },
   ],
   [
-    { transform: "scale(1) rotate(0deg)", boxShadow: "0 0 0 rgba(78, 205, 196, 0.4)" },
-    { transform: "scale(1.15) rotate(5deg)", boxShadow: "0 0 25px rgba(78, 205, 196, 0.9)" },
-    { transform: "scale(1) rotate(0deg)", boxShadow: "0 0 0 rgba(78, 205, 196, 0.4)" },
+    { transform: "scale(1) rotate(0deg)", filter: "drop-shadow(0 0 0 rgba(78, 205, 196, 0.4))" },
+    { transform: "scale(1.15) rotate(5deg)", filter: "drop-shadow(0 0 25px rgba(78, 205, 196, 0.9))" },
+    { transform: "scale(1) rotate(0deg)", filter: "drop-shadow(0 0 0 rgba(78, 205, 196, 0.4))" },
   ],
 ];
 
 const CLICK_ANIMATION_ORDER = [0, 0, 1, 1, 2, 3, 2, 3, 4, 5];
 
-export function animateProfileClick(element: HTMLElement, clickCount: number) {
+export function animateProfileClick(
+  element: HTMLElement,
+  clickCount: number,
+  point?: ClickPoint,
+) {
   const keyframes = CLICK_ANIMATIONS[CLICK_ANIMATION_ORDER[(clickCount - 1) % 10]];
-  element.animate(keyframes, { duration: 600, easing: "ease" });
+  if (point) {
+    // Scale and rotate pivot on the clicked spot, so the photo reacts where it
+    // was touched. The origin is cleared again when the animation ends.
+    const rect = element.getBoundingClientRect();
+    element.style.transformOrigin = `${point.x - rect.left}px ${point.y - rect.top}px`;
+  }
+  const animation = element.animate(keyframes, { duration: 600, easing: "ease" });
+  const clear = () => element.style.removeProperty("transform-origin");
+  animation.onfinish = clear;
+  animation.oncancel = clear;
+}
+
+// A ring that blooms from the clicked spot, tinted by how deep into the hunt
+// the visitor is.
+export function createClickRipple(point: ClickPoint, clickCount: number) {
+  const size = 64 + Math.min(clickCount, 10) * 8;
+  const color = pick(BURST_COLORS);
+  const ring = spawn(
+    "pointer-events-none fixed z-[10002] rounded-full",
+    {
+      left: `${point.x - size / 2}px`,
+      top: `${point.y - size / 2}px`,
+      width: `${size}px`,
+      height: `${size}px`,
+      border: `2px solid ${color}`,
+      boxShadow: `0 0 18px ${color}`,
+    },
+    700,
+  );
+  ring.animate(
+    [
+      { transform: "scale(0.1)", opacity: 0.9 },
+      { transform: "scale(1)", opacity: 0 },
+    ],
+    { duration: 650, easing: "ease-out", fill: "forwards" },
+  );
 }
 
 const CLUE_REVEAL: Keyframe[] = [

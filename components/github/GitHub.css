@@ -1,0 +1,350 @@
+/* ================================================================
+   Live from GitHub — repository cards.
+
+   Same language as the Work rows: a surface card with a hairline edge,
+   the shared `spotlight` glow and honey edge bar on hover, and one stretch
+   link over the whole card. Colour comes from the `--c-*` tokens only.
+   ================================================================ */
+
+.gh-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 1100px) {
+  .gh-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.gh-item {
+  display: flex;
+  min-width: 0;
+}
+
+.gh-item > .gh-card {
+  flex: 1;
+}
+
+.gh-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid var(--c-hairline);
+  border-radius: var(--radius-ui-3);
+  background: var(--c-surface);
+  box-shadow: var(--sh-sm);
+  animation: gh-in 0.6s var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * 90ms + 120ms);
+  transition:
+    transform 0.3s var(--ease-out),
+    border-color 0.25s,
+    box-shadow 0.3s;
+}
+
+.gh-card:hover,
+.gh-card:focus-within {
+  transform: translateY(-4px);
+  border-color: var(--c-muted-text);
+  box-shadow: var(--sh-lg);
+}
+
+.gh-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.gh-ix {
+  font: 600 0.6875rem var(--font-mono-body);
+  letter-spacing: 0.06em;
+  color: var(--c-note);
+  direction: ltr;
+}
+
+.gh-lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  font: 500 0.75rem/1 var(--font-mono-body);
+  color: var(--c-light-text);
+  direction: ltr;
+}
+
+.gh-lang::before {
+  content: "";
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--c-secondary);
+}
+
+.gh-go {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin-inline-start: auto;
+  border: 1px solid var(--c-rule-strong);
+  border-radius: 50%;
+  color: var(--c-dark-text);
+  transition:
+    background-color 0.25s,
+    color 0.25s,
+    border-color 0.25s,
+    transform 0.3s var(--ease-out);
+}
+
+.gh-card:hover .gh-go,
+.gh-card:focus-within .gh-go {
+  background: var(--c-dark-text);
+  border-color: var(--c-dark-text);
+  color: var(--c-page);
+  transform: rotate(-45deg);
+}
+
+[dir="rtl"] .gh-card:hover .gh-go,
+[dir="rtl"] .gh-card:focus-within .gh-go {
+  transform: rotate(45deg);
+}
+
+.gh-name {
+  margin: 0;
+  font: 600 1.125rem/1.3 var(--font-mono-body);
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+  direction: ltr;
+  text-align: start;
+}
+
+[dir="rtl"] .gh-name {
+  text-align: right;
+}
+
+.gh-link {
+  color: var(--c-dark-text);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.gh-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: var(--radius-ui-3);
+}
+
+.gh-card:hover .gh-link {
+  color: var(--c-secondary);
+}
+
+.gh-link:focus-visible {
+  outline: none;
+}
+
+.gh-link:focus-visible::after {
+  outline: 2px solid var(--c-signal);
+  outline-offset: 3px;
+}
+
+.gh-desc {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  flex: 1;
+  margin: 0;
+  overflow: hidden;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--c-light-text);
+}
+
+.gh-topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  direction: ltr;
+}
+
+[dir="rtl"] .gh-topics {
+  justify-content: flex-end;
+}
+
+.gh-topics li {
+  padding: 6px 10px;
+  border: 1px solid var(--c-hairline);
+  border-radius: 999px;
+  background: var(--c-light-bg);
+  font: 500 0.6875rem/1 var(--font-mono-body);
+  color: var(--c-light-text);
+  transition:
+    border-color 0.3s,
+    color 0.3s;
+}
+
+.gh-card:hover .gh-topics li {
+  border-color: var(--c-rule-strong);
+  color: var(--c-dark-text);
+}
+
+.gh-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-top: 2px;
+  padding-top: 14px;
+  border-top: 1px solid var(--c-hairline);
+  font: 500 0.75rem/1.2 var(--font-mono-body);
+  color: var(--c-muted-text);
+}
+
+html[lang="ar"] .gh-foot {
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+}
+
+.gh-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-mono-body);
+}
+
+.gh-stats li {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  unicode-bidi: isolate;
+}
+
+.gh-stats .warn {
+  color: var(--c-note);
+}
+
+.gh-demo {
+  position: relative;
+  z-index: 3;
+  align-self: flex-start;
+}
+
+/* ---------- loading skeleton ---------- */
+
+.gh-skel {
+  gap: 16px;
+  min-height: 236px;
+  box-shadow: none;
+  animation: none;
+}
+
+.gh-skel:hover {
+  transform: none;
+  border-color: var(--c-hairline);
+  box-shadow: none;
+}
+
+.gh-skel i {
+  display: block;
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    var(--c-hairline) 0%,
+    color-mix(in srgb, var(--c-hairline) 45%, var(--c-surface)) 50%,
+    var(--c-hairline) 100%
+  );
+  background-size: 220% 100%;
+  animation: gh-shimmer 1.6s ease-in-out infinite;
+}
+
+.gh-skel i:nth-child(1) {
+  width: 38%;
+}
+
+.gh-skel i:nth-child(2) {
+  width: 72%;
+  height: 18px;
+}
+
+.gh-skel i:nth-child(3) {
+  width: 100%;
+}
+
+.gh-skel i:nth-child(4) {
+  width: 86%;
+}
+
+.gh-skel i:nth-child(5) {
+  width: 54%;
+  margin-top: auto;
+}
+
+@keyframes gh-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+
+@keyframes gh-shimmer {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -120% 0;
+  }
+}
+
+/* ---------- empty / error ---------- */
+
+.gh-state {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  padding: 40px 24px;
+  border: 1px dashed var(--c-rule-strong);
+  border-radius: var(--radius-ui-3);
+  background: var(--c-light-bg);
+  text-align: center;
+  color: var(--c-light-text);
+}
+
+.gh-state p {
+  max-width: 44ch;
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gh-card,
+  .gh-skel i {
+    animation: none;
+  }
+
+  .gh-card:hover,
+  .gh-card:focus-within,
+  .gh-card:hover .gh-go,
+  .gh-card:focus-within .gh-go {
+    transform: none;
+  }
+}

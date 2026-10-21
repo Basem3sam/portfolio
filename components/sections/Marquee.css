@@ -1,0 +1,88 @@
+/* Marquee band — dark in both themes, per the mockup (`.mq` base L492–500 +
+   the always-dark override at L1807). The `--c-*` tokens are re-declared on the
+   band itself so every Tailwind token utility inside inverts with it. */
+
+.mq {
+  --c-dark-text: #f4f8ff;
+  --c-light-text: rgba(236, 243, 255, 0.86);
+  --c-muted-text: rgba(236, 243, 255, 0.64);
+  --c-hairline: rgba(255, 255, 255, 0.14);
+  --c-note: #f4c77d;
+
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding-block: 14px;
+  padding-inline: var(--pad);
+  color: var(--c-dark-text);
+  background-image: linear-gradient(90deg, #06143a, #0a1e52 50%, #06143a);
+}
+
+.mq .lbl {
+  flex: none;
+}
+
+.mq-view {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  direction: ltr;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+}
+
+.mq-row {
+  display: flex;
+  width: max-content;
+  animation: mq 32s linear infinite;
+}
+
+.mq-view:hover .mq-row {
+  animation-play-state: paused;
+}
+
+.mq-list {
+  display: flex;
+  gap: 36px;
+  margin: 0;
+  padding-inline-end: 36px;
+  list-style: none;
+  font-family: var(--font-mono-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--c-light-text);
+  white-space: nowrap;
+}
+
+.mq-list li {
+  display: inline-flex;
+  align-items: center;
+  gap: 36px;
+}
+
+.mq-list li::after {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--c-note);
+}
+
+@keyframes mq {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 560px) {
+  .mq .lbl {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mq-row {
+    animation: none;
+  }
+}

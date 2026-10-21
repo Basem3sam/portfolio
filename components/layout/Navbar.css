@@ -1,0 +1,591 @@
+/* Desktop navbar: the link list and its shared sliding indicator, ported from
+   `Portfolio Design Mockup.html` rev 21 (L2101–2113), the top-of-page underline
+   variant (L2154–2158) and the reduced-motion guard (L2150). Shared capsule
+   machinery (--np) lives in app/globals.css as nav-shell/nav-capsule. */
+
+.nav-links {
+  position: relative;
+}
+
+/* Numerals only fit on the bar from xl up; the mobile menu always shows them. */
+.nav-links .nn {
+  display: none;
+  font-family: var(--font-mono-body);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  direction: ltr;
+  color: var(--c-muted-text);
+  transition:
+    color 0.3s ease,
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (min-width: 1200px) {
+  .nav-links .nn {
+    display: inline;
+  }
+}
+
+/* The numeral is its own LTR island, so a margin on it would resolve to the
+   wrong side in Arabic. The gap sits on the link, which follows the page
+   direction, and the Arabic label gets a little more room. */
+.nav-links a:has(> .nn) {
+  gap: 6px;
+}
+
+[dir="rtl"] .nav-links a:has(> .nn) {
+  gap: 9px;
+  padding-inline: 12px;
+}
+
+[dir="rtl"] .nav-links .nn {
+  font-size: 0.75rem;
+  transform: translateY(1px);
+}
+
+[dir="rtl"] .nav-links a:hover .nn,
+[dir="rtl"] .nav-links a[aria-current="page"] .nn {
+  transform: translateY(0);
+}
+
+.nav-links a:hover .nn,
+.nav-links a[aria-current="page"] .nn {
+  color: var(--c-note);
+  transform: translateY(-1px);
+}
+
+/* One pill for every link: it slides to the hovered link and parks on the
+   active section. Navbar.tsx writes --ix / --iw; the anchor list sits above
+   it (z-index 1 via the sectionLink utility). Physical `left` + pixel offsets
+   keep it correct in RTL, where the list flows right-to-left. */
+.nav-ind {
+  position: absolute;
+  z-index: 0;
+  top: 4px;
+  bottom: 4px;
+  left: 0;
+  width: var(--iw, 0px);
+  translate: var(--ix, 0px) 0;
+  border-radius: 14px;
+  background: var(--c-light-bg);
+  border: 1px solid var(--c-rule-strong);
+  box-shadow: 0 2px 0 var(--c-rule-strong);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    translate 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    width 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.25s ease,
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+/* The utility group (search, language, theme, CTA) must always paint above
+   the shared indicator pill. */
+.nav-util {
+  position: relative;
+  z-index: 1;
+}
+
+.nav-ind.on {
+  opacity: 1;
+}
+
+/* At the top of the page the capsule has not formed, so the indicator is a
+   thin honey rule under the link instead of a pill. */
+nav[data-scrolled="false"] .nav-ind {
+  top: auto;
+  bottom: 3px;
+  height: 2px;
+  border: 0;
+  border-radius: 2px;
+  background: var(--c-note);
+  box-shadow: none;
+  translate: calc(var(--ix, 0px) + 14px) 0;
+  width: calc(var(--iw, 0px) - 28px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-ind,
+  .nav-links .nn {
+    transition: none;
+  }
+}
+
+/* ---------- bare bar over the sky ---------- */
+
+/* Before the capsule forms the links sit directly on the hero sky (eased out
+   by the hero's horizon veil), so they take full ink and the small numerals
+   and shortcut hint step up from the muted tone, which was too faint there. */
+nav:not([data-tide])[data-scrolled="false"] .nav-links a {
+  color: color-mix(in srgb, var(--c-dark-text) 88%, var(--c-page));
+}
+
+nav:not([data-tide])[data-scrolled="false"] .nav-links a:hover,
+nav:not([data-tide])[data-scrolled="false"] .nav-links a[aria-current="page"] {
+  color: var(--c-dark-text);
+}
+
+nav:not([data-tide])[data-scrolled="false"] .nav-links .nn,
+nav:not([data-tide])[data-scrolled="false"] .text-muted-text {
+  color: var(--c-light-text);
+}
+
+nav:not([data-tide])[data-scrolled="false"] .nav-links a:hover .nn,
+nav:not([data-tide])[data-scrolled="false"] .nav-links a[aria-current="page"] .nn {
+  color: var(--c-note);
+}
+
+/* ---------- the search control's word ---------- */
+
+/* The control is an icon plus the shortcut key by default; the word appears
+   on hover, the way the reference's states sheet shows it. */
+.palette-word {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .palette-word {
+    display: inline-block;
+    max-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    opacity: 0;
+    transition:
+      max-width 0.28s cubic-bezier(0.22, 0.61, 0.36, 1),
+      opacity 0.2s ease;
+  }
+
+  .group\/palette:hover .palette-word,
+  .group\/palette:focus-visible .palette-word {
+    max-width: 7rem;
+    opacity: 1;
+  }
+}
+
+/* ---------- the mobile menu (mockup rev 32/35) ---------- */
+
+/* Rows are display type, separated by a hairline, with the number in honey
+   and the arrow always visible. Hovering pulls the label in and draws the
+   honey rule under the row. */
+.menu-row {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) 28px;
+  align-items: center;
+  gap: 0;
+  min-height: 58px;
+  border-bottom: 1px solid var(--c-hairline);
+  color: var(--c-dark-text);
+  transition: padding-inline-start 0.3s ease;
+}
+
+.menu-row:hover,
+.menu-row:focus-visible {
+  padding-inline-start: 8px;
+}
+
+.menu-row .mn {
+  font: 500 0.6875rem var(--font-mono-body);
+  font-weight: 600;
+  color: var(--c-note);
+  letter-spacing: 0.06em;
+  direction: ltr;
+}
+
+.menu-row .t {
+  font-size: clamp(1.7rem, 8vw, 2.1rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  transition:
+    color 0.3s ease,
+    translate 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[dir="rtl"] .menu-row .t {
+  letter-spacing: 0;
+  line-height: 1.3;
+}
+
+.menu-row:hover .t,
+.menu-row:focus-visible .t,
+.menu-row.is-active .t {
+  color: var(--c-secondary);
+}
+
+.menu-row:hover .t,
+.menu-row:focus-visible .t {
+  translate: 6px 0;
+}
+
+[dir="rtl"] .menu-row:hover .t,
+[dir="rtl"] .menu-row:focus-visible .t {
+  translate: -6px 0;
+}
+
+.menu-row .go {
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  display: grid;
+  place-items: center;
+  color: var(--c-muted-text);
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.menu-row:hover .go,
+.menu-row:focus-visible .go {
+  color: var(--c-note);
+  transform: translateX(3px);
+}
+
+[dir="rtl"] .menu-row:hover .go,
+[dir="rtl"] .menu-row:focus-visible .go {
+  transform: translateX(-3px);
+}
+
+.menu-row::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: -1px;
+  height: 1.5px;
+  background: var(--c-note);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[dir="rtl"] .menu-row::after {
+  transform-origin: right;
+}
+
+.menu-row:hover::after,
+.menu-row:focus-visible::after {
+  transform: scaleX(1);
+}
+
+/* The two shortcut tiles: a mono mnemonic, a bold label, an icon. */
+.menu-tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.menu-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 12px 14px;
+  min-height: 70px;
+  border: 1px solid var(--c-rule-strong);
+  border-radius: 14px;
+  text-decoration: none;
+  color: var(--c-dark-text);
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.menu-tile:hover {
+  border-color: var(--c-muted-text);
+  background: var(--c-light-bg);
+}
+
+.menu-tile .mn {
+  font: 500 0.6875rem var(--font-mono-body);
+  color: var(--c-note);
+  letter-spacing: 0.06em;
+  direction: ltr;
+}
+
+.menu-tile b {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.menu-tile .i {
+  position: absolute;
+  inset-block-start: 12px;
+  inset-inline-end: 12px;
+  width: 16px;
+  height: 16px;
+  color: var(--c-muted-text);
+}
+
+.menu-tile-links {
+  background: color-mix(in srgb, var(--c-secondary) 9%, var(--c-page));
+  border-color: color-mix(in srgb, var(--c-secondary) 42%, var(--c-rule-strong));
+}
+
+.menu-tile-links .mn,
+.menu-tile-links .i {
+  color: var(--c-secondary);
+}
+
+/* The mnemonics read left to right, so in Arabic they are aligned to the
+   start of the row instead of the start of their own direction. */
+[dir="rtl"] .menu-row .mn,
+[dir="rtl"] .menu-tile .mn {
+  text-align: right;
+}
+
+/* The foot: a filled phone bar, then the language, theme and social row. */
+.menu-foot {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.menu-phone {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 50px;
+  padding-inline: 16px;
+  border-radius: 14px;
+  background: var(--c-secondary);
+  color: var(--c-on-secondary);
+  font: 600 1.0625rem var(--font-mono-body);
+  text-decoration: none;
+  direction: ltr;
+  transition: filter 0.2s ease;
+}
+
+.menu-phone:hover {
+  filter: brightness(1.08);
+}
+
+.menu-util {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.menu-soc {
+  margin-inline-start: auto;
+  display: flex;
+  gap: 8px;
+}
+
+.menu-soc a {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--c-rule-strong);
+  border-radius: 12px;
+  color: var(--c-light-text);
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.menu-soc a:hover {
+  color: var(--c-dark-text);
+  border-color: var(--c-muted-text);
+  background: var(--c-light-bg);
+}
+
+/* ---------- the case-study tide bar (mockup rev 35) ---------- */
+
+/* The case-study hero is the deep-blue tide band, so the bare bar keeps a
+   light ink over it until the glass capsule takes over. `--np` is the
+   capsule progress: 0 at the top of the page, 1 after the ramp. */
+nav[data-tide="true"] {
+  --tide-ink: #f4f8ff;
+  --tide-ink-2: #e4ecff;
+  --tide-ink-3: #c6d4ff;
+  --tide-rule: rgba(219, 229, 255, 0.32);
+  --hi: calc(min(1, max(0, (0.27 - var(--np, 0)) * 20)));
+}
+
+nav[data-tide="true"] .nav-capsule::before {
+  background: color-mix(
+    in srgb,
+    var(--c-glass) calc(min(1, max(0, (var(--np, 0) - 0.2) * 5)) * 88%),
+    transparent
+  );
+}
+
+nav[data-tide="true"] [data-nav-logo] {
+  color: color-mix(in srgb, var(--tide-ink) calc(var(--hi) * 100%), var(--c-dark-text));
+}
+
+nav[data-tide="true"] .nav-links a {
+  color: color-mix(in srgb, var(--tide-ink-2) calc(var(--hi) * 100%), var(--c-light-text));
+}
+
+nav[data-tide="true"] .nav-links a:not([aria-current]) .nn {
+  color: color-mix(in srgb, var(--tide-ink-3) calc(var(--hi) * 100%), var(--c-muted-text));
+}
+
+nav[data-tide="true"] .nav-links a[aria-current] {
+  color: color-mix(in srgb, #ffffff calc(var(--hi) * 100%), var(--c-dark-text));
+}
+
+nav[data-tide="true"] .nav-util a:not(.nav-cta),
+nav[data-tide="true"] .nav-util button,
+nav[data-tide="true"] .nav-mobile-btn {
+  color: color-mix(in srgb, var(--tide-ink-2) calc(var(--hi) * 100%), var(--c-light-text));
+  border-color: color-mix(in srgb, var(--tide-rule) calc(var(--hi) * 100%), var(--c-hairline));
+}
+
+/* The utility controls sit on the tide as bare outlines, not filled chips. */
+nav[data-tide="true"] .nav-util a:not(.nav-cta),
+nav[data-tide="true"] .nav-util button,
+nav[data-tide="true"] .nav-mobile-btn {
+  background: transparent;
+}
+
+nav[data-tide="true"] #darkModeToggle {
+  background: color-mix(in srgb, white 6%, transparent);
+}
+
+
+/* ---------- utility controls: transparent, tint-on-hover ---------- */
+
+/* Search, language, theme and the mobile buttons never carry an opaque fill,
+   so on the glass capsule (or over the hero sky) they stay see-through and
+   only pick up a faint tint of the action colour on hover/focus. The quiet
+   variant has no resting outline at all (mockup: language + theme). */
+.nav-ctl,
+.lang-ctl {
+  border: 1px solid color-mix(in srgb, var(--c-rule-strong) 55%, transparent);
+  background-color: transparent;
+  color: var(--c-light-text);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.nav-ctl-quiet {
+  border-color: transparent;
+}
+
+.nav-ctl:hover,
+.nav-ctl:focus-visible,
+.lang-ctl:hover,
+.lang-ctl:focus-visible {
+  background-color: color-mix(in srgb, var(--c-secondary) 11%, transparent);
+  border-color: color-mix(in srgb, var(--c-secondary) 50%, transparent);
+  color: var(--c-secondary);
+}
+
+.nav-ctl:active,
+.lang-ctl:active {
+  background-color: color-mix(in srgb, var(--c-secondary) 18%, transparent);
+}
+
+/* ---------- "Let's talk": dark pill, honey arrow disc ---------- */
+
+.nav-cta {
+  gap: 12px;
+  padding: 0 6px 0 20px;
+  background: var(--c-dark-text);
+  color: var(--c-page);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 16%, transparent);
+  transition:
+    box-shadow 0.25s ease,
+    background-color 0.25s ease;
+}
+
+.nav-cta-ic {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--c-honey-hi);
+  color: var(--c-primary);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nav-cta:hover,
+.nav-cta:focus-visible {
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 16%, transparent),
+    0 0 0 3px color-mix(in srgb, var(--c-secondary) 28%, transparent),
+    0 10px 24px -10px color-mix(in srgb, var(--c-secondary) 60%, transparent);
+}
+
+.nav-cta:hover .nav-cta-ic,
+.nav-cta:focus-visible .nav-cta-ic {
+  transform: translateX(2px);
+}
+
+[dir="rtl"] .nav-cta {
+  padding: 0 20px 0 6px;
+}
+
+[dir="rtl"] .nav-cta:hover .nav-cta-ic,
+[dir="rtl"] .nav-cta:focus-visible .nav-cta-ic {
+  transform: translateX(-2px);
+}
+
+.nav-cta[aria-current="page"] {
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 16%, transparent),
+    0 0 0 2px color-mix(in srgb, var(--c-honey-hi) 70%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-ctl,
+  .lang-ctl,
+  .nav-cta,
+  .nav-cta-ic {
+    transition: none;
+  }
+}
+
+/* ---------- specificity guards ---------- */
+
+/* The CTA keeps its own ink everywhere: the generic nav-link colour rules
+   (including the tide ones) would otherwise wash the label out. */
+.nav-links a.nav-cta,
+.nav-links a.nav-cta[aria-current],
+nav[data-tide="true"] .nav-links a.nav-cta,
+nav[data-tide="true"] .nav-links a.nav-cta[aria-current] {
+  color: var(--c-page);
+}
+
+/* Over the hero (bare bar, before the capsule forms) the rule
+   `nav:not([data-tide])[data-scrolled="false"] .nav-links a` is more specific
+   than the guard above, so it painted the label in the dark ink, which is
+   the pill's own colour: dark text on a dark pill. Restate the CTA's ink at
+   a specificity that wins in every state (rest, hover, current, focus). */
+nav:not([data-tide])[data-scrolled="false"] .nav-links a.nav-cta,
+nav:not([data-tide])[data-scrolled="false"] .nav-links a.nav-cta:hover,
+nav:not([data-tide])[data-scrolled="false"] .nav-links a.nav-cta:focus-visible,
+nav:not([data-tide])[data-scrolled="false"] .nav-links a.nav-cta[aria-current] {
+  color: var(--c-page);
+}
+
+nav:not([data-tide])[data-scrolled="false"] .nav-links a.nav-cta .nav-cta-ic {
+  color: var(--c-primary);
+}
+
+/* On the tide pages the util controls are forced transparent by rules with
+   higher specificity than .nav-ctl:hover; restate the tint so hover works
+   there too (kept transparent, never an opaque chip). */
+nav[data-tide="true"] .nav-util .nav-ctl:hover,
+nav[data-tide="true"] .nav-util .nav-ctl:focus-visible,
+nav[data-tide="true"] .nav-util .lang-ctl:hover,
+nav[data-tide="true"] .nav-util .lang-ctl:focus-visible,
+nav[data-tide="true"] .nav-mobile-btn:hover,
+nav[data-tide="true"] .nav-mobile-btn:focus-visible {
+  background: color-mix(in srgb, white calc(var(--hi) * 14%), color-mix(in srgb, var(--c-secondary) 11%, transparent));
+  border-color: color-mix(in srgb, var(--tide-ink-2) calc(var(--hi) * 70%), color-mix(in srgb, var(--c-secondary) 50%, transparent));
+}

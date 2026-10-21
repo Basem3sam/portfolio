@@ -1,0 +1,912 @@
+/* Hero — ported from `Portfolio Design Mockup.html`: `#sec-hero` (L465–507)
+   plus the revision overrides that survive to rev 35 (L666–780, L1012–1046,
+   L1168–1172, L1279–1309, L1571, L1695–1708, L1819–1858, L2035–2090, L2118–2121,
+   L2184–2190, L2211, L2417–2420). Shared primitives (.btn, .ibtn, .lbl…) live
+   in app/globals.css. */
+
+.hero-s {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  min-height: clamp(560px, 100svh, 880px);
+  background-color: var(--c-page);
+  border-bottom: 1px solid var(--c-hairline);
+
+  /* Both skies read their ramp from here. Values are the mockup's PAL
+     (Portfolio Design Mockup.html nebula IIFE, light row) so the WebGL
+     nebula and the 2D fallback halftone match the reference exactly. */
+  --ht-a: #3b5bf5;
+  --ht-b: #f0ae2a;
+  --nb-haze: #eceffc;
+  --nb-dusk: #e1dcfa;
+  --nb-wine: #b3a5f4;
+  --nb-crim: #6a55e4;
+  --nb-hot: #3b5bf5;
+  --nb-star: #5b3fd1;
+}
+
+body.dark-mode .hero-s {
+  --ht-a: #6b9bff;
+  --ht-b: #e0a458;
+  --nb-haze: #0f1738;
+  --nb-dusk: #1f1b52;
+  --nb-wine: #35278a;
+  --nb-crim: #4468ff;
+  --nb-hot: #9ab6ff;
+  --nb-star: #f1efff;
+}
+
+/* The radial "sky" behind the halftone; the nebula cross-fades it out. */
+.hero-s::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(
+      60% 75% at 84% 16%,
+      color-mix(in srgb, var(--c-secondary) 15%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      46% 60% at 6% 104%,
+      color-mix(in srgb, var(--c-note) 13%, transparent),
+      transparent 72%
+    );
+  transition: opacity 0.9s ease;
+  -webkit-mask-image: linear-gradient(to bottom, #000 68%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 68%, transparent 100%);
+}
+
+.hero-s[data-nb]::before {
+  opacity: 0;
+}
+
+/* --- the two skies ------------------------------------------------------ */
+.hero-cv,
+.nb-cv {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  /* The sky dissolves into the page colour at the foot of the hero, so its
+     glow behind the portrait is not cut off in a straight line. */
+  -webkit-mask-image: linear-gradient(to bottom, #000 68%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 68%, transparent 100%);
+}
+
+.nb-cv {
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+.hero-s[data-nb] .nb-cv {
+  opacity: 1;
+}
+
+/* The halftone only stays if the WebGL2 nebula never took over. */
+.hero-s[data-nb] .hero-cv {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.9s ease,
+    visibility 0s linear 0.9s;
+}
+
+/* --- layout ------------------------------------------------------------- */
+.hero-in {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  grid-template-areas:
+    "top pf"
+    "body pf";
+  grid-template-rows: auto 1fr;
+  align-items: start;
+  column-gap: clamp(24px, 4vw, 56px);
+  padding: clamp(6px, 1.4vw, 22px) var(--pad) 0;
+  margin-top: 68px;
+}
+
+.hero-top {
+  grid-area: top;
+  min-width: 0;
+}
+
+.hero-body {
+  grid-area: body;
+  min-width: 0;
+  padding-bottom: clamp(24px, 3vw, 48px);
+}
+
+/* --- horizon veil -------------------------------------------------------
+   The bare navbar sits straight on the living sky, where its small text can
+   land on a bright patch. Instead of dimming the copy, the sky itself eases
+   into the page colour behind the bar and is fully back by the time the
+   headline starts. It follows the theme and is gone once the capsule forms. */
+.hero-s::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 0;
+  height: 190px;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--c-page) 94%, transparent) 0,
+    color-mix(in srgb, var(--c-page) 78%, transparent) 64px,
+    color-mix(in srgb, var(--c-page) 34%, transparent) 130px,
+    transparent 100%
+  );
+}
+
+/* --- the "$ whoami" row ------------------------------------------------- */
+.who {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-family: var(--font-mono-body);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--c-note);
+  direction: ltr;
+}
+
+.who .w-p {
+  flex: none;
+}
+
+.who .w-rule {
+  flex: 1;
+  min-width: 24px;
+  height: 0;
+  margin-inline: 8px;
+  border-top: 1px dashed var(--c-rule-strong);
+  opacity: 0.7;
+}
+
+.who .w-meta {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c-muted-text);
+}
+
+.who .w-pin {
+  position: relative;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1.5px solid var(--c-note);
+}
+
+.who .w-pin::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: 50%;
+  background: var(--c-note);
+  animation: wpin 3.2s ease-in-out infinite;
+}
+
+@keyframes wpin {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+/* --- the name ----------------------------------------------------------- */
+.hero-s .display {
+  margin: 18px 0 0;
+  font-size: clamp(3.4rem, min(11vw, 15.5svh), 7.5rem);
+  line-height: 0.9;
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  text-wrap: balance;
+}
+
+.hero-s .display .ln {
+  display: block;
+}
+
+.hero-s .cursor {
+  display: inline-block;
+  width: 0.1em;
+  height: 0.7em;
+  margin-inline-start: 0.1em;
+  background: var(--c-note);
+  vertical-align: baseline;
+  animation: blink 1.1s steps(1) infinite;
+}
+
+@keyframes blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.hero-s .role {
+  margin: 16px 0 0;
+  font-size: var(--text-h3);
+  font-weight: 500;
+  color: var(--c-light-text);
+}
+
+/* --- body copy and actions --------------------------------------------- */
+.hero-s .lead {
+  margin: 20px 0 0;
+  max-width: 34em;
+  font-size: var(--text-lead);
+  line-height: 1.55;
+  color: var(--c-light-text);
+}
+
+.hero-s .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 28px;
+}
+
+/* Ghost buttons sit on the animated sky, so they carry the page colour. */
+.hero-s .btn-ghost,
+.hero-s .ibtn {
+  background-color: var(--c-page);
+}
+
+.hero-s .btn-ghost:hover,
+.hero-s .ibtn:hover {
+  background-color: color-mix(in srgb, var(--c-secondary) 12%, var(--c-page));
+}
+
+.hero-s .reach {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.hero-s .reach .tel {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 44px;
+  padding-inline-end: 8px;
+  font-family: var(--font-mono-body);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--c-dark-text);
+  text-decoration: none;
+  direction: ltr;
+  transition: color 0.3s ease;
+}
+
+.hero-s .reach .tel:hover {
+  color: var(--c-secondary);
+}
+
+/* --- portrait ----------------------------------------------------------- */
+.pf {
+  grid-area: pf;
+  position: relative;
+  align-self: end;
+  justify-self: end;
+  width: 100%;
+  max-width: min(clamp(400px, 50vw, 860px), calc((100svh - 150px) * 1.07));
+  aspect-ratio: 640 / 598;
+}
+
+.pf-glow {
+  position: absolute;
+  inset: -6% -14% 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    56% 56% at 50% 52%,
+    color-mix(in srgb, var(--c-secondary) 38%, transparent),
+    color-mix(in srgb, var(--c-secondary) 12%, transparent) 46%,
+    transparent 72%
+  );
+  pointer-events: none;
+  /* Fades out before the frame's foot so the glow never ends in a straight cut. */
+  -webkit-mask-image: linear-gradient(to bottom, #000 52%, transparent 96%);
+  mask-image: linear-gradient(to bottom, #000 52%, transparent 96%);
+}
+
+/* The source photo is a square with the subject offset inside it (subject
+   box ≈ 18.6%–98.2% across, 21.9%–100% down). Instead of letting object-fit
+   crop it, the image is placed so the subject fills the frame like the mockup's
+   cutout: head large, shoulders reaching both edges, cropped by the hero's
+   bottom edge. 125.6% = 1 / 0.796 (subject width), the offsets pull the
+   subject's top-left corner onto the frame's top-left. */
+.pf > picture {
+  position: absolute;
+  inset: 0;
+  display: block;
+  /* Not clipped: the click animations scale and rotate the photo, and a
+     clipping box cut them off. The fade below is baked into the image's own
+     mask instead, so nothing visible ever reaches the frame edge. */
+  overflow: visible;
+}
+
+.pf > picture > img {
+  position: absolute;
+  z-index: 1;
+  top: -29.4%;
+  inset-inline-start: -23.3%;
+  display: block;
+  width: 125.6%;
+  max-width: none;
+  height: auto;
+  user-select: none;
+  /* The click hunt listens on .pf-hit; the oversized photo must not eat
+     clicks meant for the copy beside it. */
+  pointer-events: none;
+}
+
+/* The copy stays above the (oversized) photo while it animates. */
+.hero-top,
+.hero-body {
+  position: relative;
+  z-index: 2;
+}
+
+[dir="rtl"] .pf > picture > img {
+  /* the subject is not mirrored, only its frame position is */
+  inset-inline-start: auto;
+  left: -23.3%;
+}
+
+.pf-hit {
+  position: absolute;
+  /* Bigger than the frame: the shoulders, the hair and the ticket all count,
+     and a fingertip does not have to land inside the exact box. */
+  inset: -7% -5% 0;
+  z-index: 2;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: inherit;
+  cursor: default; /* the pointer cursor is set per-move, over the person only */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.pf-hit:focus-visible {
+  outline: 2px solid var(--c-signal);
+  outline-offset: -4px;
+}
+
+.pf-orbit {
+  position: absolute;
+  left: 39.2%;
+  top: 30.4%;
+  width: 62%;
+  aspect-ratio: 1;
+  border: 2px solid color-mix(in srgb, var(--c-secondary) 78%, transparent);
+  border-radius: 50%;
+  translate: -50% -50%;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--c-page) 60%, transparent),
+    0 0 46px color-mix(in srgb, var(--c-secondary) 24%, transparent),
+    inset 0 0 40px color-mix(in srgb, var(--c-secondary) 10%, transparent);
+  animation: spin 48s linear infinite;
+  pointer-events: none;
+}
+
+.pf-orbit i {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 11px;
+  height: 11px;
+  margin: -5.5px 0 0 -5.5px;
+  border-radius: 50%;
+  background: var(--c-note);
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--c-page) 70%, transparent),
+    0 0 16px 2px var(--c-note);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- the "open to work" ticket ----------------------------------------- */
+.hire-b {
+  position: absolute;
+  z-index: 3;
+  inset-inline-start: 18%;
+  bottom: 18px;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  width: max-content;
+  max-width: min(316px, 74%);
+  padding: 0;
+  border: 1.5px solid var(--c-dark-text);
+  border-radius: 9px;
+  background: var(--c-page);
+  box-shadow: 4px 4px 0 var(--c-honey);
+  rotate: -2.2deg;
+  pointer-events: none;
+  animation:
+    hbin 0.95s 0.7s cubic-bezier(0.34, 1.4, 0.64, 1) backwards,
+    hbfloat 7s 1.8s ease-in-out infinite;
+  transition:
+    rotate 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* It drops onto the photo like a ticket pinned on, then idles with a slow
+   bob. Hovering or focusing the portrait straightens it and lifts the shadow. */
+@keyframes hbin {
+  from {
+    opacity: 0;
+    scale: 0.9;
+    transform: translateY(-26px);
+  }
+  60% {
+    opacity: 1;
+  }
+}
+
+@keyframes hbfloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* The photo is not mirrored in Arabic, so the ticket keeps the same physical
+   spot against the subject instead of flipping to the other shoulder. */
+[dir="rtl"] .hire-b {
+  inset-inline-start: auto;
+  left: 18%;
+}
+
+/* Arabic joins its letters: tracking breaks the joins, so the ticket's
+   label and title run untracked there. */
+[dir="rtl"] .hb-k,
+[dir="rtl"] .hb-t b {
+  letter-spacing: 0;
+}
+
+/* The ticket never swallows a tap: it is part of the clickable portrait. */
+.hire-b {
+  pointer-events: none;
+}
+
+.pf:hover .hire-b,
+.pf:has(.pf-hit:focus-visible) .hire-b {
+  rotate: -0.4deg;
+  box-shadow: 7px 7px 0 var(--c-honey);
+}
+
+.pf:hover .hb-tape,
+.pf:has(.pf-hit:focus-visible) .hb-tape {
+  rotate: -9deg;
+}
+
+.hb-tape {
+  transition: rotate 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hb-tape {
+  position: absolute;
+  top: -11px;
+  inset-inline-start: 22px;
+  width: 58px;
+  height: 19px;
+  rotate: -5deg;
+  background: color-mix(in srgb, var(--c-honey) 38%, var(--c-page));
+  opacity: 0.92;
+  clip-path: polygon(
+    0 8%,
+    4% 0,
+    8% 10%,
+    12% 0,
+    16% 8%,
+    20% 0,
+    100% 0,
+    96% 25%,
+    100% 50%,
+    96% 75%,
+    100% 100%,
+    0 100%,
+    4% 70%,
+    0 45%
+  );
+}
+
+.hb-stub {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  border-inline-end: 1.5px dashed var(--c-muted-text);
+}
+
+.hb-dot {
+  position: relative;
+  flex: none;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--c-status);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-status) 18%, transparent);
+}
+
+.hb-dot::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 1.5px solid var(--c-status);
+  opacity: 0;
+  animation: hbping 3.4s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+}
+
+@keyframes hbping {
+  0% {
+    opacity: 0.8;
+    transform: scale(0.6);
+  }
+  60%,
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+.hb-t {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 0 7px 7px 0;
+  padding: 11px 18px 11px 14px;
+}
+
+/* a soft sheen crosses the ticket every few seconds */
+.hb-t::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 46%;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    color-mix(in srgb, var(--c-honey-hi) 34%, transparent),
+    transparent
+  );
+  translate: -130% 0;
+  animation: hbsheen 6.5s 2.6s ease-in-out infinite;
+}
+
+@keyframes hbsheen {
+  0%,
+  62% {
+    translate: -130% 0;
+  }
+  100% {
+    translate: 330% 0;
+  }
+}
+
+[dir="rtl"] .hb-t::after {
+  animation-name: hbsheen-rtl;
+}
+
+@keyframes hbsheen-rtl {
+  0%,
+  62% {
+    translate: 130% 0;
+  }
+  100% {
+    translate: -330% 0;
+  }
+}
+
+.hb-k {
+  font-family: var(--font-mono-body);
+  font-size: 0.625rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.2em;
+  color: var(--c-note);
+  margin-bottom: 3px;
+}
+
+.hb-t b {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--c-dark-text);
+}
+
+.hb-t small {
+  font-size: 0.75rem;
+  line-height: 1.3;
+  color: var(--c-light-text);
+  text-wrap: balance;
+}
+
+.hb-sq {
+  display: block;
+  width: 104px;
+  height: 7px;
+  margin-top: 5px;
+  fill: none;
+  stroke: var(--c-secondary);
+  stroke-width: 2;
+  stroke-linecap: round;
+  overflow: visible;
+}
+
+.hb-sq path {
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: sqd 1.4s 0.9s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+@keyframes sqd {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* --- the hand-written note --------------------------------------------- */
+.pf-note {
+  position: absolute;
+  z-index: 3;
+  top: 3%;
+  inset-inline-start: 72%;
+  display: none;
+  margin: 0;
+  font-family: var(--font-caveat), var(--font-body);
+  font-size: 1.375rem;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--c-light-text);
+  rotate: -5deg;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  animation: pnin 1s 1.6s ease-out forwards;
+}
+
+.pf-note svg {
+  display: block;
+  width: 44px;
+  height: 30px;
+  margin: 2px 0 0 -26px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  rotate: -12deg;
+}
+
+[dir="rtl"] .pf-note {
+  inset-inline-start: auto;
+  left: 72%;
+  right: auto;
+  direction: ltr;
+}
+
+[dir="rtl"] .pf-note span {
+  direction: rtl;
+  unicode-bidi: isolate;
+}
+
+html[lang="ar"] .pf-note {
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  font-weight: 500;
+}
+
+@keyframes pnin {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* --- responsive --------------------------------------------------------- */
+@media (min-width: 992px) {
+  .pf-note {
+    display: block;
+  }
+}
+
+@media (max-width: 900px) {
+  .hero-s {
+    min-height: 0;
+  }
+
+  .hero-in {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "top"
+      "pf"
+      "body";
+    grid-template-rows: auto;
+    row-gap: 8px;
+    margin-top: 56px;
+    padding-top: 12px;
+  }
+
+  .pf {
+    justify-self: center;
+    max-width: min(480px, 100%);
+    margin-top: 4px;
+  }
+
+  /* Only the very foot of the photo dissolves, on an eased curve that ends
+     fully transparent exactly at the frame's bottom (96.3% of the photo's
+     height). The arms and shoulders above it are untouched: no side fade and
+     no filter, so nothing smears or greys the silhouette. The mask belongs to
+     the photo, so it follows the click animations too. */
+  .pf > picture > img {
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      #000 0,
+      #000 82%,
+      rgba(0, 0, 0, 0.82) 86%,
+      rgba(0, 0, 0, 0.5) 90%,
+      rgba(0, 0, 0, 0.18) 93.5%,
+      transparent 96%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      #000 0,
+      #000 82%,
+      rgba(0, 0, 0, 0.82) 86%,
+      rgba(0, 0, 0, 0.5) 90%,
+      rgba(0, 0, 0, 0.18) 93.5%,
+      transparent 96%
+    );
+  }
+
+  /* The photo's foot dissolves inside its own frame, so the copy no longer has
+     to tuck under it. */
+  .pf {
+    margin-bottom: 0;
+  }
+
+  /* The ticket on phones and tablets: compact, centred under the face, and
+     resting on the faded foot of the photo, clear of the chin and of the
+     intro copy below. */
+  .hire-b {
+    inset-inline-start: 50%;
+    bottom: 12px;
+    translate: -50% 0;
+    max-width: min(92%, 300px);
+  }
+
+  [dir="rtl"] .hire-b {
+    inset-inline-start: auto;
+    left: 50%;
+  }
+
+  .hb-stub {
+    width: 38px;
+  }
+
+  .hb-t {
+    gap: 2px;
+    padding: 8px 14px 8px 12px;
+  }
+
+  .hb-k {
+    margin-bottom: 1px;
+    font-size: 0.5625rem;
+  }
+
+  .hb-t b {
+    font-size: 0.9375rem;
+  }
+
+  .hb-t small {
+    font-size: 0.6875rem;
+  }
+
+  .hb-sq {
+    width: 84px;
+    margin-top: 3px;
+  }
+
+  .hero-body {
+    padding-top: 4px;
+  }
+
+  .hero-s .display {
+    font-size: clamp(3.2rem, 15vw, 5rem);
+  }
+}
+
+@media (max-width: 560px) {
+  .hb-t small {
+    font-size: 0.65625rem;
+  }
+
+  .hero-s .reach .tel {
+    flex: 0 0 100%;
+  }
+
+  /* Each call to action takes the full width on a phone. */
+  .hero-s .actions .btn {
+    flex: 1 1 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-s .cursor,
+  .pf-orbit,
+  .who .w-pin::after,
+  .hb-dot::after,
+  .hire-b,
+  .hb-t::after,
+  .hb-sq path {
+    animation: none;
+  }
+
+  .hb-sq path {
+    stroke-dashoffset: 0;
+  }
+
+  .pf-note {
+    animation: none;
+    opacity: 1;
+  }
+
+  .nb-cv,
+  .hero-s[data-nb] .hero-cv,
+  .hero-s::before {
+    transition: none;
+  }
+}

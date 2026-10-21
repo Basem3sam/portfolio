@@ -10,6 +10,7 @@ import {
   getHintLevel,
 } from "@/components/easter-egg/constants";
 import KonamiKeyboard from "@/components/easter-egg/KonamiKeyboard";
+import MasterCode from "@/components/easter-egg/MasterCode";
 import SecretTerminalAccess from "@/components/easter-egg/SecretTerminalAccess";
 import Toasts, { type ToastData } from "@/components/easter-egg/Notifications";
 import SecretClue from "@/components/easter-egg/SecretClue";
@@ -19,14 +20,16 @@ import {
   animateProfileClick,
   createCelebrationParticles,
   createConfettiBurst,
+  createClickRipple,
   createDirectionalParticles,
   createEpicCelebration,
 } from "@/lib/effects";
+import { bindPortraitCursor, isOnPortrait } from "@/lib/portrait-hit";
 import { playKonamiSound, playSuccessSound, resumeAudio, setupAudio } from "@/lib/sounds";
 import type { Locale } from "@/lib/i18n";
 import type { TerminalMode } from "@/components/easter-egg/constants";
 
-type Overlay = "none" | "prompt" | "keyboard";
+type Overlay = "none" | "prompt" | "keyboard" | "master";
 
 type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
 
@@ -52,6 +55,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
   const clueRef = useRef<HTMLButtonElement>(null);
   const terminalOpenRef = useRef(false);
   const nextToastId = useRef(0);
+  const resetJourney = useRef<(notify: boolean) => void>(() => {});
   const game = useRef({
     clicks: 0,
     lastClick: 0,
@@ -168,6 +172,10 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
   useEffect(() => {
     const image = document.querySelector<HTMLElement>("#hero picture img");
     if (!image) return;
+    // Same story as the loader: clicks land on the portrait button when it
+    // exists; the photo underneath keeps the animation targets.
+    const hit = document.querySelector<HTMLElement>("#pf-hit");
+    const target = hit ?? image;
 
     const state = game.current;
     const syncClue = () => setClue({ revealed: state.revealed, level: state.level });
@@ -182,6 +190,10 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       if (notify) addToast({ kind: "reset" });
     };
 
+    // The master window closes from outside this effect, so the quiet
+    // reset it triggers is handed back through a ref.
+    resetJourney.current = reset;
+
     const startResetTimer = (duration: number) => {
       window.clearTimeout(state.resetTimer);
       state.resetTimer = window.setTimeout(() => reset(true), duration);
@@ -190,7 +202,8 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
     // The journey's single outcome: deliver the answer sheet. It never
     // opens the terminal, never sets unlock state, runs no open timers.
     // Guarded so clicks past ten do not stack duplicate master windows;
-    // a quiet idle reset afterwards makes the journey replayable.
+    // the window stays until it is closed, then the hunt quietly resets
+    // so it stays replayable.
     const solve = () => {
       if (state.solved) return;
       state.solved = true;
@@ -199,16 +212,18 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       state.level = HINT_LEVELS.length - 1;
       syncClue();
       if (clueRef.current) animateClue(clueRef.current, "celebration", 2000);
-      addToast({ kind: "master" });
+      setOverlay((current) => (current === "none" ? "master" : current));
       createEpicCelebration();
       resumeAudio().then(() => playSuccessSound());
 
       window.clearTimeout(state.resetTimer);
-      state.resetTimer = window.setTimeout(() => reset(false), 10000);
     };
 
     const handleClick = (event: MouseEvent) => {
       event.preventDefault();
+      // Only the person counts, not the transparent corners of the photo's box.
+      // Keyboard activation (detail 0) has no position and always counts.
+      if (event.detail > 0 && !isOnPortrait(image, event.clientX, event.clientY)) return;
 
       const now = Date.now();
       if (now - state.lastClick < MIN_CLICK_INTERVAL) return;
@@ -234,8 +249,13 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       state.clicks++;
       window.clearTimeout(state.resetTimer);
 
-      animateProfileClick(image, state.clicks);
-      if (state.clicks >= 2) createDirectionalParticles(image, state.clicks);
+      // Pointer clicks react where they landed; keyboard activation reports
+      // no position (detail 0), so it falls back to the middle of the photo.
+      const point =
+        event.detail > 0 ? { x: event.clientX, y: event.clientY } : undefined;
+      animateProfileClick(image, state.clicks, point);
+      if (point) createClickRipple(point, state.clicks);
+      if (state.clicks >= 2) createDirectionalParticles(image, state.clicks, point);
       playKonamiSound(state.clicks);
 
       const previousLevel = state.level;
@@ -260,23 +280,24 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       startResetTimer(state.spamActive ? 3000 : 5000);
     };
 
-    image.classList.add("cursor-pointer");
-    image.addEventListener("click", handleClick);
+    // The pointer cursor follows the person's outline (set per-move), so the
+    // blanket cursor-pointer class is not used on the portrait.
+    const unbindCursor =
+      image instanceof HTMLImageElement ? bindPortraitCursor(target, image) : () => {};
+    target.addEventListener("click", handleClick);
 
     return () => {
-      image.removeEventListener("click", handleClick);
+      target.removeEventListener("click", handleClick);
+      unbindCursor();
       window.clearTimeout(state.resetTimer);
-      image.classList.remove("cursor-pointer");
     };
   }, [addToast]);
 
   const showHint = () => {
     if (overlay !== "none") return;
 
-    addToast({
-      kind: "reminder",
-      text: REMINDERS[Math.floor(Math.random() * REMINDERS.length)],
-    });
+    const reminder = REMINDERS[Math.floor(Math.random() * REMINDERS.length)];
+    addToast({ kind: "reminder", text: reminder[locale] });
   };
 
   const openPrompt = () => {
@@ -308,18 +329,30 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       />
       {overlay === "prompt" && (
         <SecretTerminalAccess
+          locale={locale}
           onClose={() => setOverlay("none")}
           onTry={() => setOverlay("keyboard")}
         />
       )}
       {overlay === "keyboard" && (
         <KonamiKeyboard
+          locale={locale}
           onClose={() => setOverlay("none")}
           onBack={() => setOverlay("prompt")}
           onSuccess={handleKeyboardSuccess}
         />
       )}
-      <Toasts toasts={toasts} onRemove={removeToast} />
+      {overlay === "master" && (
+        <MasterCode
+          locale={locale}
+          onClose={() => {
+            setOverlay("none");
+            resetJourney.current(false);
+          }}
+          onEnter={() => setOverlay("prompt")}
+        />
+      )}
+      <Toasts toasts={toasts} locale={locale} onRemove={removeToast} />
     </>
   );
 }

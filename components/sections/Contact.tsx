@@ -1,6 +1,8 @@
+import type { CSSProperties } from "react";
 import CairoClock from "@/components/ui/CairoClock";
 import Icon, { type IconName } from "@/components/ui/Icon";
 import SectionHeader from "@/components/ui/SectionHeader";
+import TideCanvas from "@/components/sections/TideCanvas";
 import {
   CV_PATH,
   EMAIL,
@@ -11,188 +13,137 @@ import {
   PHONE_TEL,
 } from "@/data/site";
 import type { Dictionary } from "@/lib/dictionaries/en";
+import "@/components/sections/TideBand.css";
+import "./Contact.css";
 
 type ContactProps = {
   dict: Dictionary["contact"];
 };
 
-const primaryCta =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-secondary px-5 text-sm font-semibold text-on-secondary no-underline shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-signal hover:shadow-md active:translate-y-0 max-sm:w-full dark:shadow-[0_0_28px_color-mix(in_srgb,var(--c-secondary)_30%,transparent)]";
+/** "https://linkedin.com/in/BasemEsam" → "linkedin.com/in/BasemEsam". */
+const displayUrl = (url: string) => url.replace(/^[a-z]+:\/\//i, "");
 
-const ghostCta =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-hairline bg-surface px-5 text-sm font-semibold text-dark-text no-underline shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:text-signal hover:shadow-md active:translate-y-0 max-sm:w-full";
-
-const statusPill =
-  "inline-flex items-center gap-1.5 rounded-full border border-hairline bg-surface px-3 py-1 font-mono text-[11px] font-semibold tracking-wide text-status uppercase shadow-xs";
-
-const socialLink =
-  "flex size-11 items-center justify-center rounded-md border border-hairline bg-surface text-light-text no-underline transition-all duration-200 hover:-translate-y-0.5 hover:border-signal hover:text-signal hover:shadow-xs";
-
-const baseRow =
-  "group relative flex min-h-16 items-center gap-4 border-b border-hairline px-5 py-4 last:border-b-0 md:px-6";
-
-const interactiveRow = "no-underline transition-colors duration-200 hover:bg-light-bg";
-
-const tile = "flex size-11 shrink-0 items-center justify-center rounded-md";
-
-type Row = {
-  icon: IconName;
-  tint: string;
+type Card = {
   label: string;
   value: string;
   href?: string;
-  ltr?: boolean;
-  clock?: boolean;
+  icon: IconName;
+  external?: boolean;
 };
 
 export default function Contact({ dict }: ContactProps) {
-  const rows: Row[] = [
+  const cards: Card[] = [
     {
-      icon: "mail",
-      tint: "bg-note/10 text-note",
-      label: dict.emailLabel,
-      value: EMAIL,
-      href: MAILTO,
-      ltr: true,
-    },
-    {
-      icon: "phone",
-      tint: "bg-signal/10 text-signal",
       label: dict.phoneLabel,
       value: PHONE_DISPLAY,
       href: PHONE_TEL,
-      ltr: true,
+      icon: "arrowRight",
     },
     {
-      icon: "mapPin",
-      tint: "bg-muted-text/10 text-muted-text",
-      label: dict.locationLabel,
-      value: dict.location,
+      label: dict.linkedinLabel,
+      value: displayUrl(LINKEDIN_URL),
+      href: LINKEDIN_URL,
+      icon: "externalLink",
+      external: true,
     },
     {
-      icon: "clock",
-      tint: "bg-muted-text/10 text-muted-text",
-      label: dict.timeLabel,
-      value: "",
-      clock: true,
+      label: dict.githubLabel,
+      value: displayUrl(GITHUB_URL),
+      href: GITHUB_URL,
+      icon: "externalLink",
+      external: true,
     },
   ];
 
   return (
-    <section id="contact" className="bg-light-bg py-16 md:py-24">
-      <div className="container">
-        <SectionHeader number="06" title={dict.title} />
+    <section id="contact" className="sec sec-deep contact">
+      <TideCanvas />
 
-        <div className="grid gap-10 lg:grid-cols-[1.05fr_1fr] lg:gap-14">
-          <div
-            className="flex flex-col items-start gap-6 data-[revealed=false]:opacity-0 data-[revealed=true]:animate-reveal-up"
-            data-reveal
-          >
-            <p className="max-w-md text-lg leading-relaxed text-light-text sm:text-xl">
-              {dict.lead}
-            </p>
+      <div className="ct-in">
+        <SectionHeader number="05" title={dict.title} />
 
-            <span className={statusPill}>
-              <span
-                className="size-1.5 animate-pulse rounded-full bg-status motion-reduce:animate-none"
-                aria-hidden="true"
-              ></span>
-              {dict.status}
+        <p
+          className="ct-big data-[revealed=false]:opacity-0 data-[revealed=true]:animate-reveal-up"
+          data-reveal
+        >
+          {dict.big}
+        </p>
+
+        <div
+          className="ct-intro data-[revealed=false]:opacity-0 data-[revealed=true]:animate-reveal-up"
+          data-reveal
+        >
+          <p className="ct-lead">{dict.lead}</p>
+          <p className="status ct-status">
+            <span className="dot" aria-hidden="true"></span>
+            <span className="st st-live">{dict.status}</span>
+          </p>
+        </div>
+
+        {/* The address itself stays in the accessible name: an action-only
+            aria-label would hide the visible text from screen readers. */}
+        <a
+          className="ct-mail data-[revealed=false]:opacity-0 data-[revealed=true]:animate-reveal-up"
+          href={MAILTO}
+          aria-label={`${dict.sendEmail}: ${EMAIL}`}
+          data-reveal
+        >
+          <span className="ct-v" dir="ltr">
+            {EMAIL}
+          </span>
+          <span className="go" aria-hidden="true">
+            <Icon name="arrowRight" className="ct-i rtl:-scale-x-100" />
+          </span>
+        </a>
+
+        <div
+          className="actions data-[revealed=false]:opacity-0 data-[revealed=true]:animate-reveal-up"
+          data-reveal
+        >
+          <a className="btn btn-primary" href={MAILTO}>
+            <Icon name="mail" className="ct-i" />
+            <span>{dict.sendEmail}</span>
+          </a>
+          <a className="btn btn-ghost" href={CV_PATH} download>
+            <Icon name="fileDown" className="ct-i" />
+            <span>{dict.downloadCv}</span>
+          </a>
+        </div>
+
+        <div className="ct-grid stagger-60" data-reveal data-stagger>
+          {cards.map((card, index) => {
+            const content = (
+              <>
+                <span className="lbl">{card.label}</span>
+                <span className="ct-v" dir="ltr">
+                  {card.value}
+                </span>
+                <span className="go" aria-hidden="true">
+                  <Icon name={card.icon} className="ct-i rtl:-scale-x-100" />
+                </span>
+              </>
+            );
+
+            return card.href ? (
+              <a
+                key={card.label}
+                className="crd"
+                href={card.href}
+                {...(card.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                style={{ "--stagger-index": index } as CSSProperties}
+              >
+                {content}
+              </a>
+            ) : null;
+          })}
+
+          <div className="crd" style={{ "--stagger-index": cards.length } as CSSProperties}>
+            <span className="lbl">{dict.locationLabel}</span>
+            <span>{dict.location}</span>
+            <span className="crd-x">
+              <span className="lbl">{dict.timeLabel}</span>
+              <CairoClock className="ct-clock" />
             </span>
-
-            <div className="flex flex-wrap gap-3">
-              <a href={MAILTO} className={primaryCta}>
-                {dict.sendEmail}
-                <Icon name="arrowRight" className="size-4 rtl:rotate-180" />
-              </a>
-              <a href={CV_PATH} download className={ghostCta}>
-                <Icon name="fileDown" className="size-4" />
-                {dict.downloadCv}
-              </a>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <a
-                href={LINKEDIN_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={socialLink}
-                aria-label={dict.linkedin}
-              >
-                <Icon name="linkedIn" className="size-5" />
-              </a>
-              <a
-                href={GITHUB_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={socialLink}
-                aria-label={dict.github}
-              >
-                <Icon name="github" className="size-5" />
-              </a>
-            </div>
-          </div>
-
-          <div
-            className="overflow-hidden rounded-xl border border-hairline bg-surface shadow-sm stagger-60 data-[revealed=false]:opacity-0"
-            data-reveal
-            data-stagger
-          >
-            <div className="flex items-center justify-between gap-3 border-b border-hairline px-4 py-3.5 sm:px-5">
-              <p className="font-mono text-[11px] font-semibold tracking-normal whitespace-nowrap text-note uppercase sm:text-xs sm:tracking-wide">
-                <span className="font-bold" aria-hidden="true">
-                  ${" "}
-                </span>
-                connection.methods
-              </p>
-              <p className="flex items-center gap-1.5 font-mono text-[9px] font-semibold tracking-normal whitespace-nowrap text-status uppercase sm:text-[10px] sm:tracking-wide">
-                <span
-                  className="size-1.5 animate-pulse rounded-full bg-status motion-reduce:animate-none"
-                  aria-hidden="true"
-                ></span>
-                <span>
-                  accepting<span className="max-[349px]:hidden"> connections</span>
-                </span>
-              </p>
-            </div>
-
-            {rows.map((row) => {
-              const content = (
-                <>
-                  <span className={`${tile} ${row.tint}`}>
-                    <Icon name={row.icon} className="size-5" />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block font-mono text-[10px] font-medium tracking-wide text-muted-text uppercase">
-                      {row.label}
-                    </span>
-                    <span
-                      className={`block truncate font-medium text-dark-text ${row.ltr ? "font-mono text-sm max-[400px]:text-[13px]" : ""} ${row.href ? "transition-colors duration-200 group-hover:text-signal" : ""}`}
-                      dir={row.ltr ? "ltr" : undefined}
-                      title={row.value}
-                    >
-                      {row.clock ? <CairoClock /> : row.value}
-                    </span>
-                  </span>
-                  {row.href && (
-                    <Icon
-                      name="arrowRight"
-                      className="size-4 shrink-0 -translate-x-1 text-signal opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100 rtl:translate-x-1 rtl:rotate-180 rtl:group-hover:translate-x-0"
-                    />
-                  )}
-                </>
-              );
-
-              return row.href ? (
-                <a key={row.label} href={row.href} className={`${baseRow} ${interactiveRow}`}>
-                  {content}
-                </a>
-              ) : (
-                <div key={row.label} className={baseRow}>
-                  {content}
-                </div>
-              );
-            })}
           </div>
         </div>
       </div>

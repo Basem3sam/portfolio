@@ -21,13 +21,17 @@ export default function CountUp({ value, suffix = "", duration = 900 }: CountUpP
       return;
     }
 
+    // Keep the decimals the figure actually has: 94.8% must not be rounded
+    // up to 95% on the way to its final value.
+    const decimals = Number.isInteger(value) ? 0 : (value.toString().split(".")[1]?.length ?? 0);
+
     let raf = 0;
     const start = performance.now();
 
     const tick = (now: number) => {
       const progress = Math.min((now - start) / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
-      node.textContent = `${Math.round(eased * value)}${suffix}`;
+      node.textContent = `${(eased * value).toFixed(decimals)}${suffix}`;
       if (progress < 1) raf = requestAnimationFrame(tick);
     };
 

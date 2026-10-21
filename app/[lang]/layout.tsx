@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import {
+  Caveat,
   Instrument_Sans,
   JetBrains_Mono,
   Plus_Jakarta_Sans,
@@ -52,6 +53,15 @@ const terminalFont = localFont({
   ],
   display: "swap",
   variable: "--font-terminal",
+});
+
+// The one hand-written accent in the design (the portrait note). Caveat has no
+// Arabic glyphs, so it is only attached on English routes; there the note falls
+// back to the Arabic body face instead of downloading a font it cannot use.
+const caveat = Caveat({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-caveat",
 });
 
 type RootLayoutProps = {
@@ -124,7 +134,7 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
   const fontVariables =
     locale === "ar"
       ? `${readexPro.variable} ${jetbrainsMono.variable} ${terminalFont.variable}`
-      : `${instrumentSans.variable} ${jakartaDisplay.variable} ${jetbrainsMono.variable} ${terminalFont.variable}`;
+      : `${instrumentSans.variable} ${jakartaDisplay.variable} ${caveat.variable} ${jetbrainsMono.variable} ${terminalFont.variable}`;
 
   return (
     <html

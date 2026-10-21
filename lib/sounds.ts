@@ -1,4 +1,14 @@
 let context: AudioContext | null = null;
+let muted = false;
+
+/** The keypad and terminal header expose this as a sound toggle. */
+export function setSoundMuted(value: boolean) {
+  muted = value;
+}
+
+export function isSoundMuted() {
+  return muted;
+}
 
 type Tone = {
   type?: OscillatorType;
@@ -43,7 +53,7 @@ export function setupAudio() {
 }
 
 function playTone({ type = "sine", frequencies, gain, duration }: Tone) {
-  if (!context || context.state !== "running") return;
+  if (muted || !context || context.state !== "running") return;
 
   const oscillator = context.createOscillator();
   const gainNode = context.createGain();

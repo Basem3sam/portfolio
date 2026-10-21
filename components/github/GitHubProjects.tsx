@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import GitHubRepoCard from "@/components/github/GitHubRepoCard";
+import "@/components/github/GitHub.css";
 import Icon from "@/components/ui/Icon";
 import {
   getErrorInfo,
@@ -28,9 +29,6 @@ const toneIcons: Record<FallbackTone, string> = {
   warning: "text-secondary",
   info: "text-status",
 };
-
-const retryButton =
-  "mt-2 inline-flex min-h-11 cursor-pointer items-center justify-center rounded-md bg-secondary px-5 text-sm font-semibold text-on-secondary transition-colors duration-200 hover:bg-signal";
 
 export default function GitHubProjects({ locale, dict }: GitHubProjectsProps) {
   const [state, setState] = useState<State>({ status: "loading" });
@@ -70,38 +68,38 @@ export default function GitHubProjects({ locale, dict }: GitHubProjectsProps) {
   };
 
   return (
-    <div className="w-full max-w-full overflow-x-hidden">
+    <div className="w-full max-w-full">
       {state.status === "loading" && (
-        <div className="px-5 py-16 text-center">
-          <div
-            className="inline-block size-10 animate-[spin_0.75s_linear_infinite] rounded-full border-[0.3em] border-secondary border-r-transparent align-[-0.125em]"
-            role="status"
-          >
-            <span className="sr-only">{dict.loading}</span>
+        <div role="status" aria-busy="true">
+          <span className="sr-only">{dict.loading}</span>
+          <div className="gh-grid" aria-hidden="true">
+            {[0, 1, 2].map((key) => (
+              <div key={key} className="gh-card gh-skel">
+                <i></i>
+                <i></i>
+                <i></i>
+                <i></i>
+                <i></i>
+              </div>
+            ))}
           </div>
-          <p className="mt-4 text-sm text-light-text">{dict.loading}</p>
         </div>
       )}
 
       {state.status === "loaded" && (
-        <div className="-mx-3 flex flex-wrap">
+        <ul className="gh-grid">
           {state.repos.map((repo, index) => (
             <GitHubRepoCard key={repo.id} repo={repo} index={index} locale={locale} dict={dict} />
           ))}
-        </div>
+        </ul>
       )}
 
       {state.status === "error" && (
-        <div
-          role="alert"
-          className="rounded-lg border border-dashed border-hairline p-8 text-center"
-        >
-          <Icon name="github" className={`mx-auto size-8 ${toneIcons[state.error.tone]}`} />
-          <p className="mt-4 text-light-text">
-            {dict.errors[state.error.code] ?? state.error.message}
-          </p>
+        <div role="alert" className="gh-state">
+          <Icon name="github" className={`size-8 ${toneIcons[state.error.tone]}`} />
+          <p>{dict.errors[state.error.code] ?? state.error.message}</p>
           {state.error.retryable && (
-            <button className={retryButton} onClick={retry}>
+            <button className="btn btn-ghost" onClick={retry}>
               {dict.tryAgain}
             </button>
           )}

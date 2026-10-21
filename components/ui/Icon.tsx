@@ -2,9 +2,11 @@ import type { ReactNode } from "react";
 
 export type IconName =
   | "alertCircle"
+  | "arrowDown"
   | "arrowLeft"
   | "arrowRight"
   | "arrowUp"
+  | "backspace"
   | "briefcase"
   | "calendar"
   | "clock"
@@ -12,6 +14,7 @@ export type IconName =
   | "externalLink"
   | "eye"
   | "fileDown"
+  | "gamepad"
   | "gitBranch"
   | "github"
   | "globe"
@@ -21,6 +24,7 @@ export type IconName =
   | "menu"
   | "moon"
   | "phone"
+  | "play"
   | "helpCircle"
   | "rotateCcw"
   | "search"
@@ -29,11 +33,14 @@ export type IconName =
   | "terminal"
   | "trophy"
   | "unlock"
+  | "volume"
+  | "volumeOff"
   | "activity"
   | "box"
   | "checkCircle"
   | "database"
   | "layers"
+  | "lock"
   | "monitor"
   | "server"
   | "shield"
@@ -63,6 +70,19 @@ const ICONS: Record<IconName, ReactNode> = {
     <>
       <line x1="12" y1="19" x2="12" y2="5" />
       <polyline points="5 12 12 5 19 12" />
+    </>
+  ),
+  arrowDown: (
+    <>
+      <line x1="12" y1="5" x2="12" y2="19" />
+      <polyline points="19 12 12 19 5 12" />
+    </>
+  ),
+  backspace: (
+    <>
+      <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Z" />
+      <line x1="18" y1="9" x2="12" y2="15" />
+      <line x1="12" y1="9" x2="18" y2="15" />
     </>
   ),
   briefcase: (
@@ -217,6 +237,35 @@ const ICONS: Record<IconName, ReactNode> = {
       <path d="M7 11V7a5 5 0 0 1 9.9-1" />
     </>
   ),
+  lock: (
+    <>
+      <rect x="3" y="11" width="18" height="11" rx="2" />
+      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    </>
+  ),
+  gamepad: (
+    <>
+      <line x1="6" y1="12" x2="10" y2="12" />
+      <line x1="8" y1="10" x2="8" y2="14" />
+      <line x1="15" y1="13" x2="15.01" y2="13" />
+      <line x1="18" y1="11" x2="18.01" y2="11" />
+      <rect width="20" height="12" x="2" y="6" rx="6" />
+    </>
+  ),
+  volume: (
+    <>
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+    </>
+  ),
+  volumeOff: (
+    <>
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+      <line x1="22" y1="9" x2="16" y2="15" />
+      <line x1="16" y1="9" x2="22" y2="15" />
+    </>
+  ),
   x: (
     <>
       <line x1="18" y1="6" x2="6" y2="18" />
@@ -267,6 +316,7 @@ const ICONS: Record<IconName, ReactNode> = {
     </>
   ),
   shield: <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />,
+  play: <polygon points="6 3 20 12 6 21 6 3" />,
 };
 
 type IconProps = {

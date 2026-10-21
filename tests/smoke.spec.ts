@@ -28,11 +28,16 @@ test("homepage renders the pitch with correct facts", async ({ page }) => {
   await page.goto("/");
 
   await expect(page.locator("h1")).toContainText("Basem Esam");
-  await expect(page.locator("#hero")).toContainText("100+");
-  await expect(page.locator("#hero")).toContainText("200+");
-  await expect(page.locator("#hero")).toContainText("95%+");
+  // The hero leads with role + availability (the status ticket), not numbers.
+  await expect(page.locator("#hero")).toContainText("Backend engineer");
+  await expect(page.locator("#hero")).toContainText("Open to work");
+  // The verified figures live with the work they describe — the featured
+  // project's KPI wall (100+ endpoints, 200+ members, 94.8% coverage).
   await expect(page.locator("#work")).toContainText("trosc-backend");
   await expect(page.locator("#work")).toContainText("production");
+  for (const fact of ["100+", "200+", "94.8%"]) {
+    await expect(page.locator("#work")).toContainText(fact);
+  }
 });
 
 test("skip link focuses main content", async ({ page }) => {
@@ -94,6 +99,11 @@ test("palette escape closes and returns focus", async ({ page }) => {
 });
 
 test("locked users unlock through the code entry area and on-screen keypad", async ({ page }) => {
+  // Ten keypad clicks, each waiting for the button to settle, plus the
+  // overlay's entrance: the default 30s budget is not enough for the whole
+  // journey on a machine without a GPU. The assertions are unchanged.
+  test.setTimeout(90_000);
+
   await page.goto("/");
 
   // Locked: the shortcut opens the code entry area, never the terminal
@@ -165,9 +175,14 @@ test("print emulation forces light colors in dark mode", async ({ page }) => {
   await expect(bgColor).toBe("rgb(255, 255, 255)");
 });
 
-test("scroll progress bar reaches exactly 100% at the bottom", async ({ page }) => {
+test("the navbar progress rail is the only scroll indicator and completes at the bottom", async ({
+  page,
+}) => {
   await page.goto("/");
   await page.waitForLoadState("networkidle");
+
+  // The old standalone top bar is gone.
+  await expect(page.locator('[data-testid="scroll-progress"]')).toHaveCount(0);
 
   for (let i = 0; i < 3; i += 1) {
     await page.evaluate(() =>
@@ -176,10 +191,11 @@ test("scroll progress bar reaches exactly 100% at the bottom", async ({ page }) 
     await page.waitForTimeout(500);
   }
 
-  const width = await page
-    .locator('[data-testid="scroll-progress"]')
-    .evaluate((el) => el.style.width);
-  expect(width).toBe("100%");
+  const widths = await page
+    .locator("nav .nav-progress b")
+    .evaluateAll((els) => els.map((el) => (el as HTMLElement).style.width));
+  expect(widths.length).toBeGreaterThan(0);
+  expect(widths.every((w) => w === "100%")).toBe(true);
 });
 
 test("no permanent overlay is painted when the palette is closed", async ({ page }) => {
@@ -216,27 +232,46 @@ test("no permanent overlay is painted when the palette is closed", async ({ page
   expect(paintedOverlays).toEqual([]);
 });
 
-test("hero metric values align on one line at every width", async ({ page }) => {
+test("work KPI values align on one line at every width", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
 
-  const expectRowAligned = async (perRow: number) => {
-    const tops = await page
-      .locator('[data-testid="metric-value"]')
-      .evaluateAll((els) => els.map((el) => el.getBoundingClientRect().top));
-    expect(tops).toHaveLength(4);
-    for (let i = 0; i < tops.length; i += perRow) {
-      for (let j = 1; j < perRow; j += 1) {
-        expect(Math.abs(tops[i + j] - tops[i])).toBeLessThanOrEqual(1);
-      }
+  // The featured KPI wall packs 3-across on desktop (6 columns, tiles span 2)
+  // and 2-across on phones, with the members tile filling the last row alone.
+  // Rows are grouped by TILE tops: the approved layout itself lets the
+  // coverage tile's label wrap to two lines on phones, which drops that
+  // tile's value a line below its row-mate without changing the grid.
+  const expectRows = async (expected: number[]) => {
+    const tiles = page.locator("#work .kpi");
+    expect(await tiles.count()).toBe(5);
+
+    const tops = await tiles.evaluateAll((els) =>
+      els.map((el) => Math.round(el.getBoundingClientRect().top)),
+    );
+
+    const rows: number[][] = [];
+    for (const top of tops) {
+      const row = rows.find((group) => Math.abs(group[0] - top) <= 1);
+      if (row) row.push(top);
+      else rows.push([top]);
     }
+    expect(rows.map((row) => row.length)).toEqual(expected);
+
+    // The values themselves stay on one line at every width.
+    const valueLines = await page.locator("#work .kpi dd").evaluateAll((els) =>
+      els.map((el) => {
+        const lineHeight = Number.parseFloat(getComputedStyle(el).lineHeight);
+        return Math.round(el.getBoundingClientRect().height / lineHeight);
+      }),
+    );
+    expect(valueLines).toEqual([1, 1, 1, 1, 1]);
   };
 
-  await expectRowAligned(4);
+  await expectRows([3, 2]);
   await page.setViewportSize({ width: 390, height: 844 });
-  await expectRowAligned(2);
+  await expectRows([2, 2, 1]);
   await page.setViewportSize({ width: 320, height: 568 });
-  await expectRowAligned(2);
+  await expectRows([2, 2, 1]);
 });
 
 test("navbar highlights the section navigated to, not the previous one", async ({ page }) => {
@@ -281,7 +316,7 @@ test("scroll-spy tracks quick scrolling between consecutive sections", async ({ 
 });
 
 test.describe("navbar section links resolve to the home page from any route", () => {
-  const SECTIONS = ["work", "stack", "about", "experience", "education", "contact"] as const;
+  const SECTIONS = ["work", "experience", "stack", "about", "contact"] as const;
   // `/links` is intentionally navbar-less, so it is not a navbar case.
   const OFF_HOME_ROUTES = ["/work/trosc", "/ar/work/trosc"];
 
@@ -289,7 +324,7 @@ test.describe("navbar section links resolve to the home page from any route", ()
     for (const route of OFF_HOME_ROUTES) {
       await page.goto(route);
 
-      // The bug: a bare `#education` on /work/trosc becomes /work/trosc#education,
+      // The bug: a bare `#about` on /work/trosc becomes /work/trosc#about,
       // where the element does not exist and nothing scrolls.
       const hrefs = await page
         .locator(NAVIGATOR)
@@ -308,6 +343,12 @@ test.describe("navbar section links resolve to the home page from any route", ()
     const homeBase = route.startsWith("/ar") ? "/ar" : "/";
 
     test(`every section link routes home and scrolls there from ${route}`, async ({ page }) => {
+      // Five cross-route navigations, each with a smooth scroll, on a page
+      // that now carries a WebGL tide band: the default 30s budget is not
+      // enough for the whole loop on a machine without a GPU. The assertions
+      // below are unchanged.
+      test.setTimeout(90_000);
+
       for (const section of SECTIONS) {
         await page.goto(route);
         await page.waitForLoadState("networkidle");
@@ -340,12 +381,12 @@ test.describe("navbar section links resolve to the home page from any route", ()
     await page.goto("/work/trosc");
     await page.waitForLoadState("networkidle");
 
-    const link = page.locator(NAVIGATOR).locator('a[href="/#education"]:visible');
+    const link = page.locator(NAVIGATOR).locator('a[href="/#about"]:visible');
     await link.focus();
     await page.keyboard.press("Enter");
 
-    await expect(page).toHaveURL(/#education$/);
-    await expect(page.locator("#education")).toBeInViewport();
+    await expect(page).toHaveURL(/#about$/);
+    await expect(page.locator("#about")).toBeInViewport();
   });
 
   test("keeps local smooth scrolling on the home page itself", async ({ page }) => {

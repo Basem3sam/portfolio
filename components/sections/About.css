@@ -1,0 +1,239 @@
+/* ================================================================
+   About section (04) — statement, timeline rail, education ledger.
+   Ported from `Portfolio Design Mockup.html`:
+     markup   lines 2663–2690 (sec-about)
+     rules    1122–1158 (ab3/ab-rail/ab-edu, last definition wins)
+              585–587   (.certs, base, never revised)
+   The section is a themed `sec-panel` surface in BOTH themes (light
+   panel in light, dark panel in dark) — never pinned dark. The
+   mockup's `sec-mist` visible layer is the `.ag` drifting mist; the
+   `sec-mist::before` radial layer was disabled in the mockup itself
+   (line 1228), so `.sec-wash` supplies only the repo's tonal washes.
+   All colour literals live here, never in the .tsx.
+   ================================================================ */
+
+/* Mockup inline styles on the mist div: --ag-speed:.5 --ag-opacity:.7 */
+#about .ag {
+  --ag-speed: 0.5;
+  --ag-opacity: 0.7;
+}
+
+/* ---------- reveals: RevealOnScroll flips data-revealed ---------- */
+/* No JS / reduced motion: the attribute is never set, content stays visible. */
+#about [data-reveal][data-revealed="false"] {
+  opacity: 0;
+}
+
+#about [data-reveal][data-revealed="true"] {
+  animation: revealUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+}
+
+/* mockup: style="--rd:80ms" on the rail — kept in CSS, no inline styles */
+#about .ab-rail[data-revealed="true"] {
+  animation-delay: 80ms;
+}
+
+/* ---------- statement + timeline: 7fr / 5fr ---------- */
+#about .ab3 {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: clamp(36px, 6cqi, 88px);
+  align-items: start;
+}
+
+#about .ab-lead {
+  font-size: clamp(1.5rem, 2.7cqi, 2.125rem);
+  line-height: 1.32;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+  color: var(--c-dark-text);
+  text-wrap: pretty;
+  max-width: 26em;
+}
+
+html[lang="ar"] #about .ab-lead {
+  /* Arabic is cursive and needs the extra leading (mockup line 1124;
+     letter-spacing is already globally zeroed for AR in globals.css). */
+  line-height: 1.7;
+}
+
+#about .ab-body {
+  margin-top: 24px;
+  color: var(--c-light-text);
+  max-width: 56ch;
+  font-size: 1.0625rem;
+}
+
+/* ---------- timeline rail ---------- */
+#about .ab-rail {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-inline-start: 30px;
+  margin-top: 6px;
+}
+
+#about .ab-rail li {
+  position: relative;
+  padding-bottom: 30px;
+}
+
+#about .ab-rail li:last-child {
+  padding-bottom: 0;
+}
+
+/* filled amber dot, halo punched in the panel colour behind it */
+#about .ab-rail li::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: -30px;
+  top: 6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--c-honey);
+  box-shadow: 0 0 0 5px var(--c-light-bg);
+}
+
+/* the "next" entry is hollow: on the rail, not yet reached */
+#about .ab-rail li.next::before {
+  background: var(--c-light-bg);
+  border: 2px solid var(--c-honey);
+}
+
+/* rail segment below each dot; the first starts amber, fades to a rule */
+#about .ab-rail li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: -25px;
+  top: 22px;
+  bottom: -6px;
+  width: 2px;
+  background: var(--c-rule-strong);
+}
+
+#about .ab-rail li:first-child:not(:last-child)::after {
+  background: linear-gradient(var(--c-honey), var(--c-rule-strong));
+}
+
+#about .ab-rail .yr {
+  display: block;
+  font-family: var(--font-mono-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: normal;
+  color: var(--c-note);
+  unicode-bidi: isolate;
+  text-align: start;
+}
+
+html[lang="ar"] #about .ab-rail .yr {
+  /* no Latin glyphs needed: year labels are localized strings */
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+}
+
+#about .ab-rail b {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  margin-top: 2px;
+}
+
+#about .ab-rail p {
+  color: var(--c-light-text);
+  font-size: 0.9375rem;
+  margin-top: 2px;
+}
+
+/* ---------- education ledger: spans both columns ---------- */
+#about .ab-edu {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr) minmax(0, 1.5fr);
+  gap: clamp(24px, 4cqi, 56px);
+  padding-top: clamp(28px, 4cqi, 48px);
+  margin-top: clamp(0px, 2cqi, 16px);
+  border-top: 1px solid var(--c-rule-strong);
+}
+
+#about .ab-edu > div > .lbl {
+  margin-bottom: 14px;
+}
+
+#about .ed-deg h3 {
+  font-size: clamp(1.5rem, 2.4cqi, 1.875rem);
+  line-height: 1.12;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+html[lang="ar"] #about .ed-deg h3 {
+  /* match the repo's Arabic heading leading (globals.css line 1020) */
+  line-height: 1.3;
+}
+
+#about .ed-deg .uni {
+  color: var(--c-light-text);
+  margin: 6px 0 16px;
+}
+
+/* coursework: a ruled list, not chips */
+#about .plain {
+  display: flex;
+  flex-direction: column;
+}
+
+#about .plain li {
+  padding: 9px 0;
+  border-bottom: 1px solid var(--c-hairline);
+  font-size: 0.9375rem;
+  color: var(--c-dark-text);
+}
+
+#about .plain li:first-child {
+  border-top: 1px solid var(--c-hairline);
+}
+
+/* certifications: name first, org pinned to the end in tracked mono */
+#about .certs {
+  display: flex;
+  flex-direction: column;
+}
+
+#about .certs li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding-block: 12px;
+  border-top: 1px solid var(--c-hairline);
+  font-size: 0.9375rem;
+  color: var(--c-dark-text);
+}
+
+#about .certs li em {
+  flex: none;
+  direction: ltr;
+  font-family: var(--font-mono-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-style: normal;
+  letter-spacing: 0.04em;
+  color: var(--c-note);
+}
+
+/* ---------- stack the columns once the frame narrows ----------
+   The mockup switches on @container f (max-width: 900px); the repo has
+   no named container, so the equivalent viewport breakpoint is used. */
+@media (max-width: 900px) {
+  #about .ab3 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #about .ab-edu {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
