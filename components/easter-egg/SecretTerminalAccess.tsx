@@ -11,6 +11,8 @@ import type { Locale } from "@/lib/i18n";
 type SecretTerminalAccessProps = {
   locale: Locale;
   onClose: () => void;
+  quick?: boolean;
+  ghost?: boolean;
   onTry: () => void;
 };
 
@@ -19,8 +21,8 @@ type SecretTerminalAccessProps = {
  * tide. It asks for a ten-key sequence and never names the code itself —
  * only the Master Code window reveals the answer.
  */
-export default function SecretTerminalAccess({ locale, onClose, onTry }: SecretTerminalAccessProps) {
-  const { visible, containerVisible, leave } = useOverlay();
+export default function SecretTerminalAccess({ locale, onClose, onTry, quick, ghost }: SecretTerminalAccessProps) {
+  const { visible, containerVisible, leave } = useOverlay(quick);
   const c = eggCopy(locale);
 
   useEffect(() => {
@@ -37,6 +39,8 @@ export default function SecretTerminalAccess({ locale, onClose, onTry }: SecretT
       closeLabel={c.close}
       onClose={() => leave(onClose)}
       tide
+      quick={quick}
+      ghost={ghost}
     >
       <div className="egbd">
         <div className="egring" aria-hidden="true">

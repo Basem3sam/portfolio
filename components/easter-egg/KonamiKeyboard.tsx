@@ -24,6 +24,8 @@ import type { Locale } from "@/lib/i18n";
 type KonamiKeyboardProps = {
   locale: Locale;
   onClose: () => void;
+  quick?: boolean;
+  ghost?: boolean;
   onBack: () => void;
   onSuccess: () => void;
 };
@@ -48,8 +50,10 @@ export default function KonamiKeyboard({
   onClose,
   onBack,
   onSuccess,
+  quick,
+  ghost,
 }: KonamiKeyboardProps) {
-  const { visible, containerVisible, leave } = useOverlay();
+  const { visible, containerVisible, leave } = useOverlay(quick);
   const [sequence, setSequence] = useState<string[]>([]);
   const [pressed, setPressed] = useState<string | null>(null);
   const [status, setStatus] = useState<Status>("idle");
@@ -84,7 +88,12 @@ export default function KonamiKeyboard({
   const check = (entered: string[]) => {
     if (entered.every((key, index) => key === KONAMI_CODE[index])) {
       setStatus("success");
-      later(() => leave(onSuccess), 900);
+      // Hand over at once and fade out underneath: the terminal opens on top
+      // of this card, so the unlock reads as one continuous move.
+      later(() => {
+        onSuccess();
+        leave(() => {});
+      }, 900);
       return;
     }
 
@@ -120,6 +129,7 @@ export default function KonamiKeyboard({
   // so the sequence never leaks up to the page-level listener while this
   // overlay is open.
   useEffect(() => {
+    if (ghost) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (!KEY_LABEL[event.key]) return;
       if (sequenceRef.current.length >= KONAMI_CODE.length) return;
@@ -131,7 +141,7 @@ export default function KonamiKeyboard({
     document.addEventListener("keydown", onKeyDown, true);
     return () => document.removeEventListener("keydown", onKeyDown, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [ghost]);
 
   const empty = sequence.length === 0;
   const wrongSlots = status === "wrong";
@@ -146,6 +156,8 @@ export default function KonamiKeyboard({
       closeLabel={c.close}
       onClose={() => leave(onClose)}
       tide
+      quick={quick}
+      ghost={ghost}
       cardClassName={status === "success" ? "good" : wrongSlots ? "bad" : undefined}
       headerActions={
         <button

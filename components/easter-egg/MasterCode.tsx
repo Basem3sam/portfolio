@@ -10,6 +10,8 @@ import type { CSSProperties } from "react";
 type MasterCodeProps = {
   locale: Locale;
   onClose: () => void;
+  quick?: boolean;
+  ghost?: boolean;
   onEnter: () => void;
 };
 
@@ -29,8 +31,8 @@ const CAP_CLASS: Record<string, string> = {
  * settle in one by one. It never opens the terminal — the gate is still
  * the sequence itself.
  */
-export default function MasterCode({ locale, onClose, onEnter }: MasterCodeProps) {
-  const { visible, containerVisible, leave } = useOverlay();
+export default function MasterCode({ locale, onClose, onEnter, quick, ghost }: MasterCodeProps) {
+  const { visible, containerVisible, leave } = useOverlay(quick);
   const c = eggCopy(locale);
   const ar = locale === "ar";
 
@@ -45,6 +47,8 @@ export default function MasterCode({ locale, onClose, onEnter }: MasterCodeProps
       closeLabel={c.close}
       onClose={() => leave(onClose)}
       tide
+      quick={quick}
+      ghost={ghost}
       cardClassName="master"
     >
       <div className="egbd">

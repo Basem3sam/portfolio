@@ -20,6 +20,11 @@ type OverlayShellProps = {
   tide?: boolean;
   /** Extra header controls, before the close button (sound toggle). */
   headerActions?: ReactNode;
+  /** Hand-off from another overlay: dissolve instead of a fresh entrance. */
+  quick?: boolean;
+  /** A frozen copy of the previous overlay, kept under the new one while it
+      fades in. Inert, silent and static. */
+  ghost?: boolean;
   children: ReactNode;
 };
 
@@ -39,6 +44,8 @@ export default function OverlayShell({
   cardClassName,
   tide,
   headerActions,
+  quick,
+  ghost,
   children,
 }: OverlayShellProps) {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -47,13 +54,14 @@ export default function OverlayShell({
   // Remember the opener once, on mount: focus moves into the card so the
   // keyboard starts inside the dialog.
   useEffect(() => {
+    if (ghost) return;
     restoreRef.current = document.activeElement as HTMLElement | null;
     cardRef.current?.focus();
     return () => restoreRef.current?.focus();
-  }, []);
+  }, [ghost]);
 
   useEffect(() => {
-    if (!containerVisible) return;
+    if (!containerVisible || ghost) return;
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -86,14 +94,15 @@ export default function OverlayShell({
 
     document.addEventListener("keydown", onKeyDown, true);
     return () => document.removeEventListener("keydown", onKeyDown, true);
-  }, [containerVisible, onClose]);
+  }, [containerVisible, ghost, onClose]);
 
-  if (!containerVisible) return null;
+  if (!containerVisible && !ghost) return null;
 
   return (
     <div dir="ltr" className="egg">
       <div
-        className={`eov${tide ? " tide" : " dim"}${visible ? " show" : ""}`}
+        className={`eov${tide ? " tide" : " dim"}${quick ? " quick" : ""}${ghost ? " ghost" : ""}${visible || ghost ? " show" : ""}`}
+        {...(ghost ? { inert: true, "aria-hidden": true } : {})}
         onClick={(event) => {
           if (event.target === event.currentTarget) onClose();
         }}

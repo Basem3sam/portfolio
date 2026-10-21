@@ -57,15 +57,36 @@
     background: #050a15;
     opacity: 0;
     visibility: hidden;
+    /* Leaving is quick and matches the unmount delay (useOverlay), so the
+       fade finishes instead of being cut off a third of the way through. */
     transition:
-      opacity 0.9s var(--e-ease),
-      visibility 0s 0.9s;
+      opacity 0.3s var(--e-ease),
+      visibility 0s 0.3s;
   }
 
   .egg .eov.show {
     opacity: 1;
     visibility: visible;
     transition: opacity 0.9s var(--e-ease);
+  }
+
+  /* Hand-off between overlays (master -> keypad, keypad -> gate): the new
+     card dissolves in over a frozen copy of the old one, with no slide and
+     no trip back to the page in between. */
+  .egg .eov.quick.show {
+    transition: opacity 0.45s var(--e-ease);
+  }
+
+  .egg .eov.quick .egc {
+    transform: none;
+  }
+
+  .egg .eov.ghost,
+  .egg .eov.ghost *,
+  .egg .eov.ghost *::before,
+  .egg .eov.ghost *::after {
+    animation: none !important;
+    transition: none !important;
   }
 
   .egg .eov.dim {
@@ -688,19 +709,34 @@
     height: 16px;
   }
 
-  /* ---- terminal (mockup lines 1411–1441) ---- */
+  /* ---- terminal ----
+     One face for everything: --font-terminal is the full JetBrains Mono
+     (it has the box-drawing and block glyphs). The Latin-subset face used
+     elsewhere does not, so the banner fell back to another font and its
+     columns drifted. Font size is derived from the card width so the
+     40-column layouts in lib/terminalCommands.ts always fit. */
   .egg .eterm {
+    --e-mono: var(--font-terminal), var(--font-mono-body), ui-monospace, "SF Mono", Menlo,
+      Consolas, monospace;
+    --etp: 22px;
+    --e-note: #e0a458;
+    --e-hi: #f4c77d;
     position: relative;
     display: flex;
     flex-direction: column;
+    container-type: inline-size;
     width: 100%;
-    max-width: 880px;
-    height: min(620px, 88vh);
+    max-width: 920px;
+    height: min(700px, 90vh);
+    height: min(700px, 90dvh);
     margin: auto;
     border: 1px solid var(--e-rule);
     border-radius: 18px;
     background: #080d18;
     overflow: hidden;
+    font-family: var(--e-mono);
+    font-variant-ligatures: none;
+    font-feature-settings: "liga" 0, "calt" 0;
     box-shadow:
       0 50px 120px rgba(0, 0, 0, 0.6),
       inset 0 1px 0 rgba(255, 255, 255, 0.05);
@@ -710,6 +746,29 @@
 
   .egg .eov.show .eterm {
     transform: none;
+  }
+
+  /* Accent themes: the terminal only. `theme <name>` sets data-theme. */
+  .egg .eterm[data-theme="ice"] {
+    --e-note: #6fb4ff;
+    --e-hi: #a7d2ff;
+  }
+  .egg .eterm[data-theme="moss"] {
+    --e-note: #7fcf8a;
+    --e-hi: #b4eeb9;
+  }
+  .egg .eterm[data-theme="iris"] {
+    --e-note: #a98bff;
+    --e-hi: #cdbcff;
+  }
+  .egg .eterm[data-theme="rose"] {
+    --e-note: #ff8fb1;
+    --e-hi: #ffc0d3;
+  }
+  /* Earned at root: the warmest, brightest accent. */
+  .egg .eterm[data-theme="gold"] {
+    --e-note: #ffd166;
+    --e-hi: #fff0b8;
   }
 
   .egg .eth {
@@ -726,13 +785,20 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    font-family: var(--font-mono-body);
+    min-width: 0;
     font-size: 0.8125rem;
     font-weight: 500;
     color: var(--e-ink);
   }
 
+  .egg .eth b span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   .egg .eth b .i {
+    flex: none;
     width: 16px;
     height: 16px;
     color: var(--e-note);
@@ -745,27 +811,102 @@
 
   .egg .eth .r {
     display: flex;
+    flex: none;
     align-items: center;
     gap: 6px;
-    font-family: var(--font-mono-body);
     font-size: 0.6875rem;
     font-weight: 500;
     color: var(--e-dim);
   }
 
-  .egg .eth .r > span {
+  .egg .eth .r > .esc {
     padding-inline-end: 6px;
+  }
+
+  /* Progress chip: a bar that fills as trophies are found. */
+  .egg .erk {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 32px;
+    padding: 0 12px 0 10px;
+    border: 1px solid var(--e-rule);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--e-ink2);
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      border-color 0.4s,
+      color 0.4s,
+      background-color 0.4s;
+  }
+
+  .egg .erk:hover {
+    border-color: var(--e-note);
+    color: #fff;
+    background: color-mix(in srgb, var(--e-note) 10%, transparent);
+  }
+
+  .egg .erk-bar {
+    position: relative;
+    flex: none;
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--e-rule);
+    overflow: hidden;
+  }
+
+  .egg .erk-bar::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--p, 0%);
+    border-radius: inherit;
+    background: var(--e-note);
+    transition: width 0.7s var(--e-ease);
+  }
+
+  .egg .erk-n {
+    animation: egbump 0.9s var(--e-ease) 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .egg .erk-r {
+    color: var(--e-hi);
+  }
+
+  @keyframes egbump {
+    0% {
+      color: #fff;
+      transform: scale(1.35);
+    }
+    100% {
+      transform: none;
+    }
+  }
+
+  .egg .etw {
+    position: relative;
+    display: flex;
+    flex: 1;
+    min-height: 0;
   }
 
   .egg .etb {
     flex: 1;
-    min-height: 0;
+    min-width: 0;
     position: relative;
     overflow: auto;
-    padding: 20px 22px;
-    font-family: var(--font-mono-body);
+    overscroll-behavior: contain;
+    padding: 20px var(--etp) 12px;
     font-size: 0.875rem;
-    line-height: 1.7;
+    font-size: clamp(11px, calc((100cqi - 2 * var(--etp)) / 24), 15px);
+    line-height: 1.6;
     color: var(--e-ink2);
     scrollbar-width: thin;
     scrollbar-color: rgba(160, 180, 220, 0.3) transparent;
@@ -774,8 +915,17 @@
   .egg .etb .ln {
     margin: 0 0 4px;
     white-space: pre-wrap;
-    word-break: break-word;
+    overflow-wrap: anywhere;
     animation: egfade 0.7s var(--e-ease) both;
+  }
+
+  /* A typed command starts a new block. */
+  .egg .etb .ln.cl {
+    margin-top: 14px;
+  }
+
+  .egg .etb .ln.cl:first-child {
+    margin-top: 0;
   }
 
   .egg .etb .ln.bx,
@@ -783,17 +933,26 @@
     color: var(--e-hi);
   }
 
+  /* The banner is sized to the card: 43 columns x 0.6em = width. Every
+     glyph is one cell in the terminal face, so the rows cannot drift. */
   .egg .etb .ascii {
-    white-space: pre;
-    margin: 4px 0 14px;
+    margin: 2px 0 6px;
+    padding: 0;
+    font-family: var(--e-mono);
     font-size: 0.6rem;
-    line-height: 1.18;
-    overflow: hidden;
-    background: linear-gradient(180deg, #f4c77d, #c98a3c);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    font-size: clamp(7px, calc((100cqi - 2 * var(--etp)) / (var(--cols, 43) * 0.6)), 22px);
+    font-weight: 400;
+    /* 1.2 is the height of the block glyph: rows meet with no seams
+       (a gradient text-clip or 1.32 shows hairlines between cells). */
+    line-height: 1.2;
+    white-space: pre;
+    color: var(--e-hi);
     animation: egfade 1.2s var(--e-ease) both;
+  }
+
+  .egg .etb .tag {
+    margin-bottom: 16px;
+    color: var(--e-dim);
   }
 
   .egg .etb .ok {
@@ -806,6 +965,10 @@
     color: var(--e-hi);
   }
 
+  .egg .etb .key {
+    color: var(--e-note);
+  }
+
   .egg .etb .cmd {
     color: #fff;
   }
@@ -814,22 +977,43 @@
     color: rgba(224, 164, 88, 0.7);
   }
 
+  .egg .eterm[data-theme="ice"] .etb .dim {
+    color: rgba(111, 180, 255, 0.72);
+  }
+  .egg .eterm[data-theme="moss"] .etb .dim {
+    color: rgba(127, 207, 138, 0.72);
+  }
+  .egg .eterm[data-theme="iris"] .etb .dim {
+    color: rgba(169, 139, 255, 0.78);
+  }
+  .egg .eterm[data-theme="rose"] .etb .dim {
+    color: rgba(255, 143, 177, 0.74);
+  }
+  .egg .eterm[data-theme="gold"] .etb .dim {
+    color: rgba(255, 209, 102, 0.74);
+  }
+
   .egg .etb .warn {
     color: #ffb070;
   }
 
+  .egg .etb .tr {
+    color: var(--e-hi);
+    font-weight: 600;
+  }
+
   .egg .etb .badge {
     display: inline-block;
-    margin: 10px 0;
-    padding: 8px 16px;
+    margin: 6px 0;
+    padding: 4px 12px;
     border: 1px solid var(--e-rule2);
     border-radius: 999px;
-    background: rgba(224, 164, 88, 0.08);
+    background: color-mix(in srgb, var(--e-note) 10%, transparent);
     color: var(--e-hi);
-    font-size: 0.75rem;
+    font-size: 0.85em;
     font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    line-height: 1.5;
+    white-space: normal;
   }
 
   .egg .etb .info {
@@ -842,6 +1026,40 @@
 
   .egg .etb .wl {
     color: #fff;
+  }
+
+  .egg .etb .lk {
+    color: var(--e-sig);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--e-sig) 45%, transparent);
+    text-underline-offset: 3px;
+    transition:
+      color 0.3s,
+      text-decoration-color 0.3s;
+  }
+
+  .egg .etb .lk:hover {
+    color: #fff;
+    text-decoration-color: currentColor;
+  }
+
+  .egg .etb .sw-amber {
+    color: #e0a458;
+  }
+  .egg .etb .sw-ice {
+    color: #6fb4ff;
+  }
+  .egg .etb .sw-moss {
+    color: #7fcf8a;
+  }
+  .egg .etb .sw-iris {
+    color: #a98bff;
+  }
+  .egg .etb .sw-gold {
+    color: #ffd166;
+  }
+  .egg .etb .sw-rose {
+    color: #ff8fb1;
   }
 
   .egg .etb .pr .u {
@@ -890,30 +1108,49 @@
     }
   }
 
-  .egg .etb canvas.rain {
+  /* Matrix rain: an overlay that never takes clicks. */
+  .egg .etw canvas.rain {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
+    color: var(--e-live);
+    font-family: var(--e-mono);
     pointer-events: none;
     opacity: 0;
     transition: opacity 1s;
   }
 
-  .egg .etb canvas.rain.on {
-    opacity: 0.55;
+  .egg .etw canvas.rain.on {
+    opacity: 0.5;
   }
 
-  .egg .ets {
-    min-height: 0;
-    padding: 0 22px;
-    font-family: var(--font-mono-body);
-    font-size: 0.75rem;
-    color: var(--e-dim);
+  .egg .etw canvas.rain.on.burst {
+    opacity: 1;
   }
 
-  .egg .ets:not(:empty) {
-    padding-block: 8px;
+  /* Root: the chip and the card edge catch the light, once you have earned it. */
+  .egg .eterm[data-rank="root"] {
+    border-color: color-mix(in srgb, var(--e-note) 55%, var(--e-rule));
+    box-shadow:
+      0 50px 120px rgba(0, 0, 0, 0.6),
+      0 0 0 1px color-mix(in srgb, var(--e-note) 18%, transparent),
+      0 0 60px color-mix(in srgb, var(--e-note) 14%, transparent),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  .egg .eterm[data-rank="root"] .erk {
+    border-color: var(--e-note);
+    background: color-mix(in srgb, var(--e-note) 14%, transparent);
+    color: #fff;
+  }
+
+  .egg .eterm[data-rank="root"] .erk-bar::after {
+    background: linear-gradient(90deg, var(--e-note), var(--e-hi));
+  }
+
+  .egg .eterm[data-rank="root"] .erk-r::before {
+    content: "\2726  ";
   }
 
   .egg .etc {
@@ -924,6 +1161,7 @@
     border-top: 1px solid var(--e-rule);
     scrollbar-width: none;
     background: #0a101d;
+    mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent);
   }
 
   .egg .etc::-webkit-scrollbar {
@@ -938,7 +1176,7 @@
     border-radius: 999px;
     background: transparent;
     color: var(--e-ink2);
-    font-family: var(--font-mono-body);
+    font-family: var(--e-mono);
     font-size: 0.8125rem;
     font-weight: 500;
     cursor: pointer;
@@ -948,7 +1186,7 @@
   .egg .etc button:hover {
     border-color: var(--e-note);
     color: #fff;
-    background: rgba(224, 164, 88, 0.08);
+    background: color-mix(in srgb, var(--e-note) 10%, transparent);
   }
 
   .egg .eti {
@@ -958,11 +1196,11 @@
     padding: 6px 18px;
     border-top: 1px solid var(--e-rule);
     background: #0c1322;
+    font-size: 0.875rem;
+    font-size: clamp(13px, calc((100cqi - 36px) / 24), 15px);
   }
 
   .egg .eti label {
-    font-family: var(--font-mono-body);
-    font-size: 0.875rem;
     font-weight: 600;
     white-space: nowrap;
     color: var(--e-dim);
@@ -976,17 +1214,45 @@
     color: var(--e-sig);
   }
 
+  /* The input sits over a ghost line that shows the completion in dim
+     text; both use identical metrics so the suggestion lines up. */
+  .egg .eti .efield {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .egg .eti .eg {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    white-space: pre;
+    color: var(--e-dim);
+    pointer-events: none;
+  }
+
+  .egg .eti .eg i {
+    font-style: normal;
+    visibility: hidden;
+  }
+
   .egg .eti input {
+    position: relative;
     flex: 1;
     min-width: 0;
     min-height: 44px;
+    padding: 0;
     border: 0;
     outline: 0;
     background: transparent;
     color: #fff;
-    font-family: var(--font-mono-body);
-    font-size: 0.875rem;
+    font: inherit;
     caret-color: var(--e-note);
+    caret-shape: block;
   }
 
   .egg .eti input::placeholder {
@@ -1182,25 +1448,45 @@
       transform: none;
     }
 
+    /* Phones: the terminal takes the whole screen, with room for the
+       notch and the keyboard (dvh follows the visible viewport). */
+    .egg .eov:has(> .eterm) {
+      padding: 0;
+    }
+
     .egg .eterm {
-      height: min(640px, 92vh);
-      border-radius: 14px;
+      --etp: 14px;
+      max-width: none;
+      height: 100vh;
+      height: 100dvh;
+      border: 0;
+      border-radius: 0;
+      padding-top: env(safe-area-inset-top);
     }
 
-    .egg .etb {
-      font-size: 0.8125rem;
-      padding: 14px;
+    .egg .eth {
+      padding-left: 14px;
     }
 
-    .egg .etb .ascii {
-      font-size: 0.4rem;
+    .egg .eti {
+      padding: 4px 14px calc(4px + env(safe-area-inset-bottom));
     }
 
-    .egg .eti input {
-      font-size: 1rem;
+    .egg .eti {
+      font-size: 16px;
     }
 
-    .egg .eth .r > span {
+    .egg .eth .r > .esc {
+      display: none;
+    }
+
+    .egg .erk-r {
+      display: none;
+    }
+  }
+
+  @media (max-height: 460px) {
+    .egg .etc {
       display: none;
     }
   }
@@ -1219,6 +1505,9 @@
     }
 
     .egg .etb .ln,
+    .egg .etb .ascii,
+    .egg .erk-n,
+    .egg .erk-bar::after,
     .egg .etb.gl,
     .egg .egc.bad,
     .egg .egcaps b,

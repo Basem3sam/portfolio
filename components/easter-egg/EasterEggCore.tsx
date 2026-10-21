@@ -50,6 +50,12 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
   const [toasts, setToasts] = useState<ToastData[]>([]);
   const [terminalOpen, setTerminalOpen] = useState(false);
   const [overlay, setOverlay] = useState<Overlay>("none");
+  // Hand-offs between overlays: the old one stays underneath as a frozen
+  // ghost while the new one dissolves in, so there is never a blank beat.
+  const [behind, setBehind] = useState<Overlay>("none");
+  const [quick, setQuick] = useState(false);
+  const [keyboardFrom, setKeyboardFrom] = useState<"prompt" | "master">("prompt");
+  const behindTimer = useRef(0);
   const [clue, setClue] = useState({ revealed: false, level: 0 });
   const [unlocked, setUnlocked] = useState(false);
   const clueRef = useRef<HTMLButtonElement>(null);
@@ -111,7 +117,10 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       openTerminal();
       celebrateUnlock();
     }
-    if (mode === "prompt") setOverlay("prompt");
+    if (mode === "prompt") {
+      setQuick(false);
+      setOverlay("prompt");
+    }
 
     return setupAudio();
   }, [mode, initialClicks, openTerminal, celebrateUnlock]);
@@ -140,7 +149,8 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
         if (unlocked) {
           openTerminal();
         } else {
-          setOverlay((current) => (current === "none" ? "prompt" : current));
+          setQuick(false);
+      setOverlay((current) => (current === "none" ? "prompt" : current));
         }
       }
     };
@@ -158,6 +168,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
         openTerminal();
         return;
       }
+      setQuick(false);
       setOverlay((current) => (current === "none" ? "prompt" : current));
     };
 
@@ -212,6 +223,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       state.level = HINT_LEVELS.length - 1;
       syncClue();
       if (clueRef.current) animateClue(clueRef.current, "celebration", 2000);
+      setQuick(false);
       setOverlay((current) => (current === "none" ? "master" : current));
       createEpicCelebration();
       resumeAudio().then(() => playSuccessSound());
@@ -302,14 +314,46 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
 
   const openPrompt = () => {
     if (overlay !== "none") return;
+    setQuick(false);
     setOverlay("prompt");
   };
 
-  const handleKeyboardSuccess = () => {
+  const go = (next: Overlay) => {
+    window.clearTimeout(behindTimer.current);
+    setBehind(overlay);
+    setQuick(true);
+    setOverlay(next);
+    behindTimer.current = window.setTimeout(() => setBehind("none"), 600);
+  };
+
+  // Master code -> keypad is one step: the person has just read the
+  // sequence, so the gate that asks for it again is skipped.
+  const enterFromMaster = () => {
+    setKeyboardFrom("master");
+    go("keyboard");
+  };
+
+  const enterFromPrompt = () => {
+    setKeyboardFrom("prompt");
+    go("keyboard");
+  };
+
+  const leaveKeyboard = () => {
+    // The hunt that produced the master code is finished once its keypad is.
+    if (keyboardFrom === "master") resetJourney.current(false);
     setOverlay("none");
+  };
+
+  const handleKeyboardSuccess = () => {
+    // The terminal opens on top of the keypad; the keypad is removed once
+    // the terminal's own fade-in has covered it.
+    if (keyboardFrom === "master") resetJourney.current(false);
     openTerminal();
     celebrateUnlock();
+    window.setTimeout(() => setOverlay("none"), 700);
   };
+
+  const ghostProps = { locale, quick: true, ghost: true, onClose: () => {} } as const;
 
   return (
     <>
@@ -322,36 +366,44 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
         onPrompt={openPrompt}
         onOpen={openTerminal}
       />
-      <Terminal
-        key={terminalOpen ? "open" : "closed"}
-        open={terminalOpen}
-        onClose={closeTerminal}
-      />
+      {behind === "prompt" && <SecretTerminalAccess {...ghostProps} onTry={() => {}} />}
+      {behind === "keyboard" && (
+        <KonamiKeyboard {...ghostProps} onBack={() => {}} onSuccess={() => {}} />
+      )}
+      {behind === "master" && <MasterCode {...ghostProps} onEnter={() => {}} />}
       {overlay === "prompt" && (
         <SecretTerminalAccess
           locale={locale}
+          quick={quick}
           onClose={() => setOverlay("none")}
-          onTry={() => setOverlay("keyboard")}
+          onTry={enterFromPrompt}
         />
       )}
       {overlay === "keyboard" && (
         <KonamiKeyboard
           locale={locale}
-          onClose={() => setOverlay("none")}
-          onBack={() => setOverlay("prompt")}
+          quick={quick}
+          onClose={leaveKeyboard}
+          onBack={() => go(keyboardFrom)}
           onSuccess={handleKeyboardSuccess}
         />
       )}
       {overlay === "master" && (
         <MasterCode
           locale={locale}
+          quick={quick}
           onClose={() => {
             setOverlay("none");
             resetJourney.current(false);
           }}
-          onEnter={() => setOverlay("prompt")}
+          onEnter={enterFromMaster}
         />
       )}
+      <Terminal
+        key={terminalOpen ? "open" : "closed"}
+        open={terminalOpen}
+        onClose={closeTerminal}
+      />
       <Toasts toasts={toasts} locale={locale} onRemove={removeToast} />
     </>
   );
