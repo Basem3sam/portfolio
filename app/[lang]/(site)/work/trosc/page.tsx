@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { CSSProperties } from "react";
 import EndpointExplorer from "@/components/case-study/EndpointExplorer";
+import LiveSiteFrame from "@/components/case-study/LiveSiteFrame";
 import WorkKpis from "@/components/sections/WorkPlates";
 import TideCanvas from "@/components/sections/TideCanvas";
 import CountUp from "@/components/ui/CountUp";
@@ -111,68 +112,74 @@ export default async function TroscCaseStudyPage({ params }: CaseStudyPageProps)
             {t.back.label}
           </Link>
 
-          <p className="lbl">{t.hero.label}</p>
+          <div className="case-hero-grid">
+            <div className="case-hero-copy">
+              <p className="lbl">{t.hero.label}</p>
 
-          <h1 className="cs-title" id="h-case">
-            {t.hero.title}
-          </h1>
+              <h1 className="cs-title" id="h-case">
+                {t.hero.title}
+              </h1>
 
-          <p className="prov">
-            <span className="slug">{t.hero.slug}</span>
-            <span className="sep" aria-hidden="true">
-              ·
-            </span>
-            <span className="status">
-              <span className="dot" aria-hidden="true"></span>
-              <span className="st st-live">{t.hero.status}</span>
-            </span>
-          </p>
+              <p className="prov">
+                <span className="slug">{t.hero.slug}</span>
+                <span className="sep" aria-hidden="true">
+                  ·
+                </span>
+                <span className="status">
+                  <span className="dot" aria-hidden="true"></span>
+                  <span className="st st-live">{t.hero.status}</span>
+                </span>
+              </p>
 
-          <p className="cs-intro">{t.hero.intro}</p>
+              <p className="cs-intro">{t.hero.intro}</p>
 
-          <WorkKpis>
-            {t.metrics.map((metric, index) => (
-              <div key={metric.label} className={index === 4 ? "kpi kpi-cov" : "kpi"}>
-                <dt>{metric.label}</dt>
-                <dd>
-                  <CountUp value={metric.value} />
-                  {metric.suffix ? <em>{metric.suffix}</em> : null}
-                </dd>
-                <CaseKpiGraphic index={index} />
+              <div className="actions">
+                <a
+                  className="btn btn-primary"
+                  href={TROSC_REPO_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Icon name="github" className="size-4" />
+                  {t.actions.repository}
+                </a>
+                <a
+                  className="btn btn-ghost"
+                  href={TROSC_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Icon name="externalLink" className="size-4" />
+                  {t.actions.liveSite}
+                </a>
+                <a
+                  className="btn btn-ghost"
+                  href={TROSC_API_DOCS_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Icon name="code" className="size-4" />
+                  {t.actions.apiReference}
+                </a>
               </div>
-            ))}
-          </WorkKpis>
+            </div>
 
-          <p className="lbl note">{t.metricsNote}</p>
+            <div className="case-hero-wall">
+              <WorkKpis>
+                {t.metrics.map((metric, index) => (
+                  <div key={metric.label} className={index === 4 ? "kpi kpi-cov" : "kpi"}>
+                    <dt>{metric.label}</dt>
+                    <dd>
+                      <CountUp value={metric.value} />
+                      {metric.suffix ? <em>{metric.suffix}</em> : null}
+                    </dd>
+                    <CaseKpiGraphic index={index} />
+                  </div>
+                ))}
+              </WorkKpis>
 
-          <div className="actions">
-            <a
-              className="btn btn-primary"
-              href={TROSC_REPO_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Icon name="github" className="size-4" />
-              {t.actions.repository}
-            </a>
-            <a
-              className="btn btn-ghost"
-              href={TROSC_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Icon name="externalLink" className="size-4" />
-              {t.actions.liveSite}
-            </a>
-            <a
-              className="btn btn-ghost"
-              href={TROSC_API_DOCS_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Icon name="code" className="size-4" />
-              {t.actions.apiReference}
-            </a>
+              <p className="lbl note">{t.metricsNote}</p>
+            </div>
           </div>
         </div>
       </section>
@@ -204,11 +211,7 @@ export default async function TroscCaseStudyPage({ params }: CaseStudyPageProps)
         <div className="container">
           <div className="two">
             <div>
-              <SectionHeader
-                number="02"
-                title={t.sections.architecture.title}
-                headingId="h-arch"
-              />
+              <SectionHeader number="02" title={t.sections.architecture.title} headingId="h-arch" />
               <ul className="list-r" data-reveal>
                 {t.sections.architecture.entries.map((entry) => (
                   <li key={entry.title}>
@@ -220,11 +223,7 @@ export default async function TroscCaseStudyPage({ params }: CaseStudyPageProps)
             </div>
 
             <div>
-              <SectionHeader
-                number="03"
-                title={t.sections.security.title}
-                headingId="h-security"
-              />
+              <SectionHeader number="03" title={t.sections.security.title} headingId="h-security" />
               <ul className="list-r" data-reveal>
                 {t.sections.security.items.map((item) => (
                   <li key={item.title}>
@@ -261,18 +260,11 @@ export default async function TroscCaseStudyPage({ params }: CaseStudyPageProps)
             headingId="h-fe"
           />
 
-          <div className="shot" style={{ maxWidth: "880px" }}>
-            <div className="shot-bar">
-              <i></i>
-              <i></i>
-              <i></i>
-              <span className="addr">{t.sections.frontend.addr}</span>
-            </div>
-            <div className="shot-body">
-              <span className="ph">{t.sections.frontend.placeholder}</span>
-              <p>{t.sections.frontend.body}</p>
-            </div>
-          </div>
+          <LiveSiteFrame
+            url={TROSC_URL}
+            host={t.sections.frontend.addr}
+            dict={t.sections.frontend}
+          />
         </div>
       </section>
     </main>

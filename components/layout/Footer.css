@@ -21,6 +21,12 @@
 
   position: relative;
   overflow: hidden;
+  /* Fills the screen: scrolled to the end, only the footer is on show and
+     no sliver of the section above peeks in. Taller content simply grows. */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100svh;
   color: var(--c-dark-text);
   background-image: linear-gradient(180deg, #05123a 0, #030a22 100%);
 }
@@ -34,9 +40,10 @@
   position: relative;
   z-index: 1;
   display: flex;
+  flex: 1;
   flex-direction: column;
-  gap: 44px;
-  padding: 64px var(--pad) 28px;
+  gap: clamp(28px, 5svh, 48px);
+  padding: clamp(72px, 14svh, 144px) var(--pad) 28px;
 }
 
 /* --- four columns --------------------------------------------------------- */
@@ -262,7 +269,9 @@
    it always fits the column whichever display face actually loaded. */
 .foot-word-box {
   container-type: inline-size;
-  margin-block: -4px -10px;
+  /* Auto margins share the spare height above and below the wordmark, so it
+     floats between the columns and the bottom row at any screen height. */
+  margin-block: auto;
   overflow: hidden;
 }
 
@@ -351,8 +360,7 @@
   }
 
   .foot-in {
-    padding-top: 48px;
-    gap: 32px;
+    padding-top: clamp(56px, 10svh, 96px);
   }
 }
 

@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { prefersReducedMotion } from "@/lib/scroll";
 
 export default function RevealOnScroll() {
+  const pathname = usePathname();
+
   useEffect(() => {
     if (prefersReducedMotion()) return;
 
@@ -26,16 +29,18 @@ export default function RevealOnScroll() {
       { threshold: 0.15, rootMargin: "0px 0px -100px 0px" },
     );
 
-    document.querySelectorAll<HTMLElement>("[data-reveal]").forEach((element) => {
-      element.dataset.revealed = "false";
-      observer.observe(element);
-    });
+    document
+      .querySelectorAll<HTMLElement>('[data-reveal]:not([data-revealed="true"])')
+      .forEach((element) => {
+        element.dataset.revealed = "false";
+        observer.observe(element);
+      });
 
     return () => {
       observer.disconnect();
       timers.forEach((timer) => window.clearTimeout(timer));
     };
-  }, []);
+  }, [pathname]);
 
   return null;
 }

@@ -16,6 +16,17 @@ type Rgb = [number, number, number];
 const REDUCE_QUERY = "(prefers-reduced-motion: reduce)";
 const reduceMotion = () => typeof matchMedia !== "undefined" && matchMedia(REDUCE_QUERY).matches;
 
+/**
+ * True when a press landed on a real control that should keep the click to
+ * itself. The portrait overlay (`.pf-hit`) is a button too, but it is
+ * deliberately NOT one of these: it is the portrait, so pressing it must
+ * still ripple the halftone and spark the nebula.
+ */
+const isControl = (el: HTMLElement | null) => {
+  const hit = el?.closest?.("a,button,input,textarea,select,label,[role=button]");
+  return !!hit && !hit.classList.contains("pf-hit");
+};
+
 function parseColor(value: string): Rgb {
   const v = value.trim();
   if (v.startsWith("#")) {
@@ -390,7 +401,7 @@ export function mountHeroFx(
   });
   listen(host, "pointerdown", (event: PointerEvent) => {
     const el = event.target as HTMLElement | null;
-    if (reduce || el?.closest?.("a,button")) return;
+    if (reduce || isControl(el)) return;
     const r = host.getBoundingClientRect();
     f.rip.push({ x: event.clientX - r.left, y: event.clientY - r.top, t: performance.now() });
     if (f.rip.length > 4) f.rip.shift();
@@ -704,7 +715,7 @@ export function mountHeroFx(
 
       listen(host, "pointerdown", (event: PointerEvent) => {
         const el = event.target as HTMLElement | null;
-        if (el?.closest?.("a,button,input,textarea,select,label,[role=button]")) return;
+        if (isControl(el)) return;
         const uv = toUv(event.clientX, event.clientY);
         addSpark(uv[0], uv[1], false);
         if (reduce) paint();

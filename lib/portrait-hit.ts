@@ -93,24 +93,52 @@ export function isOnPortrait(image: HTMLElement, x: number, y: number) {
   return mask[Math.floor(v * SIZE) * SIZE + Math.floor(u * SIZE)] === 1;
 }
 
+// The last mouse position, tracked once for the whole page. The click hunt
+// hands the portrait from the loader to the full game on the first press; the
+// new binding reads this to restore the cursor at once instead of waiting for
+// the next pointer move.
+let lastPointer: { x: number; y: number } | null = null;
+let tracking = false;
+
+function trackPointer() {
+  if (tracking || typeof window === "undefined") return;
+  tracking = true;
+  window.addEventListener(
+    "pointermove",
+    (event) => {
+      if (event.pointerType !== "touch") lastPointer = { x: event.clientX, y: event.clientY };
+    },
+    { passive: true },
+  );
+}
+
 /**
  * Pointer cursor only over the person (the button itself is a larger box).
  * Returns a cleanup function.
  */
 export function bindPortraitCursor(hit: HTMLElement, image: HTMLImageElement) {
+  trackPointer();
   preparePortraitHit(image);
+  const apply = (x: number, y: number) => {
+    hit.style.cursor = isOnPortrait(image, x, y) ? "pointer" : "default";
+  };
   const move = (event: PointerEvent) => {
     if (event.pointerType === "touch") return;
-    hit.style.cursor = isOnPortrait(image, event.clientX, event.clientY) ? "pointer" : "default";
+    apply(event.clientX, event.clientY);
   };
   const leave = () => {
     hit.style.cursor = "";
   };
   hit.addEventListener("pointermove", move);
   hit.addEventListener("pointerleave", leave);
+  // Re-binding while the mouse is already over the portrait: no move event is
+  // coming, so restore the cursor from the last known position.
+  if (lastPointer && hit.matches(":hover")) apply(lastPointer.x, lastPointer.y);
   return () => {
     hit.removeEventListener("pointermove", move);
     hit.removeEventListener("pointerleave", leave);
-    hit.style.cursor = "";
+    // The inline cursor is left in place on purpose: the button outlives this
+    // binding, and clearing it here made the cursor flip to the default one
+    // until the next move. `leave` still clears it when the mouse exits.
   };
 }

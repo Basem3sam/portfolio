@@ -22,32 +22,124 @@
   /* ---------- hero ---------- */
 
   [data-page="case"] .case-hero {
+    /* The hero is one complete frame: it fills the first screen and centres
+       its content, so nothing is sliced by the fold on first render. */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100vh;
+    min-height: 100svh;
     /* Room for the fixed navbar above the back link. */
-    padding-block: clamp(64px, 8vw, 96px) clamp(48px, 7vw, 88px);
+    padding-block: clamp(88px, 12svh, 120px) clamp(32px, 6svh, 64px);
   }
 
+  [data-page="case"] .case-hero > .container {
+    width: 100%;
+  }
+
+  [data-page="case"] .case-hero-grid {
+    display: grid;
+    gap: 8px;
+  }
+
+  [data-page="case"] .case-hero-copy,
+  [data-page="case"] .case-hero-wall {
+    min-width: 0;
+  }
+
+  /* Wide screens: copy on one side, the KPI wall on the other, so the whole
+     hero is about one screen tall instead of one and a half. */
+  @media (min-width: 1024px) {
+    [data-page="case"] .case-hero-grid {
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+      gap: clamp(32px, 5vw, 72px);
+      align-items: center;
+    }
+
+    [data-page="case"] .case-hero .kp {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 0;
+    }
+
+    [data-page="case"] .case-hero .kp .kpi:nth-child(n) {
+      grid-column: span 1;
+    }
+
+    [data-page="case"] .case-hero .actions {
+      margin-top: 0;
+    }
+  }
+
+  /* Short laptop screens: tighten the tiles so three rows still fit. */
+  @media (min-width: 1024px) and (max-height: 780px) {
+    [data-page="case"] .case-hero .kp {
+      gap: 10px;
+    }
+
+    [data-page="case"] .case-hero .kp .kpi {
+      gap: 6px;
+      padding: 12px 14px 10px;
+    }
+
+    [data-page="case"] .case-hero .kp .kpi dd {
+      font-size: 1.75rem;
+    }
+
+    [data-page="case"] .case-hero .cs-intro {
+      margin-block: 14px 20px;
+    }
+  }
+
+  /* A real button, not a caption: bordered, filled, and with a hover and
+     focus state, so it reads as pressable. */
   [data-page="case"] .back {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     min-height: 44px;
-    padding-inline: 4px 14px;
-    border-radius: 0.375rem;
-    color: var(--c-light-text);
-    font-size: 0.875rem;
+    padding-inline: 14px 20px;
+    border: 1px solid var(--c-rule-strong);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--c-surface) 80%, transparent);
+    color: var(--c-dark-text);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1;
     text-decoration: none;
     margin-bottom: 28px;
-    transition: color 0.2s ease;
+    transition:
+      border-color 0.2s ease,
+      background-color 0.2s ease,
+      transform 0.2s var(--ease-out);
   }
 
   [data-page="case"] .back:hover {
-    color: var(--c-dark-text);
+    border-color: var(--c-secondary);
+    background: var(--c-surface);
+  }
+
+  [data-page="case"] .back:active {
+    transform: scale(0.98);
+  }
+
+  [data-page="case"] .back:focus-visible {
+    outline: 2px solid var(--c-signal);
+    outline-offset: 3px;
   }
 
   [data-page="case"] .back svg {
     width: 1rem;
     height: 1rem;
     flex: none;
+    transition: translate 0.2s var(--ease-out);
+  }
+
+  [data-page="case"] .back:hover svg {
+    translate: -3px 0;
+  }
+
+  [dir="rtl"] [data-page="case"] .back:hover svg {
+    translate: 3px 0;
   }
 
   [data-page="case"] .cs-title {
@@ -377,44 +469,26 @@
     --code-rule: #1a2538;
   }
 
-  /* ---------- the browser frame ---------- */
+  /* ---------- the live frontend frame ---------- */
 
-  [data-page="case"] .shot {
+  [data-page="case"] .live {
+    width: min(100%, 960px);
+    margin-inline: auto;
     border: 1px solid var(--c-rule-strong);
-    border-radius: 0.375rem;
+    border-radius: 0.5rem;
     background: var(--c-dark-bg);
-    position: relative;
+    box-shadow: var(--sh-sm);
     overflow: hidden;
-    aspect-ratio: 16 / 9;
-    display: flex;
-    flex-direction: column;
-    isolation: isolate;
+    contain: layout paint;
   }
 
-  /* The chevron watermark, bleeding off the bottom-right corner. */
-  [data-page="case"] .shot::before {
-    content: "";
-    position: absolute;
-    inset-inline-end: -30px;
-    bottom: -30px;
-    width: 190px;
-    height: 190px;
-    z-index: -1;
-    background: color-mix(in srgb, var(--c-honey) 60%, transparent);
-    opacity: 0.5;
-    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 6l7 6-7 6'/%3E%3Cpath d='M14.5 19H20'/%3E%3C/svg%3E")
-      center / contain no-repeat;
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 6l7 6-7 6'/%3E%3Cpath d='M14.5 19H20'/%3E%3C/svg%3E")
-      center / contain no-repeat;
-  }
-
-  [data-page="case"] .shot-bar {
-    position: relative;
-    min-height: 44px;
-    display: flex;
-    gap: 6px;
+  [data-page="case"] .live-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     align-items: center;
-    padding: 10px 12px;
+    gap: 8px;
+    min-height: 48px;
+    padding-inline: 12px 6px;
     border-bottom: 1px solid var(--c-hairline);
     background: var(--c-light-bg);
     font: 500 0.75rem var(--font-mono-body);
@@ -422,7 +496,12 @@
     direction: ltr;
   }
 
-  [data-page="case"] .shot-bar i {
+  [data-page="case"] .live-dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  [data-page="case"] .live-dots i {
     width: 8px;
     height: 8px;
     border-radius: 50%;
@@ -430,53 +509,182 @@
     display: block;
   }
 
-  [data-page="case"] .shot-bar span.addr {
-    position: absolute;
-    inset-inline-start: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    margin: 0;
-    padding: 4px 14px;
+  [data-page="case"] .live .addr {
+    max-width: 100%;
+    padding: 5px 14px;
+    overflow: hidden;
     border: 1px solid var(--c-hairline);
     border-radius: 999px;
     background: var(--c-page);
-  }
-
-  [data-page="case"] .shot-body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-    padding: 20px;
-    text-align: center;
     color: var(--c-light-text);
-    font-size: 0.875rem;
-  }
-
-  [data-page="case"] .shot-body p {
-    max-width: 34ch;
-  }
-
-  /* The placeholder tag: a dashed pink chip that says what is missing. */
-  [data-page="case"] .ph {
-    --flag: #b4004e;
-    --flag-bg: rgba(180, 0, 78, 0.08);
-    font: 600 0.75rem/1 var(--font-mono-body);
-    color: var(--flag);
-    background: var(--flag-bg);
-    border: 1px dashed var(--flag);
-    padding: 4px 6px;
-    border-radius: 3px;
-    letter-spacing: 0.03em;
-    text-transform: none;
+    text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  body.dark-mode [data-page="case"] .ph {
-    --flag: #ff7ab8;
-    --flag-bg: rgba(255, 122, 184, 0.1);
+  [data-page="case"] .live-open {
+    justify-self: end;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 44px;
+    min-height: 44px;
+    padding-inline: 10px;
+    border-radius: 999px;
+    color: var(--c-light-text);
+    font: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  [data-page="case"] .live-open:hover {
+    color: var(--c-dark-text);
+  }
+
+  [data-page="case"] .live-open:focus-visible,
+  [data-page="case"] .live-start:focus-visible {
+    outline: 2px solid var(--c-signal);
+    outline-offset: -3px;
+  }
+
+  [data-page="case"] .live-stage {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    background: var(--c-light-bg);
+  }
+
+  [data-page="case"] .live-shot,
+  [data-page="case"] .live-iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  [data-page="case"] .live-shot {
+    object-fit: cover;
+    object-position: top;
+    opacity: 0;
+    transition: opacity 0.4s ease-out;
+  }
+
+  [data-page="case"] .live-shot[data-ready] {
+    opacity: 1;
+  }
+
+  /* White until the site paints, so a dark page never flashes; the iframe is
+     revealed only once it has loaded. */
+  [data-page="case"] .live-iframe {
+    background: #fff;
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+  }
+
+  [data-page="case"] .live[data-phase="live"] .live-iframe {
+    opacity: 1;
+  }
+
+  /* The whole stage is the button while idle: a large, forgiving target. */
+  [data-page="case"] .live-start {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 14px;
+    padding: 16px;
+    border: 0;
+    background: color-mix(in srgb, var(--c-page) 60%, transparent);
+    color: inherit;
+    cursor: pointer;
+    text-align: center;
+  }
+
+  [data-page="case"] .live-hint {
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: var(--c-page);
+    color: var(--c-light-text);
+    font-size: 0.8125rem;
+    line-height: 1.3;
+  }
+
+  [data-page="case"] .live-start:hover .btn {
+    filter: brightness(1.06);
+  }
+
+  [data-page="case"] .live-status {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 16px;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px 10px;
+    margin-inline: auto;
+    width: fit-content;
+    max-width: calc(100% - 24px);
+    padding: 8px 14px;
+    border: 1px solid var(--c-hairline);
+    border-radius: 999px;
+    background: var(--c-page);
+    color: var(--c-light-text);
+    font-size: 0.8125rem;
+    text-align: center;
+  }
+
+  [data-page="case"] .live-status a {
+    min-height: 24px;
+    color: var(--c-secondary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  [data-page="case"] .live-spin {
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--c-hairline);
+    border-top-color: var(--c-secondary);
+    border-radius: 50%;
+    animation: live-spin 0.8s linear infinite;
+  }
+
+  @keyframes live-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (max-width: 600px) {
+    [data-page="case"] .live-stage {
+      aspect-ratio: 4 / 5;
+    }
+
+    /* Keep the 44px target but drop the words so the address still fits. */
+    [data-page="case"] .live-open span {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-page="case"] .back,
+    [data-page="case"] .back svg,
+    [data-page="case"] .live-shot,
+    [data-page="case"] .live-iframe {
+      transition: none;
+    }
+
+    [data-page="case"] .live-spin {
+      animation: none;
+    }
   }
 
   /* ---------- responsive ---------- */

@@ -96,8 +96,12 @@ export type TroscDictionary = {
       title: string;
       lead: string;
       addr: string;
-      placeholder: string;
-      body: string;
+      loadLabel: string;
+      openLabel: string;
+      loadingLabel: string;
+      slowNote: string;
+      frameTitle: string;
+      hint: string;
     };
   };
 };
@@ -109,7 +113,7 @@ const en: TroscDictionary = {
       "How a student-club API grew into a 100+ endpoint production system serving 200+ members: service-layer architecture, policy-based authorization, MongoDB transactions, and a zero-cost media pipeline.",
   },
   back: {
-    label: "Work",
+    label: "Back to work",
   },
   hero: {
     label: "Case study · IT Head & Backend Lead · Jan 2025 – present",
@@ -205,8 +209,12 @@ const en: TroscDictionary = {
       title: "The frontend",
       lead: "The API runs behind a live web app used by club members.",
       addr: "trosc.vercel.app",
-      placeholder: "placeholder · supply a real capture",
-      body: "Screenshot of trosc.vercel.app goes here. Same plate frame, hairline border, no shadow.",
+      loadLabel: "Load live site",
+      openLabel: "Open in new tab",
+      loadingLabel: "Loading live site…",
+      slowNote: "Taking longer than usual. Open it in a new tab.",
+      frameTitle: "Live preview of trosc.vercel.app",
+      hint: "Loads on demand to keep this page fast.",
     },
   },
 };
@@ -218,7 +226,7 @@ const ar: TroscDictionary = {
       "كيف نما API لنادٍ طلابي إلى نظام إنتاجي بأكثر من 100 نقطة نهاية يخدم أكثر من 200 عضو: معمارية بطبقة خدمات، وتحكّم بالصلاحيات عبر طبقة سياسات، ومعاملات MongoDB، وخط وسائط بلا تكلفة.",
   },
   back: {
-    label: "الأعمال",
+    label: "العودة إلى الأعمال",
   },
   hero: {
     label: "دراسة حالة · رئيس قسم IT وقائد فريق Backend · يناير 2025 – حتى الآن",
@@ -314,8 +322,12 @@ const ar: TroscDictionary = {
       title: "الواجهة الأمامية",
       lead: "يعمل الـ API خلف تطبيق ويب حي لأعضاء النادي.",
       addr: "trosc.vercel.app",
-      placeholder: "placeholder · supply a real capture",
-      body: "Screenshot of trosc.vercel.app goes here. Same plate frame, hairline border, no shadow.",
+      loadLabel: "تشغيل الموقع المباشر",
+      openLabel: "فتح في تبويب جديد",
+      loadingLabel: "جارٍ تحميل الموقع…",
+      slowNote: "التحميل أبطأ من المعتاد. افتح الموقع في تبويب جديد.",
+      frameTitle: "معاينة مباشرة لموقع trosc.vercel.app",
+      hint: "يُحمَّل عند الطلب لتبقى الصفحة سريعة.",
     },
   },
 };
