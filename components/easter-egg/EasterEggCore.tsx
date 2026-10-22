@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   CLICKS_NEEDED,
@@ -48,6 +49,8 @@ type EasterEggCoreProps = {
 };
 
 export default function EasterEggCore({ mode, initialClicks, locale }: EasterEggCoreProps) {
+  const pathname = usePathname();
+  const lastPathname = useRef(pathname);
   const [toasts, setToasts] = useState<ToastData[]>([]);
   const [terminalOpen, setTerminalOpen] = useState(false);
   const [overlay, setOverlay] = useState<Overlay>("none");
@@ -75,7 +78,6 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
     level: 0,
     revealed: false,
     solved: false,
-    masterShown: false,
     lingering: false,
     resetTimer: 0,
   });
@@ -237,6 +239,11 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       else scheduleLinger();
     };
 
+    if (lastPathname.current !== pathname) {
+      lastPathname.current = pathname;
+      reset(false);
+    }
+
     const startResetTimer = (duration: number) => {
       window.clearTimeout(state.resetTimer);
       state.resetTimer = window.setTimeout(() => reset(true), duration);
@@ -249,12 +256,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
     // so it stays replayable.
     const solve = () => {
       if (state.solved) return;
-      if (state.masterShown) {
-        settle();
-        return;
-      }
       state.solved = true;
-      state.masterShown = true;
 
       state.revealed = true;
       state.level = HINT_LEVELS.length - 1;
@@ -341,7 +343,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       unbindCursor();
       window.clearTimeout(state.resetTimer);
     };
-  }, [addToast]);
+  }, [addToast, pathname]);
 
   const busy = overlay !== "none" || terminalOpen || menuOpen;
 

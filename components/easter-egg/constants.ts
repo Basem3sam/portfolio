@@ -151,7 +151,7 @@ export function eggCopy(locale: Locale) {
       "There is a ten-key sequence that opens the developer terminal.",
       "هناك تسلسل من عشرة مفاتيح يفتح طرفية المطوّر.",
     ),
-    pEnter: t("Enter sequence", "أدخل التسلسل"),
+    pEnter: t("Enter the sequence", "أدخل التسلسل"),
     pCancel: t("Not now", "ليس الآن"),
     pHint: t(
       "Hint: some things on this page respond when you touch them.",

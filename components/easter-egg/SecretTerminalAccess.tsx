@@ -22,7 +22,7 @@ type SecretTerminalAccessProps = {
  * only the Master Code window reveals the answer.
  */
 export default function SecretTerminalAccess({ locale, onClose, onTry, quick, ghost }: SecretTerminalAccessProps) {
-  const { visible, containerVisible, leave } = useOverlay(quick);
+  const { visible, containerVisible, leave } = useOverlay();
   const c = eggCopy(locale);
 
   useEffect(() => {
@@ -61,7 +61,7 @@ export default function SecretTerminalAccess({ locale, onClose, onTry, quick, gh
         </div>
 
         <div className="egbtns">
-          <button type="button" className="egbtn" onClick={() => leave(onTry)}>
+          <button type="button" className="egbtn" onClick={onTry}>
             <span>{c.pEnter}</span>
           </button>
           <button type="button" className="egbtn ghost" onClick={() => leave(onClose)}>

@@ -53,7 +53,7 @@ export default function KonamiKeyboard({
   quick,
   ghost,
 }: KonamiKeyboardProps) {
-  const { visible, containerVisible, leave } = useOverlay(quick);
+  const { visible, containerVisible, leave } = useOverlay();
   const [sequence, setSequence] = useState<string[]>([]);
   const [pressed, setPressed] = useState<string | null>(null);
   const [status, setStatus] = useState<Status>("idle");
@@ -258,7 +258,7 @@ export default function KonamiKeyboard({
             <Icon name="rotateCcw" className="i" />
             <span>{c.clear}</span>
           </button>
-          <button type="button" className="egbtn ghost sm" onClick={() => leave(onBack)}>
+          <button type="button" className="egbtn ghost sm" onClick={onBack}>
             <Icon name="arrowLeft" className="i" />
             <span>{c.back}</span>
           </button>

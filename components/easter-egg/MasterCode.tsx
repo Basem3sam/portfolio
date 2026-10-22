@@ -32,7 +32,7 @@ const CAP_CLASS: Record<string, string> = {
  * the sequence itself.
  */
 export default function MasterCode({ locale, onClose, onEnter, quick, ghost }: MasterCodeProps) {
-  const { visible, containerVisible, leave } = useOverlay(quick);
+  const { visible, containerVisible, leave } = useOverlay();
   const c = eggCopy(locale);
   const ar = locale === "ar";
 
@@ -88,7 +88,7 @@ export default function MasterCode({ locale, onClose, onEnter, quick, ghost }: M
         </div>
 
         <div className="egbtns">
-          <button type="button" className="egbtn" onClick={() => leave(onEnter)}>
+          <button type="button" className="egbtn" onClick={onEnter}>
             <span>{c.mBtn}</span>
           </button>
         </div>

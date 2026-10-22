@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { KONAMI_CODE, type TerminalMode } from "@/components/easter-egg/constants";
 import type { Locale } from "@/lib/i18n";
@@ -14,6 +15,7 @@ const MIN_CLICK_INTERVAL = 300;
 type LoadState = { mode: TerminalMode; clicks: number };
 
 export default function EasterEgg({ locale }: { locale: Locale }) {
+  const pathname = usePathname();
   const [load, setLoad] = useState<LoadState | null>(null);
   const clicks = useRef(0);
   const lastClick = useRef(0);
@@ -104,7 +106,7 @@ export default function EasterEgg({ locale }: { locale: Locale }) {
       target.removeEventListener("click", handleClick);
       unbindCursor();
     };
-  }, [load, arm]);
+  }, [load, arm, pathname]);
 
   if (!load) return null;
 
