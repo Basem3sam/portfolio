@@ -64,6 +64,14 @@
   border-color: var(--c-dark-text);
 }
 
+.lb-back:focus-visible,
+.lk:focus-visible,
+.lb-ctl .lb-lang:focus-visible,
+.lb-ctl .lb-theme:focus-visible {
+  outline: 2px solid var(--c-note);
+  outline-offset: 3px;
+}
+
 /* The arrow badge always points back (left), in both directions — the
    mockup pins the glyph with an inline transform:none over .rtl-flip. */
 .lb-arrow {
@@ -371,7 +379,8 @@ html[dir="rtl"] .lk-body h1 {
   overflow: hidden;
   transition:
     border-color 0.2s,
-    background-color 0.2s;
+    background-color 0.2s,
+    transform 0.15s;
 }
 
 .lk::before {
@@ -418,6 +427,7 @@ html[dir="rtl"] .lk-body h1 {
   display: block;
   font: 500 0.8125rem var(--font-mono-body);
   direction: ltr;
+  overflow-wrap: anywhere;
   color: var(--c-light-text);
 }
 
@@ -440,31 +450,55 @@ html[dir="rtl"] .lk .val {
     transform 0.25s;
 }
 
-.lk:hover,
 .lk:focus-visible {
   border-color: var(--c-muted-text);
   background: var(--c-light-bg);
 }
 
-.lk:hover::before,
 .lk:focus-visible::before {
   transform: scaleY(1);
 }
 
-.lk:hover .ico {
+.lk:focus-visible .ico {
   background: var(--c-note);
   color: var(--c-page);
 }
 
-.lk:hover .go {
+.lk:focus-visible .go {
   background: var(--c-dark-text);
   border-color: var(--c-dark-text);
   color: var(--c-page);
-  transform: translateX(2px);
 }
 
-html[dir="rtl"] .lk:hover .go {
-  transform: translateX(-2px);
+.lk:active {
+  transform: scale(0.99);
+}
+
+@media (hover: hover) {
+  .lk:hover {
+    border-color: var(--c-muted-text);
+    background: var(--c-light-bg);
+  }
+
+  .lk:hover::before {
+    transform: scaleY(1);
+  }
+
+  .lk:hover .ico {
+    background: var(--c-note);
+    color: var(--c-page);
+  }
+
+  .lk:hover .go {
+    background: var(--c-dark-text);
+    border-color: var(--c-dark-text);
+    color: var(--c-page);
+    transform: translateX(2px);
+  }
+
+  html[dir="rtl"] .lk:hover .go {
+    transform: translateX(-2px);
+  }
 }
 
 .lk.primary {
@@ -479,8 +513,18 @@ html[dir="rtl"] .lk:hover .go {
   color: var(--c-on-secondary);
 }
 
-@media (hover: none) {
-  .lk:hover .go {
+.lk.primary:focus-visible {
+  border-color: var(--c-signal);
+}
+
+@media (hover: hover) {
+  .lk.primary:hover {
+    border-color: var(--c-signal);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lk:active {
     transform: none;
   }
 }

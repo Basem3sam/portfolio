@@ -64,9 +64,9 @@ export default function LinkCard({
     );
   }
 
-  if (download) {
+  if (download || !href.startsWith("/")) {
     return (
-      <a href={href} className={className} download>
+      <a href={href} className={className} download={download || undefined}>
         {content}
       </a>
     );
