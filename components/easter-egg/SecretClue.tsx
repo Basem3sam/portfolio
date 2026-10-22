@@ -13,6 +13,7 @@ type SecretClueProps = {
   onHint: () => void;
   onPrompt: () => void;
   onOpen: () => void;
+  onMenuChange: (open: boolean) => void;
 };
 
 const labels = {
@@ -48,6 +49,7 @@ export default function SecretClue({
   onHint,
   onPrompt,
   onOpen,
+  onMenuChange,
 }: SecretClueProps) {
   const [open, setOpen] = useState(false);
   const [footerNear, setFooterNear] = useState(false);
@@ -55,6 +57,10 @@ export default function SecretClue({
   const firstItemRef = useRef<HTMLButtonElement>(null);
   const closeTimer = useRef(0);
   const t = labels[locale];
+
+  useEffect(() => {
+    onMenuChange(open && revealed);
+  }, [open, revealed, onMenuChange]);
 
   // The clue button bows out at the page end: it is a mid-page exploration
   // aid, and fading it over the footer removes floating-button clutter.

@@ -38,6 +38,7 @@ export const KEY_NAME: Record<string, string> = {
 
 export const CLICKS_NEEDED = 10;
 export const CLUE_START_CLICK = 3;
+export const CLUE_LINGER_MS = 30000;
 
 export const isMobileViewport = () => window.innerWidth <= 768;
 

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   CLICKS_NEEDED,
+  CLUE_LINGER_MS,
   CLUE_START_CLICK,
   HINT_LEVELS,
   KONAMI_CODE,
@@ -62,6 +63,10 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
   const terminalOpenRef = useRef(false);
   const nextToastId = useRef(0);
   const resetJourney = useRef<(notify: boolean) => void>(() => {});
+  const settleJourney = useRef<() => void>(() => {});
+  const holdLinger = useRef<(busy: boolean) => void>(() => {});
+  const busyRef = useRef(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const game = useRef({
     clicks: 0,
     lastClick: 0,
@@ -70,6 +75,8 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
     level: 0,
     revealed: false,
     solved: false,
+    masterShown: false,
+    lingering: false,
     resetTimer: 0,
   });
 
@@ -197,6 +204,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       state.level = 0;
       state.revealed = false;
       state.solved = false;
+      state.lingering = false;
       syncClue();
       if (notify) addToast({ kind: "reset" });
     };
@@ -204,6 +212,30 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
     // The master window closes from outside this effect, so the quiet
     // reset it triggers is handed back through a ref.
     resetJourney.current = reset;
+
+    const scheduleLinger = () => {
+      window.clearTimeout(state.resetTimer);
+      state.resetTimer = window.setTimeout(() => reset(false), CLUE_LINGER_MS);
+    };
+
+    const settle = () => {
+      window.clearTimeout(state.resetTimer);
+      state.clicks = 0;
+      state.level = 0;
+      state.solved = false;
+      state.revealed = true;
+      state.lingering = true;
+      syncClue();
+      if (!busyRef.current) scheduleLinger();
+    };
+
+    settleJourney.current = settle;
+
+    holdLinger.current = (busy) => {
+      if (!state.lingering) return;
+      if (busy) window.clearTimeout(state.resetTimer);
+      else scheduleLinger();
+    };
 
     const startResetTimer = (duration: number) => {
       window.clearTimeout(state.resetTimer);
@@ -217,7 +249,12 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
     // so it stays replayable.
     const solve = () => {
       if (state.solved) return;
+      if (state.masterShown) {
+        settle();
+        return;
+      }
       state.solved = true;
+      state.masterShown = true;
 
       state.revealed = true;
       state.level = HINT_LEVELS.length - 1;
@@ -259,6 +296,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       }
 
       state.clicks++;
+      state.lingering = false;
       window.clearTimeout(state.resetTimer);
 
       // Pointer clicks react where they landed; keyboard activation reports
@@ -305,6 +343,13 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
     };
   }, [addToast]);
 
+  const busy = overlay !== "none" || terminalOpen || menuOpen;
+
+  useEffect(() => {
+    busyRef.current = busy;
+    holdLinger.current(busy);
+  }, [busy]);
+
   const showHint = () => {
     if (overlay !== "none") return;
 
@@ -340,14 +385,14 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
 
   const leaveKeyboard = () => {
     // The hunt that produced the master code is finished once its keypad is.
-    if (keyboardFrom === "master") resetJourney.current(false);
+    if (keyboardFrom === "master") settleJourney.current();
     setOverlay("none");
   };
 
   const handleKeyboardSuccess = () => {
     // The terminal opens on top of the keypad; the keypad is removed once
     // the terminal's own fade-in has covered it.
-    if (keyboardFrom === "master") resetJourney.current(false);
+    if (keyboardFrom === "master") settleJourney.current();
     openTerminal();
     celebrateUnlock();
     window.setTimeout(() => setOverlay("none"), 700);
@@ -365,6 +410,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
         onHint={showHint}
         onPrompt={openPrompt}
         onOpen={openTerminal}
+        onMenuChange={setMenuOpen}
       />
       {behind === "prompt" && <SecretTerminalAccess {...ghostProps} onTry={() => {}} />}
       {behind === "keyboard" && (
@@ -394,7 +440,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
           quick={quick}
           onClose={() => {
             setOverlay("none");
-            resetJourney.current(false);
+            settleJourney.current();
           }}
           onEnter={enterFromMaster}
         />
