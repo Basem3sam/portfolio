@@ -1279,7 +1279,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
   return (
     <div className="egg">
       <div
-        className={`eov dim${open && shown ? "show" : ""}`}
+        className={`eov dim${open && shown ? " show" : ""}`}
         onClick={(event) => {
           if (event.target === event.currentTarget) close();
         }}
