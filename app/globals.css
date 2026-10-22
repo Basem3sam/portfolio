@@ -498,17 +498,18 @@
   --wash-a: rgba(91, 63, 209, 0.085);
   --wash-b: rgba(59, 91, 245, 0.08);
   --dots: 0.16;
-  --font-body: var(--font-instrument, "Instrument Sans"), system-ui, -apple-system, "Segoe UI",
-    sans-serif;
+  --font-body:
+    var(--font-instrument, "Instrument Sans"), system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display-body: var(--font-jakarta, "Plus Jakarta Sans"), var(--font-body);
-  --font-mono-body: var(--font-jetbrains, "JetBrains Mono"), ui-monospace, "SF Mono", Menlo,
-    Consolas, monospace;
+  --font-mono-body:
+    var(--font-jetbrains, "JetBrains Mono"), ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 
 /* Arabic: one family for body and headings (Latin display face has no Arabic glyphs). */
 html[lang="ar"] {
-  --font-body: var(--font-readex, "Readex Pro"), "IBM Plex Sans Arabic", "Segoe UI",
-    "Noto Sans Arabic", Tahoma, sans-serif;
+  --font-body:
+    var(--font-readex, "Readex Pro"), "IBM Plex Sans Arabic", "Segoe UI", "Noto Sans Arabic",
+    Tahoma, sans-serif;
   --font-display-body: var(--font-body);
 }
 
@@ -1144,17 +1145,15 @@ html[lang="ar"] :is(h1, h2, h3) {
     position: absolute;
     inset-inline-start: 0;
     bottom: -0.3em;
-    /* The full title width, not a fixed length: the old 4.6em cap stopped the
-       line short under any longer title. */
-    width: 100%;
+    /* Width of the title's last rendered line, set by SectionTitle. Falls back
+       to the full box until it runs (no JS / before hydration). */
+    width: var(--sh-ul, 100%);
     height: 0.3em;
     background: var(--c-honey);
     opacity: 0.85;
-    -webkit-mask:
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 12' preserveAspectRatio='none'%3E%3Cpath d='M0 6C12 1 22 11 36 5S58 2 70 6 90 10 100 6' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E")
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 12' preserveAspectRatio='none'%3E%3Cpath d='M0 6C12 1 22 11 36 5S58 2 70 6 90 10 100 6' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E")
       0 0 / 3.4em 100% round no-repeat;
-    mask:
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 12' preserveAspectRatio='none'%3E%3Cpath d='M0 6C12 1 22 11 36 5S58 2 70 6 90 10 100 6' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E")
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 12' preserveAspectRatio='none'%3E%3Cpath d='M0 6C12 1 22 11 36 5S58 2 70 6 90 10 100 6' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E")
       0 0 / 3.4em 100% round no-repeat;
     clip-path: inset(0 100% 0 0);
     transition: clip-path 1.3s cubic-bezier(0.65, 0, 0.35, 1) 0.7s;

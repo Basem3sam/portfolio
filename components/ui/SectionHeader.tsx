@@ -1,3 +1,5 @@
+import SectionTitle from "./SectionTitle";
+
 type SectionHeaderProps = {
   /** Two-digit section index shown above the title, e.g. "01". */
   number: string;
@@ -17,12 +19,7 @@ type SectionHeaderProps = {
  * decorative, so the top row is hidden from assistive tech; the h2 carries
  * the section's accessible name.
  */
-export default function SectionHeader({
-  number,
-  title,
-  lead,
-  headingId,
-}: SectionHeaderProps) {
+export default function SectionHeader({ number, title, lead, headingId }: SectionHeaderProps) {
   return (
     <div className="sh" data-reveal>
       <div className="sh-top" aria-hidden="true">
@@ -31,7 +28,7 @@ export default function SectionHeader({
         </span>
         <span className="rule"></span>
       </div>
-      <h2 id={headingId}>{title}</h2>
+      <SectionTitle id={headingId}>{title}</SectionTitle>
       {lead ? <p>{lead}</p> : null}
     </div>
   );
