@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import Icon, { type IconName } from "@/components/ui/Icon";
 
@@ -5,25 +6,15 @@ type LinkCardProps = {
   href: string;
   icon: IconName;
   title: string;
-  /** Row subcopy under the title (mockup `<small>`). */
   description?: string;
-  /** Mono contact value (phone / email) instead of the description. */
   value?: string;
-  /** Icon in the trailing circle: arrow for internal, ext/download otherwise. */
   trailing: IconName;
   external?: boolean;
   download?: boolean;
-  /** The one primary row (Portfolio website): signal border and wash. */
   primary?: boolean;
+  index?: number;
 };
 
-/**
- * One grouped link row on /links (mockup `.lk`, lines 2822–2832): icon tile,
- * title + subcopy (or a mono contact value), trailing circle. Hover and
- * focus-visible share the same states (edge bar, tile fill, circle fill);
- * the markup mirrors the reference and stays readable to assistive tech —
- * both icon slots are decorative and hidden from it.
- */
 export default function LinkCard({
   href,
   icon,
@@ -34,6 +25,7 @@ export default function LinkCard({
   external,
   download,
   primary,
+  index = 0,
 }: LinkCardProps) {
   const content = (
     <>
@@ -49,16 +41,23 @@ export default function LinkCard({
         )}
       </span>
       <span className="go" aria-hidden="true">
-        <Icon name={trailing} className="size-4" />
+        <Icon
+          name={trailing}
+          className={trailing === "arrowRight" ? "size-4 rtl:-scale-x-100" : "size-4"}
+        />
       </span>
     </>
   );
 
-  const className = primary ? "lk primary" : "lk";
+  const shared = {
+    className: primary ? "lk primary" : "lk",
+    "data-trailing": trailing,
+    style: { "--stagger-index": index } as CSSProperties,
+  };
 
   if (external) {
     return (
-      <a href={href} className={className} target="_blank" rel="noopener noreferrer">
+      <a href={href} {...shared} target="_blank" rel="noopener noreferrer">
         {content}
       </a>
     );
@@ -66,14 +65,14 @@ export default function LinkCard({
 
   if (download || !href.startsWith("/")) {
     return (
-      <a href={href} className={className} download={download || undefined}>
+      <a href={href} {...shared} download={download || undefined}>
         {content}
       </a>
     );
   }
 
   return (
-    <Link href={href} className={className}>
+    <Link href={href} {...shared}>
       {content}
     </Link>
   );

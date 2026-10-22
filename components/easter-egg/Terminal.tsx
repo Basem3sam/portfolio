@@ -13,7 +13,7 @@ import Icon from "@/components/ui/Icon";
 import Mark from "@/components/ui/Mark";
 import { lockScroll, unlockScroll } from "@/lib/scrollLock";
 import { prefersReducedMotion } from "@/lib/scroll";
-import { playSuccessSound } from "@/lib/sounds";
+import { playErrorSound, playKonamiKeySound, playSuccessSound } from "@/lib/sounds";
 import {
   ASCII_BANNER,
   BANNER_TAGLINE,
@@ -105,7 +105,7 @@ const escapeHtml = (value: string) =>
   value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 const promptHtml = (user: string, symbol: string) =>
-  `<span class="pr"><span class="u">${user}@basem</span>:<span class="p">~</span>${symbol}</span>`;
+  `<span class="pr"><span class="u eu-${user}">${user}</span><span class="u eh">@basem</span>:<span class="p">~</span>${symbol}</span>`;
 
 const splitAtoms = (text: string): string[] => text.match(/&[a-zA-Z#][a-zA-Z0-9]*;|[\s\S]/g) ?? [];
 
@@ -237,10 +237,12 @@ type Stored = {
   hints: Record<string, number>;
   /** When the first trophy was earned, for the certificate. */
   since: number | null;
+  /** Retro screen effect (scanlines, glow). On by default. */
+  crt: boolean;
 };
 
 function loadStored(): Stored {
-  const fallback: Stored = { found: [], theme: "amber", hints: {}, since: null };
+  const fallback: Stored = { found: [], theme: "amber", hints: {}, since: null, crt: true };
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return fallback;
@@ -255,6 +257,7 @@ function loadStored(): Stored {
       theme: THEMES.includes(data.theme as ThemeId) ? (data.theme as ThemeId) : "amber",
       hints,
       since: typeof data.since === "number" ? data.since : null,
+      crt: data.crt !== false,
     };
   } catch {
     return fallback;
@@ -331,6 +334,46 @@ const closestCommand = (word: string) => {
   }
   return best;
 };
+
+/** HH:MM in Cairo, for the status line. */
+function cairoClock() {
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Africa/Cairo",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(new Date());
+}
+
+// The banner is drawn in two tones: solid blocks in the bright accent and the
+// box-drawing "shadow" in a dimmer one, so the letters read as raised.
+function renderBanner(text: string): ReactNode[] {
+  return text.split("\n").flatMap((row, rowIndex, rows) => {
+    const runs: ReactNode[] = [];
+    let current = "";
+    let solid = row[0] === "█";
+    [...row].forEach((char, i) => {
+      const isSolid = char === "█";
+      if (isSolid !== solid && current) {
+        runs.push(
+          <span key={`${rowIndex}-${i}`} className={solid ? "ebk" : "esh"}>
+            {current}
+          </span>,
+        );
+        current = "";
+      }
+      solid = isSolid;
+      current += char;
+    });
+    runs.push(
+      <span key={`${rowIndex}-end`} className={solid ? "ebk" : "esh"}>
+        {current}
+      </span>,
+    );
+    if (rowIndex < rows.length - 1) runs.push("\n");
+    return runs;
+  });
+}
 
 /* ------------------------------------------------------------- screen fx */
 
@@ -521,6 +564,9 @@ export default function Terminal({ open, onClose }: TerminalProps) {
   const [bump, setBump] = useState(0);
   const [rainRun, setRainRun] = useState(0);
   const [burstRun, setBurstRun] = useState(0);
+  const [crt, setCrt] = useState(stored.crt);
+  const [caret, setCaret] = useState(0);
+  const [clock, setClock] = useState(() => cairoClock());
   const [announce, setAnnounce] = useState("");
   const bodyRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -535,6 +581,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
   const themeRef = useRef(stored.theme);
   const hintsRef = useRef(stored.hints);
   const sinceRef = useRef(stored.since);
+  const crtRef = useRef(stored.crt);
   const fortuneIndex = useRef<number | null>(null);
 
   const count = found.length;
@@ -643,6 +690,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
       theme: themeRef.current,
       hints: hintsRef.current,
       since: sinceRef.current,
+      crt: crtRef.current,
     });
 
   /** The last trophy is an event, not a line: a staged sequence that ends in
@@ -694,6 +742,8 @@ export default function Terminal({ open, onClose }: TerminalProps) {
     if (after !== before && after !== "root") {
       items.push({ tone: "plain", html: rankUpOutput(after) });
       playSuccessSound();
+    } else if (after !== "root") {
+      playKonamiKeySound("a", 1);
     }
 
     append(items);
@@ -708,6 +758,8 @@ export default function Terminal({ open, onClose }: TerminalProps) {
     persist();
   };
 
+  // Two frames before the fade-in starts, so the closed state is painted first
+  // and the opening transition always has something to run from.
   useEffect(() => {
     if (!open) return;
 
@@ -743,6 +795,13 @@ export default function Terminal({ open, onClose }: TerminalProps) {
     const pending = timers.current;
     return () => pending.forEach((timer) => window.clearTimeout(timer));
   }, []);
+
+  // The status line clock: only ticks while the terminal is open.
+  useEffect(() => {
+    if (!open) return;
+    const tick = window.setInterval(() => setClock(cairoClock()), 20000);
+    return () => window.clearInterval(tick);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -927,10 +986,55 @@ export default function Terminal({ open, onClose }: TerminalProps) {
         emit(historyOutput(history.current));
         return;
 
+      case "reset": {
+        if (args[0] !== "confirm") {
+          emit(
+            `  <span class="wl">This erases all ${foundRef.current.length} trophies, your rank and theme.</span>\n  <span class="dim">To go ahead, type</span> <span class="info">reset confirm</span>`,
+          );
+          return;
+        }
+        foundRef.current = [];
+        hintsRef.current = {};
+        sinceRef.current = null;
+        themeRef.current = "amber";
+        setFound([]);
+        setTheme("amber");
+        setBump((value) => value + 1);
+        try {
+          window.localStorage.removeItem(STORAGE_KEY);
+        } catch {
+          /* storage unavailable: the in-memory reset still applies */
+        }
+        persist();
+        append([
+          { tone: "success", text: "Progress reset. Rank: guest. 0 trophies." },
+          { tone: "info", text: 'Type "help" to start again.' },
+        ]);
+        return;
+      }
+
+      case "crt": {
+        const choice = args[0];
+        if (choice === "on" || choice === "off") {
+          const next = choice === "on";
+          crtRef.current = next;
+          setCrt(next);
+          persist();
+          append([{ tone: "plain", text: `Retro screen effect ${choice}.` }]);
+        } else {
+          emit(
+            `  <span class="key">crt   </span>${
+              crtRef.current ? `<span class="ok">on</span>` : `<span class="dim">off</span>`
+            }\n  <span class="info">crt off</span> <span class="dim">or</span> <span class="info">crt on</span>`,
+          );
+        }
+        return;
+      }
+
       case "hint": {
         const target = DISCOVERIES.find((item) => !foundRef.current.includes(item.id));
         if (!target) {
-          emit('  <span class="wl">No trophies left.</span> <span class="dim">You have everything.</span>');
+          emit(`  <span class="wl">No trophies left.</span> <span class="dim">You have everything.</span>`);
           return;
         }
         const level = Math.min(3, (hintsRef.current[target.id] ?? 0) + 1) as 1 | 2 | 3;
@@ -1021,6 +1125,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
         return;
     }
 
+    playErrorSound();
     const guess = closestCommand(head);
     append([
       { tone: "error", text: `Command not found: ${tokens[0]}` },
@@ -1043,7 +1148,13 @@ export default function Terminal({ open, onClose }: TerminalProps) {
       },
     ]);
     run(raw);
-    setDraft("");
+    put("");
+  };
+
+  /** Programmatic edits (history, completion, clear) put the cursor at the end. */
+  const put = (value: string) => {
+    setDraft(value);
+    setCaret(value.length);
   };
 
   const completion = draft ? completionFor(draft) : null;
@@ -1058,7 +1169,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
     const prefix = commonPrefix(options);
 
     if (prefix.length > partial.length) {
-      setDraft(head + prefix + (options.length === 1 && takesArgs ? " " : ""));
+      put(head + prefix + (options.length === 1 && takesArgs ? " " : ""));
     } else if (options.length > 1) {
       append([
         { tone: "prompt", html: `${promptHtml(rank, symbol)} <span class="cmd">${escapeHtml(draft)}</span>` },
@@ -1080,7 +1191,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
       }
       if (k === "u") {
         event.preventDefault();
-        setDraft("");
+        put("");
         return;
       }
       if (k === "c") {
@@ -1091,14 +1202,14 @@ export default function Terminal({ open, onClose }: TerminalProps) {
             html: `${promptHtml(rank, symbol)} <span class="cmd">${escapeHtml(draft)}</span><span class="dim">^C</span>`,
           },
         ]);
-        setDraft("");
+        put("");
         return;
       }
     }
 
     if (event.key === "Enter") {
       if (draft.trim()) submit(draft.trim());
-      else setDraft("");
+      else put("");
     } else if (event.key === "Tab" && !event.shiftKey && draft && completion) {
       event.preventDefault();
       complete();
@@ -1108,21 +1219,21 @@ export default function Terminal({ open, onClose }: TerminalProps) {
       input.selectionStart === draft.length
     ) {
       event.preventDefault();
-      setDraft(draft + ghost);
+      put(draft + ghost);
     } else if (event.key === "ArrowUp") {
       event.preventDefault();
       if (historyIndex.current > 0) {
         historyIndex.current--;
-        setDraft(history.current[historyIndex.current]);
+        put(history.current[historyIndex.current]);
       }
     } else if (event.key === "ArrowDown") {
       event.preventDefault();
       if (historyIndex.current < history.current.length - 1) {
         historyIndex.current++;
-        setDraft(history.current[historyIndex.current]);
+        put(history.current[historyIndex.current]);
       } else {
         historyIndex.current = history.current.length;
-        setDraft("");
+        put("");
       }
     }
   };
@@ -1149,6 +1260,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
           className="eterm"
           data-theme={theme}
           data-rank={rank}
+          data-crt={crt ? "on" : "off"}
           role="dialog"
           aria-modal="true"
           aria-label="Secret terminal"
@@ -1209,7 +1321,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
                       role="img"
                       aria-label={line.cols ? "Root" : "Basem"}
                     >
-                      {line.text ?? ""}
+                      {renderBanner(line.text ?? "")}
                     </pre>
                   );
                 }
@@ -1262,20 +1374,39 @@ export default function Terminal({ open, onClose }: TerminalProps) {
 
           <div className="eti">
             <label htmlFor="terminal-input">
-              <span className="u">{rank}@basem</span>:<span className="p">~</span>
+              <span className={`u eu-${rank}`}>{rank}</span>
+              <span className="u eh">@basem</span>:<span className="p">~</span>
               {symbol}
             </label>
             <div className="efield">
+              {/* The typed text and the block cursor are drawn here; the real
+                  input above is transparent and only receives the typing. */}
               <span className="eg" aria-hidden="true">
-                <i>{draft}</i>
-                {ghost}
+                <span className="et">{draft.slice(0, caret)}</span>
+                {caret >= draft.length && ghost ? (
+                  <>
+                    <span className="cur gh">{ghost.charAt(0)}</span>
+                    <span className="gh">{ghost.slice(1)}</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="cur">{draft.charAt(caret) || "\u00a0"}</span>
+                    <span className="et">{draft.slice(caret + 1)}</span>
+                  </>
+                )}
               </span>
               <input
                 ref={inputRef}
                 id="terminal-input"
                 type="text"
                 value={draft}
-                onChange={(event) => setDraft(event.target.value)}
+                onChange={(event) => {
+                  setDraft(event.target.value);
+                  setCaret(event.target.selectionStart ?? event.target.value.length);
+                }}
+                onSelect={(event) => setCaret(event.currentTarget.selectionStart ?? 0)}
+                onKeyUp={(event) => setCaret(event.currentTarget.selectionStart ?? 0)}
+                onClick={(event) => setCaret(event.currentTarget.selectionStart ?? 0)}
                 placeholder={
                   rank === "root"
                     ? "Try certificate or theme gold"
@@ -1294,6 +1425,15 @@ export default function Terminal({ open, onClose }: TerminalProps) {
                 onKeyDown={handleKeyDown}
               />
             </div>
+          </div>
+
+          <div className="est" aria-hidden="true">
+            <span className="est-a">basem</span>
+            <span className="est-b">0:zsh*</span>
+            <span className="est-c">
+              {rank} {count}/{TOTAL_DISCOVERIES}
+            </span>
+            <span className="est-d">cairo {clock}</span>
           </div>
 
           <div className="sr-only" role="status" aria-live="polite">

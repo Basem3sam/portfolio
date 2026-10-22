@@ -36,7 +36,7 @@ const hint = (text: string) => `<span class="info">${text}</span>`;
 
 const link = (href: string, label: string) => {
   const external = href.startsWith("https://");
-  return `<a class="lk" href="${href}"${
+  return `<a class="elk" href="${href}"${
     external ? ' target="_blank" rel="noopener noreferrer"' : ""
   }>${label}</a>`;
 };
@@ -639,6 +639,8 @@ export const COMMAND_OUTPUT: Record<string, string> = {
       row("hint", "a nudge for the next trophy"),
       row("theme NAME", "amber ice moss iris rose"),
       row("history", "commands you have run"),
+      row("crt on|off", "retro screen effect"),
+      row("reset", "erase progress, start over"),
       row("echo TEXT", "repeat text back"),
       row("clear", "empty the screen"),
       row("exit", "close the terminal"),
@@ -807,7 +809,9 @@ export const COMMAND_OUTPUT: Record<string, string> = {
         const left = logo[i] ?? "";
         return `<span class="hd">${left.padEnd(8)}</span>  ${row}`.trimEnd();
       })
-      .join("\n");
+      .join("\n")
+      // Tight rows so the logo's blocks meet instead of showing gaps.
+      .replace(/^/, '<span class="nf">') + "</span>";
   })(),
 };
 
@@ -835,6 +839,8 @@ export const COMMAND_NAMES = [
   "whoami",
   "date",
   "history",
+  "crt",
+  "reset",
   "clear",
   "exit",
 ];
@@ -844,6 +850,7 @@ export const COMMAND_ARGS: Record<string, readonly string[]> = {
   open: OPEN_NAMES,
   theme: THEMES,
   cat: [...Object.keys(FILE_COMMAND)],
+  crt: ["on", "off"],
 };
 
 export const COMMAND_ALIASES: Record<string, string> = {

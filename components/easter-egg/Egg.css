@@ -950,6 +950,21 @@
     animation: egfade 1.2s var(--e-ease) both;
   }
 
+  /* Two tones: solid blocks bright, the box-drawing shadow dimmer, so the
+     letters look raised off the screen. */
+  .egg .etb .ascii .ebk {
+    color: var(--e-hi);
+  }
+
+  .egg .etb .ascii .esh {
+    color: color-mix(in srgb, var(--e-note) 62%, transparent);
+  }
+
+  .egg .etb .nf {
+    display: block;
+    line-height: 1.2;
+  }
+
   .egg .etb .tag {
     margin-bottom: 16px;
     color: var(--e-dim);
@@ -1028,7 +1043,7 @@
     color: #fff;
   }
 
-  .egg .etb .lk {
+  .egg .etb .elk {
     color: var(--e-sig);
     text-decoration: underline;
     text-decoration-color: color-mix(in srgb, var(--e-sig) 45%, transparent);
@@ -1038,7 +1053,7 @@
       text-decoration-color 0.3s;
   }
 
-  .egg .etb .lk:hover {
+  .egg .etb .elk:hover {
     color: #fff;
     text-decoration-color: currentColor;
   }
@@ -1210,12 +1225,43 @@
     color: var(--e-live);
   }
 
+  /* Username colour follows rank, like a shell prompt: green for a normal
+     user, red for root. The @host part stays the theme colour. */
+  .egg .etb .pr .eu-guest,
+  .egg .eti .eu-guest,
+  .egg .eu-guest {
+    color: #5af78e;
+  }
+  .egg .etb .pr .eu-explorer,
+  .egg .eti .eu-explorer,
+  .egg .eu-explorer {
+    color: #57c7ff;
+  }
+  .egg .etb .pr .eu-hacker,
+  .egg .eti .eu-hacker,
+  .egg .eu-hacker {
+    color: #ff6ac1;
+  }
+  .egg .etb .pr .eu-root,
+  .egg .eti .eu-root,
+  .egg .eu-root {
+    color: #ff5c57;
+    text-shadow: 0 0 8px rgb(255 92 87 / 0.55);
+  }
+  .egg .eu-guest,
+  .egg .eu-explorer,
+  .egg .eu-hacker,
+  .egg .eu-root {
+    font-weight: 700;
+  }
+
   .egg .eti .p {
     color: var(--e-sig);
   }
 
-  /* The input sits over a ghost line that shows the completion in dim
-     text; both use identical metrics so the suggestion lines up. */
+  /* The real input is transparent and only receives the typing. The text,
+     the block cursor and the dim completion are drawn in .eg, so they use
+     one set of metrics and the cursor can be a true terminal block. */
   .egg .eti .efield {
     position: relative;
     flex: 1;
@@ -1231,13 +1277,34 @@
     align-items: center;
     overflow: hidden;
     white-space: pre;
-    color: var(--e-dim);
+    color: #fff;
     pointer-events: none;
   }
 
-  .egg .eti .eg i {
-    font-style: normal;
-    visibility: hidden;
+  .egg .eti .eg .gh {
+    color: var(--e-dim);
+  }
+
+  .egg .eti .eg .cur {
+    display: inline-block;
+    background: transparent;
+  }
+
+  .egg .eti .eg .cur.gh {
+    color: var(--e-dim);
+  }
+
+  .egg .eti:focus-within .eg .cur {
+    background: var(--e-note);
+    color: #080d18;
+    animation: egblink 1.1s steps(1) infinite;
+  }
+
+  @keyframes egblink {
+    50% {
+      background: transparent;
+      color: #fff;
+    }
   }
 
   .egg .eti input {
@@ -1249,10 +1316,13 @@
     border: 0;
     outline: 0;
     background: transparent;
-    color: #fff;
+    color: transparent;
     font: inherit;
-    caret-color: var(--e-note);
-    caret-shape: block;
+    caret-color: transparent;
+  }
+
+  .egg .eti input::selection {
+    background: transparent;
   }
 
   .egg .eti input::placeholder {
@@ -1261,6 +1331,97 @@
 
   .egg .eti:focus-within {
     box-shadow: inset 0 2px 0 var(--e-note);
+  }
+
+  /* tmux-style status line: a terminal detail that also carries the rank,
+     trophy count and Cairo time. Decorative, so it is hidden from screen
+     readers (the header chip says the same). */
+  .egg .est {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    min-height: 24px;
+    border-top: 1px solid var(--e-rule);
+    background: #0a101d;
+    font-size: 11px;
+    line-height: 24px;
+    color: var(--e-dim);
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .egg .est span {
+    padding: 0 10px;
+  }
+
+  .egg .est-a {
+    background: var(--e-note);
+    color: #080d18;
+    font-weight: 700;
+  }
+
+  .egg .est-b {
+    color: var(--e-hi);
+  }
+
+  .egg .est-c {
+    margin-inline-start: auto;
+    color: var(--e-ink2);
+  }
+
+  .egg .est-d {
+    background: color-mix(in srgb, var(--e-note) 22%, transparent);
+    color: var(--e-hi);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Retro screen: faint scanlines, a soft vignette and a whisper of
+     phosphor glow on the text. `crt off` removes all of it. */
+  .egg .eterm[data-crt="on"] .etw::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(0, 0, 0, 0.38)),
+      repeating-linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.22) 0,
+        rgba(0, 0, 0, 0.22) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+    opacity: 0.55;
+  }
+
+  .egg .eterm[data-crt="on"] .etb {
+    text-shadow: 0 0 5px color-mix(in srgb, var(--e-ink2) 28%, transparent);
+  }
+
+  .egg .eterm[data-crt="on"] .etb .hl,
+  .egg .eterm[data-crt="on"] .etb .hd,
+  .egg .eterm[data-crt="on"] .etb .tr,
+  .egg .eterm[data-crt="on"] .etb .ascii {
+    text-shadow: 0 0 10px color-mix(in srgb, var(--e-note) 45%, transparent);
+  }
+
+  /* Power-on: the screen opens from a bright line, once, per opening. */
+  .egg .eov.show .eterm[data-crt="on"] {
+    animation: egpower 0.6s var(--e-ease) 1;
+  }
+
+  @keyframes egpower {
+    0% {
+      clip-path: inset(49% 0 49% 0 round 18px);
+      filter: brightness(2.2);
+    }
+    55% {
+      clip-path: inset(0 0 0 0 round 18px);
+      filter: brightness(1.5);
+    }
+    100% {
+      filter: none;
+    }
   }
 
   /* ---- toasts (mockup lines 1443–1467) ---- */
@@ -1469,7 +1630,7 @@
     }
 
     .egg .eti {
-      padding: 4px 14px calc(4px + env(safe-area-inset-bottom));
+      padding: 4px 14px;
     }
 
     .egg .eti {
@@ -1481,6 +1642,14 @@
     }
 
     .egg .erk-r {
+      display: none;
+    }
+
+    .egg .est {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .egg .est-b {
       display: none;
     }
   }
@@ -1504,6 +1673,8 @@
       transition-duration: 0.001ms;
     }
 
+    .egg .eov.show .eterm[data-crt="on"],
+    .egg .eti:focus-within .eg .cur,
     .egg .etb .ln,
     .egg .etb .ascii,
     .egg .erk-n,

@@ -1,30 +1,21 @@
 /* ================================================================
-   /links — profile card + grouped rows, navbar-less.
-   Ported from `Portfolio Design Mockup.html`:
-     markup   lines 2804–2837 (main[data-page="links"])
-     rules    619–622  (.links-bar, .lb-ctl)
-              690–721  (.links2, .lk-card, .lk-stage, .lk-body,
-                        .lk-list, .lk-g, .lk rows + container queries)
-              1022–1024 (rev 8: chip joins the body; stage follows theme)
-              1071–1081 (rev 9: /links bar — .lb-back, .lb-ctl caps)
-   The revision-6 halftone dots (line 693) were disabled by the mockup
-   itself (display:none, line 787) once GlassFold arrived, so they are
-   not carried over; the WebGL canvas draws over the themed gradient.
+   /links — profile card beside a ruled ledger of grouped links.
 
-   Mockup → repo token map: sheet→page panel→light-bg raise→surface
-   rule→hairline rule-2→rule-strong ink→dark-text ink-2→light-text
-   ink-3→muted-text signal→signal signal-ink→on-secondary note→note
-   live→status glass→glass glass-b→glass-edge deep→dark-bg.
+   The rows follow the Contact section's hover language: a honey wash that
+   fills from the start edge, a honey rule drawn along the foot, and an
+   arrow disc that fills. The page background is the shared `.sec-wash`
+   (tonal washes + halftone corner); the card gets a slow breathing glow.
+   One row (the portfolio) is an ink bar so there is a single clear first
+   action without taking more room than the rest.
 
-   All colour literals live here: tests/color-discipline.spec.ts scans
-   .ts/.tsx but not .css, and lib/glassfold.ts reads --gf-1 … --gf-3
-   back out of getComputedStyle() so the canvas code stays literal-free.
+   All colour is token-driven; the only literals are the GlassFold palette
+   (--gf-*), which lib/glassfold.ts reads back off the stage element.
    ================================================================ */
 
 .lk-page {
-  /* The mockup's `@container f` breakpoints track the page width. */
   container-type: inline-size;
   container-name: links;
+  min-height: 100svh;
   color: var(--c-dark-text);
 }
 
@@ -162,37 +153,59 @@ html[dir="rtl"] .lb-back:hover .lb-arrow {
   transform: rotate(25deg);
 }
 
-/* ---------- two-column grid (mockup 690–694, 719–720) ---------- */
+/* ---------- two-column grid ---------- */
 
 .links2 {
   max-width: 1080px;
   margin-inline: auto;
-  padding: 48px 48px 72px;
+  padding: 44px 48px 96px;
   display: grid;
   grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
-  gap: clamp(24px, 4cqi, 56px);
+  gap: clamp(32px, 6cqi, 80px);
   align-items: start;
 }
 
-/* The side column spans the whole list's height; that gives the sticky card
-   the room it needs to travel. (Without it the column was only as tall as
-   the card, so it never moved.) */
 .lk-side {
+  position: relative;
   align-self: stretch;
   min-width: 0;
 }
 
-/* The card keeps its natural height and rides alongside the list (sticky
-   inside the side column), coming to rest where the list ends. */
+.lk-side::before {
+  content: "";
+  position: absolute;
+  inset: 8% -22% auto;
+  height: 420px;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--c-secondary) 22%, transparent),
+    transparent
+  );
+  animation: lk-breathe 14s ease-in-out infinite;
+}
+
 .lk-card {
   position: sticky;
   top: 24px;
   align-self: start;
   height: auto;
-  border: 1px solid var(--c-rule-strong);
-  border-radius: 24px;
+  border: 1px solid var(--c-hairline);
+  border-radius: 20px;
   background: var(--c-surface);
+  box-shadow: var(--sh-md);
   overflow: hidden;
+}
+
+@keyframes lk-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 /* ---------- stage: themed gradient + GlassFold + cutout ---------- */
@@ -265,37 +278,91 @@ body.dark-mode .lk-stage {
   user-select: none;
 }
 
-/* ---------- card body (mockup 695–701, rev 8 chip at 1023) ---------- */
+.lk-stage .lk-photo {
+  transition: transform 0.7s var(--ease-out);
+}
+
+.lk-card[data-revealed="true"] .lk-photo {
+  animation: lk-photo-in 1s var(--ease-out) 0.2s backwards;
+}
+
+@keyframes lk-photo-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+}
+
+@media (hover: hover) {
+  .lk-card:hover .lk-photo {
+    transform: translateY(-4px);
+  }
+}
+
+/* ---------- card body ---------- */
 
 .lk-body {
-  padding: 22px 22px 24px;
+  padding: 22px 24px 20px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-}
-
-.lk-chip {
-  align-self: flex-start;
-  margin-bottom: 10px;
-  display: inline-flex;
-  align-items: center;
   gap: 8px;
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: var(--c-glass);
-  border: 1px solid var(--c-glass-edge);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  font-size: 0.75rem;
-  color: var(--c-dark-text);
 }
 
-.lk-chip .dot {
-  width: 7px;
-  height: 7px;
-  flex: none;
+.lk-card[data-revealed="true"] .lk-body > * {
+  animation: lk-rise 0.7s var(--ease-out) backwards;
+}
+
+.lk-card[data-revealed="true"] .lk-body > :nth-child(1) {
+  animation-delay: 0.35s;
+}
+
+.lk-card[data-revealed="true"] .lk-body > :nth-child(2) {
+  animation-delay: 0.45s;
+}
+
+.lk-card[data-revealed="true"] .lk-body > :nth-child(3) {
+  animation-delay: 0.55s;
+}
+
+.lk-card[data-revealed="true"] .lk-body > :nth-child(4) {
+  animation-delay: 0.65s;
+}
+
+@keyframes lk-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+.lk-status {
+  margin-bottom: 8px;
+}
+
+.lk-status .dot {
+  position: relative;
+}
+
+.lk-status .dot::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
   border-radius: 50%;
-  background: var(--c-status);
+  border: 1.5px solid var(--c-status);
+  opacity: 0;
+  animation: lk-ping 3.4s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+}
+
+@keyframes lk-ping {
+  0% {
+    opacity: 0.8;
+    transform: scale(0.6);
+  }
+  60%,
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
 }
 
 .lk-body h1 {
@@ -316,11 +383,27 @@ html[dir="rtl"] .lk-body h1 {
 
 .lk-body p {
   margin: 0;
-  color: var(--c-light-text);
 }
 
-.lk-body .lbl {
-  margin-top: 6px;
+.lk-role {
+  color: var(--c-light-text);
+  font-size: 1.0625rem;
+  line-height: 1.5;
+}
+
+.lk-meta {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--c-hairline);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.lk-time {
+  font: 500 0.8125rem var(--font-mono-body);
+  color: var(--c-dark-text);
 }
 
 .lk-body .cursor {
@@ -343,88 +426,130 @@ html[dir="rtl"] .lk-body h1 {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .lk-body .cursor {
-    animation: none;
-  }
-}
-
-/* ---------- grouped rows (mockup 702–721) ---------- */
+/* ---------- ledger ---------- */
 
 .lk-list {
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 44px;
+  padding-top: 6px;
 }
 
 .lk-g {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+}
+
+.lk-gh {
+  margin-bottom: 6px;
+}
+
+.lk-gh .lbl {
+  flex: none;
+}
+
+.lk-g[data-revealed="true"] .lk-gh .rule {
+  animation: lk-rule 0.9s var(--ease-out) 0.1s backwards;
+}
+
+@keyframes lk-rule {
+  from {
+    scale: 0 1;
+  }
 }
 
 .lk {
   position: relative;
+  isolation: isolate;
   display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) 36px;
-  gap: 16px;
+  grid-template-columns: 24px minmax(0, 1fr) 36px;
+  gap: 18px;
   align-items: center;
-  min-height: 72px;
-  padding: 14px 16px;
-  border: 1px solid var(--c-rule-strong);
-  border-radius: 16px;
-  background: var(--c-surface);
-  text-decoration: none;
+  min-height: 76px;
+  padding: 16px 12px;
+  border-bottom: 1px solid var(--c-hairline);
   color: var(--c-dark-text);
-  overflow: hidden;
-  transition:
-    border-color 0.2s,
-    background-color 0.2s,
-    transform 0.15s;
+  text-decoration: none;
+  outline: none;
 }
 
 .lk::before {
   content: "";
   position: absolute;
-  inset-block: 0;
-  inset-inline-start: 0;
-  width: 3px;
-  background: var(--c-note);
-  transform: scaleY(0);
-  transition: transform 0.25s ease-out;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--c-honey) 16%, transparent),
+    color-mix(in srgb, var(--c-secondary) 8%, transparent) 70%,
+    transparent
+  );
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 0.6s var(--ease-out);
+}
+
+.lk::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -1px;
+  z-index: -1;
+  height: 2px;
+  pointer-events: none;
+  background: var(--c-honey);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.6s var(--ease-out);
+}
+
+html[dir="rtl"] .lk::before {
+  background: linear-gradient(
+    270deg,
+    color-mix(in srgb, var(--c-honey) 16%, transparent),
+    color-mix(in srgb, var(--c-secondary) 8%, transparent) 70%,
+    transparent
+  );
+  clip-path: inset(0 0 0 100%);
+}
+
+html[dir="rtl"] .lk::after {
+  transform-origin: right center;
 }
 
 .lk .ico {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
   display: grid;
   place-items: center;
-  background: var(--c-light-bg);
   color: var(--c-light-text);
   transition:
-    background-color 0.2s,
-    color 0.2s;
+    color 0.25s,
+    transform 0.5s var(--ease-out);
 }
 
 .lk .txt {
   min-width: 0;
+  transition: translate 0.5s var(--ease-out);
 }
 
 .lk b {
   display: block;
+  font-family: var(--font-display-body);
+  font-size: 1.0625rem;
   font-weight: 600;
   line-height: 1.3;
+  letter-spacing: -0.01em;
 }
 
 .lk .sub {
   display: block;
+  margin-top: 2px;
   color: var(--c-muted-text);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
 }
 
 .lk .val {
   display: block;
+  margin-top: 3px;
   font: 500 0.8125rem var(--font-mono-body);
   direction: ltr;
   overflow-wrap: anywhere;
@@ -438,113 +563,216 @@ html[dir="rtl"] .lk .val {
 .lk .go {
   width: 36px;
   height: 36px;
-  border-radius: 50%;
   border: 1px solid var(--c-rule-strong);
+  border-radius: 50%;
   display: grid;
   place-items: center;
   color: var(--c-light-text);
   transition:
-    background-color 0.2s,
-    color 0.2s,
-    border-color 0.2s,
-    transform 0.25s;
+    background-color 0.25s,
+    border-color 0.25s,
+    color 0.25s,
+    transform 0.25s var(--ease-out);
+}
+
+.lk .go svg {
+  transition: translate 0.4s var(--ease-out);
 }
 
 .lk:focus-visible {
-  border-color: var(--c-muted-text);
-  background: var(--c-light-bg);
+  outline: 2px solid var(--c-note);
+  outline-offset: 2px;
 }
 
 .lk:focus-visible::before {
-  transform: scaleY(1);
+  clip-path: inset(0);
+}
+
+.lk:focus-visible::after {
+  transform: scaleX(1);
 }
 
 .lk:focus-visible .ico {
-  background: var(--c-note);
-  color: var(--c-page);
+  color: var(--c-note);
+  transform: scale(1.1);
+}
+
+.lk:focus-visible .txt {
+  translate: 6px 0;
+}
+
+html[dir="rtl"] .lk:focus-visible .txt {
+  translate: -6px 0;
 }
 
 .lk:focus-visible .go {
   background: var(--c-dark-text);
-  border-color: var(--c-dark-text);
+  border-color: var(--c-honey);
   color: var(--c-page);
 }
 
-.lk:active {
-  transform: scale(0.99);
+.lk:focus-visible[data-trailing="arrowRight"] .go svg {
+  translate: 2px 0;
+}
+
+.lk:focus-visible[data-trailing="externalLink"] .go svg {
+  translate: 2px -2px;
+}
+
+.lk:focus-visible[data-trailing="fileDown"] .go svg {
+  translate: 0 2px;
+}
+
+html[dir="rtl"] .lk:focus-visible[data-trailing="arrowRight"] .go svg {
+  translate: -2px 0;
+}
+
+.lk:active .go {
+  transform: scale(0.94);
 }
 
 @media (hover: hover) {
-  .lk:hover {
-    border-color: var(--c-muted-text);
-    background: var(--c-light-bg);
+  .lk:hover::before {
+    clip-path: inset(0);
   }
 
-  .lk:hover::before {
-    transform: scaleY(1);
+  .lk:hover::after {
+    transform: scaleX(1);
   }
 
   .lk:hover .ico {
-    background: var(--c-note);
-    color: var(--c-page);
+    color: var(--c-note);
+    transform: scale(1.1);
+  }
+
+  .lk:hover .txt {
+    translate: 6px 0;
+  }
+
+  html[dir="rtl"] .lk:hover .txt {
+    translate: -6px 0;
   }
 
   .lk:hover .go {
     background: var(--c-dark-text);
-    border-color: var(--c-dark-text);
+    border-color: var(--c-honey);
     color: var(--c-page);
-    transform: translateX(2px);
   }
 
-  html[dir="rtl"] .lk:hover .go {
-    transform: translateX(-2px);
+  .lk:hover[data-trailing="arrowRight"] .go svg {
+    translate: 2px 0;
+  }
+
+  .lk:hover[data-trailing="externalLink"] .go svg {
+    translate: 2px -2px;
+  }
+
+  .lk:hover[data-trailing="fileDown"] .go svg {
+    translate: 0 2px;
+  }
+
+  html[dir="rtl"] .lk:hover[data-trailing="arrowRight"] .go svg {
+    translate: -2px 0;
   }
 }
 
+/* ---------- the primary row: an ink bar, same height as its neighbours ---------- */
+
 .lk.primary {
-  border-color: color-mix(in srgb, var(--c-signal) 55%, var(--c-rule-strong));
-  background:
-    linear-gradient(100deg, color-mix(in srgb, var(--c-signal) 10%, transparent), transparent 70%),
-    var(--c-surface);
+  margin-bottom: 8px;
+  padding-inline: 16px;
+  border-bottom: 0;
+  border-radius: 14px;
+  background: var(--c-dark-text);
+  color: var(--c-page);
+  overflow: hidden;
+}
+
+.lk.primary::after {
+  inset: auto 0 0;
+  background: var(--c-honey-hi);
+}
+
+.lk.primary b {
+  font-size: 1.125rem;
+}
+
+.lk.primary .sub {
+  color: color-mix(in srgb, var(--c-page) 72%, transparent);
 }
 
 .lk.primary .ico {
-  background: var(--c-signal);
-  color: var(--c-on-secondary);
+  color: var(--c-honey-hi);
 }
 
-.lk.primary:focus-visible {
-  border-color: var(--c-signal);
+.lk.primary .go {
+  border-color: color-mix(in srgb, var(--c-page) 38%, transparent);
+  color: var(--c-page);
+}
+
+.lk.primary:focus-visible .ico {
+  color: var(--c-honey-hi);
+}
+
+.lk.primary:focus-visible .go {
+  background: var(--c-honey-hi);
+  border-color: var(--c-honey-hi);
+  color: var(--c-primary);
 }
 
 @media (hover: hover) {
-  .lk.primary:hover {
-    border-color: var(--c-signal);
+  .lk.primary:hover .ico {
+    color: var(--c-honey-hi);
+  }
+
+  .lk.primary:hover .go {
+    background: var(--c-honey-hi);
+    border-color: var(--c-honey-hi);
+    color: var(--c-primary);
   }
 }
 
+/* ---------- entrance: bar, card, ledger ---------- */
+
+.links-bar {
+  animation: lk-drop 0.7s var(--ease-out) backwards;
+}
+
+@keyframes lk-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+}
+
+.lk-page [data-reveal]:not([data-stagger])[data-revealed="false"] {
+  opacity: 0;
+}
+
+.lk-page [data-reveal]:not([data-stagger])[data-revealed="true"] {
+  animation: revealUp 0.7s var(--ease-out) backwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .lk:active {
+  .lk-body .cursor,
+  .lk-status .dot::after,
+  .lk-side::before {
+    animation: none;
+  }
+
+  .lk-card:hover .lk-photo,
+  .lk:active .go {
     transform: none;
   }
 }
 
-/* ---------- reveals: RevealOnScroll flips data-reveal[data-revealed] ---------- */
-/* No JS / reduced motion: the attribute is never set, content stays visible. */
-.lk-page [data-reveal][data-revealed="false"] {
-  opacity: 0;
-}
-
-.lk-page [data-reveal][data-revealed="true"] {
-  animation: revealUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) backwards;
-}
-
-/* ---------- responsive: mockup `@container f` behaviour ---------- */
+/* ---------- responsive ---------- */
 
 @container links (max-width: 900px) {
   .links2 {
     grid-template-columns: minmax(0, 1fr);
     max-width: 560px;
+    padding-top: 28px;
   }
 
   .lk-side {
@@ -565,11 +793,17 @@ html[dir="rtl"] .lk .val {
   .lk-body h1 {
     font-size: 2rem;
   }
+
+  .lk {
+    gap: 14px;
+    padding-inline: 8px;
+  }
+
+  .lk.primary {
+    padding-inline: 14px;
+  }
 }
 
-/* The container cannot style its own inline padding (mockup --gx lives on
-   the container), so the gutter steps down with the viewport — the mockup's
-   container caps at 1280px, so the crossings at 900/560 coincide. */
 @media (max-width: 900px) {
   .links-bar,
   .links2 {
