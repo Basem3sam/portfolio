@@ -88,12 +88,9 @@ export default function KonamiKeyboard({
   const check = (entered: string[]) => {
     if (entered.every((key, index) => key === KONAMI_CODE[index])) {
       setStatus("success");
-      // Hand over at once and fade out underneath: the terminal opens on top
-      // of this card, so the unlock reads as one continuous move.
-      later(() => {
-        onSuccess();
-        leave(() => {});
-      }, 900);
+      // Hand over at once: the terminal fades in over this card and the
+      // parent removes it only once the terminal has fully covered it.
+      later(onSuccess, 900);
       return;
     }
 

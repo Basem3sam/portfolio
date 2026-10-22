@@ -67,9 +67,9 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
   const nextToastId = useRef(0);
   const resetJourney = useRef<(notify: boolean) => void>(() => {});
   const settleJourney = useRef<() => void>(() => {});
-  const holdLinger = useRef<(busy: boolean) => void>(() => {});
+  const holdTimer = useRef<(busy: boolean) => void>(() => {});
   const busyRef = useRef(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [clueEngaged, setClueEngaged] = useState(false);
   const game = useRef({
     clicks: 0,
     lastClick: 0,
@@ -78,7 +78,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
     level: 0,
     revealed: false,
     solved: false,
-    lingering: false,
+    resume: null as (() => void) | null,
     resetTimer: 0,
   });
 
@@ -202,11 +202,11 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
 
     const reset = (notify: boolean) => {
       window.clearTimeout(state.resetTimer);
+      state.resume = null;
       state.clicks = 0;
       state.level = 0;
       state.revealed = false;
       state.solved = false;
-      state.lingering = false;
       syncClue();
       if (notify) addToast({ kind: "reset" });
     };
@@ -215,9 +215,13 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
     // reset it triggers is handed back through a ref.
     resetJourney.current = reset;
 
-    const scheduleLinger = () => {
+    const armTimer = (duration: number, notify: boolean) => {
       window.clearTimeout(state.resetTimer);
-      state.resetTimer = window.setTimeout(() => reset(false), CLUE_LINGER_MS);
+      state.resume = () => {
+        window.clearTimeout(state.resetTimer);
+        state.resetTimer = window.setTimeout(() => reset(notify), duration);
+      };
+      if (!busyRef.current) state.resume();
     };
 
     const settle = () => {
@@ -226,17 +230,15 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       state.level = 0;
       state.solved = false;
       state.revealed = true;
-      state.lingering = true;
       syncClue();
-      if (!busyRef.current) scheduleLinger();
+      armTimer(CLUE_LINGER_MS, false);
     };
 
     settleJourney.current = settle;
 
-    holdLinger.current = (busy) => {
-      if (!state.lingering) return;
+    holdTimer.current = (busy) => {
       if (busy) window.clearTimeout(state.resetTimer);
-      else scheduleLinger();
+      else state.resume?.();
     };
 
     if (lastPathname.current !== pathname) {
@@ -244,10 +246,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       reset(false);
     }
 
-    const startResetTimer = (duration: number) => {
-      window.clearTimeout(state.resetTimer);
-      state.resetTimer = window.setTimeout(() => reset(true), duration);
-    };
+    const startResetTimer = (duration: number) => armTimer(duration, true);
 
     // The journey's single outcome: deliver the answer sheet. It never
     // opens the terminal, never sets unlock state, runs no open timers.
@@ -268,6 +267,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       resumeAudio().then(() => playSuccessSound());
 
       window.clearTimeout(state.resetTimer);
+      state.resume = null;
     };
 
     const handleClick = (event: MouseEvent) => {
@@ -298,8 +298,8 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       }
 
       state.clicks++;
-      state.lingering = false;
       window.clearTimeout(state.resetTimer);
+      state.resume = null;
 
       // Pointer clicks react where they landed; keyboard activation reports
       // no position (detail 0), so it falls back to the middle of the photo.
@@ -345,11 +345,11 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
     };
   }, [addToast, pathname]);
 
-  const busy = overlay !== "none" || terminalOpen || menuOpen;
+  const busy = overlay !== "none" || terminalOpen || clueEngaged;
 
   useEffect(() => {
     busyRef.current = busy;
-    holdLinger.current(busy);
+    holdTimer.current(busy);
   }, [busy]);
 
   const showHint = () => {
@@ -370,7 +370,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
     setBehind(overlay);
     setQuick(true);
     setOverlay(next);
-    behindTimer.current = window.setTimeout(() => setBehind("none"), 600);
+    behindTimer.current = window.setTimeout(() => setBehind("none"), 1000);
   };
 
   // Master code -> keypad is one step: the person has just read the
@@ -397,10 +397,59 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
     if (keyboardFrom === "master") settleJourney.current();
     openTerminal();
     celebrateUnlock();
-    window.setTimeout(() => setOverlay("none"), 700);
+    window.setTimeout(() => setOverlay("none"), 1100);
   };
 
-  const ghostProps = { locale, quick: true, ghost: true, onClose: () => {} } as const;
+  const noop = () => {};
+
+  const renderOverlay = (name: Overlay, ghost: boolean) => {
+    const shared = { locale, quick: ghost || quick, ghost };
+
+    if (name === "prompt") {
+      return (
+        <SecretTerminalAccess
+          key="prompt"
+          {...shared}
+          onClose={ghost ? noop : () => setOverlay("none")}
+          onTry={ghost ? noop : enterFromPrompt}
+        />
+      );
+    }
+
+    if (name === "keyboard") {
+      return (
+        <KonamiKeyboard
+          key="keyboard"
+          {...shared}
+          onClose={ghost ? noop : leaveKeyboard}
+          onBack={ghost ? noop : () => go(keyboardFrom)}
+          onSuccess={ghost ? noop : handleKeyboardSuccess}
+        />
+      );
+    }
+
+    if (name === "master") {
+      return (
+        <MasterCode
+          key="master"
+          {...shared}
+          onClose={
+            ghost
+              ? noop
+              : () => {
+                  setOverlay("none");
+                  settleJourney.current();
+                }
+          }
+          onEnter={ghost ? noop : enterFromMaster}
+        />
+      );
+    }
+
+    return null;
+  };
+
+  const layers = behind !== "none" && behind !== overlay ? [behind, overlay] : [overlay];
 
   return (
     <>
@@ -412,41 +461,9 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
         onHint={showHint}
         onPrompt={openPrompt}
         onOpen={openTerminal}
-        onMenuChange={setMenuOpen}
+        onEngagedChange={setClueEngaged}
       />
-      {behind === "prompt" && <SecretTerminalAccess {...ghostProps} onTry={() => {}} />}
-      {behind === "keyboard" && (
-        <KonamiKeyboard {...ghostProps} onBack={() => {}} onSuccess={() => {}} />
-      )}
-      {behind === "master" && <MasterCode {...ghostProps} onEnter={() => {}} />}
-      {overlay === "prompt" && (
-        <SecretTerminalAccess
-          locale={locale}
-          quick={quick}
-          onClose={() => setOverlay("none")}
-          onTry={enterFromPrompt}
-        />
-      )}
-      {overlay === "keyboard" && (
-        <KonamiKeyboard
-          locale={locale}
-          quick={quick}
-          onClose={leaveKeyboard}
-          onBack={() => go(keyboardFrom)}
-          onSuccess={handleKeyboardSuccess}
-        />
-      )}
-      {overlay === "master" && (
-        <MasterCode
-          locale={locale}
-          quick={quick}
-          onClose={() => {
-            setOverlay("none");
-            settleJourney.current();
-          }}
-          onEnter={enterFromMaster}
-        />
-      )}
+      {layers.map((name) => renderOverlay(name, name !== overlay))}
       <Terminal
         key={terminalOpen ? "open" : "closed"}
         open={terminalOpen}

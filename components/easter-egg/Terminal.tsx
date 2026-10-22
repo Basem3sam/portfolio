@@ -482,6 +482,7 @@ type TerminalProps = {
 
 export default function Terminal({ open, onClose }: TerminalProps) {
   const [stored] = useState(loadStored);
+  const [shown, setShown] = useState(false);
   const [lines, setLines] = useState<Line[]>(() => {
     const ok = '[<span class="ok"> OK </span>]';
     const count = stored.found.length;
@@ -710,6 +711,20 @@ export default function Terminal({ open, onClose }: TerminalProps) {
   useEffect(() => {
     if (!open) return;
 
+    let inner = 0;
+    const outer = requestAnimationFrame(() => {
+      inner = requestAnimationFrame(() => setShown(true));
+    });
+
+    return () => {
+      cancelAnimationFrame(outer);
+      cancelAnimationFrame(inner);
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+
     lockScroll();
     if (!isMobileViewport()) inputRef.current?.focus();
 
@@ -915,7 +930,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
       case "hint": {
         const target = DISCOVERIES.find((item) => !foundRef.current.includes(item.id));
         if (!target) {
-          emit(`  ${bright("No trophies left.")} ${dim("You have everything.")}`);
+          emit('  <span class="wl">No trophies left.</span> <span class="dim">You have everything.</span>');
           return;
         }
         const level = Math.min(3, (hintsRef.current[target.id] ?? 0) + 1) as 1 | 2 | 3;
@@ -1122,7 +1137,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
   return (
     <div className="egg">
       <div
-        className={`eov dim${open ? " show" : ""}`}
+        className={`eov dim${open && shown ? " show" : ""}`}
         onClick={(event) => {
           if (event.target === event.currentTarget) close();
         }}

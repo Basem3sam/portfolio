@@ -13,7 +13,7 @@ type SecretClueProps = {
   onHint: () => void;
   onPrompt: () => void;
   onOpen: () => void;
-  onMenuChange: (open: boolean) => void;
+  onEngagedChange: (engaged: boolean) => void;
 };
 
 const labels = {
@@ -49,9 +49,10 @@ export default function SecretClue({
   onHint,
   onPrompt,
   onOpen,
-  onMenuChange,
+  onEngagedChange,
 }: SecretClueProps) {
   const [open, setOpen] = useState(false);
+  const [hovered, setHovered] = useState(false);
   const [footerNear, setFooterNear] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const firstItemRef = useRef<HTMLButtonElement>(null);
@@ -59,8 +60,8 @@ export default function SecretClue({
   const t = labels[locale];
 
   useEffect(() => {
-    onMenuChange(open && revealed);
-  }, [open, revealed, onMenuChange]);
+    onEngagedChange((open || hovered) && revealed);
+  }, [open, hovered, revealed, onEngagedChange]);
 
   // The clue button bows out at the page end: it is a mid-page exploration
   // aid, and fading it over the footer removes floating-button clutter.
@@ -160,8 +161,14 @@ export default function SecretClue({
   return (
     <div
       ref={containerRef}
-      onPointerEnter={cancelClose}
-      onPointerLeave={scheduleClose}
+      onPointerEnter={() => {
+        cancelClose();
+        setHovered(true);
+      }}
+      onPointerLeave={() => {
+        scheduleClose();
+        setHovered(false);
+      }}
       className={`clue-wrap print:hidden${open && revealed ? " clue-open" : ""}`}
       data-open={open && revealed ? "true" : "false"}
     >
