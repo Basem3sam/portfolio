@@ -188,8 +188,20 @@
   transition: background-color 0.25s ease-out;
 }
 
-#work .row:hover {
+#work .row:hover,
+#work .row:has(h3 a:focus-visible) {
   background: var(--c-light-bg);
+}
+
+/* The stretched link covers the whole row, so the focus ring belongs on the
+   row, not on the title text it happens to wrap. */
+#work .row h3 a:focus-visible {
+  outline: none;
+}
+
+#work .row:has(h3 a:focus-visible) {
+  outline: 2px solid var(--c-signal);
+  outline-offset: -2px;
 }
 
 #work .row .rx,
@@ -207,7 +219,8 @@
   transition: color 0.2s;
 }
 
-#work .row:hover .rx {
+#work .row:hover .rx,
+#work .row:has(h3 a:focus-visible) .rx {
   color: var(--c-dark-text);
 }
 
@@ -220,11 +233,13 @@
   transition: transform 0.25s ease-out;
 }
 
-#work .row:hover h3 {
+#work .row:hover h3,
+#work .row:has(h3 a:focus-visible) h3 {
   transform: translateX(8px);
 }
 
-[dir="rtl"] #work .row:hover h3 {
+[dir="rtl"] #work .row:hover h3,
+[dir="rtl"] #work .row:has(h3 a:focus-visible) h3 {
   transform: translateX(-8px);
 }
 
@@ -264,7 +279,8 @@
     box-shadow 0.3s;
 }
 
-#work .row:hover .plate {
+#work .row:hover .plate,
+#work .row:has(h3 a:focus-visible) .plate {
   transform: translateY(-4px);
   border-color: var(--c-muted-text);
   box-shadow: var(--sh-lg);
@@ -274,7 +290,8 @@
   transition: opacity 0.25s;
 }
 
-#work .row:hover .plate::before {
+#work .row:hover .plate::before,
+#work .row:has(h3 a:focus-visible) .plate::before {
   opacity: 0.9;
 }
 
@@ -295,14 +312,16 @@
     transform 0.3s ease-out;
 }
 
-#work .row:hover .go {
+#work .row:hover .go,
+#work .row:has(h3 a:focus-visible) .go {
   background: var(--c-dark-text);
   color: var(--c-page);
   border-color: var(--c-dark-text);
   transform: rotate(-45deg);
 }
 
-[dir="rtl"] #work .row:hover .go {
+[dir="rtl"] #work .row:hover .go,
+[dir="rtl"] #work .row:has(h3 a:focus-visible) .go {
   transform: rotate(45deg);
 }
 
@@ -745,7 +764,6 @@ html[lang="ar"] #work .plate-cap {
 }
 
 @media (max-width: 560px) {
-
   #work .spread .rpath {
     grid-auto-rows: auto;
   }
@@ -755,7 +773,6 @@ html[lang="ar"] #work .plate-cap {
     align-items: center;
     justify-content: flex-start;
   }
-
 }
 
 /* ---------- reduced motion ---------- */
@@ -766,8 +783,11 @@ html[lang="ar"] #work .plate-cap {
     animation: none;
   }
 
-  #work .spread:hover .plate {
+  #work .spread:hover .plate,
+  #work .row:hover h3,
+  #work .row:has(h3 a:focus-visible) h3,
+  #work .row:hover .plate,
+  #work .row:has(h3 a:focus-visible) .plate {
     transform: none;
   }
-
 }
