@@ -37,10 +37,16 @@
     border-color 0.3s ease-out;
 }
 
-#work .spread:hover,
 #work .spread:focus-within {
   background: var(--c-light-bg);
   border-color: var(--c-hairline);
+}
+
+@media (hover: hover) {
+  #work .spread:hover {
+    background: var(--c-light-bg);
+    border-color: var(--c-hairline);
+  }
 }
 
 #work .spread-media {
@@ -66,26 +72,32 @@
     box-shadow 0.3s;
 }
 
-#work .spread:hover .plate {
-  transform: translateY(-4px);
-  border-color: var(--c-muted-text);
-  box-shadow: var(--sh-lg);
+@media (hover: hover) {
+  #work .spread:hover .plate {
+    transform: translateY(-4px);
+    border-color: var(--c-muted-text);
+    box-shadow: var(--sh-lg);
+  }
 }
 
 #work .spread .plate::before {
   transition: opacity 0.25s;
 }
 
-#work .spread:hover .plate::before {
-  opacity: 0.9;
+@media (hover: hover) {
+  #work .spread:hover .plate::before {
+    opacity: 0.9;
+  }
 }
 
 #work .spread .btn-primary svg {
   transition: transform 0.25s ease-out;
 }
 
-#work .spread .btn-primary:hover svg {
-  transform: translateX(3px);
+@media (hover: hover) {
+  #work .spread .btn-primary:hover svg {
+    transform: translateX(3px);
+  }
 }
 
 #work .spread-title {
@@ -162,10 +174,12 @@
     background-color 0.4s ease;
 }
 
-#work .stk li:hover {
-  border-color: var(--c-honey);
-  color: var(--c-dark-text);
-  background: var(--c-surface);
+@media (hover: hover) {
+  #work .stk li:hover {
+    border-color: var(--c-honey);
+    color: var(--c-dark-text);
+    background: var(--c-surface);
+  }
 }
 
 /* ---------- rows ---------- */
@@ -188,9 +202,14 @@
   transition: background-color 0.25s ease-out;
 }
 
-#work .row:hover,
 #work .row:has(h3 a:focus-visible) {
   background: var(--c-light-bg);
+}
+
+@media (hover: hover) {
+  #work .row:hover {
+    background: var(--c-light-bg);
+  }
 }
 
 /* The stretched link covers the whole row, so the focus ring belongs on the
@@ -219,9 +238,14 @@
   transition: color 0.2s;
 }
 
-#work .row:hover .rx,
 #work .row:has(h3 a:focus-visible) .rx {
   color: var(--c-dark-text);
+}
+
+@media (hover: hover) {
+  #work .row:hover .rx {
+    color: var(--c-dark-text);
+  }
 }
 
 #work .row h3 {
@@ -233,14 +257,24 @@
   transition: transform 0.25s ease-out;
 }
 
-#work .row:hover h3,
 #work .row:has(h3 a:focus-visible) h3 {
   transform: translateX(8px);
 }
 
-[dir="rtl"] #work .row:hover h3,
+@media (hover: hover) {
+  #work .row:hover h3 {
+    transform: translateX(8px);
+  }
+}
+
 [dir="rtl"] #work .row:has(h3 a:focus-visible) h3 {
   transform: translateX(-8px);
+}
+
+@media (hover: hover) {
+  [dir="rtl"] #work .row:hover h3 {
+    transform: translateX(-8px);
+  }
 }
 
 #work .row h3 a {
@@ -279,20 +313,32 @@
     box-shadow 0.3s;
 }
 
-#work .row:hover .plate,
 #work .row:has(h3 a:focus-visible) .plate {
   transform: translateY(-4px);
   border-color: var(--c-muted-text);
   box-shadow: var(--sh-lg);
 }
 
+@media (hover: hover) {
+  #work .row:hover .plate {
+    transform: translateY(-4px);
+    border-color: var(--c-muted-text);
+    box-shadow: var(--sh-lg);
+  }
+}
+
 #work .row .plate::before {
   transition: opacity 0.25s;
 }
 
-#work .row:hover .plate::before,
 #work .row:has(h3 a:focus-visible) .plate::before {
   opacity: 0.9;
+}
+
+@media (hover: hover) {
+  #work .row:hover .plate::before {
+    opacity: 0.9;
+  }
 }
 
 #work .go {
@@ -312,7 +358,6 @@
     transform 0.3s ease-out;
 }
 
-#work .row:hover .go,
 #work .row:has(h3 a:focus-visible) .go {
   background: var(--c-dark-text);
   color: var(--c-page);
@@ -320,9 +365,23 @@
   transform: rotate(-45deg);
 }
 
-[dir="rtl"] #work .row:hover .go,
+@media (hover: hover) {
+  #work .row:hover .go {
+    background: var(--c-dark-text);
+    color: var(--c-page);
+    border-color: var(--c-dark-text);
+    transform: rotate(-45deg);
+  }
+}
+
 [dir="rtl"] #work .row:has(h3 a:focus-visible) .go {
   transform: rotate(45deg);
+}
+
+@media (hover: hover) {
+  [dir="rtl"] #work .row:hover .go {
+    transform: rotate(45deg);
+  }
 }
 
 /* ---------- plates (diagram panels) ---------- */

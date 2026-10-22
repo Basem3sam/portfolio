@@ -136,7 +136,6 @@ export default function LinkPeekHost() {
       </div>
       <div className="peek-frame">
         {state !== "failed" && (
-          // eslint-disable-next-line @next/next/no-img-element
           <img
             key={peek.url}
             src={shot}

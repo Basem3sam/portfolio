@@ -365,8 +365,11 @@ nav:not([data-tide])[data-scrolled="false"] .nav-links a[aria-current="page"] .n
   filter: brightness(1.08);
 }
 
+/* Language, theme and social controls share one 44px height and the 6px
+   control radius; the row wraps on the narrowest phones instead of overflowing. */
 .menu-util {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
 }
@@ -380,10 +383,10 @@ nav:not([data-tide])[data-scrolled="false"] .nav-links a[aria-current="page"] .n
 .menu-soc a {
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border: 1px solid var(--c-rule-strong);
-  border-radius: 12px;
+  border-radius: var(--radius-ui-2);
   color: var(--c-light-text);
   transition:
     color 0.2s ease,

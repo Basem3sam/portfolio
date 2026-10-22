@@ -95,7 +95,7 @@ const mobilePaletteButton =
 const menuRow = "menu-row relative w-full no-underline";
 
 const menuThemeButton =
-  "flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-hairline bg-surface/50 text-light-text transition-colors duration-200 hover:border-signal hover:text-signal";
+  "flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md border border-hairline bg-surface/50 text-light-text transition-colors duration-200 hover:border-signal hover:text-signal";
 
 type SectionAnchorProps = {
   /** Raw section hash, e.g. `#work`. */

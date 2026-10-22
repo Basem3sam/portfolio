@@ -52,7 +52,6 @@ export default function SitePreview({ url, label }: SitePreviewProps) {
       </span>
       <span className="sp-frame" aria-hidden="true">
         {state !== "failed" ? (
-          // eslint-disable-next-line @next/next/no-img-element
           <img
             ref={image}
             src={shot}
