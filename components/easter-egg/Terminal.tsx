@@ -8,6 +8,10 @@ import {
   type KeyboardEvent,
   type ReactNode,
 } from "react";
+import CoffeeBrew, { BREW_MS } from "@/components/easter-egg/CoffeeBrew";
+import ClockLine from "@/components/easter-egg/ClockLine";
+import HackBar from "@/components/easter-egg/HackBar";
+import MatrixDecode from "@/components/easter-egg/MatrixDecode";
 import { isMobileViewport } from "@/components/easter-egg/constants";
 import Icon from "@/components/ui/Icon";
 import Mark from "@/components/ui/Mark";
@@ -18,6 +22,9 @@ import {
   isSoundMuted,
   playBlipSound,
   playBootSound,
+  playBrewSound,
+  playHackSound,
+  playMatrixSound,
   playEnterSound,
   playErrorSound,
   playFinaleSound,
@@ -33,6 +40,10 @@ import {
   COMMAND_ARGS,
   COMMAND_NAMES,
   COMMAND_OUTPUT,
+  HACK_DONE_AT,
+  HACK_SEQUENCE,
+  MATRIX_DECODE_MS,
+  MATRIX_SEQUENCE,
   SECRET_SEQUENCE,
   DISCOVERIES,
   ENV_OUTPUT,
@@ -43,16 +54,23 @@ import {
   OPEN_TARGETS,
   ROOT_BANNER,
   ROOT_BANNER_COLS,
-  RM_OUTPUT,
   SUDO_DENIED,
   THEMES,
   TOTAL_DISCOVERIES,
   VIM_EXIT,
   VIM_OUTPUT,
   certificateOutput,
-  dateOutput,
+  coffeeOutput,
+  fortuneLine,
+  helpOutput,
+  neofetchOutput,
+  uptimeText,
+  RM_CLOSING,
+  RM_DONE_AT,
+  RM_SEQUENCE,
+  hackOutput,
+  matrixOutput,
   fortuneCount,
-  fortuneOutput,
   hintOutput,
   hireDenied,
   hireOutput,
@@ -82,7 +100,8 @@ type Line = {
   html?: string;
   tree?: HtmlNode[];
   shown?: number;
-  kind?: "ascii" | "tagline";
+  kind?: "ascii" | "tagline" | "coffee" | "decode" | "bar" | "clock";
+  ms?: number;
   cols?: number;
   delay?: number;
 };
@@ -395,12 +414,12 @@ const CONFETTI = ["#f4c77d", "#e0a458", "#7ba6ff", "#4ade80", "#ff8f8f", "#eef2f
 // Two short effects on one overlay canvas, both skipped for reduced motion:
 // a quiet matrix rain for `matrix`, and a confetti burst for the finale.
 // The canvas never takes clicks and clears itself when it is done.
-function ScreenFx({ rain, burst }: { rain: number; burst: number }) {
+function ScreenFx({ rain, burst }: { rain: { run: number; ms: number }; burst: number }) {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const canvas = ref.current;
-    if (!canvas || rain === 0 || prefersReducedMotion()) return;
+    if (!canvas || rain.run === 0 || prefersReducedMotion()) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -410,45 +429,74 @@ function ScreenFx({ rain, burst }: { rain: number; burst: number }) {
     canvas.height = Math.round(height * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
+    // Half-width katakana, digits and a few symbols, like the film. Glyphs the
+    // terminal face lacks fall back to a system font; columns stay on a grid.
     const size = 15;
-    const glyphs = "01<>/{}[];=+*#$%";
-    const drops = Array.from({ length: Math.ceil(width / size) }, () => -Math.random() * 24);
+    const glyphs = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789:.=*+-<>|";
+    const pick = () => glyphs[Math.floor(Math.random() * glyphs.length)];
+    const drops = Array.from({ length: Math.ceil(width / size) }, () => ({
+      y: -Math.random() * 30,
+      speed: 0.4 + Math.random() * 0.6,
+      glyph: pick(),
+    }));
     const color = getComputedStyle(canvas).color;
+    const begun = performance.now();
     let frame = 0;
     let last = 0;
 
-    ctx.font = `${size}px ${getComputedStyle(canvas).fontFamily}`;
+    ctx.font = `${size}px ${getComputedStyle(canvas).fontFamily}, monospace`;
+    canvas.classList.toggle("strong", rain.ms > 5000);
     canvas.classList.add("on");
 
     const draw = (time: number) => {
       frame = requestAnimationFrame(draw);
-      if (time - last < 55) return;
+      if (time - last < 45) return;
       last = time;
+      // New columns stop starting a while before the end, so the rain thins out.
+      const spawning = time - begun < rain.ms - 2400;
 
       ctx.globalCompositeOperation = "destination-out";
-      ctx.fillStyle = "rgba(0, 0, 0, 0.16)";
+      ctx.fillStyle = "rgba(0, 0, 0, 0.12)";
       ctx.fillRect(0, 0, width, height);
       ctx.globalCompositeOperation = "source-over";
-      ctx.fillStyle = color;
 
-      drops.forEach((y, column) => {
-        if (y > 0) ctx.fillText(glyphs[Math.floor(Math.random() * glyphs.length)], column * size, y * size);
-        drops[column] = y * size > height && Math.random() > 0.96 ? 0 : y + 1;
+      drops.forEach((drop, column) => {
+        const before = Math.floor(drop.y);
+        drop.y += drop.speed;
+        const row = Math.floor(drop.y);
+        const x = column * size;
+
+        if (row !== before && row >= 0) {
+          // The old head settles into the trail colour; the new head is white.
+          if (before >= 0) {
+            ctx.clearRect(x, (before - 1) * size, size, size + 2);
+            ctx.fillStyle = color;
+            ctx.fillText(drop.glyph, x, before * size);
+          }
+          drop.glyph = pick();
+          ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+          ctx.fillText(drop.glyph, x, row * size);
+        }
+
+        if (drop.y * size > height && spawning && Math.random() > 0.975) {
+          drop.y = -Math.random() * 8;
+          drop.speed = 0.4 + Math.random() * 0.6;
+        }
       });
     };
     frame = requestAnimationFrame(draw);
 
-    const fade = window.setTimeout(() => canvas.classList.remove("on"), 3000);
+    const fade = window.setTimeout(() => canvas.classList.remove("on"), Math.max(rain.ms - 1200, 1000));
     const stop = window.setTimeout(() => {
       cancelAnimationFrame(frame);
       ctx.clearRect(0, 0, width, height);
-    }, 4200);
+    }, rain.ms);
 
     return () => {
       window.clearTimeout(fade);
       window.clearTimeout(stop);
       cancelAnimationFrame(frame);
-      canvas.classList.remove("on");
+      canvas.classList.remove("on", "strong");
     };
   }, [rain]);
 
@@ -576,7 +624,8 @@ export default function Terminal({ open, onClose }: TerminalProps) {
   const [theme, setTheme] = useState<ThemeId>(stored.theme);
   const [bump, setBump] = useState(0);
   const [muted, setMuted] = useState(() => isSoundMuted());
-  const [rainRun, setRainRun] = useState(0);
+  const [rain, setRain] = useState({ run: 0, ms: 4200 });
+  const startRain = (ms = 4200) => setRain((value) => ({ run: value.run + 1, ms }));
   const [burstRun, setBurstRun] = useState(0);
   const [crt, setCrt] = useState(stored.crt);
   const [caret, setCaret] = useState(0);
@@ -597,6 +646,8 @@ export default function Terminal({ open, onClose }: TerminalProps) {
   const sinceRef = useRef(stored.since);
   const crtRef = useRef(stored.crt);
   const fortuneIndex = useRef<number | null>(null);
+  const cupsRef = useRef(0);
+  const openedAt = useRef(Date.now());
 
   const count = found.length;
   const rank = rankFor(count);
@@ -662,7 +713,8 @@ export default function Terminal({ open, onClose }: TerminalProps) {
     const canType = !prefersReducedMotion();
 
     const prepared = items.map((item): { line: NewLine; entry: QueueEntry | null } => {
-      if (!canType) return { line: { ...item }, entry: null };
+      if (!canType || item.kind === "decode" || item.kind === "bar" || item.kind === "clock")
+        return { line: { ...item }, entry: null };
 
       if (item.html !== undefined) {
         const tree = parseHtml(item.html);
@@ -861,6 +913,40 @@ export default function Terminal({ open, onClose }: TerminalProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, onClose]);
 
+  /** Timed steps for the staged commands. Reduced motion collapses every delay,
+      so the steps still run in order but at once. */
+  const later = (ms: number, fn: () => void) => {
+    timers.current.push(window.setTimeout(fn, prefersReducedMotion() ? 0 : ms));
+  };
+
+  const pulse = (ms = 700) => {
+    setGlitch(true);
+    later(ms, () => setGlitch(false));
+  };
+
+  /** `rm -rf /`: three directories "go", the shell refuses, nothing is lost. */
+  const runRm = (after?: () => void) => {
+    RM_SEQUENCE.forEach((step) =>
+      later(step.at, () => {
+        if (step.bar) append([{ tone: "plain", kind: "bar", text: step.bar.label, ms: step.bar.ms }]);
+        else if (step.html) {
+          append([
+            step.tone === "error"
+              ? { tone: "error", text: step.html }
+              : { tone: "plain", html: step.html },
+          ]);
+        }
+        if (step.cue === "denied") playErrorSound();
+        if (step.glitch) pulse(600);
+      }),
+    );
+    later(RM_DONE_AT, () => {
+      emit(RM_CLOSING);
+      discover("rm");
+      after?.();
+    });
+  };
+
   const run = (raw: string) => {
     const trimmed = raw.trim();
     const tokens = trimmed.split(/\s+/);
@@ -881,7 +967,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
         return;
 
       case "help":
-        emit(COMMAND_OUTPUT.help);
+        emit(helpOutput(foundRef.current));
         return;
 
       case "about":
@@ -914,7 +1000,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
         });
         timers.current.push(
           window.setTimeout(() => {
-            setRainRun((value) => value + 1);
+            startRain();
             playRankUpSound();
             emit(COMMAND_OUTPUT.secret);
             discover("secret");
@@ -923,25 +1009,112 @@ export default function Terminal({ open, onClose }: TerminalProps) {
         return;
       }
 
+      case "coffee": {
+        // A staged brew: the cup fills on screen, then the message lands.
+        cupsRef.current += 1;
+        const cups = cupsRef.current;
+        playBrewSound();
+        append([{ tone: "plain", kind: "coffee" }]);
+        timers.current.push(
+          window.setTimeout(
+            () => {
+              emit(coffeeOutput(cups - 1, cups));
+              discover("coffee");
+            },
+            prefersReducedMotion() ? 0 : BREW_MS + 150,
+          ),
+        );
+        return;
+      }
+
       case "neofetch":
-      case "hack":
-      case "coffee":
-        emit(COMMAND_OUTPUT[word]);
-        discover(word);
+        emit(
+          neofetchOutput({
+            rank: user,
+            count: foundRef.current.length,
+            theme: themeRef.current,
+            uptime: uptimeText(Date.now() - openedAt.current),
+          }),
+        );
+        discover("neofetch");
         return;
 
-      case "matrix":
-        emit(COMMAND_OUTPUT.matrix);
-        setRainRun((value) => value + 1);
+      case "hack": {
+        // Staged: type-ahead, bars, a cracked hash, a break-in, then the joke.
+        playHackSound();
+        HACK_SEQUENCE.forEach((step) => {
+          timers.current.push(
+            window.setTimeout(() => {
+              if (step.bar) {
+                append([{ tone: "plain", kind: "bar", text: step.bar.label, ms: step.bar.ms }]);
+              } else if (step.decode) {
+                append([{ tone: "plain", kind: "decode", text: step.decode.text, ms: step.decode.ms }]);
+              } else if (step.html) {
+                append([
+                  step.tone === "error"
+                    ? { tone: "error", text: step.html }
+                    : { tone: "plain", html: step.html },
+                ]);
+              }
+              if (step.cue === "denied") playErrorSound();
+              if (step.glitch) {
+                setGlitch(true);
+                timers.current.push(window.setTimeout(() => setGlitch(false), 700));
+              }
+            }, step.at),
+          );
+        });
         timers.current.push(
-          window.setTimeout(() => setGlitch(true), 100),
-          window.setTimeout(() => setGlitch(false), 1100),
+          window.setTimeout(
+            () => {
+              emit(hackOutput());
+              discover("hack");
+            },
+            prefersReducedMotion() ? 0 : HACK_DONE_AT,
+          ),
         );
-        discover("matrix");
         return;
+      }
+
+      case "matrix": {
+        // Staged: code rain, three slow beats, then a line that decodes out of
+        // noise. The closing text and the trophy land once it has resolved.
+        playMatrixSound();
+        startRain(7600);
+        const lastAt = MATRIX_SEQUENCE[MATRIX_SEQUENCE.length - 1].at;
+        const done = lastAt + MATRIX_DECODE_MS + 250;
+        MATRIX_SEQUENCE.forEach((step) => {
+          timers.current.push(
+            window.setTimeout(() => {
+              if (step.decode) append([{ tone: "plain", kind: "decode", text: step.decode }]);
+              else if (step.html) append([{ tone: "plain", html: step.html }]);
+            }, step.at),
+          );
+        });
+        timers.current.push(
+          window.setTimeout(() => setGlitch(true), 150),
+          window.setTimeout(() => setGlitch(false), 900),
+          window.setTimeout(() => setGlitch(true), lastAt + MATRIX_DECODE_MS - 200),
+          window.setTimeout(() => setGlitch(false), lastAt + MATRIX_DECODE_MS + 600),
+          window.setTimeout(
+            () => {
+              emit(matrixOutput());
+              discover("matrix");
+            },
+            prefersReducedMotion() ? 0 : done,
+          ),
+        );
+        return;
+      }
 
       case "whoami":
-        emit(whoamiOutput(user, rankFor(foundRef.current.length), foundRef.current.length));
+        emit(
+          whoamiOutput(user, rankFor(foundRef.current.length), foundRef.current.length, {
+            uptime: uptimeText(Date.now() - openedAt.current),
+            commands: history.current.length,
+            theme: themeRef.current,
+          }),
+        );
         discover("whoami");
         return;
 
@@ -1009,7 +1182,9 @@ export default function Terminal({ open, onClose }: TerminalProps) {
           ]);
         } else if (THEMES.includes(choice)) {
           applyTheme(choice);
-          append([{ tone: "plain", text: `Accent set to ${choice}.` }]);
+          emit(
+            `Accent set to <span class="sw sw-${choice}">██</span> <span class="hl">${choice}</span>`,
+          );
           discover("theme");
         } else {
           append([
@@ -1024,13 +1199,13 @@ export default function Terminal({ open, onClose }: TerminalProps) {
         // Start somewhere random, then walk the list so nothing repeats soon.
         const at = fortuneIndex.current ?? Math.floor(Math.random() * fortuneCount);
         fortuneIndex.current = at + 1;
-        emit(fortuneOutput(at));
+        append([{ tone: "plain", kind: "decode", text: fortuneLine(at), ms: 1100 }]);
         discover("fortune");
         return;
       }
 
       case "date":
-        emit(dateOutput(new Date()));
+        append([{ tone: "plain", kind: "clock" }]);
         discover("date");
         return;
 
@@ -1045,23 +1220,28 @@ export default function Terminal({ open, onClose }: TerminalProps) {
           );
           return;
         }
-        foundRef.current = [];
-        hintsRef.current = {};
-        sinceRef.current = null;
-        themeRef.current = "amber";
-        setFound([]);
-        setTheme("amber");
-        setBump((value) => value + 1);
-        try {
-          window.localStorage.removeItem(STORAGE_KEY);
-        } catch {
-          /* storage unavailable: the in-memory reset still applies */
-        }
-        persist();
-        append([
-          { tone: "success", text: "Progress reset. Rank: guest. 0 trophies." },
-          { tone: "info", text: 'Type "help" to start again.' },
-        ]);
+        // The bar runs first; the erase lands when it is full.
+        append([{ tone: "plain", kind: "bar", text: "erasing progress", ms: 1000 }]);
+        playErrorSound();
+        later(1100, () => {
+          foundRef.current = [];
+          hintsRef.current = {};
+          sinceRef.current = null;
+          themeRef.current = "amber";
+          setFound([]);
+          setTheme("amber");
+          setBump((value) => value + 1);
+          try {
+            window.localStorage.removeItem(STORAGE_KEY);
+          } catch {
+            /* storage unavailable: the in-memory reset still applies */
+          }
+          persist();
+          append([
+            { tone: "success", text: "Progress reset. Rank: guest. 0 trophies." },
+            { tone: "info", text: 'Type "help" to start again.' },
+          ]);
+        });
         return;
       }
 
@@ -1073,6 +1253,10 @@ export default function Terminal({ open, onClose }: TerminalProps) {
           setCrt(next);
           persist();
           append([{ tone: "plain", text: `Retro screen effect ${choice}.` }]);
+          if (next) {
+            playBlipSound();
+            pulse(600);
+          }
         } else {
           emit(
             `  <span class="key">crt   </span>${
@@ -1120,7 +1304,8 @@ export default function Terminal({ open, onClose }: TerminalProps) {
         emit(escapeHtml(trimmed.slice(4).trim()));
         return;
 
-      case "sudo":
+      case "sudo": {
+        const passwordLine = `[sudo] password for ${user}: ********`;
         if (args[0] === "hire") {
           const owned = foundRef.current.filter((id) => id !== "hire").length;
           if (!args[1]) {
@@ -1134,20 +1319,35 @@ export default function Terminal({ open, onClose }: TerminalProps) {
               { tone: "info", text: "Try the person this terminal belongs to." },
             ]);
           } else if (rankFor(owned) === "guest" || rankFor(owned) === "explorer") {
-            emit(hireDenied(user, 10 - owned));
+            emit(passwordLine);
+            later(900, () => {
+              playErrorSound();
+              emit(hireDenied(user, 10 - owned));
+              pulse(500);
+            });
           } else {
-            emit(hireOutput(user));
-            discover("hire");
+            // Password, a short authentication bar, then the offer.
+            const [, ...rest] = hireOutput(user).split("\n");
+            emit(passwordLine);
+            later(800, () => append([{ tone: "plain", kind: "bar", text: "authenticating", ms: 900 }]));
+            later(1900, () => {
+              emit(rest.join("\n"));
+              discover("hire");
+            });
           }
         } else if (args[0] === "rm") {
-          emit(RM_OUTPUT);
-          discover("rm");
-          discover("sudo");
+          runRm(() => discover("sudo"));
         } else {
-          emit(SUDO_DENIED.replace("%USER%", user));
-          discover("sudo");
+          emit(passwordLine);
+          later(900, () => {
+            playErrorSound();
+            emit(SUDO_DENIED.replace("%USER%", user));
+            pulse(500);
+            discover("sudo");
+          });
         }
         return;
+      }
 
       case "hire":
         append([
@@ -1157,8 +1357,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
         return;
 
       case "rm":
-        emit(RM_OUTPUT);
-        discover("rm");
+        runRm();
         return;
 
       case "vim":
@@ -1398,6 +1597,22 @@ export default function Terminal({ open, onClose }: TerminalProps) {
                   );
                 }
 
+                if (line.kind === "clock") {
+                  return <ClockLine key={line.id} style={style} />;
+                }
+
+                if (line.kind === "bar") {
+                  return <HackBar key={line.id} label={line.text ?? ""} ms={line.ms ?? 1000} style={style} />;
+                }
+
+                if (line.kind === "decode") {
+                  return <MatrixDecode key={line.id} text={line.text ?? ""} ms={line.ms ?? MATRIX_DECODE_MS} style={style} />;
+                }
+
+                if (line.kind === "coffee") {
+                  return <CoffeeBrew key={line.id} style={style} />;
+                }
+
                 if (line.kind === "tagline") {
                   return (
                     <div key={line.id} style={style} className="ln tag">
@@ -1433,7 +1648,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
                 );
               })}
             </div>
-            <ScreenFx rain={rainRun} burst={burstRun} />
+            <ScreenFx rain={rain} burst={burstRun} />
           </div>
 
           <div className="etc" role="group" aria-label="Quick commands">

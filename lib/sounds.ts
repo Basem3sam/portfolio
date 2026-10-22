@@ -314,3 +314,170 @@ export function playBlipSound() {
     duration: 0.12,
   });
 }
+
+/** Coffee: grinder rattle, a rising heat hum, bubbling pour, then a bell.
+    Timed to the phases in components/easter-egg/CoffeeBrew.tsx. */
+export function playBrewSound() {
+  const later = (ms: number, run: () => void) => window.setTimeout(run, ms);
+
+  for (let i = 0; i < 7; i++) {
+    later(i * 90, () =>
+      playTone({
+        type: "sawtooth",
+        frequencies: [{ frequency: 110 + (i % 3) * 18, time: 0 }],
+        gain: { start: 0.03, end: 0.001 },
+        duration: 0.07,
+      }),
+    );
+  }
+
+  later(700, () =>
+    playTone({
+      frequencies: [
+        { frequency: 220, time: 0 },
+        { frequency: 520, time: 0.7 },
+      ],
+      gain: { start: 0, peak: 0.035, peakTime: 0.3, end: 0.001 },
+      duration: 0.8,
+    }),
+  );
+
+  for (let ms = 1500; ms < 3700; ms += 110) {
+    later(ms, () => {
+      const base = 300 + Math.random() * 500;
+      playTone({
+        frequencies: [
+          { frequency: base, time: 0 },
+          { frequency: base * 1.6, time: 0.05 },
+        ],
+        gain: { start: 0, peak: 0.03, peakTime: 0.01, end: 0.001 },
+        duration: 0.08,
+      });
+    });
+  }
+
+  [880, 1318.51].forEach((frequency, index) =>
+    later(3900 + index * 110, () =>
+      playTone({
+        type: "triangle",
+        frequencies: [{ frequency, time: 0 }],
+        gain: { start: 0, peak: 0.09, peakTime: 0.01, end: 0.001 },
+        duration: 0.5,
+      }),
+    ),
+  );
+}
+
+/** Matrix: a rising drone, scattered data chirps, a falling glitch sweep when
+    the line decodes, then a low thud. Timed to MATRIX_SEQUENCE. */
+export function playMatrixSound() {
+  const later = (ms: number, run: () => void) => window.setTimeout(run, ms);
+
+  playTone({
+    type: "sawtooth",
+    frequencies: [
+      { frequency: 55, time: 0 },
+      { frequency: 110, time: 1.4 },
+    ],
+    gain: { start: 0, peak: 0.03, peakTime: 0.6, end: 0.001 },
+    duration: 2.2,
+  });
+
+  for (let i = 0; i < 26; i++) {
+    later(300 + Math.random() * 4700, () =>
+      playTone({
+        type: "square",
+        frequencies: [{ frequency: 600 + Math.random() * 1400, time: 0 }],
+        gain: { start: 0.018, end: 0.0008 },
+        duration: 0.04,
+      }),
+    );
+  }
+
+  later(5200, () =>
+    playTone({
+      type: "sawtooth",
+      frequencies: [
+        { frequency: 900, time: 0 },
+        { frequency: 80, time: 0.5 },
+      ],
+      gain: { start: 0.05, end: 0.001 },
+      duration: 0.7,
+    }),
+  );
+
+  later(6900, () => {
+    playTone({
+      frequencies: [
+        { frequency: 90, time: 0 },
+        { frequency: 45, time: 0.5 },
+      ],
+      gain: { start: 0, peak: 0.16, peakTime: 0.02, end: 0.001 },
+      duration: 0.8,
+    });
+    [659.25, 987.77].forEach((frequency, index) =>
+      later(120 + index * 100, () =>
+        playTone({
+          type: "triangle",
+          frequencies: [{ frequency, time: 0 }],
+          gain: { start: 0, peak: 0.05, peakTime: 0.01, end: 0.001 },
+          duration: 0.4,
+        }),
+      ),
+    );
+  });
+}
+
+/** Hack: frantic typing, a scanner sweep, a bright "granted" chime, quick
+    download blips. The error buzz at the end is playErrorSound, fired by the
+    terminal. Timed to HACK_SEQUENCE. */
+export function playHackSound() {
+  const later = (ms: number, run: () => void) => window.setTimeout(run, ms);
+
+  for (let ms = 0; ms < 3800; ms += 55 + Math.random() * 45) {
+    later(ms, () =>
+      playTone({
+        type: "square",
+        frequencies: [{ frequency: 260 + Math.random() * 200, time: 0 }],
+        gain: { start: 0.02, end: 0.0008 },
+        duration: 0.03,
+      }),
+    );
+  }
+
+  later(1400, () =>
+    playTone({
+      type: "sine",
+      frequencies: [
+        { frequency: 300, time: 0 },
+        { frequency: 1100, time: 1.0 },
+      ],
+      gain: { start: 0, peak: 0.03, peakTime: 0.2, end: 0.001 },
+      duration: 1.1,
+    }),
+  );
+
+  later(5200, () =>
+    [659.25, 987.77, 1318.51].forEach((frequency, index) =>
+      later(index * 90, () =>
+        playTone({
+          type: "triangle",
+          frequencies: [{ frequency, time: 0 }],
+          gain: { start: 0, peak: 0.09, peakTime: 0.01, end: 0.001 },
+          duration: 0.35,
+        }),
+      ),
+    ),
+  );
+
+  for (let ms = 5800; ms < 7500; ms += 70) {
+    later(ms, () =>
+      playTone({
+        type: "square",
+        frequencies: [{ frequency: 700 + Math.random() * 500, time: 0 }],
+        gain: { start: 0.014, end: 0.0008 },
+        duration: 0.03,
+      }),
+    );
+  }
+}

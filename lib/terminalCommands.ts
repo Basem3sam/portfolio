@@ -261,6 +261,9 @@ export function trophiesOutput(found: readonly string[]) {
     `  ${key("rank")}<span class="hl">${rank}</span>`,
     `  ${key("found")}${count} of ${TOTAL_DISCOVERIES}`,
     `  ${meter(count)}`,
+    `  ${RANKS.map((step) =>
+      step.id === rank ? `<span class="hl">${step.id}</span>` : step.at < count ? bright(step.id) : dim(step.id),
+    ).join(dim(" › "))}`,
     next
       ? `  ${dim(`${next.at - count} more to reach ${next.id}`)}`
       : `  ${dim("Everything found. You have root.")}`,
@@ -401,13 +404,32 @@ export const fortuneOutput = (index: number) =>
 
 export const fortuneCount = FORTUNES.length;
 
-export function whoamiOutput(user: string, rank: RankId, count: number) {
+/** The fortune as plain text, for the line that decodes out of noise. */
+export const fortuneLine = (index: number) => `  "${FORTUNES[index % FORTUNES.length]}"`;
+
+/** "4m 12s", "38s". */
+export const uptimeText = (ms: number) => {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const minutes = Math.floor(total / 60);
+  return minutes > 0 ? `${minutes}m ${String(total % 60).padStart(2, "0")}s` : `${total}s`;
+};
+
+export type SessionInfo = { uptime: string; commands: number; theme: string };
+
+export function whoamiOutput(user: string, rank: RankId, count: number, session?: SessionInfo) {
   return [
     rule("whoami"),
-    `  ${key("user")}${user}`,
-    `  ${key("rank")}<span class="hl">${rank}</span>`,
-    `  ${key("trophies")}${count} of ${TOTAL_DISCOVERIES}`,
-    `  ${key("status")}<span class="ok">impressed</span>`,
+    `  ${key("user", 10)}${user}`,
+    `  ${key("rank", 10)}<span class="hl">${rank}</span>`,
+    `  ${key("trophies", 10)}${count} of ${TOTAL_DISCOVERIES}  ${meter(count, 10)}`,
+    ...(session
+      ? [
+          `  ${key("session", 10)}${session.uptime}`,
+          `  ${key("commands", 10)}${session.commands}`,
+          `  ${key("accent", 10)}<span class="sw sw-${session.theme}">██</span> ${session.theme}`,
+        ]
+      : []),
+    `  ${key("status", 10)}<span class="ok">impressed</span>`,
     "",
     `  ${dim("Curious people find the good stuff.")}`,
   ].join("\n");
@@ -592,17 +614,48 @@ export const RM_OUTPUT = [
   dim("Just kidding. Nothing was deleted."),
 ].join("\n");
 
+export type RmStep = {
+  at: number;
+  bar?: { label: string; ms: number };
+  html?: string;
+  tone?: "error";
+  glitch?: boolean;
+  cue?: "denied";
+};
+
+/** `rm -rf /`: three directories "go", then the shell refuses. */
+export const RM_SEQUENCE: RmStep[] = [
+  { at: 0, bar: { label: "/usr", ms: 500 } },
+  { at: 600, bar: { label: "/etc", ms: 450 } },
+  { at: 1150, bar: { label: "/home", ms: 450 } },
+  { at: 1800, html: "rm: it is dangerous to operate", tone: "error", glitch: true, cue: "denied" },
+  { at: 2000, html: "recursively on '/'", tone: "error" },
+];
+export const RM_DONE_AT = 2900;
+export const RM_CLOSING = dim("Just kidding. Nothing was deleted.");
+
 export const VIM_OUTPUT = [
   dim("~"),
   `${dim("~")}      Welcome to vim.`,
   `${dim("~")}      There is no easy way out.`,
   dim("~"),
-  `<span class="hl">-- INSERT --</span>  ${dim("type :q to leave")}`,
+  dim("~"),
+  `<span class="hl">-- INSERT --</span>  ${dim("1,1  All  type :q to leave")}`,
 ].join("\n");
 
 export const VIM_EXIT = "Escaped. Most people need a search engine.";
 
 /* ---------------------------------------------------- static outputs */
+
+/** The help screen, plus one command the person has not tried yet. */
+export const helpOutput = (found: readonly string[]) => {
+  const untried = DISCOVERIES.find(
+    (item) => !found.includes(item.id) && (COMMAND_NAMES as readonly string[]).includes(item.id),
+  );
+  return untried
+    ? `${COMMAND_OUTPUT.help}\n  ${dim("Not tried yet:")} ${hint(untried.id)}`
+    : COMMAND_OUTPUT.help;
+};
 
 export const COMMAND_OUTPUT: Record<string, string> = {
   help: (() => {
@@ -738,80 +791,6 @@ export const COMMAND_OUTPUT: Record<string, string> = {
     `  ${dim("Try")} ${hint("ls -a")} ${dim("and read what you find.")}`,
   ].join("\n"),
 
-  matrix: [
-    rule("matrix"),
-    `  ${bright("Wake up, Neo...")}`,
-    "  The Matrix has you...",
-    "  Follow the white rabbit.",
-    "",
-    `  ${dim("01010111 01100001 01101011 01100101")}`,
-    `  ${dim("01010101 01110000")}`,
-    "",
-    `  <span class="hl">Reality.exe has stopped working</span>`,
-    `  <span class="warn">You are now in the Matrix</span>`,
-    "",
-    "  Red pill or blue pill? Just kidding,",
-    "  you are still in Basem's portfolio.",
-  ].join("\n"),
-
-  hack: [
-    `<span class="warn">Initializing hack sequence...</span>`,
-    "Connecting to mainframe...",
-    "Bypassing firewall...",
-    `<span class="hl">Access granted</span>`,
-    `portfolio_secrets.zip  ${dim("[")}<span class="ok">████████</span>${dim("]")} 100%`,
-    `cool_dev_facts.txt     ${dim("[")}<span class="ok">████████</span>${dim("]")} 100%`,
-    `<span class="err">ERROR: nice try, hacker.</span>`,
-    "",
-    "Real hacking is about building, not",
-    "breaking. Want to build something",
-    `together? ${link(GITHUB_URL, "github.com/basem3sam")}`,
-  ].join("\n"),
-
-  coffee: [
-    "      ) )  (",
-    "     (  (   )",
-    "      ) )  (",
-    "   .----------.",
-    "   |          |]",
-    "   |          |]",
-    "   '.        .'",
-    "     '------'",
-    "",
-    `<span class="hl">coffee.exe is brewing...</span>`,
-    "",
-    "Developers run on coffee and",
-    "semicolons.",
-    "",
-    `${dim("Error 418: I am a teapot. Just kidding,")}`,
-    `${dim("here is your coffee.")}`,
-  ].join("\n"),
-
-  neofetch: (() => {
-    const logo = ["██████╗ ", "██╔══██╗", "██████╔╝", "██╔══██╗", "██████╔╝", "╚═════╝ "];
-    const info = [
-      `${bright("basem")}<span class="dim">@</span>${bright("portfolio")}`,
-      dim("─".repeat(15)),
-      `${key("role", 7)}Backend Engineer`,
-      `${key("study", 7)}CS student`,
-      `${key("from", 7)}Port Said, Egypt`,
-      `${key("stack", 7)}Node, Express, Nest`,
-      `${key("data", 7)}MongoDB, PostgreSQL`,
-      `${key("infra", 7)}Docker, Linux, Bash`,
-      `${key("api", 7)}100+ endpoints`,
-      `${key("users", 7)}200+ members`,
-      "",
-      ["ok", "info", "err", "warn", "hl", "wl"].map((c) => `<span class="${c}">██</span>`).join(" "),
-    ];
-    return info
-      .map((row, i) => {
-        const left = logo[i] ?? "";
-        return `<span class="hd">${left.padEnd(8)}</span>  ${row}`.trimEnd();
-      })
-      .join("\n")
-      // Tight rows so the logo's blocks meet instead of showing gaps.
-      .replace(/^/, '<span class="nf">') + "</span>";
-  })(),
 };
 
 /** Commands offered as quick chips and tab completion. Hidden ones
@@ -885,3 +864,132 @@ export const COMMAND_ALIASES: Record<string, string> = {
   time: "date",
   "?": "help",
 };
+
+
+const COFFEE_QUOTES: string[][] = [
+  ["Developers run on coffee and", "semicolons."],
+  ["while (!coffee) { sleep(); }"],
+  ['git commit -m "fixed it. coffee."'],
+  ["It works on my machine. And on", "my second cup."],
+  ["Debugging: turning coffee into", "fewer bugs, one cup at a time."],
+  ["null pointer? No. Null coffee."],
+];
+
+/** What prints once a cup is ready. `index` rotates the line so two cups in a
+    row never say the same thing; `cups` is the count for this visit. */
+export function coffeeOutput(index: number, cups: number) {
+  const quote = COFFEE_QUOTES[index % COFFEE_QUOTES.length];
+  return [
+    `  <span class="hl">coffee.exe</span> ${dim("exited with code 0")}`,
+    "",
+    ...quote.map((row) => `  ${row}`),
+    "",
+    cups > 1
+      ? `  ${dim(`cup ${cups} this visit. Steady.`)}`
+      : `  ${dim("Error 418: I am a teapot. Just kidding.")}`,
+  ].join("\n");
+}
+
+
+export type MatrixStep = { at: number; html?: string; decode?: string };
+
+/** How long the last line takes to resolve out of noise. */
+export const MATRIX_DECODE_MS = 1500;
+
+/** `matrix` is staged: a header, three beats typed slowly, a binary whisper,
+    then a line that decodes out of noise while the code rain falls. */
+export const MATRIX_SEQUENCE: MatrixStep[] = [
+  { at: 0, html: rule("matrix") },
+  { at: 600, html: `  ${bright("Wake up, Neo...")}` },
+  { at: 1900, html: "  The Matrix has you..." },
+  { at: 3100, html: "  Follow the white rabbit." },
+  { at: 4100, html: `  ${dim("01010111 01100001 01101011 01100101")}` },
+  { at: 4500, html: `  ${dim("01010101 01110000")}` },
+  { at: 5200, decode: "  Reality.exe has stopped working" },
+];
+
+/** Printed once the decode has landed. */
+export const matrixOutput = () =>
+  [
+    `  <span class="warn">You are now in the Matrix</span>`,
+    "",
+    "  Red pill or blue pill? Just kidding,",
+    "  you are still in Basem's portfolio.",
+  ].join("\n");
+
+
+export type HackStep = {
+  at: number;
+  html?: string;
+  tone?: "error";
+  bar?: { label: string; ms: number };
+  decode?: { text: string; ms: number };
+  /** One short screen glitch when the step lands. */
+  glitch?: boolean;
+  /** A sound cue when the step lands. */
+  cue?: "granted" | "denied";
+};
+
+/** `hack` is staged: type-ahead, two progress bars, a hash that cracks, a
+    break-in, two downloads, then the joke lands. Bars and the decode are live
+    components; the rest is plain typed lines. */
+export const HACK_SEQUENCE: HackStep[] = [
+  { at: 0, html: rule("hack") },
+  { at: 250, html: `<span class="warn">Initializing hack sequence...</span>` },
+  { at: 800, html: "Connecting to mainframe..." },
+  { at: 1400, bar: { label: "scanning ports", ms: 1000 } },
+  { at: 2600, bar: { label: "firewall bypass", ms: 1100 } },
+  { at: 3900, decode: { text: "  5f4dcc3b5aa7  ->  password", ms: 1100 } },
+  { at: 5200, html: `<span class="ok">ACCESS GRANTED</span>`, glitch: true, cue: "granted" },
+  { at: 5800, bar: { label: "secrets.zip", ms: 900 } },
+  { at: 6800, bar: { label: "dev_facts.txt", ms: 700 } },
+  { at: 7800, html: "ERROR: nice try, hacker.", tone: "error", glitch: true, cue: "denied" },
+];
+
+/** When the closing message and the trophy land. */
+export const HACK_DONE_AT = 8800;
+
+export const hackOutput = () =>
+  [
+    "  Real hacking is about building, not",
+    "  breaking. Want to build something",
+    `  together? ${link(GITHUB_URL, "github.com/basem3sam")}`,
+  ].join("\n");
+
+
+export type NeofetchInfo = { rank: RankId; count: number; theme: string; uptime: string };
+
+/** The logo, the stack, and a few live lines about this very session. */
+export function neofetchOutput({ rank, count, theme, uptime }: NeofetchInfo) {
+  const logo = ["██████╗ ", "██╔══██╗", "██████╔╝", "██╔══██╗", "██████╔╝", "╚═════╝ "];
+  const info = [
+    `${bright("basem")}<span class="dim">@</span>${bright("portfolio")}`,
+    dim("─".repeat(15)),
+    `${key("role", 9)}Backend Engineer`,
+    `${key("study", 9)}CS student`,
+    `${key("from", 9)}Port Said, Egypt`,
+    `${key("stack", 9)}Node, Express, Nest`,
+    `${key("data", 9)}MongoDB, PostgreSQL`,
+    `${key("infra", 9)}Docker, Linux, Bash`,
+    `${key("api", 9)}100+ endpoints`,
+    `${key("users", 9)}200+ members`,
+    `${key("rank", 9)}<span class="hl">${rank}</span>`,
+    `${key("trophies", 9)}${count}/${TOTAL_DISCOVERIES}`,
+    `${key("accent", 9)}<span class="sw sw-${theme}">██</span> ${theme}`,
+    `${key("uptime", 9)}${uptime}`,
+    "",
+    ["ok", "info", "err", "warn", "hl", "wl", "key", "dim"]
+      .map((c) => `<span class="${c}">██</span>`)
+      .join(""),
+  ];
+  return (
+    info
+      .map((row, i) => {
+        const left = logo[i] ?? "";
+        return `<span class="hd">${left.padEnd(8)}</span>  ${row}`.trimEnd();
+      })
+      .join("\n")
+      // Tight rows so the logo's blocks meet instead of showing gaps.
+      .replace(/^/, '<span class="nf">') + "</span>"
+  );
+}

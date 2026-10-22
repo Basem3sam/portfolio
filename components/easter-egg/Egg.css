@@ -1147,6 +1147,11 @@
     opacity: 0.5;
   }
 
+  /* `matrix` runs the rain brighter and longer than the other uses. */
+  .egg .etw canvas.rain.on.strong {
+    opacity: 0.8;
+  }
+
   .egg .etw canvas.rain.on.burst {
     opacity: 1;
   }
@@ -1871,6 +1876,131 @@
     }
   }
 
+  /* ---- date: a live clock ---- */
+  .egg .etb .clk {
+    white-space: pre;
+  }
+
+  /* Decoding lines may be longer than the grid (fortunes), so they wrap. */
+  .egg .etb .mxd {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  /* ---- hack: progress bars that fill in jerks ---- */
+  .egg .etb .hkb {
+    white-space: pre;
+  }
+
+  .egg .etb .hkb .hkf {
+    color: var(--e-live);
+    text-shadow: 0 0 6px color-mix(in srgb, var(--e-live) 50%, transparent);
+  }
+
+  /* ---- matrix: a line that decodes out of falling code ---- */
+  .egg .etb .mxd .mxr {
+    color: var(--e-hi);
+    text-shadow: 0 0 10px color-mix(in srgb, var(--e-live) 55%, transparent);
+  }
+
+  .egg .etb .mxd .mxn {
+    color: var(--e-live);
+    opacity: 0.85;
+    text-shadow: 0 0 6px var(--e-live);
+  }
+
+  /* ---- coffee: a cup that brews on screen ---- */
+  .egg .etb .cof {
+    margin: 6px 0 10px;
+  }
+
+  .egg .etb .cof-art {
+    margin: 0;
+    padding: 0;
+    font-family: var(--e-mono);
+    font-size: clamp(8px, calc((100cqi - 2 * var(--etp)) / (22 * 0.6)), 20px);
+    line-height: 1.25;
+    white-space: pre;
+    color: var(--e-hi);
+  }
+
+  .egg .etb .cof-art .cs {
+    color: color-mix(in srgb, var(--e-hi) 60%, transparent);
+  }
+
+  .egg .etb .cof-art .cc {
+    color: var(--e-hi);
+  }
+
+  .egg .etb .cof-art .cl {
+    color: #b9763a;
+    text-shadow: 0 0 8px rgb(185 118 58 / 0.45);
+  }
+
+  .egg .etb .cof-art .ct {
+    color: #e6b77a;
+  }
+
+  .egg .etb .cof-art .cheat {
+    animation: cofheat 0.8s ease-in-out infinite alternate;
+  }
+
+  .egg .etb .cof-art .cz {
+    color: var(--e-live);
+    animation: coftwinkle 1s ease-in-out infinite;
+  }
+
+  .egg .etb .cof-art .cz.z2 {
+    animation-delay: 0.45s;
+  }
+
+  .egg .etb .cof-st {
+    margin-top: 4px;
+    color: var(--e-ink2);
+    white-space: pre;
+  }
+
+  .egg .etb .cof-st .cof-bar {
+    color: var(--e-live);
+  }
+
+  /* The last frame: one warm flash when the cup is ready. */
+  .egg .etb .cof.ready .cof-art {
+    animation: cofready 0.9s ease-out 1;
+  }
+
+  @keyframes cofheat {
+    from {
+      color: var(--e-hi);
+    }
+    to {
+      color: #ff8a5c;
+      text-shadow: 0 0 8px rgb(255 138 92 / 0.6);
+    }
+  }
+
+  @keyframes coftwinkle {
+    0%,
+    100% {
+      opacity: 0.2;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes cofready {
+    0% {
+      filter: brightness(1);
+    }
+    35% {
+      filter: brightness(1.7) drop-shadow(0 0 10px var(--e-live));
+    }
+    100% {
+      filter: brightness(1);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .egg .egring::before,
     .egg .egring::after {
@@ -1894,6 +2024,9 @@
     .egg .eterm[data-rank="root"],
     .egg .etb .tr,
     .egg .etb .ascii,
+    .egg .etb .cof-art .cheat,
+    .egg .etb .cof-art .cz,
+    .egg .etb .cof.ready .cof-art,
     .egg .erk-n,
     .egg .erk-bar::after,
     .egg .etb.gl,
