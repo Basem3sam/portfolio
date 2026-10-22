@@ -286,7 +286,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
         anchor.removeEventListener("blur", leave);
       }
     };
-  }, [activeSection]);
+  }, [activeId]);
 
   // Capsule progress (--np) and the section progress rail. Both are written
   // straight to the DOM from one rAF-throttled scroll handler, so scrolling
@@ -394,7 +394,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
 
     observer.observe(hero);
     return () => observer.disconnect();
-  }, []);
+  }, [pathname]);
 
   // The menu never locks the page. It collapses as soon as the user
   // interacts with anything outside it: a press outside, scrolling the
@@ -683,7 +683,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                           {labels.search}
                         </span>
                         <span
-                          className="font-mono text-xs text-muted-text max-xl:sr-only"
+                          className="font-mono text-xs max-xl:sr-only"
                           suppressHydrationWarning
                         >
                           {modKey} K
