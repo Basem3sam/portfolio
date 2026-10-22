@@ -13,7 +13,19 @@ import Icon from "@/components/ui/Icon";
 import Mark from "@/components/ui/Mark";
 import { lockScroll, unlockScroll } from "@/lib/scrollLock";
 import { prefersReducedMotion } from "@/lib/scroll";
-import { playErrorSound, playKonamiKeySound, playSuccessSound } from "@/lib/sounds";
+import {
+  ensureAudio,
+  isSoundMuted,
+  playBlipSound,
+  playBootSound,
+  playEnterSound,
+  playErrorSound,
+  playFinaleSound,
+  playRankUpSound,
+  playTrophySound,
+  playTypeTick,
+  setSoundMuted,
+} from "@/lib/sounds";
 import {
   ASCII_BANNER,
   BANNER_TAGLINE,
@@ -21,6 +33,7 @@ import {
   COMMAND_ARGS,
   COMMAND_NAMES,
   COMMAND_OUTPUT,
+  SECRET_SEQUENCE,
   DISCOVERIES,
   ENV_OUTPUT,
   FINALE_BOOT,
@@ -285,12 +298,7 @@ function completionFor(value: string): Completion | null {
     if (!list) return null;
     const partial = withArg[2];
     const options = list.filter((item) => item.startsWith(partial.toLowerCase()));
-    return {
-      head: value.slice(0, value.length - partial.length),
-      partial,
-      options,
-      takesArgs: false,
-    };
+    return { head: value.slice(0, value.length - partial.length), partial, options, takesArgs: false };
   }
 
   if (value && /^\S+$/.test(value)) {
@@ -424,8 +432,7 @@ function ScreenFx({ rain, burst }: { rain: number; burst: number }) {
       ctx.fillStyle = color;
 
       drops.forEach((y, column) => {
-        if (y > 0)
-          ctx.fillText(glyphs[Math.floor(Math.random() * glyphs.length)], column * size, y * size);
+        if (y > 0) ctx.fillText(glyphs[Math.floor(Math.random() * glyphs.length)], column * size, y * size);
         drops[column] = y * size > height && Math.random() > 0.96 ? 0 : y + 1;
       });
     };
@@ -457,18 +464,7 @@ function ScreenFx({ rain, burst }: { rain: number; burst: number }) {
     canvas.height = Math.round(height * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    type Piece = {
-      x: number;
-      y: number;
-      vx: number;
-      vy: number;
-      w: number;
-      h: number;
-      r: number;
-      vr: number;
-      c: string;
-      life: number;
-    };
+    type Piece = { x: number; y: number; vx: number; vy: number; w: number; h: number; r: number; vr: number; c: string; life: number };
     const launch = (count: number, at: number): Piece[] =>
       Array.from({ length: count }, () => {
         const angle = -Math.PI / 2 + (Math.random() - 0.5) * 1.5;
@@ -540,11 +536,6 @@ type TerminalProps = {
   onClose: () => void;
 };
 
-/** Picks a start index for `fortune`. Called only from the command handler (an event), never during render. */
-function randomIndex(count: number): number {
-  return Math.floor(Math.random() * count);
-}
-
 export default function Terminal({ open, onClose }: TerminalProps) {
   const [stored] = useState(loadStored);
   const [shown, setShown] = useState(false);
@@ -584,6 +575,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
   const [found, setFound] = useState(stored.found);
   const [theme, setTheme] = useState<ThemeId>(stored.theme);
   const [bump, setBump] = useState(0);
+  const [muted, setMuted] = useState(() => isSoundMuted());
   const [rainRun, setRainRun] = useState(0);
   const [burstRun, setBurstRun] = useState(0);
   const [crt, setCrt] = useState(stored.crt);
@@ -718,7 +710,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
   /** The last trophy is an event, not a line: a staged sequence that ends in
       a certificate with the person's own numbers on it. */
   const finale = () => {
-    playSuccessSound();
+    playFinaleSound();
     const levels = Object.values(hintsRef.current);
     const stats = {
       hints: levels.reduce((sum, level) => sum + level, 0),
@@ -738,9 +730,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
     at(5200, () => emit(certificateOutput(stats)));
     at(6600, () => {
       emit(FINALE_REWARDS.join("\n"));
-      setAnnounce(
-        "All trophies found. You have root. A certificate and the gold theme are unlocked.",
-      );
+      setAnnounce("All trophies found. You have root. A certificate and the gold theme are unlocked.");
     });
   };
 
@@ -765,9 +755,9 @@ export default function Terminal({ open, onClose }: TerminalProps) {
     ];
     if (after !== before && after !== "root") {
       items.push({ tone: "plain", html: rankUpOutput(after) });
-      playSuccessSound();
+      playRankUpSound();
     } else if (after !== "root") {
-      playKonamiKeySound("a", 1);
+      playTrophySound();
     }
 
     append(items);
@@ -778,6 +768,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
 
   const applyTheme = (id: ThemeId) => {
     themeRef.current = id;
+    playBlipSound();
     setTheme(id);
     persist();
   };
@@ -789,7 +780,10 @@ export default function Terminal({ open, onClose }: TerminalProps) {
 
     let inner = 0;
     const outer = requestAnimationFrame(() => {
-      inner = requestAnimationFrame(() => setShown(true));
+      inner = requestAnimationFrame(() => {
+        setShown(true);
+        ensureAudio().then(() => playBootSound());
+      });
     });
 
     return () => {
@@ -894,7 +888,41 @@ export default function Terminal({ open, onClose }: TerminalProps) {
       case "skills":
       case "projects":
       case "contact":
-      case "secret":
+        emit(COMMAND_OUTPUT[word]);
+        discover(word);
+        return;
+
+      case "secret": {
+        // A staged reveal: lock, scan, breach, then the message itself.
+        playErrorSound();
+        const total = SECRET_SEQUENCE[SECRET_SEQUENCE.length - 1].at;
+        SECRET_SEQUENCE.forEach((step, index) => {
+          timers.current.push(
+            window.setTimeout(() => {
+              append([
+                step.tone === "error"
+                  ? { tone: "error", text: step.html }
+                  : { tone: "plain", html: step.html },
+              ]);
+              if (index === 3) {
+                setGlitch(true);
+                playErrorSound();
+              }
+              if (index === 4) setGlitch(false);
+            }, step.at),
+          );
+        });
+        timers.current.push(
+          window.setTimeout(() => {
+            setRainRun((value) => value + 1);
+            playRankUpSound();
+            emit(COMMAND_OUTPUT.secret);
+            discover("secret");
+          }, total + 900),
+        );
+        return;
+      }
+
       case "neofetch":
       case "hack":
       case "coffee":
@@ -963,7 +991,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
           return;
         }
         append([{ tone: "plain", text: `Opening ${entry.label}...` }]);
-        if (entry.url.startsWith("mailto:")) window.location.assign(entry.url);
+        if (entry.url.startsWith("mailto:")) window.location.href = entry.url;
         else window.open(entry.url, "_blank", "noopener,noreferrer");
         discover("open");
         return;
@@ -994,7 +1022,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
 
       case "fortune": {
         // Start somewhere random, then walk the list so nothing repeats soon.
-        const at = fortuneIndex.current ?? randomIndex(fortuneCount);
+        const at = fortuneIndex.current ?? Math.floor(Math.random() * fortuneCount);
         fortuneIndex.current = at + 1;
         emit(fortuneOutput(at));
         discover("fortune");
@@ -1058,9 +1086,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
       case "hint": {
         const target = DISCOVERIES.find((item) => !foundRef.current.includes(item.id));
         if (!target) {
-          emit(
-            `  <span class="wl">No trophies left.</span> <span class="dim">You have everything.</span>`,
-          );
+          emit(`  <span class="wl">No trophies left.</span> <span class="dim">You have everything.</span>`);
           return;
         }
         const level = Math.min(3, (hintsRef.current[target.id] ?? 0) + 1) as 1 | 2 | 3;
@@ -1157,9 +1183,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
       { tone: "error", text: `Command not found: ${tokens[0]}` },
       {
         tone: "info",
-        text: guess
-          ? `Did you mean "${guess}"? Type "help" for the list.`
-          : 'Type "help" to see available commands.',
+        text: guess ? `Did you mean "${guess}"? Type "help" for the list.` : 'Type "help" to see available commands.',
       },
     ]);
   };
@@ -1167,6 +1191,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
   /** Echo a command in the transcript, then run it. Enter and the quick
       command chips share this path, so both read the same in history. */
   const submit = (raw: string) => {
+    playEnterSound();
     history.current.push(raw);
     historyIndex.current = history.current.length;
     append([
@@ -1200,10 +1225,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
       put(head + prefix + (options.length === 1 && takesArgs ? " " : ""));
     } else if (options.length > 1) {
       append([
-        {
-          tone: "prompt",
-          html: `${promptHtml(rank, symbol)} <span class="cmd">${escapeHtml(draft)}</span>`,
-        },
+        { tone: "prompt", html: `${promptHtml(rank, symbol)} <span class="cmd">${escapeHtml(draft)}</span>` },
         { tone: "plain", html: `<span class="dim">${options.join("  ")}</span>` },
       ]);
     }
@@ -1211,6 +1233,11 @@ export default function Terminal({ open, onClose }: TerminalProps) {
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     finishTyping();
+    if (!event.ctrlKey && !event.metaKey && !event.altKey) {
+      if (event.key === "Backspace") playTypeTick("back");
+      else if (event.key === " ") playTypeTick("space");
+      else if (event.key.length === 1) playTypeTick("key");
+    }
     const input = event.currentTarget;
 
     if (event.ctrlKey && !event.altKey && !event.metaKey) {
@@ -1279,7 +1306,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
   return (
     <div className="egg">
       <div
-        className={open && shown ? "eov dim show" : "eov dim"}
+        className={`eov dim${open && shown ? " show" : ""}`}
         onClick={(event) => {
           if (event.target === event.currentTarget) close();
         }}
@@ -1318,6 +1345,20 @@ export default function Terminal({ open, onClose }: TerminalProps) {
                   {rank}
                 </span>
               </button>
+              <button
+                type="button"
+                className={`egx esn${muted ? " off" : ""}`}
+                aria-label={muted ? "Turn sound on" : "Turn sound off"}
+                aria-pressed={!muted}
+                onClick={() => {
+                  const next = !muted;
+                  setSoundMuted(next);
+                  setMuted(next);
+                  if (!next) playBlipSound();
+                }}
+              >
+                <span aria-hidden="true">♪</span>
+              </button>
               <span className="esc">Esc to close</span>
               <button type="button" className="egx" aria-label="Close terminal" onClick={close}>
                 <Icon name="x" className="i" />
@@ -1334,7 +1375,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
                   inputRef.current?.focus();
                 }
               }}
-              className={glitch ? "etb gl" : "etb"}
+              className={`etb${glitch ? " gl" : ""}`}
               id="terminal-output"
               tabIndex={0}
               aria-label="Terminal output"
@@ -1343,10 +1384,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
                 const style = line.delay ? { animationDelay: `${line.delay}ms` } : undefined;
 
                 if (line.kind === "ascii") {
-                  const sized = {
-                    ...style,
-                    ...(line.cols ? { "--cols": line.cols } : {}),
-                  } as CSSProperties;
+                  const sized = { ...style, ...(line.cols ? { "--cols": line.cols } : {}) } as CSSProperties;
                   return (
                     <pre
                       key={line.id}

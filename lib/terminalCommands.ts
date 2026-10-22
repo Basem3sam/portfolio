@@ -721,22 +721,21 @@ export const COMMAND_OUTPUT: Record<string, string> = {
   ].join("\n"),
 
   secret: [
-    rule("secret"),
-    "  You found the secret terminal.",
+    rule("classified"),
+    `  ${badge("CLEARANCE: ROOT-LEVEL")}`,
     "",
-    "  Curiosity and exploration are the",
-    "  hallmarks of great engineers, and",
-    "  you are clearly one of them.",
+    "  Most visitors never get this far.",
+    "  You did not stumble in. You looked.",
     "",
-    `  ${badge("Achievement unlocked: terminal hacker")}`,
+    `  ${dim("The terminal only opens for people who")}`,
+    `  ${dim("try the thing nobody told them to try.")}`,
     "",
-    `  ${dim(`"The best developers never stop`)}`,
-    `  ${dim(`exploring, questioning and learning."`)}`,
+    `  ${dim(`"Every system has a back door.`)}`,
+    `  ${dim(`The good engineers check for it first."`)}`,
     `  ${dim("- Basem Esam")}`,
     "",
-    "  Built with Next.js, React and",
-    "  TypeScript. Try matrix, hack, coffee",
-    `  or type ${hint("trophies")} for your progress.`,
+    `  ${hint("Whisper:")} some files are hidden on purpose.`,
+    `  ${dim("Try")} ${hint("ls -a")} ${dim("and read what you find.")}`,
   ].join("\n"),
 
   matrix: [
@@ -846,6 +845,16 @@ export const COMMAND_NAMES = [
 ];
 
 /** Commands that take an argument, with the values Tab can complete. */
+/** The staged build-up before the secret message is revealed. */
+export const SECRET_SEQUENCE: { at: number; html: string; tone?: "error" | "info" | "success" }[] = [
+  { at: 0, html: "ACCESS RESTRICTED", tone: "error" },
+  { at: 700, html: `  <span class="dim">scanning for credentials...</span>` },
+  { at: 1400, html: `  <span class="dim">no credentials found</span>` },
+  { at: 2100, html: `  <span class="wl">intrusion detected. you are not supposed to be here.</span>` },
+  { at: 3000, html: `  <span class="dim">bypassing lock</span> <span class="ok">████████████</span> <span class="dim">100%</span>` },
+  { at: 3800, html: `  <span class="dim">decrypting</span> <span class="key">basem.secret</span><span class="dim">...</span>` },
+];
+
 export const COMMAND_ARGS: Record<string, readonly string[]> = {
   open: OPEN_NAMES,
   theme: THEMES,

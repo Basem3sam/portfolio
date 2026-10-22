@@ -721,6 +721,7 @@
     --etp: 22px;
     --e-note: #e0a458;
     --e-hi: #f4c77d;
+    --e-live: #e0a458;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -751,23 +752,28 @@
   /* Accent themes: the terminal only. `theme <name>` sets data-theme. */
   .egg .eterm[data-theme="ice"] {
     --e-note: #6fb4ff;
+    --e-live: #6fb4ff;
     --e-hi: #a7d2ff;
   }
   .egg .eterm[data-theme="moss"] {
     --e-note: #7fcf8a;
+    --e-live: #7fcf8a;
     --e-hi: #b4eeb9;
   }
   .egg .eterm[data-theme="iris"] {
     --e-note: #a98bff;
+    --e-live: #a98bff;
     --e-hi: #cdbcff;
   }
   .egg .eterm[data-theme="rose"] {
     --e-note: #ff8fb1;
+    --e-live: #ff8fb1;
     --e-hi: #ffc0d3;
   }
   /* Earned at root: the warmest, brightest accent. */
   .egg .eterm[data-theme="gold"] {
     --e-note: #ffd166;
+    --e-live: #ffd166;
     --e-hi: #fff0b8;
   }
 
@@ -892,6 +898,7 @@
 
   .egg .etw {
     position: relative;
+    overflow: hidden;
     display: flex;
     flex: 1;
     min-height: 0;
@@ -1272,7 +1279,10 @@
 
   .egg .eti .eg {
     position: absolute;
-    inset: 0;
+    /* Extra room on the left and vertically so the cursor glow is never
+       clipped; the padding puts the text back exactly where it was. */
+    inset: -8px 0 -8px -14px;
+    padding-left: 14px;
     display: flex;
     align-items: center;
     overflow: hidden;
@@ -1287,6 +1297,7 @@
 
   .egg .eti .eg .cur {
     display: inline-block;
+    border-radius: 2px;
     background: transparent;
   }
 
@@ -1297,13 +1308,25 @@
   .egg .eti:focus-within .eg .cur {
     background: var(--e-note);
     color: #080d18;
-    animation: egblink 1.1s steps(1) infinite;
+    box-shadow:
+      0 0 6px 1px color-mix(in srgb, var(--e-note) 75%, transparent),
+      0 0 18px 3px color-mix(in srgb, var(--e-note) 40%, transparent);
+    animation: egblink 1.1s ease-in-out infinite;
   }
 
   @keyframes egblink {
-    50% {
-      background: transparent;
+    0%,
+    45% {
+      background: var(--e-note);
+      box-shadow:
+        0 0 6px 1px color-mix(in srgb, var(--e-note) 75%, transparent),
+        0 0 18px 3px color-mix(in srgb, var(--e-note) 40%, transparent);
+    }
+    70%,
+    100% {
+      background: color-mix(in srgb, var(--e-note) 12%, transparent);
       color: #fff;
+      box-shadow: 0 0 0 0 transparent;
     }
   }
 
@@ -1383,7 +1406,11 @@
     inset: 0;
     pointer-events: none;
     background:
-      radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(0, 0, 0, 0.38)),
+      radial-gradient(
+        120% 90% at 50% 40%,
+        transparent 55%,
+        color-mix(in srgb, var(--e-live) 10%, rgba(0, 0, 0, 0.38))
+      ),
       repeating-linear-gradient(
         180deg,
         rgba(0, 0, 0, 0.22) 0,
@@ -1660,6 +1687,190 @@
     }
   }
 
+  /* ---- extra motion & effects ---- */
+
+  /* Typed commands slide in from the prompt side. */
+  .egg .etb .ln.cl {
+    animation: egfade 0.7s var(--e-ease) both, egslide 0.35s var(--e-ease) both;
+  }
+
+  /* Success lines flash a quick phosphor bloom, then settle. */
+  .egg .etb .ln.ok {
+    animation: egfade 0.7s var(--e-ease) both, egbloom 1.1s ease-out both;
+  }
+
+  /* Errors twitch sideways once, with a red afterglow. */
+  .egg .etb .ln.err {
+    animation: egfade 0.7s var(--e-ease) both, egtwitch 0.45s steps(2, end) 1 both,
+      egredglow 0.9s ease-out both;
+  }
+
+  /* Banner: a bright band sweeps across once when it prints. */
+  .egg .etb .ascii {
+    animation: egfade 1.2s var(--e-ease) both, egsweep 1.6s ease-out 0.4s 1 both;
+  }
+
+  /* CRT: a slow rolling brightness band, like a refresh line. */
+  .egg .eterm[data-crt="on"] .etw::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 22%;
+    pointer-events: none;
+    z-index: 2;
+    background: linear-gradient(
+      180deg,
+      transparent,
+      color-mix(in srgb, var(--e-live) 12%, transparent),
+      transparent
+    );
+    animation: egroll 7s linear infinite;
+  }
+
+  /* Rank chip: a ring ripple when a trophy lands. */
+  .egg .erk-n {
+    display: inline-block;
+  }
+
+  /* The cursor breathes a soft glow while the input is focused. */
+  /* Root: the whole window breathes a faint crimson edge light. */
+  .egg .eterm[data-rank="root"] {
+    animation: egroot 3.6s ease-in-out infinite;
+  }
+
+  /* Input row lights up its prompt when you start typing. */
+  .egg .eti:focus-within .u {
+    text-shadow: 0 0 10px currentColor;
+  }
+
+  /* The input row lights its top edge while you are typing. */
+  .egg .eti {
+    transition: border-color 0.3s, box-shadow 0.3s, background-color 0.3s;
+  }
+  .egg .eti:focus-within {
+    border-top-color: color-mix(in srgb, var(--e-note) 55%, transparent);
+    background: color-mix(in srgb, var(--e-note) 5%, #0c1322);
+    box-shadow: 0 -10px 28px -14px color-mix(in srgb, var(--e-note) 45%, transparent);
+  }
+
+  /* Sound toggle in the header. */
+  .egg .esn {
+    width: 36px;
+    height: 36px;
+    font-size: 1.05rem;
+    color: var(--e-live);
+  }
+  .egg .esn.off {
+    color: var(--e-dim);
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+  }
+
+  /* "+ trophy" lines glow gold as they land. */
+  .egg .etb .tr {
+    color: var(--e-hi);
+    font-weight: 700;
+    animation: egshimmer 1.6s ease-out 0.2s 1 both;
+  }
+  @keyframes egshimmer {
+    0% {
+      text-shadow: 0 0 0 transparent;
+    }
+    30% {
+      text-shadow: 0 0 16px var(--e-hi), 0 0 4px #fff;
+    }
+    100% {
+      text-shadow: 0 0 0 transparent;
+    }
+  }
+
+  @keyframes egslide {
+    from {
+      transform: translateX(-8px);
+    }
+    to {
+      transform: none;
+    }
+  }
+
+  @keyframes egbloom {
+    0% {
+      text-shadow: 0 0 0 transparent;
+      filter: brightness(1);
+    }
+    25% {
+      text-shadow: 0 0 14px currentColor;
+      filter: brightness(1.5);
+    }
+    100% {
+      text-shadow: 0 0 0 transparent;
+      filter: brightness(1);
+    }
+  }
+
+  @keyframes egtwitch {
+    0% {
+      transform: translateX(0);
+    }
+    20% {
+      transform: translateX(-4px);
+    }
+    40% {
+      transform: translateX(4px);
+    }
+    60% {
+      transform: translateX(-2px);
+    }
+    80% {
+      transform: translateX(2px);
+    }
+    100% {
+      transform: none;
+    }
+  }
+
+  @keyframes egredglow {
+    0% {
+      text-shadow: 0 0 12px rgb(255 92 87 / 0.9);
+    }
+    100% {
+      text-shadow: 0 0 0 transparent;
+    }
+  }
+
+  @keyframes egsweep {
+    0% {
+      filter: brightness(1);
+    }
+    40% {
+      filter: brightness(1.9) drop-shadow(0 0 6px var(--e-live));
+    }
+    100% {
+      filter: brightness(1);
+    }
+  }
+
+  @keyframes egroll {
+    from {
+      transform: translateY(-120%);
+    }
+    to {
+      transform: translateY(560%);
+    }
+  }
+
+  @keyframes egroot {
+    0%,
+    100% {
+      box-shadow: 0 0 0 1px rgb(255 92 87 / 0.12), 0 0 24px rgb(255 92 87 / 0.06);
+    }
+    50% {
+      box-shadow: 0 0 0 1px rgb(255 92 87 / 0.35), 0 0 46px rgb(255 92 87 / 0.18);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .egg .egring::before,
     .egg .egring::after {
@@ -1676,6 +1887,12 @@
     .egg .eov.show .eterm[data-crt="on"],
     .egg .eti:focus-within .eg .cur,
     .egg .etb .ln,
+    .egg .etb .ln.cl,
+    .egg .etb .ln.ok,
+    .egg .etb .ln.err,
+    .egg .eterm[data-crt="on"] .etw::before,
+    .egg .eterm[data-rank="root"],
+    .egg .etb .tr,
     .egg .etb .ascii,
     .egg .erk-n,
     .egg .erk-bar::after,

@@ -163,3 +163,154 @@ export function resumeAudio(): Promise<void> {
     .then(() => {})
     .catch(() => {});
 }
+
+/* ---- Terminal sound design ------------------------------------------------
+   Short, soft, synthetic. Everything goes through playTone, so the mute
+   toggle and the "audio not unlocked yet" guard apply to all of it. */
+
+/** Create and resume the shared context. Safe to call from any user gesture,
+    and from the terminal opening, where the context may not exist yet. */
+export function ensureAudio(): Promise<void> {
+  try {
+    const audio = getContext();
+    if (audio.state === "running") return Promise.resolve();
+    return audio
+      .resume()
+      .then(() => {})
+      .catch(() => {});
+  } catch {
+    return Promise.resolve();
+  }
+}
+
+/** A keystroke: a tiny dry tick, slightly different each time. */
+export function playTypeTick(kind: "key" | "back" | "space" = "key") {
+  const base = kind === "back" ? 180 : kind === "space" ? 240 : 320;
+  playTone({
+    type: "square",
+    frequencies: [{ frequency: base * (0.92 + Math.random() * 0.16), time: 0 }],
+    gain: { start: 0.025, end: 0.0008 },
+    duration: 0.035,
+  });
+}
+
+/** Enter: a firmer two-step click. */
+export function playEnterSound() {
+  playTone({
+    type: "triangle",
+    frequencies: [
+      { frequency: 260, time: 0 },
+      { frequency: 390, time: 0.045 },
+    ],
+    gain: { start: 0.06, end: 0.002 },
+    duration: 0.11,
+  });
+}
+
+/** Terminal opening: a rising power-on sweep with a soft chord tail. */
+export function playBootSound() {
+  playTone({
+    type: "sawtooth",
+    frequencies: [
+      { frequency: 90, time: 0 },
+      { frequency: 140, time: 0.08 },
+      { frequency: 220, time: 0.16 },
+      { frequency: 330, time: 0.24 },
+    ],
+    gain: { start: 0, peak: 0.05, peakTime: 0.1, end: 0.001 },
+    duration: 0.42,
+  });
+  window.setTimeout(() => {
+    playTone({
+      frequencies: [{ frequency: 659.25, time: 0 }],
+      gain: { start: 0, peak: 0.06, peakTime: 0.02, end: 0.001 },
+      duration: 0.35,
+    });
+  }, 320);
+}
+
+/** A trophy: a bright three-note sparkle. */
+export function playTrophySound() {
+  const notes = [880, 1174.66, 1567.98];
+  notes.forEach((frequency, index) => {
+    window.setTimeout(() => {
+      playTone({
+        frequencies: [{ frequency, time: 0 }],
+        gain: { start: 0, peak: 0.09, peakTime: 0.01, end: 0.001 },
+        duration: 0.22,
+      });
+    }, index * 70);
+  });
+}
+
+/** A new rank: a rising major arpeggio that lands on a held chord. */
+export function playRankUpSound() {
+  const run = [523.25, 659.25, 783.99, 1046.5];
+  run.forEach((frequency, index) => {
+    window.setTimeout(() => {
+      playTone({
+        type: "triangle",
+        frequencies: [{ frequency, time: 0 }],
+        gain: { start: 0, peak: 0.11, peakTime: 0.015, end: 0.001 },
+        duration: index === run.length - 1 ? 0.7 : 0.2,
+      });
+    }, index * 110);
+  });
+  window.setTimeout(() => {
+    [659.25, 783.99].forEach((frequency) =>
+      playTone({
+        frequencies: [{ frequency, time: 0 }],
+        gain: { start: 0, peak: 0.06, peakTime: 0.03, end: 0.001 },
+        duration: 0.6,
+      }),
+    );
+  }, 330);
+}
+
+/** All 21: a full fanfare. Rising run, a held chord, then a high shimmer. */
+export function playFinaleSound() {
+  const run = [392, 523.25, 659.25, 783.99, 1046.5, 1318.51];
+  run.forEach((frequency, index) => {
+    window.setTimeout(() => {
+      playTone({
+        type: "triangle",
+        frequencies: [{ frequency, time: 0 }],
+        gain: { start: 0, peak: 0.12, peakTime: 0.015, end: 0.001 },
+        duration: 0.25,
+      });
+    }, index * 120);
+  });
+  window.setTimeout(() => {
+    [523.25, 659.25, 783.99, 1046.5].forEach((frequency) =>
+      playTone({
+        type: "triangle",
+        frequencies: [{ frequency, time: 0 }],
+        gain: { start: 0, peak: 0.08, peakTime: 0.04, end: 0.001 },
+        duration: 1.6,
+      }),
+    );
+  }, 780);
+  [2093, 2637, 3136, 2637, 3136, 4186].forEach((frequency, index) => {
+    window.setTimeout(
+      () =>
+        playTone({
+          frequencies: [{ frequency, time: 0 }],
+          gain: { start: 0, peak: 0.04, peakTime: 0.005, end: 0.0005 },
+          duration: 0.18,
+        }),
+      1100 + index * 90,
+    );
+  });
+}
+
+/** Switching theme or toggling a setting: one soft blip. */
+export function playBlipSound() {
+  playTone({
+    frequencies: [
+      { frequency: 520, time: 0 },
+      { frequency: 780, time: 0.05 },
+    ],
+    gain: { start: 0, peak: 0.05, peakTime: 0.01, end: 0.001 },
+    duration: 0.12,
+  });
+}
