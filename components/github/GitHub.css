@@ -49,11 +49,18 @@
     box-shadow 0.3s;
 }
 
-.gh-card:hover,
 .gh-card:focus-within {
   transform: translateY(-4px);
   border-color: var(--c-muted-text);
   box-shadow: var(--sh-lg);
+}
+
+@media (hover: hover) {
+  .gh-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--c-muted-text);
+    box-shadow: var(--sh-lg);
+  }
 }
 
 .gh-top {
@@ -107,7 +114,6 @@
     transform 0.3s var(--ease-out);
 }
 
-.gh-card:hover .gh-go,
 .gh-card:focus-within .gh-go {
   background: var(--c-dark-text);
   border-color: var(--c-dark-text);
@@ -115,9 +121,23 @@
   transform: rotate(-45deg);
 }
 
-[dir="rtl"] .gh-card:hover .gh-go,
+@media (hover: hover) {
+  .gh-card:hover .gh-go {
+    background: var(--c-dark-text);
+    border-color: var(--c-dark-text);
+    color: var(--c-page);
+    transform: rotate(-45deg);
+  }
+}
+
 [dir="rtl"] .gh-card:focus-within .gh-go {
   transform: rotate(45deg);
+}
+
+@media (hover: hover) {
+  [dir="rtl"] .gh-card:hover .gh-go {
+    transform: rotate(45deg);
+  }
 }
 
 .gh-name {
@@ -147,8 +167,10 @@
   border-radius: var(--radius-ui-3);
 }
 
-.gh-card:hover .gh-link {
-  color: var(--c-secondary);
+@media (hover: hover) {
+  .gh-card:hover .gh-link {
+    color: var(--c-secondary);
+  }
 }
 
 .gh-link:focus-visible {
@@ -199,9 +221,11 @@
     color 0.3s;
 }
 
-.gh-card:hover .gh-topics li {
-  border-color: var(--c-rule-strong);
-  color: var(--c-dark-text);
+@media (hover: hover) {
+  .gh-card:hover .gh-topics li {
+    border-color: var(--c-rule-strong);
+    color: var(--c-dark-text);
+  }
 }
 
 .gh-foot {
@@ -258,10 +282,12 @@ html[lang="ar"] .gh-foot {
   animation: none;
 }
 
-.gh-skel:hover {
-  transform: none;
-  border-color: var(--c-hairline);
-  box-shadow: none;
+@media (hover: hover) {
+  .gh-skel:hover {
+    transform: none;
+    border-color: var(--c-hairline);
+    box-shadow: none;
+  }
 }
 
 .gh-skel i {
@@ -341,10 +367,15 @@ html[lang="ar"] .gh-foot {
     animation: none;
   }
 
-  .gh-card:hover,
   .gh-card:focus-within,
-  .gh-card:hover .gh-go,
   .gh-card:focus-within .gh-go {
     transform: none;
+  }
+
+  @media (hover: hover) {
+    .gh-card:hover,
+    .gh-card:hover .gh-go {
+      transform: none;
+    }
   }
 }

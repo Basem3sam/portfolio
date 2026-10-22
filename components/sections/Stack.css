@@ -231,8 +231,10 @@ html[dir="rtl"] #stack .stx-seg::after {
   transition: none;
 }
 
-#stack .stx:hover .stx-node {
-  transform: scale(1.35);
+@media (hover: hover) {
+  #stack .stx:hover .stx-node {
+    transform: scale(1.35);
+  }
 }
 
 /* Mono key row: index (note-coloured) + stage key (mockup 1520–1522). */

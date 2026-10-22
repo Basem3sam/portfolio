@@ -19,7 +19,12 @@ type SectionHeaderProps = {
  * decorative, so the top row is hidden from assistive tech; the h2 carries
  * the section's accessible name.
  */
-export default function SectionHeader({ number, title, lead, headingId }: SectionHeaderProps) {
+export default function SectionHeader({
+  number,
+  title,
+  lead,
+  headingId,
+}: SectionHeaderProps) {
   return (
     <div className="sh" data-reveal>
       <div className="sh-top" aria-hidden="true">

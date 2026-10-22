@@ -16,11 +16,18 @@
     box-shadow 0.3s;
 }
 
-.sp:hover,
 .sp:focus-visible {
   transform: translateY(-3px);
   border-color: var(--c-muted-text);
   box-shadow: var(--sh-lg);
+}
+
+@media (hover: hover) {
+  .sp:hover {
+    transform: translateY(-3px);
+    border-color: var(--c-muted-text);
+    box-shadow: var(--sh-lg);
+  }
 }
 
 .sp:focus-visible {
@@ -97,8 +104,10 @@
   opacity: 1;
 }
 
-.sp:hover .sp-frame img {
-  transform: scale(1.03);
+@media (hover: hover) {
+  .sp:hover .sp-frame img {
+    transform: scale(1.03);
+  }
 }
 
 .sp-fail {
@@ -127,8 +136,13 @@
     transition: none;
   }
 
-  .sp:hover,
   .sp:focus-visible {
     transform: none;
+  }
+
+  @media (hover: hover) {
+    .sp:hover {
+      transform: none;
+    }
   }
 }

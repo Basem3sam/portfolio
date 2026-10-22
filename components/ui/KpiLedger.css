@@ -76,20 +76,25 @@
     transition: width 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
   }
 
-  .kpi:hover {
-    border-color: color-mix(in srgb, var(--c-honey) 55%, var(--c-hairline));
-    /* Keep the perspective tilt alive while lifting (the mockup's plain
-       translateY here would flatten the tile mid-tilt). */
-    transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-3px);
-    box-shadow: var(--sh-xl);
+  @media (hover: hover) {
+    .kpi:hover {
+      border-color: color-mix(in srgb, var(--c-honey) 55%, var(--c-hairline));
+      /* Keep the perspective tilt alive while lifting (the mockup's plain
+         translateY here would flatten the tile mid-tilt). */
+      transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg))
+        translateY(-3px);
+      box-shadow: var(--sh-xl);
+    }
   }
 
   .kpi:hover::before {
     opacity: 1;
   }
 
-  .kpi:hover::after {
-    width: 64px;
+  @media (hover: hover) {
+    .kpi:hover::after {
+      width: 64px;
+    }
   }
 
   .kpi dt {

@@ -157,14 +157,24 @@
   transform-origin: right;
 }
 
-.ft-col a:not(.ft-up):hover,
 .ft-col a:not(.ft-up):focus-visible {
   color: var(--c-dark-text);
 }
 
-.ft-col a:not(.ft-up):hover::after,
+@media (hover: hover) {
+  .ft-col a:not(.ft-up):hover {
+    color: var(--c-dark-text);
+  }
+}
+
 .ft-col a:not(.ft-up):focus-visible::after {
   transform: scaleX(1);
+}
+
+@media (hover: hover) {
+  .ft-col a:not(.ft-up):hover::after {
+    transform: scaleX(1);
+  }
 }
 
 .ft-col a:not(.ft-up) svg {
@@ -244,20 +254,36 @@
   transition: transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
-.ft-up:hover,
 .ft-up:focus-visible {
   background: rgb(255 255 255 / 0.1);
   border-color: var(--c-light-text);
 }
 
-.ft-up:hover i,
+@media (hover: hover) {
+  .ft-up:hover {
+    background: rgb(255 255 255 / 0.1);
+    border-color: var(--c-light-text);
+  }
+}
+
 .ft-up:focus-visible i {
   transform: translateY(-3px);
 }
 
-[dir="rtl"] .ft-up:hover i,
+@media (hover: hover) {
+  .ft-up:hover i {
+    transform: translateY(-3px);
+  }
+}
+
 [dir="rtl"] .ft-up:focus-visible i {
   transform: translateY(-3px);
+}
+
+@media (hover: hover) {
+  [dir="rtl"] .ft-up:hover i {
+    transform: translateY(-3px);
+  }
 }
 
 /* --- the wordmark ---------------------------------------------------------

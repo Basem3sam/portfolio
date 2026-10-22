@@ -51,8 +51,10 @@
     border-color 0.2s;
 }
 
-.lb-back:hover {
-  border-color: var(--c-dark-text);
+@media (hover: hover) {
+  .lb-back:hover {
+    border-color: var(--c-dark-text);
+  }
 }
 
 .lb-back:focus-visible,
@@ -79,13 +81,17 @@
     background-color 0.2s;
 }
 
-.lb-back:hover .lb-arrow {
-  background: var(--c-note);
-  transform: translateX(-3px);
+@media (hover: hover) {
+  .lb-back:hover .lb-arrow {
+    background: var(--c-note);
+    transform: translateX(-3px);
+  }
 }
 
-html[dir="rtl"] .lb-back:hover .lb-arrow {
-  transform: translateX(3px);
+@media (hover: hover) {
+  html[dir="rtl"] .lb-back:hover .lb-arrow {
+    transform: translateX(3px);
+  }
 }
 
 .lb-ctl {
@@ -107,11 +113,13 @@ html[dir="rtl"] .lb-back:hover .lb-arrow {
     border-color 0.2s;
 }
 
-.lb-ctl .lb-lang:hover,
-.lb-ctl .lb-theme:hover {
-  background: var(--c-light-bg);
-  border-color: var(--c-rule-strong);
-  color: var(--c-dark-text);
+@media (hover: hover) {
+  .lb-ctl .lb-lang:hover,
+  .lb-ctl .lb-theme:hover {
+    background: var(--c-light-bg);
+    border-color: var(--c-rule-strong);
+    color: var(--c-dark-text);
+  }
 }
 
 .lb-ctl .lb-lang {
@@ -149,8 +157,10 @@ html[dir="rtl"] .lb-back:hover .lb-arrow {
   transition: transform 0.35s cubic-bezier(0.3, 0.8, 0.3, 1);
 }
 
-.lb-ctl .lb-theme:hover svg {
-  transform: rotate(25deg);
+@media (hover: hover) {
+  .lb-ctl .lb-theme:hover svg {
+    transform: rotate(25deg);
+  }
 }
 
 /* ---------- two-column grid ---------- */
@@ -760,9 +770,14 @@ html[dir="rtl"] .lk:focus-visible[data-trailing="arrowRight"] .go svg {
     animation: none;
   }
 
-  .lk-card:hover .lk-photo,
   .lk:active .go {
     transform: none;
+  }
+
+  @media (hover: hover) {
+    .lk-card:hover .lk-photo {
+      transform: none;
+    }
   }
 }
 

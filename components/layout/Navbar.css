@@ -45,15 +45,26 @@
   transform: translateY(1px);
 }
 
-[dir="rtl"] .nav-links a:hover .nn,
 [dir="rtl"] .nav-links a[aria-current="page"] .nn {
   transform: translateY(0);
 }
 
-.nav-links a:hover .nn,
+@media (hover: hover) {
+  [dir="rtl"] .nav-links a:hover .nn {
+    transform: translateY(0);
+  }
+}
+
 .nav-links a[aria-current="page"] .nn {
   color: var(--c-note);
   transform: translateY(-1px);
+}
+
+@media (hover: hover) {
+  .nav-links a:hover .nn {
+    color: var(--c-note);
+    transform: translateY(-1px);
+  }
 }
 
 /* One pill for every link: it slides to the hovered link and parks on the
@@ -124,9 +135,14 @@ nav:not([data-tide])[data-scrolled="false"] .nav-links a {
   color: color-mix(in srgb, var(--c-dark-text) 88%, var(--c-page));
 }
 
-nav:not([data-tide])[data-scrolled="false"] .nav-links a:hover,
 nav:not([data-tide])[data-scrolled="false"] .nav-links a[aria-current="page"] {
   color: var(--c-dark-text);
+}
+
+@media (hover: hover) {
+  nav:not([data-tide])[data-scrolled="false"] .nav-links a:hover {
+    color: var(--c-dark-text);
+  }
 }
 
 nav:not([data-tide])[data-scrolled="false"] .nav-links .nn,
@@ -134,9 +150,14 @@ nav:not([data-tide])[data-scrolled="false"] .text-muted-text {
   color: var(--c-light-text);
 }
 
-nav:not([data-tide])[data-scrolled="false"] .nav-links a:hover .nn,
 nav:not([data-tide])[data-scrolled="false"] .nav-links a[aria-current="page"] .nn {
   color: var(--c-note);
+}
+
+@media (hover: hover) {
+  nav:not([data-tide])[data-scrolled="false"] .nav-links a:hover .nn {
+    color: var(--c-note);
+  }
 }
 
 /* ---------- the search control's word ---------- */
@@ -182,9 +203,14 @@ nav:not([data-tide])[data-scrolled="false"] .nav-links a[aria-current="page"] .n
   transition: padding-inline-start 0.3s ease;
 }
 
-.menu-row:hover,
 .menu-row:focus-visible {
   padding-inline-start: 8px;
+}
+
+@media (hover: hover) {
+  .menu-row:hover {
+    padding-inline-start: 8px;
+  }
 }
 
 .menu-row .mn {
@@ -210,20 +236,35 @@ nav:not([data-tide])[data-scrolled="false"] .nav-links a[aria-current="page"] .n
   line-height: 1.3;
 }
 
-.menu-row:hover .t,
 .menu-row:focus-visible .t,
 .menu-row.is-active .t {
   color: var(--c-secondary);
 }
 
-.menu-row:hover .t,
+@media (hover: hover) {
+  .menu-row:hover .t {
+    color: var(--c-secondary);
+  }
+}
+
 .menu-row:focus-visible .t {
   translate: 6px 0;
 }
 
-[dir="rtl"] .menu-row:hover .t,
+@media (hover: hover) {
+  .menu-row:hover .t {
+    translate: 6px 0;
+  }
+}
+
 [dir="rtl"] .menu-row:focus-visible .t {
   translate: -6px 0;
+}
+
+@media (hover: hover) {
+  [dir="rtl"] .menu-row:hover .t {
+    translate: -6px 0;
+  }
 }
 
 .menu-row .go {
@@ -239,15 +280,26 @@ nav:not([data-tide])[data-scrolled="false"] .nav-links a[aria-current="page"] .n
     transform 0.2s ease;
 }
 
-.menu-row:hover .go,
 .menu-row:focus-visible .go {
   color: var(--c-note);
   transform: translateX(3px);
 }
 
-[dir="rtl"] .menu-row:hover .go,
+@media (hover: hover) {
+  .menu-row:hover .go {
+    color: var(--c-note);
+    transform: translateX(3px);
+  }
+}
+
 [dir="rtl"] .menu-row:focus-visible .go {
   transform: translateX(-3px);
+}
+
+@media (hover: hover) {
+  [dir="rtl"] .menu-row:hover .go {
+    transform: translateX(-3px);
+  }
 }
 
 .menu-row::after {
@@ -266,9 +318,14 @@ nav:not([data-tide])[data-scrolled="false"] .nav-links a[aria-current="page"] .n
   transform-origin: right;
 }
 
-.menu-row:hover::after,
 .menu-row:focus-visible::after {
   transform: scaleX(1);
+}
+
+@media (hover: hover) {
+  .menu-row:hover::after {
+    transform: scaleX(1);
+  }
 }
 
 /* The two shortcut tiles: a mono mnemonic, a bold label, an icon. */
@@ -295,9 +352,11 @@ nav:not([data-tide])[data-scrolled="false"] .nav-links a[aria-current="page"] .n
     background-color 0.2s ease;
 }
 
-.menu-tile:hover {
-  border-color: var(--c-muted-text);
-  background: var(--c-light-bg);
+@media (hover: hover) {
+  .menu-tile:hover {
+    border-color: var(--c-muted-text);
+    background: var(--c-light-bg);
+  }
 }
 
 .menu-tile .mn {
@@ -361,8 +420,10 @@ nav:not([data-tide])[data-scrolled="false"] .nav-links a[aria-current="page"] .n
   transition: filter 0.2s ease;
 }
 
-.menu-phone:hover {
-  filter: brightness(1.08);
+@media (hover: hover) {
+  .menu-phone:hover {
+    filter: brightness(1.08);
+  }
 }
 
 /* Language, theme and social controls share one 44px height and the 6px
@@ -394,10 +455,12 @@ nav:not([data-tide])[data-scrolled="false"] .nav-links a[aria-current="page"] .n
     background-color 0.2s ease;
 }
 
-.menu-soc a:hover {
-  color: var(--c-dark-text);
-  border-color: var(--c-muted-text);
-  background: var(--c-light-bg);
+@media (hover: hover) {
+  .menu-soc a:hover {
+    color: var(--c-dark-text);
+    border-color: var(--c-muted-text);
+    background: var(--c-light-bg);
+  }
 }
 
 /* ---------- the case-study tide bar (mockup rev 35) ---------- */
@@ -478,13 +541,20 @@ nav[data-tide="true"] #darkModeToggle {
   border-color: transparent;
 }
 
-.nav-ctl:hover,
 .nav-ctl:focus-visible,
-.lang-ctl:hover,
 .lang-ctl:focus-visible {
   background-color: color-mix(in srgb, var(--c-secondary) 11%, transparent);
   border-color: color-mix(in srgb, var(--c-secondary) 50%, transparent);
   color: var(--c-secondary);
+}
+
+@media (hover: hover) {
+  .nav-ctl:hover,
+  .lang-ctl:hover {
+    background-color: color-mix(in srgb, var(--c-secondary) 11%, transparent);
+    border-color: color-mix(in srgb, var(--c-secondary) 50%, transparent);
+    color: var(--c-secondary);
+  }
 }
 
 .nav-ctl:active,
@@ -516,7 +586,6 @@ nav[data-tide="true"] #darkModeToggle {
   transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.nav-cta:hover,
 .nav-cta:focus-visible {
   box-shadow:
     inset 0 1px 0 color-mix(in srgb, white 16%, transparent),
@@ -524,18 +593,37 @@ nav[data-tide="true"] #darkModeToggle {
     0 10px 24px -10px color-mix(in srgb, var(--c-secondary) 60%, transparent);
 }
 
-.nav-cta:hover .nav-cta-ic,
+@media (hover: hover) {
+  .nav-cta:hover {
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, white 16%, transparent),
+      0 0 0 3px color-mix(in srgb, var(--c-secondary) 28%, transparent),
+      0 10px 24px -10px color-mix(in srgb, var(--c-secondary) 60%, transparent);
+  }
+}
+
 .nav-cta:focus-visible .nav-cta-ic {
   transform: translateX(2px);
+}
+
+@media (hover: hover) {
+  .nav-cta:hover .nav-cta-ic {
+    transform: translateX(2px);
+  }
 }
 
 [dir="rtl"] .nav-cta {
   padding: 0 20px 0 6px;
 }
 
-[dir="rtl"] .nav-cta:hover .nav-cta-ic,
 [dir="rtl"] .nav-cta:focus-visible .nav-cta-ic {
   transform: translateX(-2px);
+}
+
+@media (hover: hover) {
+  [dir="rtl"] .nav-cta:hover .nav-cta-ic {
+    transform: translateX(-2px);
+  }
 }
 
 .nav-cta[aria-current="page"] {
@@ -570,10 +658,15 @@ nav[data-tide="true"] .nav-links a.nav-cta[aria-current] {
    the pill's own colour: dark text on a dark pill. Restate the CTA's ink at
    a specificity that wins in every state (rest, hover, current, focus). */
 nav:not([data-tide])[data-scrolled="false"] .nav-links a.nav-cta,
-nav:not([data-tide])[data-scrolled="false"] .nav-links a.nav-cta:hover,
 nav:not([data-tide])[data-scrolled="false"] .nav-links a.nav-cta:focus-visible,
 nav:not([data-tide])[data-scrolled="false"] .nav-links a.nav-cta[aria-current] {
   color: var(--c-page);
+}
+
+@media (hover: hover) {
+  nav:not([data-tide])[data-scrolled="false"] .nav-links a.nav-cta:hover {
+    color: var(--c-page);
+  }
 }
 
 nav:not([data-tide])[data-scrolled="false"] .nav-links a.nav-cta .nav-cta-ic {
@@ -583,12 +676,18 @@ nav:not([data-tide])[data-scrolled="false"] .nav-links a.nav-cta .nav-cta-ic {
 /* On the tide pages the util controls are forced transparent by rules with
    higher specificity than .nav-ctl:hover; restate the tint so hover works
    there too (kept transparent, never an opaque chip). */
-nav[data-tide="true"] .nav-util .nav-ctl:hover,
 nav[data-tide="true"] .nav-util .nav-ctl:focus-visible,
-nav[data-tide="true"] .nav-util .lang-ctl:hover,
 nav[data-tide="true"] .nav-util .lang-ctl:focus-visible,
-nav[data-tide="true"] .nav-mobile-btn:hover,
 nav[data-tide="true"] .nav-mobile-btn:focus-visible {
   background: color-mix(in srgb, white calc(var(--hi) * 14%), color-mix(in srgb, var(--c-secondary) 11%, transparent));
   border-color: color-mix(in srgb, var(--tide-ink-2) calc(var(--hi) * 70%), color-mix(in srgb, var(--c-secondary) 50%, transparent));
+}
+
+@media (hover: hover) {
+  nav[data-tide="true"] .nav-util .nav-ctl:hover,
+  nav[data-tide="true"] .nav-util .lang-ctl:hover,
+  nav[data-tide="true"] .nav-mobile-btn:hover {
+    background: color-mix(in srgb, white calc(var(--hi) * 14%), color-mix(in srgb, var(--c-secondary) 11%, transparent));
+    border-color: color-mix(in srgb, var(--tide-ink-2) calc(var(--hi) * 70%), color-mix(in srgb, var(--c-secondary) 50%, transparent));
+  }
 }

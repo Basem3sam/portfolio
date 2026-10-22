@@ -278,9 +278,11 @@ body.dark-mode .hero-s {
   background-color: var(--c-page);
 }
 
-.hero-s .btn-ghost:hover,
-.hero-s .ibtn:hover {
-  background-color: color-mix(in srgb, var(--c-secondary) 12%, var(--c-page));
+@media (hover: hover) {
+  .hero-s .btn-ghost:hover,
+  .hero-s .ibtn:hover {
+    background-color: color-mix(in srgb, var(--c-secondary) 12%, var(--c-page));
+  }
 }
 
 .hero-s .reach {
@@ -306,8 +308,10 @@ body.dark-mode .hero-s {
   transition: color 0.3s ease;
 }
 
-.hero-s .reach .tel:hover {
-  color: var(--c-secondary);
+@media (hover: hover) {
+  .hero-s .reach .tel:hover {
+    color: var(--c-secondary);
+  }
 }
 
 /* --- portrait ----------------------------------------------------------- */
@@ -508,15 +512,26 @@ body.dark-mode .hero-s {
   pointer-events: none;
 }
 
-.pf:hover .hire-b,
 .pf:has(.pf-hit:focus-visible) .hire-b {
   rotate: -0.4deg;
   box-shadow: 7px 7px 0 var(--c-honey);
 }
 
-.pf:hover .hb-tape,
+@media (hover: hover) {
+  .pf:hover .hire-b {
+    rotate: -0.4deg;
+    box-shadow: 7px 7px 0 var(--c-honey);
+  }
+}
+
 .pf:has(.pf-hit:focus-visible) .hb-tape {
   rotate: -9deg;
+}
+
+@media (hover: hover) {
+  .pf:hover .hb-tape {
+    rotate: -9deg;
+  }
 }
 
 .hb-tape {

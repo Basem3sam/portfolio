@@ -38,8 +38,10 @@
   animation: mq 32s linear infinite;
 }
 
-.mq-view:hover .mq-row {
-  animation-play-state: paused;
+@media (hover: hover) {
+  .mq-view:hover .mq-row {
+    animation-play-state: paused;
+  }
 }
 
 .mq-list {

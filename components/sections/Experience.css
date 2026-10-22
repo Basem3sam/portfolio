@@ -97,9 +97,11 @@
   transform-origin: calc(100% + var(--tlp) / 2) 50%;
 }
 
-#experience .xp2:hover {
-  border-color: var(--c-muted-text);
-  background: var(--c-light-bg);
+@media (hover: hover) {
+  #experience .xp2:hover {
+    border-color: var(--c-muted-text);
+    background: var(--c-light-bg);
+  }
 }
 
 /* the current role: a soft signal wash, per the mockup — amber stays on the
@@ -115,14 +117,16 @@
     var(--c-surface);
 }
 
-#experience .xp2.is-now:hover {
-  background:
-    linear-gradient(
-      100deg,
-      color-mix(in srgb, var(--c-secondary) 10%, transparent),
-      transparent 62%
-    ),
-    var(--c-light-bg);
+@media (hover: hover) {
+  #experience .xp2.is-now:hover {
+    background:
+      linear-gradient(
+        100deg,
+        color-mix(in srgb, var(--c-secondary) 10%, transparent),
+        transparent 62%
+      ),
+      var(--c-light-bg);
+  }
 }
 
 /* the card currently in focus (set by the scroll effect) */
@@ -157,8 +161,10 @@
     scale 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-#experience .xp2:hover .tl-dot {
-  border-color: var(--c-honey);
+@media (hover: hover) {
+  #experience .xp2:hover .tl-dot {
+    border-color: var(--c-honey);
+  }
 }
 
 #experience .xp2.is-now .tl-dot {
@@ -284,23 +290,42 @@ html[lang="ar"] #experience .now-pill {
     color 0.2s;
 }
 
-#experience .xp-more:hover,
 #experience .xp-more:focus-visible {
   background: var(--c-dark-text);
   color: var(--c-page);
   border-color: var(--c-dark-text);
 }
 
-#experience .xp-more:hover .xp-more-arrow,
+@media (hover: hover) {
+  #experience .xp-more:hover {
+    background: var(--c-dark-text);
+    color: var(--c-page);
+    border-color: var(--c-dark-text);
+  }
+}
+
 #experience .xp-more:focus-visible .xp-more-arrow {
   background: var(--c-honey);
   color: var(--c-page);
   transform: translateX(3px);
 }
 
-[dir="rtl"] #experience .xp-more:hover .xp-more-arrow,
+@media (hover: hover) {
+  #experience .xp-more:hover .xp-more-arrow {
+    background: var(--c-honey);
+    color: var(--c-page);
+    transform: translateX(3px);
+  }
+}
+
 [dir="rtl"] #experience .xp-more:focus-visible .xp-more-arrow {
   transform: translateX(-3px);
+}
+
+@media (hover: hover) {
+  [dir="rtl"] #experience .xp-more:hover .xp-more-arrow {
+    transform: translateX(-3px);
+  }
 }
 
 /* ---------- sticky story panel (mockup .xp-side / .xs-*) ---------- */

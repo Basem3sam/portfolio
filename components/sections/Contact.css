@@ -288,9 +288,14 @@
     background: rgba(255, 255, 255, 0.08);
   }
 
-  .contact .btn-ghost:hover,
   .contact .btn-ghost:focus-visible {
     background: color-mix(in srgb, var(--c-secondary) 16%, rgba(255, 255, 255, 0.08));
+  }
+
+  @media (hover: hover) {
+    .contact .btn-ghost:hover {
+      background: color-mix(in srgb, var(--c-secondary) 16%, rgba(255, 255, 255, 0.08));
+    }
   }
 
   /* ---------- contact cards (mockup lines 601–608, 1219–1220) ---------- */
@@ -321,11 +326,18 @@
       background-color 0.2s;
   }
 
-  .contact a.crd:hover,
   .contact a.crd:focus-visible {
     border-color: #ffffff;
     background: rgba(255, 255, 255, 0.2);
     transform: translateY(-3px);
+  }
+
+  @media (hover: hover) {
+    .contact a.crd:hover {
+      border-color: #ffffff;
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-3px);
+    }
   }
 
   .contact .crd .ct-v {
@@ -347,15 +359,26 @@
       transform 0.25s;
   }
 
-  .contact a.crd:hover .go,
   .contact a.crd:focus-visible .go {
     color: var(--c-honey);
     transform: translate(2px, -2px);
   }
 
-  html[dir="rtl"] .contact a.crd:hover .go,
+  @media (hover: hover) {
+    .contact a.crd:hover .go {
+      color: var(--c-honey);
+      transform: translate(2px, -2px);
+    }
+  }
+
   html[dir="rtl"] .contact a.crd:focus-visible .go {
     transform: translate(-2px, -2px);
+  }
+
+  @media (hover: hover) {
+    html[dir="rtl"] .contact a.crd:hover .go {
+      transform: translate(-2px, -2px);
+    }
   }
 
   /* Footnote row inside the location card: local time (CairoClock). */
