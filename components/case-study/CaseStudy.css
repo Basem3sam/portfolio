@@ -938,14 +938,15 @@ body.dark-mode [data-page="case"] {
   color: var(--c-muted-text);
 }
 
-[data-page="case"] .ex-pill {
+/* Scoped under .ex-stat so it outranks `.ex-stat strong` without !important. */
+[data-page="case"] .ex-stat .ex-pill {
   align-self: flex-start;
-  align-items: center !important;
-  gap: 8px !important;
+  align-items: center;
+  gap: 8px;
   padding: 7px 14px;
   border-radius: 999px;
   border: 1px solid var(--c-hairline);
-  font: 700 1.0625rem var(--font-mono-body) !important;
+  font: 700 1.0625rem var(--font-mono-body);
   white-space: nowrap;
 }
 
@@ -1001,15 +1002,23 @@ body.dark-mode [data-page="case"] {
   width: 0;
 }
 
-[data-page="case"] .ex-stats[data-tier="fast"] .ex-meter i,
-[data-page="case"] .ex-stats[data-tier="fast"] .ex-time .ex-ms { color: var(--tier-fast); background-color: var(--tier-fast); }
-[data-page="case"] .ex-stats[data-tier="mid"] .ex-meter i,
-[data-page="case"] .ex-stats[data-tier="mid"] .ex-time .ex-ms { color: var(--tier-mid); background-color: var(--tier-mid); }
-[data-page="case"] .ex-stats[data-tier="slow"] .ex-meter i,
-[data-page="case"] .ex-stats[data-tier="slow"] .ex-time .ex-ms { color: var(--tier-slow); background-color: var(--tier-slow); }
-
-[data-page="case"] .ex-ms {
-  background-color: transparent !important;
+[data-page="case"] .ex-stats[data-tier="fast"] .ex-meter i {
+  background-color: var(--tier-fast);
+}
+[data-page="case"] .ex-stats[data-tier="fast"] .ex-time .ex-ms {
+  color: var(--tier-fast);
+}
+[data-page="case"] .ex-stats[data-tier="mid"] .ex-meter i {
+  background-color: var(--tier-mid);
+}
+[data-page="case"] .ex-stats[data-tier="mid"] .ex-time .ex-ms {
+  color: var(--tier-mid);
+}
+[data-page="case"] .ex-stats[data-tier="slow"] .ex-meter i {
+  background-color: var(--tier-slow);
+}
+[data-page="case"] .ex-stats[data-tier="slow"] .ex-time .ex-ms {
+  color: var(--tier-slow);
 }
 
 [data-page="case"] .ex-time small {
