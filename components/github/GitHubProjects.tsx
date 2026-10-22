@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import GitHubRepoCard from "@/components/github/GitHubRepoCard";
 import "@/components/github/GitHub.css";
 import Icon from "@/components/ui/Icon";
@@ -33,8 +33,35 @@ const toneIcons: Record<FallbackTone, string> = {
 export default function GitHubProjects({ locale, dict }: GitHubProjectsProps) {
   const [state, setState] = useState<State>({ status: "loading" });
   const [attempt, setAttempt] = useState(0);
+  const [near, setNear] = useState(false);
+  const hostRef = useRef<HTMLDivElement>(null);
+
+  // The feed sits well below the fold. Start the request when the section is
+  // about to scroll into view (the skeleton is already on screen until then),
+  // so it does not compete with the first paint and hydration.
+  useEffect(() => {
+    const host = hostRef.current;
+    if (!host) return;
+
+    if (typeof IntersectionObserver !== "function") {
+      const timer = window.setTimeout(() => setNear(true), 0);
+      return () => window.clearTimeout(timer);
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        setNear(true);
+        observer.disconnect();
+      },
+      { rootMargin: "800px 0px" },
+    );
+    observer.observe(host);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
+    if (!near) return;
     const controller = new AbortController();
 
     loadRepositories(controller.signal)
@@ -60,7 +87,7 @@ export default function GitHubProjects({ locale, dict }: GitHubProjectsProps) {
       });
 
     return () => controller.abort();
-  }, [attempt, dict]);
+  }, [near, attempt, dict]);
 
   const retry = () => {
     setState({ status: "loading" });
@@ -68,7 +95,7 @@ export default function GitHubProjects({ locale, dict }: GitHubProjectsProps) {
   };
 
   return (
-    <div className="w-full max-w-full">
+    <div className="w-full max-w-full" ref={hostRef}>
       {state.status === "loading" && (
         <div role="status" aria-busy="true">
           <span className="sr-only">{dict.loading}</span>

@@ -52,6 +52,10 @@ const terminalFont = localFont({
     { path: "../fonts/JetBrainsMonoNL-Bold.woff2", weight: "700", style: "normal" },
   ],
   display: "swap",
+  // Only the easter-egg terminal uses this face, and that overlay mounts after
+  // the visitor starts the hunt. It still loads the moment the overlay renders;
+  // it just no longer competes with the page's own assets on every route.
+  preload: false,
   variable: "--font-terminal",
 });
 

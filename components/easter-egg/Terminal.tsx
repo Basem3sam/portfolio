@@ -1279,7 +1279,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
   return (
     <div className="egg">
       <div
-        className={`eov dim${open && shown ? " show" : ""}`}
+        className={open && shown ? "eov dim show" : "eov dim"}
         onClick={(event) => {
           if (event.target === event.currentTarget) close();
         }}
@@ -1334,7 +1334,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
                   inputRef.current?.focus();
                 }
               }}
-              className={`etb${glitch ? "gl" : ""}`}
+              className={glitch ? "etb gl" : "etb"}
               id="terminal-output"
               tabIndex={0}
               aria-label="Terminal output"

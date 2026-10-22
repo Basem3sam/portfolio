@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { mountTide } from "@/lib/tide";
 
 /**
  * Decorative WebGL tide behind the Contact band (mockup `.warp[data-preset="tide"]`).
@@ -28,14 +27,33 @@ export default function TideCanvas() {
     if (!canvas || !host) return;
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const tide = mountTide(canvas, host, { staticFrame: reducedMotion });
 
-    if (!tide) {
-      canvas.dataset.tide = "off";
-      return;
-    }
+    // The shader code lives in its own chunk: this band is far below the fold,
+    // so it should not weigh on the first load. `cancelled` covers unmounting
+    // (or a Strict Mode re-run) before the chunk arrives.
+    let cancelled = false;
+    let destroy: (() => void) | undefined;
 
-    return () => tide.destroy();
+    import("@/lib/tide")
+      .then(({ mountTide }) => {
+        if (cancelled) return;
+        const tide = mountTide(canvas, host, { staticFrame: reducedMotion });
+
+        if (!tide) {
+          canvas.dataset.tide = "off";
+          return;
+        }
+
+        destroy = () => tide.destroy();
+      })
+      .catch(() => {
+        if (!cancelled) canvas.dataset.tide = "off";
+      });
+
+    return () => {
+      cancelled = true;
+      destroy?.();
+    };
   }, []);
 
   return <canvas ref={canvasRef} className="tide-cv" aria-hidden="true" />;

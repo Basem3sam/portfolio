@@ -1,4 +1,3 @@
-import { preconnect, preload } from "react-dom";
 import type { ReactNode } from "react";
 import EasterEgg from "@/components/easter-egg/EasterEgg";
 import BackToTop from "@/components/layout/BackToTop";
@@ -7,7 +6,6 @@ import Navbar from "@/components/layout/Navbar";
 import SkipLink from "@/components/layout/SkipLink";
 import LinkPeekHost from "@/components/ui/LinkPeek";
 import CommandPaletteProvider from "@/components/palette/CommandPalette";
-import { PROFILE_IMAGE } from "@/data/site";
 import { getDictionary, isLocale, type Locale } from "@/lib/i18n";
 
 type SiteLayoutProps = {
@@ -23,9 +21,6 @@ export default async function SiteLayout({ children, params }: SiteLayoutProps) 
     locale === "en"
       ? { href: "/ar", hrefLang: "ar", label: "العربية" }
       : { href: "/", hrefLang: "en", label: "English" };
-
-  preconnect("https://api.github.com", { crossOrigin: "anonymous" });
-  preload(PROFILE_IMAGE, { as: "image", fetchPriority: "high" });
 
   return (
     <CommandPaletteProvider labels={dict.palette} nav={dict.nav} locale={locale}>
