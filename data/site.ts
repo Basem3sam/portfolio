@@ -12,7 +12,7 @@ export const PROFILE_CUTOUT_SRCSET = [
   "/assets/images/portrait-cutout.webp 2508w",
 ].join(", ");
 /** Hero: the photo is 125.6% of the portrait frame (see Hero.css). */
-export const PROFILE_CUTOUT_SIZES_HERO = "(max-width: 900px) min(603px, 126vw), min(1080px, 63vw)";
+export const PROFILE_CUTOUT_SIZES_HERO = "(max-width: 991px) min(603px, 126vw), (max-width: 1199px) 603px, 730px";
 /** Links card: the photo is ~1.28 x the stage height. */
 export const PROFILE_CUTOUT_SIZES_LINKS = "420px";
 export const CV_PATH = "/assets/documents/basem-esam-cv.pdf";

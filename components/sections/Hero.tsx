@@ -38,6 +38,15 @@ export default function Hero({ dict }: HeroProps) {
   const [nameTop, ...nameRest] = dict.name.trim().split(/\s+/);
   const nameBottom = nameRest.join(" ");
 
+  // The status detail is a " · "-separated list. It is split into two halves so
+  // the badge can break the line between them (each half stays whole) instead of
+  // wrapping mid-list and leaving a dot dangling at a line end. Screen readers
+  // still hear the whole list.
+  const statusItems = dict.statusDetail.split(" · ");
+  const statusSplit = Math.ceil(statusItems.length / 2);
+  const statusLead = statusItems.slice(0, statusSplit).join(" · ");
+  const statusTail = statusItems.slice(statusSplit).join(" · ");
+
   useEffect(() => {
     const host = hostRef.current;
     const halftone = halftoneRef.current;
@@ -114,7 +123,18 @@ export default function Hero({ dict }: HeroProps) {
             <span className="hb-t">
               <span className="hb-k">{dict.statusKey}</span>
               <b>{dict.status}</b>
-              <small>{dict.statusDetail}</small>
+              <small>
+                <span className="hb-g">
+                  {statusLead}
+                  {statusTail && <span className="hb-sep"> ·</span>}
+                </span>
+                {statusTail && (
+                  <>
+                    {" "}
+                    <span className="hb-g">{statusTail}</span>
+                  </>
+                )}
+              </small>
               <svg
                 className="hb-sq"
                 viewBox="0 0 120 8"

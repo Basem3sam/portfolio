@@ -105,11 +105,13 @@ body.dark-mode .hero-s {
   z-index: 1;
   flex: 1;
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  grid-template-columns: minmax(0, 1fr) 480px;
   grid-template-areas:
+    ". pf"
     "top pf"
-    "body pf";
-  grid-template-rows: auto 1fr;
+    "body pf"
+    ". pf";
+  grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 1fr);
   align-items: start;
   column-gap: clamp(24px, 4vw, 56px);
   padding: clamp(6px, 1.4vw, 22px) var(--pad) 0;
@@ -314,6 +316,78 @@ body.dark-mode .hero-s {
   }
 }
 
+/* --- desktop CTA block ---------------------------------------------------
+   Both rows used to be content-sized flex rows, so the two buttons ended well
+   short of the phone + social row and left a hole on the right. Here they
+   share one width and one 6-column grid: each button spans 3 columns, the
+   phone link sits under the primary button (columns 1-3) and the three icon
+   tiles split the ghost button's span (columns 4, 5, 6). Left edge, right
+   edge and the centre gutter line up in both rows, and RTL mirrors for free.
+   Below 992px the existing full-width phone layout is untouched. */
+@media (min-width: 992px) {
+  .hero-s .actions,
+  .hero-s .reach {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 12px;
+    width: 100%;
+    max-width: 28rem;
+  }
+
+  .hero-s .actions {
+    align-items: stretch;
+  }
+
+  .hero-s .actions .btn {
+    grid-column: span 3;
+    min-width: 0;
+    padding-inline: 14px;
+    line-height: 1.25;
+    text-align: center;
+  }
+
+  .hero-s .reach {
+    align-items: stretch;
+  }
+
+  /* The phone link becomes a bordered tile like its neighbours so the row has
+     visible edges to line up with the buttons above. */
+  .hero-s .reach .tel {
+    grid-column: span 3;
+    min-width: 0;
+    justify-content: center;
+    gap: 6px;
+    padding-inline: 8px;
+    border: 1px solid var(--c-hairline);
+    border-radius: var(--radius-ui-2);
+    background-color: var(--c-page);
+    font-size: 0.875rem;
+    white-space: nowrap;
+    transition:
+      border-color 0.18s,
+      color 0.18s,
+      background-color 0.18s;
+  }
+
+  .hero-s .reach .ibtn {
+    grid-column: span 1;
+    width: auto;
+    min-width: 0;
+  }
+
+  @media (hover: hover) {
+    .hero-s .reach .tel:hover {
+      border-color: var(--c-secondary);
+      background-color: color-mix(in srgb, var(--c-secondary) 12%, var(--c-page));
+    }
+  }
+
+  .hero-s .reach .tel:focus-visible {
+    outline: 2px solid var(--c-signal);
+    outline-offset: 3px;
+  }
+}
+
 /* --- portrait ----------------------------------------------------------- */
 .pf {
   grid-area: pf;
@@ -321,7 +395,7 @@ body.dark-mode .hero-s {
   align-self: end;
   justify-self: end;
   width: 100%;
-  max-width: min(clamp(400px, 50vw, 860px), calc((100svh - 150px) * 1.07));
+  max-width: calc((100svh - 150px) * 1.07);
   aspect-ratio: 640 / 598;
   /* The ticket sizes itself from this frame's width (cqw), so it shrinks with
      the portrait instead of staying a fixed size on top of it. */
@@ -455,12 +529,15 @@ body.dark-mode .hero-s {
      sits at ~42% of the frame). */
   inset-inline-start: 42%;
   translate: -50% 0;
-  bottom: 1.125em;
-  /* One scale knob: every ticket dimension below is in em, and the em follows
-     the portrait frame's width. ONE formula for every screen: ~10px at a
-     400px frame, ~19px at 650px, ~26px at 860px. */
+  /* Anchored in % of the frame (not em), so the ticket keeps the same spot on
+     the photo at every width instead of riding up the portrait as it narrows. */
+  bottom: 3.6%;
+  /* One scale knob: every ticket dimension below is in em, and the em is a
+     fixed share of the portrait frame's width (3cqw), so the ticket keeps the
+     same proportions against the photo from phone to desktop. The 10px floor
+     only keeps the text legible on the very smallest frames. */
   font-size: 14px;
-  font-size: clamp(9.5px, calc(3.5cqw - 4px), 36px);
+  font-size: clamp(10px, 3cqw, 36px);
   display: flex;
   align-items: stretch;
   gap: 0;
@@ -518,11 +595,6 @@ body.dark-mode .hero-s {
   letter-spacing: 0;
 }
 
-/* The ticket never swallows a tap: it is part of the clickable portrait. */
-.hire-b {
-  pointer-events: none;
-}
-
 .pf:has(.pf-hit:focus-visible) .hire-b {
   rotate: -0.4deg;
   box-shadow: 0.4375em 0.4375em 0 var(--c-honey);
@@ -546,10 +618,6 @@ body.dark-mode .hero-s {
 }
 
 .hb-tape {
-  transition: rotate 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.hb-tape {
   position: absolute;
   top: -0.6875em;
   inset-inline-start: 1.375em;
@@ -558,6 +626,7 @@ body.dark-mode .hero-s {
   rotate: -5deg;
   background: color-mix(in srgb, var(--c-honey) 38%, var(--c-page));
   opacity: 0.92;
+  transition: rotate 0.6s cubic-bezier(0.22, 1, 0.36, 1);
   clip-path: polygon(
     0 8%,
     4% 0,
@@ -671,7 +740,7 @@ body.dark-mode .hero-s {
 
 .hb-k {
   font-family: var(--font-mono-body);
-  font-size: 0.625em;
+  font-size: max(0.625em, 8px);
   font-weight: 600;
   line-height: 1;
   letter-spacing: 0.2em;
@@ -689,10 +758,29 @@ body.dark-mode .hero-s {
 }
 
 .hb-t small {
-  font-size: 0.82em;
+  font-size: max(0.82em, 10px);
   line-height: 1.3;
   color: var(--c-light-text);
   text-wrap: balance;
+}
+
+/* The detail is a " · " list split into two whole halves (see Hero.tsx), one
+   per line, so a dot never dangles at a line end. A half only wraps inside
+   itself when the frame is very narrow or the language runs longer. */
+.hb-g {
+  display: block;
+  text-wrap: balance;
+}
+
+/* The line break replaces the separator, but screen readers still hear the
+   full list, so it is hidden visually rather than removed. */
+.hb-sep {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .hb-sq {
@@ -723,6 +811,10 @@ body.dark-mode .hero-s {
 /* On a very narrow frame the ticket drops its squiggle and tightens up, so it
    stays a small tag on the chest instead of a block over the photo. */
 @container (max-width: 380px) {
+  .hire-b {
+    max-width: min(22em, 92%);
+  }
+
   .hb-sq {
     display: none;
   }
@@ -801,7 +893,13 @@ html[lang="ar"] .pf-note {
   }
 }
 
-@media (max-width: 900px) {
+@media (min-width: 1200px) {
+  .hero-in {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  }
+}
+
+@media (max-width: 991px) {
   .hero-s {
     min-height: 0;
   }
@@ -818,10 +916,40 @@ html[lang="ar"] .pf-note {
     padding-top: 12px;
   }
 
+  .hero-top,
+  .hero-body {
+    width: 100%;
+    max-width: 480px;
+    justify-self: center;
+  }
+
   .pf {
     justify-self: center;
-    max-width: min(480px, 100%);
-    margin-top: 4px;
+    width: 100%;
+    max-width: 480px;
+    margin-top: 12px;
+  }
+
+  /* No horizontal override here: the ticket stays at 42% of the frame (the
+     subject's centre) at every width, so nothing jumps at the 991/992 break. */
+
+  /* One ticket shape for the whole range. It used to change at a 380px frame
+     (~420px viewport): a flat two-line tag below it, a taller three-line tag
+     with a squiggle above it, and the dot of the "·"-separated detail dangled
+     at a line end in both. Now every width below 992px gets the same compact
+     tag: no squiggle and the same width cap, so only the em scale changes as
+     the frame grows. (The two-halves detail text is shared with desktop and
+     lives next to `.hb-t small`.) */
+  .hire-b {
+    max-width: min(22em, 94%);
+  }
+
+  .hb-sq {
+    display: none;
+  }
+
+  .hb-t {
+    padding-block: 0.55em;
   }
 
   /* Only the very foot of the photo dissolves, on an eased curve that ends
@@ -850,29 +978,87 @@ html[lang="ar"] .pf-note {
     );
   }
 
-  /* The photo's foot dissolves inside its own frame, so the copy no longer has
-     to tuck under it. */
-  .pf {
-    margin-bottom: 0;
-  }
-
   .hero-body {
     padding-top: 4px;
   }
 
   .hero-s .display {
-    font-size: clamp(3.2rem, 15vw, 5rem);
+    font-size: clamp(3.4rem, 21vw, 6.5rem);
+  }
+
+  .hero-s .actions,
+  .hero-s .reach {
+    gap: 8px;
+  }
+
+  /* The two calls to action share one row when both fit on it, and each takes
+     the full width when they do not. */
+  .hero-s .actions .btn {
+    flex: 1 1 0;
+    min-width: max-content;
+  }
+
+  .hero-s .reach {
+    flex-wrap: nowrap;
+  }
+
+  .hero-s .reach .tel {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+    padding-inline: 12px;
+    border: 1px solid var(--c-hairline);
+    border-radius: var(--radius-ui-2);
+    background-color: var(--c-page);
+    white-space: nowrap;
+  }
+
+  .hero-s .reach .tel:focus-visible {
+    outline: 2px solid var(--c-signal);
+    outline-offset: 3px;
   }
 }
 
 @media (max-width: 560px) {
-  .hero-s .reach .tel {
-    flex: 0 0 100%;
+  .hero-s .display {
+    margin-top: 14px;
   }
 
-  /* Each call to action takes the full width on a phone. */
-  .hero-s .actions .btn {
-    flex: 1 1 100%;
+  .hero-s .role {
+    margin-top: 12px;
+    font-size: 1.25rem;
+  }
+
+  .hero-s .lead {
+    margin-top: 12px;
+    font-size: 1.0625rem;
+  }
+
+  .hero-s .actions {
+    margin-top: 24px;
+  }
+
+  .hero-s .reach {
+    margin-top: 12px;
+  }
+
+  .hero-s .reach .tel {
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 349px) {
+  .hero-s .reach {
+    flex-wrap: wrap;
+  }
+
+  .hero-s .reach .tel {
+    flex-basis: 100%;
+  }
+
+  .hero-s .reach .ibtn {
+    flex: 1 1 0;
+    width: auto;
   }
 }
 
