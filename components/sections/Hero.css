@@ -451,17 +451,21 @@ body.dark-mode .hero-s {
 .hire-b {
   position: absolute;
   z-index: 3;
-  inset-inline-start: 14%;
+  /* Same anchor at every width: centred under the face (the subject's centre
+     sits at ~42% of the frame). */
+  inset-inline-start: 42%;
+  translate: -50% 0;
   bottom: 1.125em;
   /* One scale knob: every ticket dimension below is in em, and the em follows
-     the portrait frame's width (16px at full size, 11px at the smallest). */
-  font-size: 13px;
-  font-size: clamp(11px, 2.3cqw, 16px);
+     the portrait frame's width. ONE formula for every screen: ~10px at a
+     400px frame, ~19px at 650px, ~26px at 860px. */
+  font-size: 14px;
+  font-size: clamp(9.5px, calc(3.5cqw - 4px), 36px);
   display: flex;
   align-items: stretch;
   gap: 0;
   width: max-content;
-  max-width: min(19.75em, 80%);
+  max-width: min(19.75em, 92%);
   padding: 0;
   border: 1.5px solid var(--c-dark-text);
   border-radius: 0.5625em;
@@ -504,7 +508,7 @@ body.dark-mode .hero-s {
    spot against the subject instead of flipping to the other shoulder. */
 [dir="rtl"] .hire-b {
   inset-inline-start: auto;
-  left: 14%;
+  left: 42%;
 }
 
 /* Arabic joins its letters: tracking breaks the joins, so the ticket's
@@ -685,7 +689,7 @@ body.dark-mode .hero-s {
 }
 
 .hb-t small {
-  font-size: 0.78em;
+  font-size: 0.82em;
   line-height: 1.3;
   color: var(--c-light-text);
   text-wrap: balance;
@@ -713,6 +717,18 @@ body.dark-mode .hero-s {
 @keyframes sqd {
   to {
     stroke-dashoffset: 0;
+  }
+}
+
+/* On a very narrow frame the ticket drops its squiggle and tightens up, so it
+   stays a small tag on the chest instead of a block over the photo. */
+@container (max-width: 380px) {
+  .hb-sq {
+    display: none;
+  }
+
+  .hb-t {
+    padding-block: 0.55em;
   }
 }
 
@@ -838,24 +854,6 @@ html[lang="ar"] .pf-note {
      to tuck under it. */
   .pf {
     margin-bottom: 0;
-  }
-
-  /* The ticket on phones and tablets: centred under the face on the faded
-     foot of the photo. It keeps scaling with the frame (em), a little larger
-     relative to it than on desktop so the text stays readable, and it is
-     capped so it never climbs up over the face. */
-  .hire-b {
-    inset-inline-start: 50%;
-    bottom: 0.75em;
-    translate: -50% 0;
-    font-size: 12px;
-    font-size: clamp(10.5px, 3.5cqw, 15px);
-    max-width: min(19.75em, 94%);
-  }
-
-  [dir="rtl"] .hire-b {
-    inset-inline-start: auto;
-    left: 50%;
   }
 
   .hero-body {
