@@ -534,15 +534,15 @@ body.dark-mode .hero-s {
   bottom: 3.6%;
   /* One scale knob: every ticket dimension below is in em, and the em is a
      fixed share of the portrait frame's width (3cqw), so the ticket keeps the
-     same proportions against the photo from phone to desktop. The 10px floor
-     only keeps the text legible on the very smallest frames. */
+     same proportions against the photo from phone to desktop. There are no
+     pixel floors anywhere inside it, so it never grows relative to the photo. */
   font-size: 14px;
-  font-size: clamp(10px, 3cqw, 36px);
+  font-size: min(3cqw, 36px);
   display: flex;
   align-items: stretch;
   gap: 0;
   width: max-content;
-  max-width: min(19.75em, 92%);
+  max-width: min(22em, 94%);
   padding: 0;
   border: 1.5px solid var(--c-dark-text);
   border-radius: 0.5625em;
@@ -693,7 +693,7 @@ body.dark-mode .hero-s {
   min-width: 0;
   overflow: hidden;
   border-radius: 0 0.4375em 0.4375em 0;
-  padding: 0.6875em 1.125em 0.6875em 0.875em;
+  padding: 0.55em 1.125em 0.55em 0.875em;
 }
 
 /* a soft sheen crosses the ticket every few seconds */
@@ -740,7 +740,7 @@ body.dark-mode .hero-s {
 
 .hb-k {
   font-family: var(--font-mono-body);
-  font-size: max(0.625em, 8px);
+  font-size: 0.625em;
   font-weight: 600;
   line-height: 1;
   letter-spacing: 0.2em;
@@ -758,7 +758,7 @@ body.dark-mode .hero-s {
 }
 
 .hb-t small {
-  font-size: max(0.82em, 10px);
+  font-size: 0.82em;
   line-height: 1.3;
   color: var(--c-light-text);
   text-wrap: balance;
@@ -784,7 +784,7 @@ body.dark-mode .hero-s {
 }
 
 .hb-sq {
-  display: block;
+  display: none;
   width: 6.5em;
   height: 0.4375em;
   margin-top: 0.3125em;
@@ -805,22 +805,6 @@ body.dark-mode .hero-s {
 @keyframes sqd {
   to {
     stroke-dashoffset: 0;
-  }
-}
-
-/* On a very narrow frame the ticket drops its squiggle and tightens up, so it
-   stays a small tag on the chest instead of a block over the photo. */
-@container (max-width: 380px) {
-  .hire-b {
-    max-width: min(22em, 92%);
-  }
-
-  .hb-sq {
-    display: none;
-  }
-
-  .hb-t {
-    padding-block: 0.55em;
   }
 }
 
@@ -932,25 +916,6 @@ html[lang="ar"] .pf-note {
 
   /* No horizontal override here: the ticket stays at 42% of the frame (the
      subject's centre) at every width, so nothing jumps at the 991/992 break. */
-
-  /* One ticket shape for the whole range. It used to change at a 380px frame
-     (~420px viewport): a flat two-line tag below it, a taller three-line tag
-     with a squiggle above it, and the dot of the "·"-separated detail dangled
-     at a line end in both. Now every width below 992px gets the same compact
-     tag: no squiggle and the same width cap, so only the em scale changes as
-     the frame grows. (The two-halves detail text is shared with desktop and
-     lives next to `.hb-t small`.) */
-  .hire-b {
-    max-width: min(22em, 94%);
-  }
-
-  .hb-sq {
-    display: none;
-  }
-
-  .hb-t {
-    padding-block: 0.55em;
-  }
 
   /* Only the very foot of the photo dissolves, on an eased curve that ends
      fully transparent exactly at the frame's bottom (96.3% of the photo's
