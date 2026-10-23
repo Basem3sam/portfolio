@@ -49,12 +49,21 @@ const FRAME_MS = 1000 / 30;
 /** Mockup PRE.tide, as normalised channel values supplied by the stylesheet. */
 const VERTEX_SRC = "attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}";
 
+/**
+ * The noise field is laid out against the SHORTER side of the canvas. On a
+ * landscape band that is the height, exactly as before. On a phone the band
+ * is far taller than it is wide (the contact stack, the case-study hero with
+ * its KPI wall), and scaling by height meant the whole screen width showed a
+ * sliver of the field: long smeared vertical streaks instead of the liquid
+ * pattern. Scaling by the width keeps the feature size proportional to the
+ * screen and lets the field continue down the page.
+ */
 const FRAGMENT_SRC =
   "precision highp float;uniform float t;uniform vec2 r;uniform float g;uniform vec3 c1;uniform vec3 c2;uniform vec3 c3;uniform vec3 c4;" +
   "float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}" +
   "float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1.,0.)),f.x),mix(h(i+vec2(0.,1.)),h(i+vec2(1.,1.)),f.x),f.y);}" +
   "float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*n(p);p=p*2.02+vec2(1.7,9.2);a*=.5;}return v;}" +
-  "void main(){vec2 uv=gl_FragCoord.xy/r;vec2 p=uv*vec2(r.x/r.y,1.)*1.5;float k=t*.1;" +
+  "void main(){float s=min(r.x,r.y);vec2 p=gl_FragCoord.xy/s*1.5;float k=t*.1;" +
   "vec2 q=vec2(fbm(p+k),fbm(p+vec2(5.2,1.3)-k));vec2 w=vec2(fbm(p+3.*q+vec2(1.7,9.2)+k*1.3),fbm(p+3.*q+vec2(8.3,2.8)-k));" +
   "float f=fbm(p+3.*w);vec3 col=mix(c1,c2,smoothstep(.12,.7,f));col=mix(col,c3,smoothstep(.5,.95,length(q))*.75);col=mix(col,c4,smoothstep(.78,1.,f*f*2.2)*.7);" +
   "float gr=h(gl_FragCoord.xy+fract(t)*91.)-.5;col+=gr*g*.4;gl_FragColor=vec4(col,1.);}";

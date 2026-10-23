@@ -323,6 +323,9 @@ body.dark-mode .hero-s {
   width: 100%;
   max-width: min(clamp(400px, 50vw, 860px), calc((100svh - 150px) * 1.07));
   aspect-ratio: 640 / 598;
+  /* The ticket sizes itself from this frame's width (cqw), so it shrinks with
+     the portrait instead of staying a fixed size on top of it. */
+  container-type: inline-size;
 }
 
 .pf-glow {
@@ -448,18 +451,22 @@ body.dark-mode .hero-s {
 .hire-b {
   position: absolute;
   z-index: 3;
-  inset-inline-start: 18%;
-  bottom: 18px;
+  inset-inline-start: 14%;
+  bottom: 1.125em;
+  /* One scale knob: every ticket dimension below is in em, and the em follows
+     the portrait frame's width (16px at full size, 11px at the smallest). */
+  font-size: 13px;
+  font-size: clamp(11px, 2.3cqw, 16px);
   display: flex;
   align-items: stretch;
   gap: 0;
   width: max-content;
-  max-width: min(316px, 74%);
+  max-width: min(19.75em, 80%);
   padding: 0;
   border: 1.5px solid var(--c-dark-text);
-  border-radius: 9px;
+  border-radius: 0.5625em;
   background: var(--c-page);
-  box-shadow: 4px 4px 0 var(--c-honey);
+  box-shadow: 0.25em 0.25em 0 var(--c-honey);
   rotate: -2.2deg;
   pointer-events: none;
   animation:
@@ -476,7 +483,7 @@ body.dark-mode .hero-s {
   from {
     opacity: 0;
     scale: 0.9;
-    transform: translateY(-26px);
+    transform: translateY(-1.6em);
   }
   60% {
     opacity: 1;
@@ -489,7 +496,7 @@ body.dark-mode .hero-s {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-5px);
+    transform: translateY(-0.3em);
   }
 }
 
@@ -497,7 +504,7 @@ body.dark-mode .hero-s {
    spot against the subject instead of flipping to the other shoulder. */
 [dir="rtl"] .hire-b {
   inset-inline-start: auto;
-  left: 18%;
+  left: 14%;
 }
 
 /* Arabic joins its letters: tracking breaks the joins, so the ticket's
@@ -514,13 +521,13 @@ body.dark-mode .hero-s {
 
 .pf:has(.pf-hit:focus-visible) .hire-b {
   rotate: -0.4deg;
-  box-shadow: 7px 7px 0 var(--c-honey);
+  box-shadow: 0.4375em 0.4375em 0 var(--c-honey);
 }
 
 @media (hover: hover) {
   .pf:hover .hire-b {
     rotate: -0.4deg;
-    box-shadow: 7px 7px 0 var(--c-honey);
+    box-shadow: 0.4375em 0.4375em 0 var(--c-honey);
   }
 }
 
@@ -540,10 +547,10 @@ body.dark-mode .hero-s {
 
 .hb-tape {
   position: absolute;
-  top: -11px;
-  inset-inline-start: 22px;
-  width: 58px;
-  height: 19px;
+  top: -0.6875em;
+  inset-inline-start: 1.375em;
+  width: 3.625em;
+  height: 1.1875em;
   rotate: -5deg;
   background: color-mix(in srgb, var(--c-honey) 38%, var(--c-page));
   opacity: 0.92;
@@ -569,18 +576,18 @@ body.dark-mode .hero-s {
   flex: none;
   display: grid;
   place-items: center;
-  width: 48px;
+  width: 3em;
   border-inline-end: 1.5px dashed var(--c-muted-text);
 }
 
 .hb-dot {
   position: relative;
   flex: none;
-  width: 11px;
-  height: 11px;
+  width: 0.6875em;
+  height: 0.6875em;
   border-radius: 50%;
   background: var(--c-status);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-status) 18%, transparent);
+  box-shadow: 0 0 0 0.1875em color-mix(in srgb, var(--c-status) 18%, transparent);
 }
 
 .hb-dot::after {
@@ -609,11 +616,11 @@ body.dark-mode .hero-s {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 0.1875em;
   min-width: 0;
   overflow: hidden;
-  border-radius: 0 7px 7px 0;
-  padding: 11px 18px 11px 14px;
+  border-radius: 0 0.4375em 0.4375em 0;
+  padding: 0.6875em 1.125em 0.6875em 0.875em;
 }
 
 /* a soft sheen crosses the ticket every few seconds */
@@ -660,17 +667,17 @@ body.dark-mode .hero-s {
 
 .hb-k {
   font-family: var(--font-mono-body);
-  font-size: 0.625rem;
+  font-size: 0.625em;
   font-weight: 600;
   line-height: 1;
   letter-spacing: 0.2em;
   color: var(--c-note);
-  margin-bottom: 3px;
+  margin-bottom: 0.1875em;
 }
 
 .hb-t b {
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: 1em;
   font-weight: 600;
   line-height: 1.1;
   letter-spacing: -0.01em;
@@ -678,7 +685,7 @@ body.dark-mode .hero-s {
 }
 
 .hb-t small {
-  font-size: 0.75rem;
+  font-size: 0.78em;
   line-height: 1.3;
   color: var(--c-light-text);
   text-wrap: balance;
@@ -686,9 +693,9 @@ body.dark-mode .hero-s {
 
 .hb-sq {
   display: block;
-  width: 104px;
-  height: 7px;
-  margin-top: 5px;
+  width: 6.5em;
+  height: 0.4375em;
+  margin-top: 0.3125em;
   fill: none;
   stroke: var(--c-secondary);
   stroke-width: 2;
@@ -833,46 +840,22 @@ html[lang="ar"] .pf-note {
     margin-bottom: 0;
   }
 
-  /* The ticket on phones and tablets: compact, centred under the face, and
-     resting on the faded foot of the photo, clear of the chin and of the
-     intro copy below. */
+  /* The ticket on phones and tablets: centred under the face on the faded
+     foot of the photo. It keeps scaling with the frame (em), a little larger
+     relative to it than on desktop so the text stays readable, and it is
+     capped so it never climbs up over the face. */
   .hire-b {
     inset-inline-start: 50%;
-    bottom: 12px;
+    bottom: 0.75em;
     translate: -50% 0;
-    max-width: min(92%, 300px);
+    font-size: 12px;
+    font-size: clamp(10.5px, 3.5cqw, 15px);
+    max-width: min(19.75em, 94%);
   }
 
   [dir="rtl"] .hire-b {
     inset-inline-start: auto;
     left: 50%;
-  }
-
-  .hb-stub {
-    width: 38px;
-  }
-
-  .hb-t {
-    gap: 2px;
-    padding: 8px 14px 8px 12px;
-  }
-
-  .hb-k {
-    margin-bottom: 1px;
-    font-size: 0.625rem;
-  }
-
-  .hb-t b {
-    font-size: 0.9375rem;
-  }
-
-  .hb-t small {
-    font-size: 0.6875rem;
-  }
-
-  .hb-sq {
-    width: 84px;
-    margin-top: 3px;
   }
 
   .hero-body {

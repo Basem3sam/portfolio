@@ -794,6 +794,14 @@ html[dir="rtl"] .lk:focus-visible[data-trailing="arrowRight"] .go svg {
     align-self: start;
   }
 
+  /* On desktop the glow bleeds 22% past the column on each side. In the single
+     column that ran past the screen edge and made the whole page scroll
+     sideways on phones; here it stays inside the column and still fades out
+     (it is a closest-side radial gradient). */
+  .lk-side::before {
+    inset-inline: 0;
+  }
+
   .lk-card {
     position: relative;
     top: auto;

@@ -105,4 +105,24 @@
   html[dir="rtl"] .tide::after {
     background: linear-gradient(270deg, rgba(2, 8, 32, 0.6), rgba(2, 8, 32, 0.15) 70%, transparent);
   }
+
+  /* Tablet and phone: the copy runs the full width of the band, so a scrim
+     that fades out toward the far edge leaves the end of every line on bare
+     shader. A band this tall also has no "reading edge" to favour, so the
+     scrim is an even wash, a little stronger at the top (under the navbar and
+     the back link) and the foot (under the buttons). */
+  @media (max-width: 900px) {
+    .contact::after,
+    .tide::after,
+    html[dir="rtl"] .contact::after,
+    html[dir="rtl"] .tide::after {
+      background: linear-gradient(
+        180deg,
+        rgba(2, 8, 32, 0.46),
+        rgba(2, 8, 32, 0.3) 45%,
+        rgba(2, 8, 32, 0.3) 70%,
+        rgba(2, 8, 32, 0.46)
+      );
+    }
+  }
 }

@@ -207,7 +207,7 @@ uniform vec3 uVoid,uHaze,uDusk,uWine,uCrimson,uHot,uStar;
 out vec4 frag;
 float hash12(vec2 p){vec3 p3=fract(vec3(p.xyx)*0.1031);p3+=dot(p3,p3.yzx+33.33);return fract((p3.x+p3.y)*p3.z);}
 float vnoise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);float a=hash12(i),b=hash12(i+vec2(1.0,0.0)),c=hash12(i+vec2(0.0,1.0)),d=hash12(i+vec2(1.0,1.0));return mix(mix(a,b,f.x),mix(c,d,f.x),f.y);}
-float fbm(vec2 p){float s=0.0,a=0.5;mat2 r=mat2(0.8,-0.6,0.6,0.8);for(int i=0;i<5;i++){s+=a*vnoise(p);p=r*p*2.03+17.1;a*=0.5;}return s/0.96875;}
+float fbm(vec2 p){float s=0.0,a=0.5;mat2 r=mat2(0.8,-0.6,0.6,0.8);for(int i=0;i<4;i++){s+=a*vnoise(p);p=r*p*2.03+17.1;a*=0.5;}return s/0.9375;}
 float bayer4(vec2 c){vec2 m=mod(c,4.0);int i=int(m.x)+int(m.y)*4;int b[16]=int[16](0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5);return (float(b[i])+0.5)/16.0;}
 vec3 ramp(float d,vec3 haze){vec3 c=mix(uVoid,haze,smoothstep(0.0,0.22,d));c=mix(c,uWine,smoothstep(0.18,0.44,d));c=mix(c,uCrimson,smoothstep(0.42,0.72,d));return mix(c,uHot,smoothstep(0.7,0.96,d));}
 vec2 shift(float depth){return floor(uLook*depth*22.0);}
@@ -330,6 +330,8 @@ export function mountHeroFx(
   let cols = readHalftoneCols(host);
 
   const sizeHalftone = () => {
+    // The nebula has taken over and the halftone's backing store was freed.
+    if (host.hasAttribute("data-nb")) return;
     const r = host.getBoundingClientRect();
     f.W = r.width;
     f.H = r.height;
@@ -421,348 +423,423 @@ export function mountHeroFx(
   /* ----------------------------------------------- nebula (WebGL2) ------ */
   const MS = 12;
   const MR = 4;
-  const gl = nb.getContext("webgl2", { antialias: false, alpha: false, depth: false });
+  let glCtx: WebGL2RenderingContext | null = null;
+  let disposed = false;
+  let halftoneRaf = 0;
+  let halftoneStopTimer = 0;
 
-  if (gl && !gl.isContextLost()) {
-    const compile = (type: number, source: string) => {
-      const shader = gl.createShader(type);
-      if (!shader) return null;
-      gl.shaderSource(shader, source);
-      gl.compileShader(shader);
-      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        gl.deleteShader(shader);
-        return null;
-      }
-      return shader;
-    };
-    const vs = compile(gl.VERTEX_SHADER, NEBULA_VERT);
-    const fs = compile(gl.FRAGMENT_SHADER, NEBULA_FRAG(MS, MR));
-    const program = gl.createProgram();
-    let uniforms: Partial<Record<(typeof NEBULA_UNIFORMS)[number], WebGLUniformLocation | null>> =
-      {};
-    let ready = false;
+  /** Frees the 2D sky once the nebula has fully faded in over it. */
+  const stopHalftone = () => {
+    if (halftoneRaf) cancelAnimationFrame(halftoneRaf);
+    halftoneRaf = 0;
+    f.W = 0;
+    f.H = 0;
+    ht.width = 0;
+    ht.height = 0;
+  };
 
-    if (vs && fs && program) {
-      gl.attachShader(program, vs);
-      gl.attachShader(program, fs);
-      gl.linkProgram(program);
-      if (gl.getProgramParameter(program, gl.LINK_STATUS)) {
-        ready = true;
-        for (const name of NEBULA_UNIFORMS) {
-          uniforms[name] = gl.getUniformLocation(program, name);
+  /**
+   * Context creation, shader compile and link are the expensive part of the
+   * hero's start-up and used to run synchronously inside hydration, in front
+   * of the portrait (the LCP element). The halftone paints the sky straight
+   * away, so the nebula can wait for an idle moment and cross-fade in as it
+   * was always designed to.
+   */
+  const bootNebula = () => {
+    if (disposed) return;
+    const gl = nb.getContext("webgl2", { antialias: false, alpha: false, depth: false });
+    glCtx = gl;
+
+    if (gl && !gl.isContextLost()) {
+      const compile = (type: number, source: string) => {
+        const shader = gl.createShader(type);
+        if (!shader) return null;
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+          gl.deleteShader(shader);
+          return null;
         }
-      } else {
+        return shader;
+      };
+      const vs = compile(gl.VERTEX_SHADER, NEBULA_VERT);
+      const fs = compile(gl.FRAGMENT_SHADER, NEBULA_FRAG(MS, MR));
+      const program = gl.createProgram();
+      let uniforms: Partial<Record<(typeof NEBULA_UNIFORMS)[number], WebGLUniformLocation | null>> =
+        {};
+      let ready = false;
+
+      if (vs && fs && program) {
+        gl.attachShader(program, vs);
+        gl.attachShader(program, fs);
+        gl.linkProgram(program);
+        if (gl.getProgramParameter(program, gl.LINK_STATUS)) {
+          ready = true;
+          for (const name of NEBULA_UNIFORMS) {
+            uniforms[name] = gl.getUniformLocation(program, name);
+          }
+        } else {
+          gl.deleteProgram(program);
+        }
+      } else if (program) {
         gl.deleteProgram(program);
       }
-    } else if (program) {
-      gl.deleteProgram(program);
-    }
-    if (vs) gl.deleteShader(vs);
-    if (fs) gl.deleteShader(fs);
+      if (vs) gl.deleteShader(vs);
+      if (fs) gl.deleteShader(fs);
 
-    if (ready) {
-      const vao = gl.createVertexArray();
-      const palette: Record<"v" | "h" | "d" | "w" | "c" | "o" | "s", Rgb> = {
-        v: [0, 0, 0],
-        h: [0, 0, 0],
-        d: [0, 0, 0],
-        w: [0, 0, 0],
-        c: [0, 0, 0],
-        o: [0, 0, 0],
-        s: [0, 0, 0],
-      };
-      const recolor = () => {
-        const cs = getComputedStyle(host);
-        palette.v = parseColor(cs.getPropertyValue("--c-page"));
-        palette.h = parseColor(cs.getPropertyValue("--nb-haze"));
-        palette.d = parseColor(cs.getPropertyValue("--nb-dusk"));
-        palette.w = parseColor(cs.getPropertyValue("--nb-wine"));
-        palette.c = parseColor(cs.getPropertyValue("--nb-crim"));
-        palette.o = parseColor(cs.getPropertyValue("--nb-hot"));
-        palette.s = parseColor(cs.getPropertyValue("--nb-star"));
-      };
-      recolor();
-
-      let mirror = dirOf();
-      let sparks: Spark[] = [];
-      const layout = () => {
-        mirror = dirOf();
-        sparks = SPARK_SEED.map(([x, y, reach, core, tint]) => ({
-          x: mirror ? 1 - x : x,
-          y,
-          reach,
-          core,
-          tint,
-          phase: Math.random() * 6.28,
-          born: -10,
-          user: false,
-        }));
-      };
-      layout();
-
-      const ripples = new Float32Array(MR * 4);
-      let rippleIndex = 0;
-      const flare = new Float32Array(MS);
-      const sA = new Float32Array(MS * 4);
-      const sB = new Float32Array(MS * 4);
-      let W = 1;
-      let H = 1;
-      const start = performance.now();
-      const lamp = { x: 0.5, y: 0.5, on: 0 };
-      const look = { x: 0, y: 0 };
-      const target = { x: 0.5, y: 0.5 };
-      let inside = false;
-      let lastMove = -1e9;
-      let lastClock = 0;
-      let lastDraw = 0;
-      let raf = 0;
-      let visible = true;
-
-      const clock = () => (reduce ? 14 : (performance.now() - start) / 1000);
-
-      const sizeNb = () => {
-        const r = nb.getBoundingClientRect();
-        if (!r.width || !r.height) return;
-        const dpr = Math.min(window.devicePixelRatio || 1, r.width < 600 ? 1.5 : 2);
-        W = r.width;
-        H = r.height;
-        const w = Math.floor(W * dpr);
-        const h = Math.floor(H * dpr);
-        if (nb.width !== w || nb.height !== h) {
-          nb.width = w;
-          nb.height = h;
-        }
-      };
-
-      const drift = (t: number): [number, number] => [
-        Math.min(
-          Math.max(0.5 + 0.32 * Math.sin(t * 0.21) + 0.1 * Math.sin(t * 0.077 + 1.3), 0.05),
-          0.95,
-        ),
-        Math.min(
-          Math.max(0.5 + 0.26 * Math.cos(t * 0.17) + 0.12 * Math.cos(t * 0.053 + 4.2), 0.05),
-          0.95,
-        ),
-      ];
-
-      const toUv = (cx: number, cy: number): [number, number] => {
-        const r = nb.getBoundingClientRect();
-        return [
-          Math.min(Math.max((cx - r.left) / Math.max(r.width, 1), 0), 1),
-          Math.min(Math.max(1 - (cy - r.top) / Math.max(r.height, 1), 0), 1),
-        ];
-      };
-
-      const addSpark = (x: number, y: number, big: boolean) => {
-        const now = clock();
-        const rd = Math.random();
-        sparks.push({
-          x,
-          y,
-          reach: big ? 0.06 + 0.08 * rd : 0.045 + 0.08 * rd,
-          core: 0.006 + 0.008 * rd,
-          tint: Math.random() < 0.2 ? 1 : 0,
-          phase: Math.random() * 6.28,
-          born: reduce ? now - 10 : now,
-          user: true,
-        });
-        if (sparks.length > MS) {
-          const oldest = sparks.find((s) => s.user);
-          if (oldest) sparks.splice(sparks.indexOf(oldest), 1);
-        }
-        ripples.set([x * W, y * H, now, reduce ? 0 : 1], rippleIndex * 4);
-        rippleIndex = (rippleIndex + 1) % MR;
-      };
-
-      const paint = () => {
-        sizeNb();
-        if (W < 2) return;
-        const t = clock();
-        const dt = Math.min(Math.max(t - lastClock, 0), 0.1);
-        lastClock = t;
-        const idle = !inside || performance.now() / 1000 - lastMove > 6;
-        const dp = drift(t * 0.6);
-        const wx = idle ? dp[0] : target.x;
-        const wy = idle ? dp[1] : target.y;
-        const k = reduce ? 1 : 1 - Math.exp(-dt * (idle ? 1.5 : 7));
-        lamp.x += (wx - lamp.x) * k;
-        lamp.y += (wy - lamp.y) * k;
-        look.x += ((wx - 0.5) * 2 - look.x) * k;
-        look.y += ((wy - 0.5) * 2 - look.y) * k;
-        const wantOn = reduce ? 0 : idle ? 0.55 : 1;
-        lamp.on += (wantOn - lamp.on) * (reduce ? 1 : 1 - Math.exp(-dt * 3));
-
-        const ms = Math.min(W, H);
-        const n = Math.min(sparks.length, MS);
-        for (let i = 0; i < n; i++) {
-          const s = sparks[i];
-          const reach = s.reach * ms;
-          const d = Math.hypot(s.x * W - lamp.x * W, s.y * H - lamp.y * H);
-          const want = reduce ? 0 : Math.exp(-(d * d) / Math.max(reach * reach * 0.6, 400));
-          flare[i] += (want - flare[i]) * (reduce ? 1 : 1 - Math.exp(-dt * 6));
-          sA.set([s.x * W, s.y * H, reach, s.born], i * 4);
-          sB.set([s.tint, s.phase, flare[i], Math.max(s.core * ms, 1.5)], i * 4);
-        }
-
-        const canvasRect = nb.getBoundingClientRect();
-        const pfRect = pf ? pf.getBoundingClientRect() : null;
-        let fx = W * 0.7;
-        let fy = H * 0.7;
-        if (pfRect && pfRect.width) {
-          fx = pfRect.left + 0.392 * pfRect.width - canvasRect.left;
-          fy = H - (pfRect.top + 0.304 * pfRect.height - canvasRect.top);
-        }
-
-        const u = uniforms;
-        gl.useProgram(program);
-        gl.bindVertexArray(vao);
-        gl.viewport(0, 0, nb.width, nb.height);
-        gl.uniform2f(u.uRes as WebGLUniformLocation, nb.width, nb.height);
-        gl.uniform1f(u.uDpr as WebGLUniformLocation, nb.width / W);
-        gl.uniform1f(u.uTime as WebGLUniformLocation, t);
-        gl.uniform2f(u.uPointer as WebGLUniformLocation, lamp.x * W, lamp.y * H);
-        gl.uniform1f(u.uPointerOn as WebGLUniformLocation, lamp.on);
-        gl.uniform2f(u.uLook as WebGLUniformLocation, look.x, look.y);
-        gl.uniform1i(u.uSparkCount as WebGLUniformLocation, n);
-        gl.uniform4fv(u.uSpark as WebGLUniformLocation, sA);
-        gl.uniform4fv(u.uSparkB as WebGLUniformLocation, sB);
-        gl.uniform4fv(u.uRipple as WebGLUniformLocation, ripples);
-        gl.uniform2f(u.uFocus as WebGLUniformLocation, fx, fy);
-        gl.uniform1f(u.uWide as WebGLUniformLocation, W > 900 ? 1 : 0);
-        gl.uniform1f(u.uMirror as WebGLUniformLocation, mirror);
-        gl.uniform1f(u.uPixel as WebGLUniformLocation, W < 600 ? 5 : 6);
-        gl.uniform3fv(u.uVoid as WebGLUniformLocation, palette.v);
-        gl.uniform3fv(u.uHaze as WebGLUniformLocation, palette.h);
-        gl.uniform3fv(u.uDusk as WebGLUniformLocation, palette.d);
-        gl.uniform3fv(u.uWine as WebGLUniformLocation, palette.w);
-        gl.uniform3fv(u.uCrimson as WebGLUniformLocation, palette.c);
-        gl.uniform3fv(u.uHot as WebGLUniformLocation, palette.o);
-        gl.uniform3fv(u.uStar as WebGLUniformLocation, palette.s);
-        gl.drawArrays(gl.TRIANGLES, 0, 3);
-      };
-
-      const frame = (now: number) => {
-        raf = 0;
-        if (now - lastDraw >= 33) {
-          lastDraw = now;
-          paint();
-        }
-        if (visible && !document.hidden && !reduce) raf = requestAnimationFrame(frame);
-      };
-      const wake = () => {
-        if (!reduce && !raf && visible && !document.hidden) raf = requestAnimationFrame(frame);
-      };
-
-      const nebulaIo = new IntersectionObserver(
-        (entries) => {
-          visible = entries.some((e) => e.isIntersecting);
-          wake();
-        },
-        { rootMargin: "120px" },
-      );
-      nebulaIo.observe(host);
-      cleanups.push(() => nebulaIo.disconnect());
-
-      listen(document, "visibilitychange", wake);
-
-      const nebulaResize = new ResizeObserver(() => {
-        sizeNb();
-        if (reduce) paint();
-      });
-      nebulaResize.observe(nb);
-      cleanups.push(() => nebulaResize.disconnect());
-
-      // The page scrolls under a still cursor, so the light is re-aimed from the
-      // last known pointer position on scroll as well as on move.
-      const lastPointer = { x: 0, y: 0, seen: false };
-
-      const aim = (stamp: boolean) => {
-        if (!lastPointer.seen) return;
-        const r = nb.getBoundingClientRect();
-        if (
-          lastPointer.x < r.left ||
-          lastPointer.x > r.right ||
-          lastPointer.y < r.top ||
-          lastPointer.y > r.bottom
-        ) {
-          inside = false;
-          return;
-        }
-        const uv = toUv(lastPointer.x, lastPointer.y);
-        target.x = uv[0];
-        target.y = uv[1];
-        inside = true;
-        if (stamp) lastMove = performance.now() / 1000;
-      };
-
-      listen(
-        window,
-        "pointermove",
-        (event: PointerEvent) => {
-          if (event.pointerType === "touch") return;
-          lastPointer.x = event.clientX;
-          lastPointer.y = event.clientY;
-          lastPointer.seen = true;
-          aim(true);
-        },
-        { passive: true },
-      );
-      listen(window, "scroll", () => aim(false), { passive: true });
-      listen(document, "pointerleave", () => {
-        lastPointer.seen = false;
-        inside = false;
-      });
-
-      listen(host, "pointerdown", (event: PointerEvent) => {
-        const el = event.target as HTMLElement | null;
-        if (isControl(el)) return;
-        const uv = toUv(event.clientX, event.clientY);
-        addSpark(uv[0], uv[1], false);
-        if (reduce) paint();
-      });
-
-      // the language switch flips direction; re-lay the sky when it changes
-      const dirObserver = new MutationObserver(() => {
-        if (dirOf() !== mirror) {
-          layout();
-          if (reduce) paint();
-        }
-      });
-      dirObserver.observe(host.closest("[dir]") ?? document.documentElement, {
-        attributes: true,
-        attributeFilter: ["dir"],
-      });
-      cleanups.push(() => dirObserver.disconnect());
-
-      // the theme swap repaints both skies with the other ramp
-      const themeObserver = new MutationObserver(() => {
-        cols = readHalftoneCols(host);
-        f.dirty = true;
+      if (ready) {
+        const vao = gl.createVertexArray();
+        const palette: Record<"v" | "h" | "d" | "w" | "c" | "o" | "s", Rgb> = {
+          v: [0, 0, 0],
+          h: [0, 0, 0],
+          d: [0, 0, 0],
+          w: [0, 0, 0],
+          c: [0, 0, 0],
+          o: [0, 0, 0],
+          s: [0, 0, 0],
+        };
+        const recolor = () => {
+          const cs = getComputedStyle(host);
+          palette.v = parseColor(cs.getPropertyValue("--c-page"));
+          palette.h = parseColor(cs.getPropertyValue("--nb-haze"));
+          palette.d = parseColor(cs.getPropertyValue("--nb-dusk"));
+          palette.w = parseColor(cs.getPropertyValue("--nb-wine"));
+          palette.c = parseColor(cs.getPropertyValue("--nb-crim"));
+          palette.o = parseColor(cs.getPropertyValue("--nb-hot"));
+          palette.s = parseColor(cs.getPropertyValue("--nb-star"));
+        };
         recolor();
-        if (reduce) paint();
-      });
-      themeObserver.observe(document.body, { attributes: true, attributeFilter: ["class"] });
-      cleanups.push(() => themeObserver.disconnect());
 
-      paint();
-      wake();
-      cleanups.push(() => {
-        if (raf) cancelAnimationFrame(raf);
-        raf = 0;
-      });
+        let mirror = dirOf();
+        let sparks: Spark[] = [];
+        const layout = () => {
+          mirror = dirOf();
+          sparks = SPARK_SEED.map(([x, y, reach, core, tint]) => ({
+            x: mirror ? 1 - x : x,
+            y,
+            reach,
+            core,
+            tint,
+            phase: Math.random() * 6.28,
+            born: -10,
+            user: false,
+          }));
+        };
+        layout();
 
-      // the nebula takes over only once it has actually drawn a frame; the
-      // CSS then cross-fades it in over the halftone (rev 32)
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          if (host.isConnected) host.setAttribute("data-nb", "1");
+        const ripples = new Float32Array(MR * 4);
+        let rippleIndex = 0;
+        const flare = new Float32Array(MS);
+        const sA = new Float32Array(MS * 4);
+        const sB = new Float32Array(MS * 4);
+        let W = 1;
+        let H = 1;
+        const start = performance.now();
+        const lamp = { x: 0.5, y: 0.5, on: 0 };
+        const look = { x: 0, y: 0 };
+        const target = { x: 0.5, y: 0.5 };
+        let inside = false;
+        let lastMove = -1e9;
+        let lastClock = 0;
+        let lastDraw = 0;
+        let raf = 0;
+        let visible = true;
+
+        const clock = () => (reduce ? 14 : (performance.now() - start) / 1000);
+
+        // The pixel-art sky is built from 5-6px cells, so it does not need a
+        // retina backing store: one device pixel per CSS pixel on phones and
+        // 1.5 elsewhere cuts the fragment count 2-4x. `quality` steps down
+        // further, to at most half, if frames keep coming in slower than ~15fps.
+        let quality = 1;
+        let slowFrames = 0;
+
+        const sizeNb = () => {
+          const r = nb.getBoundingClientRect();
+          if (!r.width || !r.height) return;
+          const dpr = Math.min(window.devicePixelRatio || 1, r.width < 600 ? 1 : 1.5) * quality;
+          W = r.width;
+          H = r.height;
+          const w = Math.floor(W * dpr);
+          const h = Math.floor(H * dpr);
+          if (nb.width !== w || nb.height !== h) {
+            nb.width = w;
+            nb.height = h;
+          }
+        };
+
+        const drift = (t: number): [number, number] => [
+          Math.min(
+            Math.max(0.5 + 0.32 * Math.sin(t * 0.21) + 0.1 * Math.sin(t * 0.077 + 1.3), 0.05),
+            0.95,
+          ),
+          Math.min(
+            Math.max(0.5 + 0.26 * Math.cos(t * 0.17) + 0.12 * Math.cos(t * 0.053 + 4.2), 0.05),
+            0.95,
+          ),
+        ];
+
+        const toUv = (cx: number, cy: number): [number, number] => {
+          const r = nb.getBoundingClientRect();
+          return [
+            Math.min(Math.max((cx - r.left) / Math.max(r.width, 1), 0), 1),
+            Math.min(Math.max(1 - (cy - r.top) / Math.max(r.height, 1), 0), 1),
+          ];
+        };
+
+        const addSpark = (x: number, y: number, big: boolean) => {
+          const now = clock();
+          const rd = Math.random();
+          sparks.push({
+            x,
+            y,
+            reach: big ? 0.06 + 0.08 * rd : 0.045 + 0.08 * rd,
+            core: 0.006 + 0.008 * rd,
+            tint: Math.random() < 0.2 ? 1 : 0,
+            phase: Math.random() * 6.28,
+            born: reduce ? now - 10 : now,
+            user: true,
+          });
+          if (sparks.length > MS) {
+            const oldest = sparks.find((s) => s.user);
+            if (oldest) sparks.splice(sparks.indexOf(oldest), 1);
+          }
+          ripples.set([x * W, y * H, now, reduce ? 0 : 1], rippleIndex * 4);
+          rippleIndex = (rippleIndex + 1) % MR;
+        };
+
+        const paint = () => {
+          sizeNb();
+          if (W < 2) return;
+          const t = clock();
+          const dt = Math.min(Math.max(t - lastClock, 0), 0.1);
+          lastClock = t;
+          const idle = !inside || performance.now() / 1000 - lastMove > 6;
+          const dp = drift(t * 0.6);
+          const wx = idle ? dp[0] : target.x;
+          const wy = idle ? dp[1] : target.y;
+          const k = reduce ? 1 : 1 - Math.exp(-dt * (idle ? 1.5 : 7));
+          lamp.x += (wx - lamp.x) * k;
+          lamp.y += (wy - lamp.y) * k;
+          look.x += ((wx - 0.5) * 2 - look.x) * k;
+          look.y += ((wy - 0.5) * 2 - look.y) * k;
+          const wantOn = reduce ? 0 : idle ? 0.55 : 1;
+          lamp.on += (wantOn - lamp.on) * (reduce ? 1 : 1 - Math.exp(-dt * 3));
+
+          const ms = Math.min(W, H);
+          const n = Math.min(sparks.length, MS);
+          for (let i = 0; i < n; i++) {
+            const s = sparks[i];
+            const reach = s.reach * ms;
+            const d = Math.hypot(s.x * W - lamp.x * W, s.y * H - lamp.y * H);
+            const want = reduce ? 0 : Math.exp(-(d * d) / Math.max(reach * reach * 0.6, 400));
+            flare[i] += (want - flare[i]) * (reduce ? 1 : 1 - Math.exp(-dt * 6));
+            sA.set([s.x * W, s.y * H, reach, s.born], i * 4);
+            sB.set([s.tint, s.phase, flare[i], Math.max(s.core * ms, 1.5)], i * 4);
+          }
+
+          const canvasRect = nb.getBoundingClientRect();
+          const pfRect = pf ? pf.getBoundingClientRect() : null;
+          let fx = W * 0.7;
+          let fy = H * 0.7;
+          if (pfRect && pfRect.width) {
+            fx = pfRect.left + 0.392 * pfRect.width - canvasRect.left;
+            fy = H - (pfRect.top + 0.304 * pfRect.height - canvasRect.top);
+          }
+
+          const u = uniforms;
+          gl.useProgram(program);
+          gl.bindVertexArray(vao);
+          gl.viewport(0, 0, nb.width, nb.height);
+          gl.uniform2f(u.uRes as WebGLUniformLocation, nb.width, nb.height);
+          gl.uniform1f(u.uDpr as WebGLUniformLocation, nb.width / W);
+          gl.uniform1f(u.uTime as WebGLUniformLocation, t);
+          gl.uniform2f(u.uPointer as WebGLUniformLocation, lamp.x * W, lamp.y * H);
+          gl.uniform1f(u.uPointerOn as WebGLUniformLocation, lamp.on);
+          gl.uniform2f(u.uLook as WebGLUniformLocation, look.x, look.y);
+          gl.uniform1i(u.uSparkCount as WebGLUniformLocation, n);
+          gl.uniform4fv(u.uSpark as WebGLUniformLocation, sA);
+          gl.uniform4fv(u.uSparkB as WebGLUniformLocation, sB);
+          gl.uniform4fv(u.uRipple as WebGLUniformLocation, ripples);
+          gl.uniform2f(u.uFocus as WebGLUniformLocation, fx, fy);
+          gl.uniform1f(u.uWide as WebGLUniformLocation, W > 900 ? 1 : 0);
+          gl.uniform1f(u.uMirror as WebGLUniformLocation, mirror);
+          gl.uniform1f(u.uPixel as WebGLUniformLocation, W < 600 ? 5 : 6);
+          gl.uniform3fv(u.uVoid as WebGLUniformLocation, palette.v);
+          gl.uniform3fv(u.uHaze as WebGLUniformLocation, palette.h);
+          gl.uniform3fv(u.uDusk as WebGLUniformLocation, palette.d);
+          gl.uniform3fv(u.uWine as WebGLUniformLocation, palette.w);
+          gl.uniform3fv(u.uCrimson as WebGLUniformLocation, palette.c);
+          gl.uniform3fv(u.uHot as WebGLUniformLocation, palette.o);
+          gl.uniform3fv(u.uStar as WebGLUniformLocation, palette.s);
+          gl.drawArrays(gl.TRIANGLES, 0, 3);
+        };
+
+        const frame = (now: number) => {
+          raf = 0;
+          if (now - lastDraw >= 33) {
+            if (lastDraw > 0 && now - lastDraw > 66) {
+              if (++slowFrames >= 8 && quality > 0.5) {
+                quality = Math.max(0.5, quality * 0.8);
+                slowFrames = 0;
+              }
+            } else if (slowFrames > 0) {
+              slowFrames--;
+            }
+            lastDraw = now;
+            paint();
+          }
+          if (visible && !document.hidden && !reduce) raf = requestAnimationFrame(frame);
+        };
+        const wake = () => {
+          if (!reduce && !raf && visible && !document.hidden) {
+            lastDraw = 0;
+            raf = requestAnimationFrame(frame);
+          }
+        };
+
+        const nebulaIo = new IntersectionObserver(
+          (entries) => {
+            visible = entries.some((e) => e.isIntersecting);
+            wake();
+          },
+          { rootMargin: "120px" },
+        );
+        nebulaIo.observe(host);
+        cleanups.push(() => nebulaIo.disconnect());
+
+        listen(document, "visibilitychange", wake);
+
+        const nebulaResize = new ResizeObserver(() => {
+          sizeNb();
+          if (reduce) paint();
         });
-      });
+        nebulaResize.observe(nb);
+        cleanups.push(() => nebulaResize.disconnect());
+
+        // The page scrolls under a still cursor, so the light is re-aimed from the
+        // last known pointer position on scroll as well as on move.
+        const lastPointer = { x: 0, y: 0, seen: false };
+
+        const aim = (stamp: boolean) => {
+          if (!lastPointer.seen) return;
+          const r = nb.getBoundingClientRect();
+          if (
+            lastPointer.x < r.left ||
+            lastPointer.x > r.right ||
+            lastPointer.y < r.top ||
+            lastPointer.y > r.bottom
+          ) {
+            inside = false;
+            return;
+          }
+          const uv = toUv(lastPointer.x, lastPointer.y);
+          target.x = uv[0];
+          target.y = uv[1];
+          inside = true;
+          if (stamp) lastMove = performance.now() / 1000;
+        };
+
+        listen(
+          window,
+          "pointermove",
+          (event: PointerEvent) => {
+            if (event.pointerType === "touch") return;
+            lastPointer.x = event.clientX;
+            lastPointer.y = event.clientY;
+            lastPointer.seen = true;
+            aim(true);
+          },
+          { passive: true },
+        );
+        listen(window, "scroll", () => aim(false), { passive: true });
+        listen(document, "pointerleave", () => {
+          lastPointer.seen = false;
+          inside = false;
+        });
+
+        listen(host, "pointerdown", (event: PointerEvent) => {
+          const el = event.target as HTMLElement | null;
+          if (isControl(el)) return;
+          const uv = toUv(event.clientX, event.clientY);
+          addSpark(uv[0], uv[1], false);
+          if (reduce) paint();
+        });
+
+        // the language switch flips direction; re-lay the sky when it changes
+        const dirObserver = new MutationObserver(() => {
+          if (dirOf() !== mirror) {
+            layout();
+            if (reduce) paint();
+          }
+        });
+        dirObserver.observe(host.closest("[dir]") ?? document.documentElement, {
+          attributes: true,
+          attributeFilter: ["dir"],
+        });
+        cleanups.push(() => dirObserver.disconnect());
+
+        // the theme swap repaints both skies with the other ramp
+        const themeObserver = new MutationObserver(() => {
+          cols = readHalftoneCols(host);
+          f.dirty = true;
+          recolor();
+          if (reduce) paint();
+        });
+        themeObserver.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+        cleanups.push(() => themeObserver.disconnect());
+
+        paint();
+        wake();
+        cleanups.push(() => {
+          if (raf) cancelAnimationFrame(raf);
+          raf = 0;
+        });
+
+        // the nebula takes over only once it has actually drawn a frame; the
+        // CSS then cross-fades it in over the halftone (rev 32)
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            if (!host.isConnected || disposed) return;
+            host.setAttribute("data-nb", "1");
+            // The halftone keeps painting under the 1s cross-fade, then stops:
+            // it is hidden from here on and was redrawing (and allocating) at
+            // 30fps for nothing.
+            halftoneStopTimer = window.setTimeout(stopHalftone, 1100);
+          });
+        });
+
+        // A lost context (GPU pressure on phones) would freeze the nebula on
+        // its last frame. Hand the sky back to the halftone instead.
+        listen(nb, "webglcontextlost", (event: Event) => {
+          event.preventDefault();
+          if (raf) cancelAnimationFrame(raf);
+          raf = 0;
+          window.clearTimeout(halftoneStopTimer);
+          host.removeAttribute("data-nb");
+          sizeHalftone();
+          if (!halftoneRaf) halftoneRaf = requestAnimationFrame(tick);
+        });
+      }
     }
+  };
+
+  let bootIsIdle = false;
+  let bootHandle = 0;
+  if (typeof window.requestIdleCallback === "function") {
+    bootIsIdle = true;
+    bootHandle = window.requestIdleCallback(() => bootNebula(), { timeout: 1200 });
+  } else {
+    bootHandle = window.setTimeout(bootNebula, 300);
   }
+  cleanups.push(() => {
+    disposed = true;
+    window.clearTimeout(halftoneStopTimer);
+    if (bootIsIdle) window.cancelIdleCallback(bootHandle);
+    else window.clearTimeout(bootHandle);
+  });
 
   /* ------------------------------------------- shared 30fps halftone loop */
-  let halftoneRaf = 0;
   let lastFrame = 0;
   const tick = (now: number) => {
     halftoneRaf = requestAnimationFrame(tick);
@@ -782,7 +859,7 @@ export function mountHeroFx(
   });
   cleanups.push(() => {
     // Deferred: a Strict Mode re-mount reuses this very canvas and context.
-    if (gl) releaseGlContext(gl);
+    if (glCtx) releaseGlContext(glCtx);
   });
 
   return () => {

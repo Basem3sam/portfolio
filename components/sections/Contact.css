@@ -436,5 +436,17 @@
       font-size: 0.9375rem;
       overflow-wrap: anywhere;
     }
+
+    /* The address is 25 monospace characters (0.6em each). Size it to the room
+       the row actually has (screen - 32px gutters - 24px row padding - 12px
+       gap - 44px arrow disc) so it stays on one line from 320px up instead of
+       breaking mid-word at "gmail." / "com". */
+    .contact .ct-mail {
+      gap: 12px;
+    }
+
+    .contact .ct-mail .ct-v {
+      font-size: clamp(0.75rem, calc((100vw - 116px) / 15), 1.25rem);
+    }
   }
 } /* @layer components */
