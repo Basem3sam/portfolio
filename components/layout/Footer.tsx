@@ -1,3 +1,4 @@
+import FooterBackToTop from "@/components/layout/FooterBackToTop";
 import SectionLink from "@/components/layout/SectionLink";
 import TerminalButton from "@/components/layout/TerminalButton";
 import CairoClock from "@/components/ui/CairoClock";
@@ -98,12 +99,12 @@ export default function Footer({ locale = "en" }: FooterProps) {
               <CairoClock />
               <small>{footer.timeLabel}</small>
             </p>
-            <SectionLink hash="#hero" locale={locale} className="ft-up">
+            <FooterBackToTop className="ft-up">
               <span>{footer.backToTop}</span>
               <i aria-hidden="true">
                 <Icon name="arrowUp" className="size-[15px]" />
               </i>
-            </SectionLink>
+            </FooterBackToTop>
           </div>
         </div>
 

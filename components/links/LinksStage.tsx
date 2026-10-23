@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { PROFILE_CUTOUT } from "@/data/site";
+import { PROFILE_CUTOUT, PROFILE_CUTOUT_SIZES_LINKS, PROFILE_CUTOUT_SRCSET } from "@/data/site";
 import { mountGlassFold } from "@/lib/glassfold";
 import { subscribeToTheme } from "@/lib/theme";
 
@@ -58,9 +58,15 @@ export default function LinksStage({ alt }: LinksStageProps) {
     <div className="lk-stage" ref={stageRef}>
       <canvas className="lk-gl" ref={canvasRef} aria-hidden="true" />
       <picture>
-        <source srcSet={PROFILE_CUTOUT} type="image/webp" />
+        <source
+          srcSet={PROFILE_CUTOUT_SRCSET}
+          sizes={PROFILE_CUTOUT_SIZES_LINKS}
+          type="image/webp"
+        />
         <img
           src={PROFILE_CUTOUT}
+          srcSet={PROFILE_CUTOUT_SRCSET}
+          sizes={PROFILE_CUTOUT_SIZES_LINKS}
           alt={alt}
           width={640}
           height={598}

@@ -65,6 +65,9 @@ const terminalFont = localFont({
 const caveat = Caveat({
   subsets: ["latin"],
   display: "swap",
+  // The note only exists from 992px up and writes itself in at 1.6s, so it
+  // should not be preloaded against the headline font and the portrait.
+  preload: false,
   variable: "--font-caveat",
 });
 

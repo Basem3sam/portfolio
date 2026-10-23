@@ -1180,24 +1180,70 @@
     content: "\2726  ";
   }
 
+  /* ---- quick-command rail (CommandRail.tsx) ---- */
   .egg .etc {
+    position: relative;
     display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding: 10px 16px;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
     border-top: 1px solid var(--e-rule);
-    scrollbar-width: none;
     background: #0a101d;
-    mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent);
+    --etc-fade-l: 0px;
+    --etc-fade-r: 0px;
   }
 
-  .egg .etc::-webkit-scrollbar {
+  .egg .etc[data-start="true"] {
+    --etc-fade-l: 30px;
+  }
+
+  .egg .etc[data-end="true"] {
+    --etc-fade-r: 30px;
+  }
+
+  .egg .etc-track {
+    position: relative; /* offsetParent for scroll-into-view maths */
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    gap: 8px;
+    padding: 2px 4px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    cursor: grab;
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 var(--etc-fade-l),
+      #000 calc(100% - var(--etc-fade-r)),
+      transparent
+    );
+    mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 var(--etc-fade-l),
+      #000 calc(100% - var(--etc-fade-r)),
+      transparent
+    );
+  }
+
+  .egg .etc-track::-webkit-scrollbar {
     display: none;
   }
 
-  .egg .etc button {
+  .egg .etc-track[data-drag="true"] {
+    cursor: grabbing;
+    user-select: none;
+  }
+
+  .egg .etc-track[data-drag="true"] button {
+    pointer-events: none;
+  }
+
+  .egg .etc-track button {
     flex: none;
-    min-height: 38px;
+    min-height: 36px;
     padding: 0 14px;
     border: 1px solid var(--e-rule);
     border-radius: 999px;
@@ -1207,13 +1253,106 @@
     font-size: 0.8125rem;
     font-weight: 500;
     cursor: pointer;
-    transition: border-color 0.5s, background-color 0.5s, color 0.5s;
+    transition:
+      border-color 0.3s,
+      background-color 0.3s,
+      color 0.3s,
+      opacity 0.3s,
+      transform 0.2s var(--e-ease);
   }
 
-  .egg .etc button:hover {
+  /* Commands that take an argument end in a faint caret: "theme _". */
+  .egg .etc-track button[data-arg]::after {
+    content: " \2026";
+    color: var(--e-dim);
+  }
+
+  .egg .etc-track button:active {
+    transform: scale(0.96);
+  }
+
+  .egg .etc-track button:focus-visible {
+    outline: 2px solid var(--e-note);
+    outline-offset: 2px;
+  }
+
+  /* While typing: the matching chips glow, the rest step back. */
+  .egg .etc-track button[data-match="yes"] {
     border-color: var(--e-note);
     color: #fff;
-    background: color-mix(in srgb, var(--e-note) 10%, transparent);
+    background: color-mix(in srgb, var(--e-note) 14%, transparent);
+  }
+
+  .egg .etc-track button[data-match="no"] {
+    opacity: 0.4;
+  }
+
+  @media (hover: hover) {
+    .egg .etc-track button:hover {
+      border-color: var(--e-note);
+      color: #fff;
+      background: color-mix(in srgb, var(--e-note) 10%, transparent);
+      opacity: 1;
+    }
+  }
+
+  .egg .etc-nav {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid var(--e-rule);
+    border-radius: 50%;
+    background: #0f1728;
+    color: var(--e-ink2);
+    cursor: pointer;
+    transition:
+      opacity 0.25s,
+      border-color 0.3s,
+      color 0.3s;
+  }
+
+  .egg .etc-nav svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .egg .etc-nav:disabled {
+    opacity: 0.25;
+    cursor: default;
+  }
+
+  @media (hover: hover) {
+    .egg .etc-nav:not(:disabled):hover {
+      border-color: var(--e-note);
+      color: #fff;
+    }
+  }
+
+  /* Touch swipes the rail natively: no arrows, no grab cursor. */
+  @media (pointer: coarse) {
+    .egg .etc-nav {
+      display: none;
+    }
+
+    .egg .etc {
+      padding-inline: 8px;
+    }
+
+    .egg .etc-track {
+      cursor: auto;
+    }
+
+    .egg .etc-track button {
+      min-height: 40px;
+    }
   }
 
   .egg .eti {

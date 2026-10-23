@@ -10,6 +10,8 @@ import {
   PHONE_DISPLAY,
   PHONE_TEL,
   PROFILE_CUTOUT,
+  PROFILE_CUTOUT_SIZES_HERO,
+  PROFILE_CUTOUT_SRCSET,
 } from "@/data/site";
 import { mountHeroFx } from "@/lib/hero-fx";
 import type { Dictionary } from "@/lib/dictionaries/en";
@@ -76,13 +78,19 @@ export default function Hero({ dict }: HeroProps) {
         <div className="pf" id="pf" data-rise style={{ "--d": "200ms" } as CSSProperties}>
           <div className="pf-glow" aria-hidden="true"></div>
           <picture>
-            <source srcSet={PROFILE_CUTOUT} type="image/webp" />
+            <source
+              srcSet={PROFILE_CUTOUT_SRCSET}
+              sizes={PROFILE_CUTOUT_SIZES_HERO}
+              type="image/webp"
+            />
             {/* Fixed intrinsic size with fetch priority; the portrait is the
                 LCP element, so it renders as-is rather than through
                 next/image's loader. The cut-out carries the subject alone,
                 so the stage glow shows through (mockup `.pf>img`). */}
             <img
               src={PROFILE_CUTOUT}
+              srcSet={PROFILE_CUTOUT_SRCSET}
+              sizes={PROFILE_CUTOUT_SIZES_HERO}
               alt={dict.portraitAlt}
               width={640}
               height={598}

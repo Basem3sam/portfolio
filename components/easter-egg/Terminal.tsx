@@ -13,6 +13,7 @@ import ClockLine from "@/components/easter-egg/ClockLine";
 import HackBar from "@/components/easter-egg/HackBar";
 import MatrixDecode from "@/components/easter-egg/MatrixDecode";
 import { isMobileViewport } from "@/components/easter-egg/constants";
+import CommandRail from "@/components/easter-egg/CommandRail";
 import Icon from "@/components/ui/Icon";
 import Mark from "@/components/ui/Mark";
 import { lockScroll, unlockScroll } from "@/lib/scrollLock";
@@ -318,6 +319,9 @@ function saveStored(value: Stored) {
 /* ------------------------------------------------------------ helpers */
 
 const COMPLETABLE = [...COMMAND_NAMES, "echo"];
+
+/** Chips for these fill the prompt (the argument is the point) rather than run. */
+const ARG_COMMANDS: ReadonlySet<string> = new Set(["cat", "open", "theme"]);
 
 type Completion = { head: string; partial: string; options: string[]; takesArgs: boolean };
 
@@ -1488,6 +1492,9 @@ export default function Terminal({ open, onClose }: TerminalProps) {
     setCaret(value.length);
   };
 
+  // First word being typed, so the quick-command rail can point at its chip.
+  const railQuery = /^\S+$/.test(draft) ? draft.toLowerCase() : "";
+
   const completion = draft ? completionFor(draft) : null;
   const ghost =
     completion && completion.options.length > 0 && completion.options[0] !== completion.partial
@@ -1730,13 +1737,16 @@ export default function Terminal({ open, onClose }: TerminalProps) {
             <ScreenFx rain={rain} burst={burstRun} />
           </div>
 
-          <div className="etc" role="group" aria-label="Quick commands">
-            {COMMAND_NAMES.map((name) => (
-              <button key={name} type="button" onClick={() => submit(name)}>
-                {name}
-              </button>
-            ))}
-          </div>
+          <CommandRail
+            commands={COMMAND_NAMES}
+            needsArg={ARG_COMMANDS}
+            query={railQuery}
+            onRun={submit}
+            onFill={(name) => {
+              put(`${name} `);
+              inputRef.current?.focus();
+            }}
+          />
 
           <div className="eti">
             <label htmlFor="terminal-input">
