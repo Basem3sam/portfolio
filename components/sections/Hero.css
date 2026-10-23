@@ -105,22 +105,50 @@ body.dark-mode .hero-s {
   z-index: 1;
   flex: 1;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 480px;
+  /* Two halves, with a floor on the portrait's half. The portrait is half the
+     page on a wide screen, but never narrower than 580px: below ~1200px it holds
+     that size and the copy column gives way instead, so there is no stretch of
+     widths where the portrait visibly shrinks. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, max(50%, calc(580px - var(--hero-gap))));
+  /* The copy rests on the same ground line as the portrait (the foot of the
+     hero), so the two halves line up whichever of them is the taller. */
   grid-template-areas:
     ". pf"
     "top pf"
-    "body pf"
-    ". pf";
-  grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 1fr);
+    "body pf";
+  grid-template-rows: minmax(0, 1fr) auto auto;
   align-items: start;
-  column-gap: clamp(24px, 4vw, 56px);
+  --hero-gap: clamp(24px, 4vw, 56px);
+  column-gap: var(--hero-gap);
   padding: clamp(6px, 1.4vw, 22px) var(--pad) 0;
   margin-top: 68px;
+}
+
+/* Desktop: the grid is packed to the foot of the hero and is exactly as tall as
+   the portrait, so the copy (centred by the two spacer rows) is centred on the
+   portrait instead of on a taller empty box. The two halves read as one level
+   row, symmetrical about the page's centre line. */
+@media (min-width: 992px) {
+  .hero-s {
+    padding-top: 68px;
+  }
+
+  .hero-in {
+    flex: none;
+    margin-top: auto;
+  }
+
+  .hero-body {
+    padding-bottom: clamp(36px, 4.5vw, 64px);
+  }
 }
 
 .hero-top {
   grid-area: top;
   min-width: 0;
+  /* The headline sizes itself from its own column (cqw below), so it can never
+     grow into the portrait beside it. */
+  container-type: inline-size;
 }
 
 .hero-body {
@@ -218,7 +246,7 @@ body.dark-mode .hero-s {
 /* --- the name ----------------------------------------------------------- */
 .hero-s .display {
   margin: 18px 0 0;
-  font-size: clamp(3.4rem, min(11vw, 15.5svh), 7.5rem);
+  font-size: clamp(3.4rem, min(11vw, 15.5svh, 31cqw), 7.5rem);
   line-height: 0.9;
   font-weight: 600;
   letter-spacing: -0.05em;
@@ -394,8 +422,11 @@ body.dark-mode .hero-s {
   position: relative;
   align-self: end;
   justify-self: end;
-  width: 100%;
-  max-width: calc((100svh - 150px) * 1.07);
+  /* Fills its half and reaches across the column gap, so the portrait is as
+     wide as the copy beside it. Capped by the hero's height so it never gets
+     taller than the screen. */
+  width: calc(100% + var(--hero-gap));
+  max-width: calc((100svh - 110px) * 1.07);
   aspect-ratio: 640 / 598;
   /* The ticket sizes itself from this frame's width (cqw), so it shrinks with
      the portrait instead of staying a fixed size on top of it. */
@@ -484,40 +515,300 @@ body.dark-mode .hero-s {
   outline-offset: -4px;
 }
 
+/* The loop around the head: a marker circle drawn by hand, in the same voice
+   as the handwritten note and the ticket's squiggle, and tied to the sky behind
+   it. Its highlighter is the sky's own halftone dots in the sky's palette
+   (--ht-a cobalt, --ht-b honey).
+
+   Sequence: the marker line draws on (heavier where the pen lands), the halftone
+   highlight wipes in under it, a pencil line retraces the left side, three ticks
+   flick out, the sparkles pop in, and from then on two takes of the loop trade
+   places (a slow 2-frame boil).
+
+   It also answers the pointer: --pfx / --pfy (set in Hero.tsx) shift the layers
+   by depth, pointing at the ring or the person draws a cobalt echo loop, and pressing it
+   (`data-poke`) jiggles the ring and re-pops the stars. */
 .pf-orbit {
   position: absolute;
   left: 39.2%;
   top: 30.4%;
   width: 62%;
   aspect-ratio: 1;
-  border: 2px solid color-mix(in srgb, var(--c-secondary) 78%, transparent);
-  border-radius: 50%;
   translate: -50% -50%;
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--c-page) 60%, transparent),
-    0 0 46px color-mix(in srgb, var(--c-secondary) 24%, transparent),
-    inset 0 0 40px color-mix(in srgb, var(--c-secondary) 10%, transparent);
-  animation: spin 48s linear infinite;
   pointer-events: none;
 }
 
-.pf-orbit i {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  width: 11px;
-  height: 11px;
-  margin: -5.5px 0 0 -5.5px;
-  border-radius: 50%;
-  background: var(--c-note);
-  box-shadow:
-    0 0 0 4px color-mix(in srgb, var(--c-page) 70%, transparent),
-    0 0 16px 2px var(--c-note);
+.pf-orbit svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-@keyframes spin {
+/* depth: the ring leans against the pointer a little, the sky objects follow
+   it further, so the loop seems to hang between the portrait and the sky */
+.o-layer {
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.o-near {
+  transform: translate(calc(var(--pfx, 0) * -2.5px), calc(var(--pfy, 0) * -2.5px));
+}
+
+.o-far {
+  transform: translate(calc(var(--pfx, 0) * 8px), calc(var(--pfy, 0) * 8px));
+}
+
+.o-jig {
+  transform-origin: 100px 100px;
+}
+
+/* "1 2" (a dash, then a gap twice as long): at offset 1 nothing is on the path,
+   where a plain "1" left a round-capped dot at every stroke's start. */
+.o-hi,
+.o-loop,
+.o-press,
+.o-pencil,
+.o-echo,
+.o-ticks path {
+  stroke-dasharray: 1 2;
+  stroke-dashoffset: 1;
+}
+
+.o-loop {
+  stroke: var(--c-note);
+  stroke-width: 2.7;
+  animation: odraw 1.5s 0.5s cubic-bezier(0.55, 0.1, 0.25, 1) forwards;
+}
+
+/* ink pools where the marker lands: the first stretch of the loop is pressed
+   harder, so the line is not one even width */
+.o-press {
+  stroke: var(--c-note);
+  stroke-width: 4.4;
+  animation: odraw 0.55s 0.5s cubic-bezier(0.4, 0.1, 0.3, 1) forwards;
+}
+
+/* the highlighter is the sky's halftone: honey dots in a tilted screen */
+.o-dotfill {
+  fill: var(--ht-b, var(--c-honey-hi));
+}
+
+.o-hi {
+  stroke: url(#pf-dots);
+  stroke-width: 9;
+  opacity: 0.95;
+  animation: odraw 1.3s 1s cubic-bezier(0.4, 0.1, 0.25, 1) forwards;
+}
+
+/* a lighter second pass, like a pencil line caught beside the marker */
+.o-pencil {
+  stroke: var(--c-dark-text);
+  stroke-width: 1.1;
+  opacity: 0.5;
+  animation: odraw 1.1s 1.9s cubic-bezier(0.55, 0.1, 0.25, 1) forwards;
+}
+
+/* the ink pooling where the marker first lands */
+.o-blot {
+  fill: var(--c-note);
+  opacity: 0;
+  animation: oblot 0.3s 0.5s ease-out forwards;
+}
+
+.o-ticks path {
+  stroke: var(--c-note);
+  stroke-width: 2.2;
+  animation: odraw 0.35s ease-out forwards;
+}
+
+.o-ticks path:nth-child(1) {
+  animation-delay: 2.2s;
+}
+
+.o-ticks path:nth-child(2) {
+  animation-delay: 2.35s;
+}
+
+.o-ticks path:nth-child(3) {
+  animation-delay: 2.5s;
+}
+
+/* --- sparkles ------------------------------------------------------------ */
+.o-star {
+  fill: var(--ht-b, var(--c-honey-hi));
+  stroke: var(--c-note);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+  transform-origin: 0 0;
+  scale: 0;
+  animation:
+    ostar 0.6s 2.5s cubic-bezier(0.34, 1.7, 0.64, 1) forwards,
+    otwinkle 1.3s 3.4s steps(1, end) infinite;
+}
+
+.o-star-b {
+  animation-delay: 2.75s, 3.7s;
+}
+
+/* the wrappers are what the press animates, so the stars' own pop-in is never
+   restarted */
+.o-sw {
+  transform-origin: 0 0;
+}
+
+/* The echo: a cobalt loop just outside the first, in the sky's cobalt. It is
+   not drawn until the pointer is in or near the orange ring or on the portrait
+   itself (Hero.tsx sets data-near; the square frame around them does not count),
+   or the portrait is focused or pressed. It draws round, and wipes back out when
+   the pointer leaves. */
+.o-echo {
+  stroke: var(--ht-a, var(--c-secondary));
+  stroke-width: 2.4;
+  opacity: 0.85;
+  transition: stroke-dashoffset 0.9s cubic-bezier(0.55, 0.1, 0.25, 1);
+}
+
+.pf:has(.pf-hit:focus-visible) .o-echo,
+.pf[data-near] .o-echo,
+.pf[data-poke] .o-echo {
+  stroke-dashoffset: 0;
+}
+
+/* pressing the portrait: the ring jiggles, the stars pop */
+.pf[data-poke] .o-jig {
+  animation: ojig 0.8s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+
+.pf[data-poke] .o-sw {
+  animation: oburst 0.7s cubic-bezier(0.34, 1.7, 0.64, 1);
+}
+
+.pf[data-poke] .o-sw-b {
+  animation-delay: 0.07s;
+}
+
+@keyframes odraw {
   to {
-    transform: rotate(360deg);
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes oblot {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ostar {
+  to {
+    scale: 1;
+  }
+}
+
+@keyframes ojig {
+  0% {
+    rotate: 0deg;
+    scale: 1;
+  }
+  22% {
+    rotate: -5deg;
+    scale: 1.035;
+  }
+  55% {
+    rotate: 2.5deg;
+    scale: 0.99;
+  }
+  100% {
+    rotate: 0deg;
+    scale: 1;
+  }
+}
+
+@keyframes oburst {
+  0% {
+    scale: 1;
+  }
+  35% {
+    scale: 1.9;
+  }
+  100% {
+    scale: 1;
+  }
+}
+
+/* once drawn, the ticks flick outward a hair and the sparkles turn a little */
+.o-ticks {
+  animation: otick 1.3s 3s steps(1, end) infinite;
+}
+
+@keyframes otick {
+  0% {
+    translate: 0 0;
+  }
+  50% {
+    translate: -1.4px -1.4px;
+  }
+}
+
+@keyframes otwinkle {
+  0% {
+    rotate: 0deg;
+  }
+  50% {
+    rotate: 14deg;
+    scale: 0.88;
+  }
+}
+
+/* Two takes of the loop trade places a few times a second, once it is drawn. */
+.o-b {
+  opacity: 0;
+}
+
+.o-a {
+  animation: oboilA 1.3s 2.8s steps(1, end) infinite;
+}
+
+.o-b {
+  animation: oboilB 1.3s 2.8s steps(1, end) infinite;
+}
+
+@keyframes oboilA {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes oboilB {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* The stage glow behind the head drifts slowly, so the portrait is never a
+   dead still. */
+.pf-glow {
+  animation: glowdrift 11s ease-in-out infinite alternate;
+}
+
+@keyframes glowdrift {
+  from {
+    scale: 1;
+    opacity: 0.92;
+  }
+  to {
+    scale: 1.05;
+    opacity: 1;
   }
 }
 
@@ -812,12 +1103,15 @@ body.dark-mode .hero-s {
 .pf-note {
   position: absolute;
   z-index: 3;
-  top: 3%;
-  inset-inline-start: 72%;
-  display: none;
+  top: 2%;
+  /* Clear of both loops: the orange ring ends at ~70% of the frame and the
+     cobalt echo at ~72%, so the words start past that and the arrow, which
+     hangs off their left side, stops just outside the echo. */
+  left: calc(72% + 1.5em);
   margin: 0;
   font-family: var(--font-caveat), var(--font-body);
-  font-size: 1.375rem;
+  /* Scales with the portrait frame like the ring and the ticket do. */
+  font-size: clamp(12px, 3cqw, 26px);
   font-weight: 500;
   line-height: 1;
   color: var(--c-light-text);
@@ -829,21 +1123,19 @@ body.dark-mode .hero-s {
 }
 
 .pf-note svg {
-  display: block;
-  width: 44px;
-  height: 30px;
-  margin: 2px 0 0 -26px;
+  position: absolute;
+  right: calc(100% + 0.1em);
+  top: 0.5em;
+  width: 1.4em;
+  height: 0.95em;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.6;
+  stroke-width: 1.7;
   stroke-linecap: round;
   stroke-linejoin: round;
-  rotate: -12deg;
 }
 
 [dir="rtl"] .pf-note {
-  inset-inline-start: auto;
-  left: 72%;
   right: auto;
   direction: ltr;
 }
@@ -855,7 +1147,7 @@ body.dark-mode .hero-s {
 
 html[lang="ar"] .pf-note {
   font-family: var(--font-body);
-  font-size: 1.0625rem;
+  font-size: clamp(11px, 2.7cqw, 22px);
   font-weight: 500;
 }
 
@@ -871,18 +1163,9 @@ html[lang="ar"] .pf-note {
 }
 
 /* --- responsive --------------------------------------------------------- */
-@media (min-width: 992px) {
-  .pf-note {
-    display: block;
-  }
-}
-
-@media (min-width: 1200px) {
-  .hero-in {
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-  }
-}
-
+/* Stacked layout, up to 991px: one centred column that fills the width (no
+   narrow strip with empty gutters), with the headline growing across the
+   tablet range instead of staying phone-sized. */
 @media (max-width: 991px) {
   .hero-s {
     min-height: 0;
@@ -903,17 +1186,30 @@ html[lang="ar"] .pf-note {
   .hero-top,
   .hero-body {
     width: 100%;
-    max-width: 480px;
+    max-width: 640px;
     justify-self: center;
   }
 
   .pf {
     justify-self: center;
     width: 100%;
-    max-width: 480px;
+    max-width: 600px;
     margin-top: 12px;
   }
 
+  .hero-s .display {
+    font-size: clamp(3.4rem, 21vw, 6.5rem);
+  }
+}
+
+@media (min-width: 700px) and (max-width: 991px) {
+  .hero-s .display {
+    font-size: clamp(6.5rem, 12.5vw, 8rem);
+  }
+}
+
+/* Details shared by the whole stacked range. */
+@media (max-width: 991px) {
   /* No horizontal override here: the ticket stays at 42% of the frame (the
      subject's centre) at every width, so nothing jumps at the 991/992 break. */
 
@@ -945,10 +1241,6 @@ html[lang="ar"] .pf-note {
 
   .hero-body {
     padding-top: 4px;
-  }
-
-  .hero-s .display {
-    font-size: clamp(3.4rem, 21vw, 6.5rem);
   }
 
   .hero-s .actions,
@@ -1029,7 +1321,17 @@ html[lang="ar"] .pf-note {
 
 @media (prefers-reduced-motion: reduce) {
   .hero-s .cursor,
-  .pf-orbit,
+  .o-hi,
+  .o-loop,
+  .o-press,
+  .o-pencil,
+  .o-ticks path,
+  .o-ticks,
+  .o-blot,
+  .o-star,
+  .o-a,
+  .o-b,
+  .pf-glow,
   .who .w-pin::after,
   .hb-dot::after,
   .hire-b,
@@ -1038,8 +1340,29 @@ html[lang="ar"] .pf-note {
     animation: none;
   }
 
-  .hb-sq path {
+  .hb-sq path,
+  .o-hi,
+  .o-loop,
+  .o-press,
+  .o-pencil,
+  .o-ticks path {
     stroke-dashoffset: 0;
+  }
+
+  .o-blot {
+    opacity: 1;
+  }
+
+  .o-star {
+    scale: 1;
+  }
+
+  .o-layer {
+    transition: none;
+  }
+
+  .o-b {
+    display: none;
   }
 
   .pf-note {
@@ -1049,7 +1372,8 @@ html[lang="ar"] .pf-note {
 
   .nb-cv,
   .hero-s[data-nb] .hero-cv,
-  .hero-s::before {
+  .hero-s::before,
+  .o-echo {
     transition: none;
   }
 }

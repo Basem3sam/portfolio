@@ -31,6 +31,7 @@ export default function Hero({ dict }: HeroProps) {
   const hostRef = useRef<HTMLElement>(null);
   const halftoneRef = useRef<HTMLCanvasElement>(null);
   const nebulaRef = useRef<HTMLCanvasElement>(null);
+  const pfRef = useRef<HTMLDivElement>(null);
 
   // The display name stacks on two lines: given name on the first, the rest on
   // the second (with the caret). Splits the dictionary name, so /ar gets the
@@ -53,6 +54,129 @@ export default function Hero({ dict }: HeroProps) {
     const nebula = nebulaRef.current;
     if (!host || !halftone || !nebula) return;
     return mountHeroFx(host, halftone, nebula);
+  }, []);
+
+  // The ring answers the pointer. Layers of the loop shift by depth as the
+  // pointer moves over the hero (--pfx / --pfy, -1..1, written straight to the
+  // DOM on a rAF so React never re-renders). The cobalt echo loop only answers
+  // when the pointer is in or close to the orange ring, or on the portrait
+  // itself (tested against the photo's own transparency, not its square frame),
+  // which sets `data-near`. Pressing the portrait sets `data-poke` for a moment:
+  // the ring jiggles and the sparkles pop again. Skipped for reduced motion;
+  // touch has no hover, so it only pokes.
+  useEffect(() => {
+    const host = hostRef.current;
+    const pf = pfRef.current;
+    if (!host || !pf) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const img = pf.querySelector<HTMLImageElement>("picture img");
+    const orbit = pf.querySelector<HTMLElement>(".pf-orbit");
+
+    // A coarse alpha map of the cut-out, so "on the portrait" means on the
+    // person and not on the transparent corners of the frame around them.
+    let alpha: Uint8ClampedArray | null = null;
+    let mapW = 0;
+    let mapH = 0;
+    const buildMap = () => {
+      if (!img || !img.naturalWidth) return;
+      try {
+        mapW = 96;
+        mapH = Math.max(1, Math.round((mapW * img.naturalHeight) / img.naturalWidth));
+        const canvas = document.createElement("canvas");
+        canvas.width = mapW;
+        canvas.height = mapH;
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
+        if (!ctx) return;
+        ctx.drawImage(img, 0, 0, mapW, mapH);
+        const data = ctx.getImageData(0, 0, mapW, mapH).data;
+        alpha = new Uint8ClampedArray(mapW * mapH);
+        for (let i = 0; i < alpha.length; i += 1) alpha[i] = data[i * 4 + 3];
+      } catch {
+        alpha = null;
+      }
+    };
+    if (img?.complete) buildMap();
+    else img?.addEventListener("load", buildMap, { once: true });
+
+    const isNear = (x: number, y: number) => {
+      if (orbit) {
+        const o = orbit.getBoundingClientRect();
+        // the ring's radius is 45.5% of its box; "near" adds a margin outside it
+        const reach = o.width * 0.455 * 1.14;
+        if (Math.hypot(x - (o.left + o.width / 2), y - (o.top + o.height / 2)) <= reach) return true;
+      }
+      if (img && alpha) {
+        const r = img.getBoundingClientRect();
+        const u = (x - r.left) / r.width;
+        const v = (y - r.top) / r.height;
+        if (u >= 0 && u <= 1 && v >= 0 && v <= 1) {
+          const ix = Math.min(mapW - 1, Math.floor(u * mapW));
+          const iy = Math.min(mapH - 1, Math.floor(v * mapH));
+          return alpha[iy * mapW + ix] > 40;
+        }
+      }
+      return false;
+    };
+
+    let frame = 0;
+    let nx = 0;
+    let ny = 0;
+    let near = false;
+    let pokeTimer = 0;
+    const clampUnit = (v: number) => Math.max(-1, Math.min(1, v));
+
+    const paint = () => {
+      frame = 0;
+      pf.style.setProperty("--pfx", nx.toFixed(3));
+      pf.style.setProperty("--pfy", ny.toFixed(3));
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(paint);
+    };
+    const setNear = (value: boolean) => {
+      if (value === near) return;
+      near = value;
+      pf.toggleAttribute("data-near", value);
+    };
+    const onMove = (event: PointerEvent) => {
+      if (event.pointerType === "touch") return;
+      const box = pf.getBoundingClientRect();
+      nx = clampUnit((event.clientX - (box.left + box.width / 2)) / (box.width * 0.9));
+      ny = clampUnit((event.clientY - (box.top + box.height / 2)) / (box.height * 0.9));
+      setNear(isNear(event.clientX, event.clientY));
+      schedule();
+    };
+    const onLeave = () => {
+      nx = 0;
+      ny = 0;
+      setNear(false);
+      schedule();
+    };
+    const onPoke = (event: Event) => {
+      // a press on the empty corners of the frame is not a press on the portrait;
+      // a keyboard activation (no pointer position) always counts
+      const click = event as MouseEvent;
+      if (click.detail !== 0 && !isNear(click.clientX, click.clientY)) return;
+      pf.removeAttribute("data-poke");
+      void pf.offsetWidth; // restart the animation when poked twice in a row
+      pf.setAttribute("data-poke", "");
+      window.clearTimeout(pokeTimer);
+      pokeTimer = window.setTimeout(() => pf.removeAttribute("data-poke"), 1200);
+    };
+
+    const hit = pf.querySelector(".pf-hit");
+    host.addEventListener("pointermove", onMove, { passive: true });
+    host.addEventListener("pointerleave", onLeave);
+    hit?.addEventListener("click", onPoke);
+    return () => {
+      host.removeEventListener("pointermove", onMove);
+      host.removeEventListener("pointerleave", onLeave);
+      hit?.removeEventListener("click", onPoke);
+      img?.removeEventListener("load", buildMap);
+      if (frame) cancelAnimationFrame(frame);
+      window.clearTimeout(pokeTimer);
+    };
   }, []);
 
   return (
@@ -84,7 +208,7 @@ export default function Hero({ dict }: HeroProps) {
           </p>
         </div>
 
-        <div className="pf" id="pf" data-rise style={{ "--d": "200ms" } as CSSProperties}>
+        <div className="pf" id="pf" ref={pfRef} data-rise style={{ "--d": "200ms" } as CSSProperties}>
           <div className="pf-glow" aria-hidden="true"></div>
           <picture>
             <source
@@ -111,8 +235,75 @@ export default function Hero({ dict }: HeroProps) {
               layer listens on it; activating it does exactly what clicking
               the photo does. */}
           <button type="button" className="pf-hit" id="pf-hit" aria-label={dict.portraitAlt} />
+          {/* The loop around the head, in the same hand as the note and the ticket's
+              squiggle, and made to belong to the sky behind it: its highlighter is
+              the sky's halftone dots in the sky's own palette. It draws itself on
+              (marker, halftone highlight, pencil retrace, ticks, sparkles), wobbles
+              between two takes the way hand-drawn animation does, and reacts to the
+              pointer: layers shift by depth, pointing at the portrait draws a cobalt
+              echo loop, and pressing it makes the ring jiggle and the sparkles pop
+              again. */}
           <div className="pf-orbit" aria-hidden="true">
-            <i></i>
+            <svg viewBox="0 0 200 200" focusable="false">
+              <defs>
+                <filter id="pf-rough" x="-8%" y="-8%" width="116%" height="116%">
+                  <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="4" />
+                  <feDisplacementMap in="SourceGraphic" scale="1.7" />
+                </filter>
+                <pattern
+                  id="pf-dots"
+                  width="3.4"
+                  height="3.4"
+                  patternUnits="userSpaceOnUse"
+                  patternTransform="rotate(30)"
+                >
+                  <circle className="o-dotfill" cx="1.7" cy="1.7" r="1.2" />
+                </pattern>
+              </defs>
+
+              <g className="o-layer o-near">
+                <g className="o-jig">
+                  <g filter="url(#pf-rough)">
+                    <path className="o-echo" pathLength={1} d="M100 -3 C158 -4 206 44 205 102 C204 160 156 207 100 206 C42 207 -6 158 -5 100 C-4 44 44 -4 100 -3" />
+                    <g className="o-take o-a">
+                      <path className="o-hi" pathLength={1} d="M128 11 C172 20 197 62 191 105 C185 151 149 191 100 191 C52 191 11 155 9 104 C7 55 44 13 97 9 C122 7 144 13 160 27" />
+                      <path className="o-loop" pathLength={1} d="M128 11 C172 20 197 62 191 105 C185 151 149 191 100 191 C52 191 11 155 9 104 C7 55 44 13 97 9 C122 7 144 13 160 27" />
+                      <path className="o-press" pathLength={1} d="M128 11 C172 20 197 62 191 105" />
+                      <path className="o-pencil" pathLength={1} d="M21 62 C15 102 29 148 69 177 C101 195 142 186 170 159" />
+                    </g>
+                    <g className="o-take o-b">
+                      <path className="o-hi" pathLength={1} d="M126 12 C170 17 199 60 192 103 C187 153 146 193 100 190 C50 193 9 157 10 106 C6 58 46 11 99 11 C124 10 142 16 156 30" />
+                      <path className="o-loop" pathLength={1} d="M126 12 C170 17 199 60 192 103 C187 153 146 193 100 190 C50 193 9 157 10 106 C6 58 46 11 99 11 C124 10 142 16 156 30" />
+                      <path className="o-press" pathLength={1} d="M126 12 C170 17 199 60 192 103" />
+                      <path className="o-pencil" pathLength={1} d="M20 65 C16 105 31 146 71 175 C102 193 140 188 168 162" />
+                    </g>
+                    <circle className="o-blot" cx="128" cy="11" r="2.6" />
+                    <g className="o-ticks">
+                      <path pathLength={1} d="M30 16 L24 6" />
+                      <path pathLength={1} d="M15 30 L5 26" />
+                      <path pathLength={1} d="M45 8 L44 -3" />
+                    </g>
+                  </g>
+                </g>
+              </g>
+
+              <g className="o-layer o-far">
+                {/* two sparkles riding the ring's lower right. Each is a positioning
+                    group, a wrapper the press animates, and the star itself centred
+                    on the origin, so every CSS scale and rotation happens about its
+                    own middle. */}
+                <g transform="translate(197 148)">
+                  <g className="o-sw o-sw-a">
+                    <path className="o-star o-star-a" d="M0 -8 C1 -2.5 2.5 -1 8 0 C2.5 1 1 2.5 0 8 C-1 2.5 -2.5 1 -8 0 C-2.5 -1 -1 -2.5 0 -8 Z" />
+                  </g>
+                </g>
+                <g transform="translate(212 118) scale(0.55)">
+                  <g className="o-sw o-sw-b">
+                    <path className="o-star o-star-b" d="M0 -8 C1 -2.5 2.5 -1 8 0 C2.5 1 1 2.5 0 8 C-1 2.5 -2.5 1 -8 0 C-2.5 -1 -1 -2.5 0 -8 Z" />
+                  </g>
+                </g>
+              </g>
+            </svg>
           </div>
 
           <div className="hire-b" role="note">
@@ -148,8 +339,8 @@ export default function Hero({ dict }: HeroProps) {
 
           <p className="pf-note" aria-hidden="true">
             <svg viewBox="0 0 60 40">
-              <path d="M4 6 C20 2 44 10 50 34" />
-              <path d="M42 28 L50 35 L54 24" />
+              <path d="M58 6 C40 3 20 10 9 28" />
+              <path d="M2 21 L9 30 L18 25" />
             </svg>
             <span>{dict.note}</span>
           </p>
