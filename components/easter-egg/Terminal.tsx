@@ -70,7 +70,13 @@ import {
   RM_SEQUENCE,
   hackOutput,
   matrixOutput,
-  fortuneCount,
+  BASH_HISTORY_OUTPUT,
+  CLUES,
+  HISTORY_CLUES,
+  INTENTS,
+  UNLISTED_NAMES,
+  nextFortune,
+  notesOutput,
   hintOutput,
   hireDenied,
   hireOutput,
@@ -271,10 +277,12 @@ type Stored = {
   since: number | null;
   /** Retro screen effect (scanlines, glow). On by default. */
   crt: boolean;
+  /** Clue ids collected so far, shown by `notes`. */
+  clues: string[];
 };
 
 function loadStored(): Stored {
-  const fallback: Stored = { found: [], theme: "amber", hints: {}, since: null, crt: true };
+  const fallback: Stored = { found: [], theme: "amber", hints: {}, since: null, crt: true, clues: [] };
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return fallback;
@@ -290,6 +298,9 @@ function loadStored(): Stored {
       hints,
       since: typeof data.since === "number" ? data.since : null,
       crt: data.crt !== false,
+      clues: Array.isArray(data.clues)
+        ? data.clues.filter((id) => CLUES.some((clue) => clue.id === id))
+        : [],
     };
   } catch {
     return fallback;
@@ -360,6 +371,14 @@ const closestCommand = (word: string) => {
   for (const name of COMPLETABLE) {
     const d = distance(word, name);
     if (d < score) {
+      score = d;
+      best = name;
+    }
+  }
+  // A near miss on an unlisted command is a reward, not a leak.
+  for (const name of UNLISTED_NAMES) {
+    const d = distance(word, name);
+    if (d <= 1 && d < score) {
       score = d;
       best = name;
     }
@@ -611,8 +630,8 @@ export default function Terminal({ open, onClose }: TerminalProps) {
         tone: "info",
         text:
           count > 0
-            ? 'Type "trophies" to see what is left.'
-            : `Type "help" to start. ${TOTAL_DISCOVERIES} trophies are hidden in here.`,
+            ? 'Type "trophies" or "notes" to pick up the trail.'
+            : `Type "help". ${TOTAL_DISCOVERIES} trophies hide here, and not every command is listed.`,
         delay: 1050,
       },
       { id: 7, tone: "plain", text: "", delay: 1200 },
@@ -645,7 +664,9 @@ export default function Terminal({ open, onClose }: TerminalProps) {
   const hintsRef = useRef(stored.hints);
   const sinceRef = useRef(stored.since);
   const crtRef = useRef(stored.crt);
-  const fortuneIndex = useRef<number | null>(null);
+  const cluesRef = useRef(stored.clues);
+  const fortuneCalls = useRef(0);
+  const fortuneShift = useRef(Math.floor(Math.random() * 10));
   const cupsRef = useRef(0);
   const openedAt = useRef(Date.now());
 
@@ -757,6 +778,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
       hints: hintsRef.current,
       since: sinceRef.current,
       crt: crtRef.current,
+      clues: cluesRef.current,
     });
 
   /** The last trophy is an event, not a line: a staged sequence that ends in
@@ -913,6 +935,23 @@ export default function Terminal({ open, onClose }: TerminalProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, onClose]);
 
+  /** A clue is saved the first time it is met, and `notes` lists it. */
+  const giveClue = (ids: string | string[]) => {
+    const fresh = (Array.isArray(ids) ? ids : [ids]).filter(
+      (id) => CLUES.some((clue) => clue.id === id) && !cluesRef.current.includes(id),
+    );
+    if (fresh.length === 0) return;
+    cluesRef.current = [...cluesRef.current, ...fresh];
+    persist();
+    playBlipSound();
+    append([
+      {
+        tone: "plain",
+        html: `<span class="info">+ ${fresh.length === 1 ? "clue" : `${fresh.length} clues`}</span> <span class="dim">saved. Type</span> <span class="info">notes</span>`,
+      },
+    ]);
+  };
+
   /** Timed steps for the staged commands. Reduced motion collapses every delay,
       so the steps still run in order but at once. */
   const later = (ms: number, fn: () => void) => {
@@ -1004,6 +1043,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
             playRankUpSound();
             emit(COMMAND_OUTPUT.secret);
             discover("secret");
+            giveClue("c_hidden");
           }, total + 900),
         );
         return;
@@ -1037,6 +1077,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
           }),
         );
         discover("neofetch");
+        giveClue("c_fuel");
         return;
 
       case "hack": {
@@ -1116,22 +1157,33 @@ export default function Terminal({ open, onClose }: TerminalProps) {
           }),
         );
         discover("whoami");
+        giveClue("c_sudoers");
         return;
 
       case "trophies":
         emit(trophiesOutput(foundRef.current));
         return;
 
-      case "ls":
-        emit(lsOutput(args.some((arg) => arg.startsWith("-") && arg.includes("a"))));
+      case "ls": {
+        const all = args.some((arg) => arg.startsWith("-") && arg.includes("a"));
+        emit(lsOutput(all));
         discover("ls");
+        if (!all) giveClue("c_hidden");
         return;
+      }
 
       case "cat": {
         const file = args[0];
         if (!file) {
           append([{ tone: "info", text: "Usage: cat FILE. Files in this folder:" }]);
           emit(lsOutput(false));
+        } else if (file === "secret.txt") {
+          // Locked on purpose: the command of the same name is the key.
+          append([
+            { tone: "error", text: "cat: secret.txt: permission denied" },
+            { tone: "info", text: "It only opens for its own name." },
+          ]);
+          giveClue("c_locked");
         } else if (FILE_COMMAND[file]) {
           emit(COMMAND_OUTPUT[FILE_COMMAND[file]]);
           discover(FILE_COMMAND[file]);
@@ -1140,6 +1192,12 @@ export default function Terminal({ open, onClose }: TerminalProps) {
           emit(ENV_OUTPUT);
           discover("env");
           discover("cat");
+          giveClue(["c_histfile", "c_fuel", "c_sudoers"]);
+        } else if (file === ".bash_history") {
+          emit(BASH_HISTORY_OUTPUT);
+          discover("history");
+          discover("cat");
+          giveClue(HISTORY_CLUES);
         } else if (file === "cv.pdf") {
           append([{ tone: "info", text: "cv.pdf is binary. Try: open cv" }]);
         } else {
@@ -1196,13 +1254,18 @@ export default function Terminal({ open, onClose }: TerminalProps) {
       }
 
       case "fortune": {
-        // Start somewhere random, then walk the list so nothing repeats soon.
-        const at = fortuneIndex.current ?? Math.floor(Math.random() * fortuneCount);
-        fortuneIndex.current = at + 1;
-        append([{ tone: "plain", kind: "decode", text: fortuneLine(at), ms: 1100 }]);
+        // Every second cookie is a clue you do not hold yet.
+        fortuneCalls.current += 1;
+        const pick = nextFortune(fortuneCalls.current, cluesRef.current, fortuneShift.current);
+        append([{ tone: "plain", kind: "decode", text: fortuneLine(pick.text), ms: 1100 }]);
         discover("fortune");
+        if (pick.clue) later(1400, () => giveClue(pick.clue as string));
         return;
       }
+
+      case "notes":
+        emit(notesOutput(cluesRef.current, foundRef.current));
+        return;
 
       case "date":
         append([{ tone: "plain", kind: "clock" }]);
@@ -1225,6 +1288,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
         playErrorSound();
         later(1100, () => {
           foundRef.current = [];
+          cluesRef.current = [];
           hintsRef.current = {};
           sinceRef.current = null;
           themeRef.current = "amber";
@@ -1374,6 +1438,21 @@ export default function Terminal({ open, onClose }: TerminalProps) {
       case ":x":
         append([{ tone: "plain", text: VIM_EXIT }]);
         return;
+    }
+
+    // Words people reach for are answered with a nudge, never a dead end.
+    const intent = INTENTS.find((item) => item.words.includes(lower) || item.words.includes(head));
+    if (intent) {
+      playBlipSound();
+      append([
+        { tone: "info", text: `${tokens[0]}: not a command here.` },
+        ...intent.lines.map((text) => ({
+          tone: "plain" as const,
+          html: `<span class="dim">${escapeHtml(text)}</span>`,
+        })),
+      ]);
+      if (intent.clue) later(900, () => giveClue(intent.clue as string));
+      return;
     }
 
     playErrorSound();

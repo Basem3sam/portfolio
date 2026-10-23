@@ -134,37 +134,13 @@ export const DISCOVERIES: readonly Discovery[] = [
     id: "fortune",
     label: "Took a fortune",
     hint: "Ask for a line of wisdom",
-    clues: ["An old unix cookie jar. Some cookies are clues.", "Type: fortune"],
+    clues: ["An old unix cookie jar. Every second cookie is a clue.", "Type: fortune"],
   },
   {
     id: "whoami",
     label: "Checked who you are",
     hint: "Ask who is logged in",
     clues: ["A question squashed into one word.", "Type: whoami"],
-  },
-  {
-    id: "secret",
-    label: "Found the secret",
-    hint: "Find the command named for it",
-    clues: ["It is in help, under fun, and it says what you are hunting.", "Type: secret"],
-  },
-  {
-    id: "matrix",
-    label: "Took the red pill",
-    hint: "Wake up",
-    clues: ["A film about choosing a pill. Also a command.", "Type: matrix"],
-  },
-  {
-    id: "hack",
-    label: "Tried to hack in",
-    hint: "Act like it is a movie",
-    clues: ["Same genre as matrix. Quicker, and less honest.", "Type: hack"],
-  },
-  {
-    id: "coffee",
-    label: "Brewed a coffee",
-    hint: "Developers run on it",
-    clues: ["Fuel for the people who write this stuff.", "Type: coffee"],
   },
   {
     id: "date",
@@ -175,51 +151,88 @@ export const DISCOVERIES: readonly Discovery[] = [
   {
     id: "env",
     label: "Read the .env file",
-    hint: "Some files hide: dots hide them",
-    clues: [
-      "Names that start with a dot stay out of sight. ls has a flag that shows everything, and the file you want holds settings.",
-      "Type: ls -a, then cat .env",
-    ],
+    hint: "ls shows less than the folder holds",
+    clues: ["ls admits it is hiding something. A flag shows everything. The file you want holds settings.", "Type: ls -a, then cat .env"],
   },
   {
-    id: "sudo",
-    label: "Asked for more power",
-    hint: "Guests borrow power with a prefix",
-    clues: [
-      "Real admins put a word in front of a command to borrow superuser power. Guests just get told off.",
-      "Type: sudo",
-    ],
+    id: "history",
+    label: "Read the shell history",
+    hint: "A settings file points to a log",
+    clues: [".env names a history file. Its name starts with a dot too.", "Type: cat .bash_history"],
+  },
+  {
+    id: "secret",
+    label: "Found the secret",
+    hint: "A file that will not open",
+    clues: ["ls lists secret.txt but cat refuses it. The lock opens for the word that is its own name.", "Type: secret"],
+  },
+  {
+    id: "matrix",
+    label: "Took the red pill",
+    hint: "Wake up",
+    clues: ["A film about choosing a pill. The title is the command.", "Type: matrix"],
+  },
+  {
+    id: "hack",
+    label: "Tried to hack in",
+    hint: "Act like it is a movie",
+    clues: ["Same genre as matrix. Four letters, quicker, and less honest.", "Type: hack"],
+  },
+  {
+    id: "coffee",
+    label: "Brewed a coffee",
+    hint: "Fuel for the people who write this",
+    clues: ["neofetch and .env both say what Basem runs on.", "Type: coffee"],
   },
   {
     id: "vim",
     label: "Got stuck in vim",
     hint: "Open an editor nobody leaves",
-    clues: [
-      "A very old editor, three letters. Easy to enter, famously hard to exit.",
-      "Type: vim, then :q to escape",
-    ],
+    clues: ["A very old editor, three letters. Easy to enter, famously hard to exit.", "Type: vim, then :q to escape"],
   },
   {
     id: "rm",
     label: "Tried to delete everything",
     hint: "Do something reckless to root",
-    clues: [
-      "Two letters that remove things. Point them at the very top of the filesystem, the slash. It is safe here.",
-      "Type: rm -rf /",
-    ],
+    clues: ["Two letters that remove things. Point them at the very top of the filesystem, the slash. It is safe here.", "Type: rm -rf /"],
+  },
+  {
+    id: "sudo",
+    label: "Asked for more power",
+    hint: "Guests borrow power with a prefix",
+    clues: ["whoami says you are not in the sudoers file. Admins put a four-letter word in front of a command.", "Type: sudo"],
   },
   {
     id: "hire",
     label: "Hired the developer",
-    hint: "The last ask. Needs rank and a name",
-    clues: [
-      "Needs sudo, then a verb, then a name. And hacker rank first: ten trophies. The .env file knows the shape.",
-      "Type: sudo hire basem",
-    ],
+    hint: "The last ask: a verb and a name",
+    clues: ["sudo, then a four-letter verb, then a five-letter name, with hacker rank first. The shell history kept the shape.", "Type: sudo hire basem"],
   },
 ];
 
 export const TOTAL_DISCOVERIES = DISCOVERIES.length;
+
+/** Commands that are not in `help`. They are found by following clues. */
+export const UNLISTED_NAMES = ["secret", "matrix", "hack", "coffee", "vim", "sudo", "hire"] as const;
+const UNLISTED_TROPHIES = ["secret", "matrix", "hack", "coffee", "vim", "rm", "sudo", "hire"];
+
+export type Clue = { id: string; target: string; text: string };
+
+/** Clues are collected as they are met: in a fortune, a file, or an output
+    that hides one. `notes` lists them. `target` is the trophy a clue points
+    at, so a clue shows as solved once that trophy is found. */
+export const CLUES: readonly Clue[] = [
+  { id: "c_hidden", target: "env", text: "The folder holds more than ls shows. A flag shows it all." },
+  { id: "c_histfile", target: "history", text: "A settings file names a log of old commands. The name starts with a dot." },
+  { id: "c_pill", target: "matrix", text: "Two pills on a table. Only one is a command." },
+  { id: "c_hack", target: "hack", text: "Real hackers type fast and do nothing. Four letters." },
+  { id: "c_editor", target: "vim", text: "An editor, three letters. Easy to enter, hard to leave." },
+  { id: "c_delete", target: "rm", text: "Two letters erase everything. Aim them at the slash." },
+  { id: "c_fuel", target: "coffee", text: "The machine knows what Basem runs on. Ask it." },
+  { id: "c_locked", target: "secret", text: "A locked file opens for the word that is its own name." },
+  { id: "c_sudoers", target: "sudo", text: "You are not in the sudoers file. Admins borrow power with a prefix." },
+  { id: "c_shape", target: "hire", text: "The ask: sudo, a four-letter verb, a five-letter name." },
+];
 
 export const RANKS = [
   { id: "guest", at: 0 },
@@ -282,13 +295,14 @@ export const rankUpOutput = (rank: RankId) => {
       `<span class="hl">Rank up: explorer</span>`,
       dim("Your prompt now shows your new name."),
       `${hint("Stuck?")} Type ${hint("hint")} for a nudge.`,
-      dim("Clues also hide in files, fortunes"),
-      dim("and error messages."),
+      `${hint("Clues")} you find are saved: ${hint("notes")}.`,
+      dim("The folder holds more than ls shows."),
     ],
     hacker: [
       `<span class="hl">Rank up: hacker</span>`,
       dim("Ten trophies. Privileged commands now"),
-      dim("answer to you. Try asking nicely."),
+      dim("answer to you. The shell kept a log of"),
+      dim("old commands. One line was scrubbed."),
     ],
     root: [],
   };
@@ -343,15 +357,35 @@ export function lsOutput(all: boolean) {
     cell("about.md", "info") + cell("skills.txt", "info") + cell("projects.md", "info"),
     cell("contact.md", "info") + cell("secret.txt", "info") + cell("cv.pdf", "warn"),
   ];
-  if (all) rows.push(cell(".env", "dim"));
+  if (all) rows.push(cell(".env", "dim") + cell(".bash_history", "dim"));
   const list = rows.join("\n").replace(/ +(<\/span>)$/gm, "$1");
-  return all ? list : `${list}\n${dim("6 items shown, 1 hidden")}`;
+  return all ? list : `${list}\n${dim("6 items shown, 2 hidden")}`;
 }
+
+/** What `cat .bash_history` prints. Line 8 is scrubbed: the block counts are
+    the lengths of the verb and the name. */
+export const BASH_HISTORY_OUTPUT = [
+  `  ${dim("1")}  cd portfolio`,
+  `  ${dim("2")}  git commit -m "ship it"`,
+  `  ${dim("3")}  coffee`,
+  `  ${dim("4")}  vim todo.md`,
+  `  ${dim("5")}  rm -rf ./cache`,
+  `  ${dim("6")}  matrix`,
+  `  ${dim("7")}  hack`,
+  `  ${dim("8")}  sudo ${dim("████ █████")}`,
+  `  ${dim("9")}  exit`,
+  "",
+  `  ${dim("Line 8 was scrubbed. Count the blocks.")}`,
+].join("\n");
+
+/** Clues the history gives away just by being read. */
+export const HISTORY_CLUES = ["c_fuel", "c_pill", "c_hack", "c_editor", "c_delete", "c_sudoers", "c_shape"];
 
 export const ENV_OUTPUT = [
   `${key("HIRE_ME", 12)}true`,
   `${key("AVAILABLE", 12)}true`,
   `${key("COFFEE", 12)}required`,
+  `${key("HISTFILE", 12)}.bash_history`,
   `${key("API_KEY", 12)}${dim("not here, nice try")}`,
   `${key("PRIVILEGE", 12)}sudo VERB NAME`,
   `${key("RANK_NEEDED", 12)}hacker`,
@@ -381,31 +415,45 @@ export function openListOutput() {
 
 /* ------------------------------------------------------ dynamic output */
 
-const FORTUNES = [
-  "A slow query is a feature request for an index.",
-  "Every outage is a test you did not write.",
-  "Hidden files start with a dot. ls -a sees them.",
-  "Read the logs first. Then read them again.",
-  "Some editors are easy to enter and hard to leave.",
-  "Clean architecture is mostly saying no.",
-  "Guests ask. Admins sudo.",
-  "Comments age. Good names do not.",
-  "Never run rm on slash. Or do, it is safe here.",
-  "Cache invalidation: ask again later.",
-  "Rank first, then ask for a verb and a name.",
-  "The best endpoint is the one you deleted.",
-  "Staging is where optimism goes to be tested.",
-  "Ship small. Rollback is a feature.",
-  "If it has no owner, it has no tests.",
+type Fortune = { text: string; clue?: string };
+
+/** Half the cookies are clues, written as riddles. `nextFortune` serves an
+    uncollected clue on every second call, so the jar always has something to
+    teach and never repeats a clue you already hold. */
+const FORTUNES: Fortune[] = [
+  { text: "Some folders show less than they hold.", clue: "c_hidden" },
+  { text: "A slow query is a feature request for an index." },
+  { text: "Old commands leave footprints in a dotfile.", clue: "c_histfile" },
+  { text: "Every outage is a test you did not write." },
+  { text: "Two pills on a table. Only one is a command.", clue: "c_pill" },
+  { text: "Read the logs first. Then read them again." },
+  { text: "Real hackers type fast and do nothing. Four letters.", clue: "c_hack" },
+  { text: "Clean architecture is mostly saying no." },
+  { text: "Easy to enter. Hard to leave. Three letters.", clue: "c_editor" },
+  { text: "Comments age. Good names do not." },
+  { text: "Two letters can erase the world. Aim them at the slash.", clue: "c_delete" },
+  { text: "Cache invalidation: ask again later." },
+  { text: "Ask the machine what Basem runs on.", clue: "c_fuel" },
+  { text: "The best endpoint is the one you deleted." },
+  { text: "A locked file only opens for its own name.", clue: "c_locked" },
+  { text: "Staging is where optimism goes to be tested." },
+  { text: "Guests ask. Admins borrow power with a prefix.", clue: "c_sudoers" },
+  { text: "Ship small. Rollback is a feature." },
+  { text: "Rank first, then a verb and a name.", clue: "c_shape" },
+  { text: "If it has no owner, it has no tests." },
 ];
 
-export const fortuneOutput = (index: number) =>
-  `  ${bright(`"${FORTUNES[index % FORTUNES.length]}"`)}`;
-
-export const fortuneCount = FORTUNES.length;
+export function nextFortune(calls: number, have: readonly string[], shift: number): Fortune {
+  if (calls % 2 === 1) {
+    const clue = FORTUNES.find((item) => item.clue && !have.includes(item.clue));
+    if (clue) return clue;
+  }
+  const plain = FORTUNES.filter((item) => !item.clue);
+  return plain[(calls + shift) % plain.length];
+}
 
 /** The fortune as plain text, for the line that decodes out of noise. */
-export const fortuneLine = (index: number) => `  "${FORTUNES[index % FORTUNES.length]}"`;
+export const fortuneLine = (text: string) => `  "${text}"`;
 
 /** "4m 12s", "38s". */
 export const uptimeText = (ms: number) => {
@@ -421,6 +469,7 @@ export function whoamiOutput(user: string, rank: RankId, count: number, session?
     rule("whoami"),
     `  ${key("user", 10)}${user}`,
     `  ${key("rank", 10)}<span class="hl">${rank}</span>`,
+    `  ${key("sudoers", 10)}<span class="err">not listed</span>`,
     `  ${key("trophies", 10)}${count} of ${TOTAL_DISCOVERIES}  ${meter(count, 10)}`,
     ...(session
       ? [
@@ -652,9 +701,14 @@ export const helpOutput = (found: readonly string[]) => {
   const untried = DISCOVERIES.find(
     (item) => !found.includes(item.id) && (COMMAND_NAMES as readonly string[]).includes(item.id),
   );
-  return untried
-    ? `${COMMAND_OUTPUT.help}\n  ${dim("Not tried yet:")} ${hint(untried.id)}`
-    : COMMAND_OUTPUT.help;
+  const left = UNLISTED_TROPHIES.filter((id) => !found.includes(id)).length;
+  const tail = [
+    ...(untried ? [`  ${dim("Not tried yet:")} ${hint(untried.id)}`] : []),
+    left > 0
+      ? `  ${dim(`${left} commands are not listed here.`)}\n  ${dim("Follow the clues: fortunes, files,")}\n  ${dim("and odd things you type.")}`
+      : `  ${dim("Nothing unlisted left. You found it all.")}`,
+  ];
+  return `${COMMAND_OUTPUT.help}\n${tail.join("\n")}`;
 };
 
 export const COMMAND_OUTPUT: Record<string, string> = {
@@ -679,12 +733,9 @@ export const COMMAND_OUTPUT: Record<string, string> = {
       row("cv", "open the CV"),
       "",
       group("fun"),
-      row("secret", "the secret message"),
-      row("matrix", "take the red pill"),
-      row("hack", "run a hacking sequence"),
-      row("coffee", "brew one"),
-      row("fortune", "a line for developers"),
+      row("fortune", "a line, sometimes a clue"),
       row("date", "the time in Cairo"),
+      row("notes", "clues you have collected"),
       "",
       group("your session"),
       row("whoami", "who you are here"),
@@ -699,7 +750,6 @@ export const COMMAND_OUTPUT: Record<string, string> = {
       row("exit", "close the terminal"),
       "",
       `  ${hint("Tab")} completes ${hint("↑")} recalls ${hint("^L")} clears`,
-      `  ${dim("Some commands are not listed here.")}`,
     ].join("\n");
   })(),
 
@@ -810,10 +860,7 @@ export const COMMAND_NAMES = [
   "trophies",
   "hint",
   "fortune",
-  "secret",
-  "matrix",
-  "hack",
-  "coffee",
+  "notes",
   "whoami",
   "date",
   "history",
@@ -856,6 +903,9 @@ export const COMMAND_ALIASES: Record<string, string> = {
   من: "whoami",
   مسح: "clear",
   خروج: "exit",
+  clues: "notes",
+  clue: "notes",
+  journal: "notes",
   trophy: "trophies",
   achievements: "trophies",
   stats: "trophies",
@@ -973,6 +1023,7 @@ export function neofetchOutput({ rank, count, theme, uptime }: NeofetchInfo) {
     `${key("infra", 9)}Docker, Linux, Bash`,
     `${key("api", 9)}100+ endpoints`,
     `${key("users", 9)}200+ members`,
+    `${key("fuel", 9)}dark roast`,
     `${key("rank", 9)}<span class="hl">${rank}</span>`,
     `${key("trophies", 9)}${count}/${TOTAL_DISCOVERIES}`,
     `${key("accent", 9)}<span class="sw sw-${theme}">██</span> ${theme}`,
@@ -993,3 +1044,79 @@ export function neofetchOutput({ rank, count, theme, uptime }: NeofetchInfo) {
       .replace(/^/, '<span class="nf">') + "</span>"
   );
 }
+
+
+/** The clue board: what the person has collected, and what it solved. */
+export function notesOutput(collected: readonly string[], found: readonly string[]) {
+  const have = CLUES.filter((clue) => collected.includes(clue.id));
+  const solved = have.filter((clue) => found.includes(clue.target)).length;
+  const rows = have.flatMap((clue) => {
+    const done = found.includes(clue.target);
+    return wrapText(clue.text, COLS - 8).map((row, index) => {
+      const text = done ? dim(row.trim()) : row.trim();
+      const mark = index === 0 ? (done ? `<span class="ok">✓</span>` : `<span class="hl">?</span>`) : " ";
+      return `  ${mark} ${text}`;
+    });
+  });
+  return [
+    rule("notes"),
+    `  ${key("clues", 8)}${have.length} of ${CLUES.length} collected`,
+    `  ${key("solved", 8)}${solved}`,
+    "",
+    ...(rows.length
+      ? rows
+      : [dim("  Nothing yet. Clues hide in files,"), dim("  fortunes and odd things to type.")]),
+    "",
+    `  ${hint("hint")} ${dim("if a clue will not click")}`,
+  ].join("\n");
+}
+
+export type Intent = { words: string[]; clue?: string; lines: string[] };
+
+/** Things people type that are not commands, answered with a nudge toward the
+    command they were reaching for. Never a dead end. */
+export const INTENTS: Intent[] = [
+  {
+    words: ["delete", "remove", "del", "erase", "wipe", "destroy", "format", "kill", "shred"],
+    clue: "c_delete",
+    lines: ["Not a command here, but the idea is", "right. Unix does it in two letters.", "Aim them at the top of everything."],
+  },
+  {
+    words: ["edit", "editor", "code", "notepad", "write", "ed", "text", "micro"],
+    clue: "c_editor",
+    lines: ["Not here, but one editor is easy to", "enter and hard to leave.", "Three letters."],
+  },
+  {
+    words: ["neo", "pill", "redpill", "red pill", "bluepill", "blue pill", "morpheus", "trinity", "rabbit", "white rabbit", "wake up", "wakeup"],
+    clue: "c_pill",
+    lines: ["You are thinking of the right film.", "The command is its title.", "Six letters."],
+  },
+  {
+    words: ["hacker", "hacking", "crack", "exploit", "breach", "pwn", "pwned", "bypass", "intrude"],
+    clue: "c_hack",
+    lines: ["Close. Act like a movie hacker:", "fast typing, green text, no clue.", "Four letters."],
+  },
+  {
+    words: ["tea", "espresso", "latte", "caffeine", "mug", "brew", "java", "cappuccino", "drink"],
+    clue: "c_fuel",
+    lines: ["Not tea. Something darker.", "The machine can tell you what Basem", "runs on. One word, six letters."],
+  },
+  {
+    words: ["unlock", "reveal", "classified", "confidential", "mystery", "easteregg", "easter egg", "egg"],
+    clue: "c_locked",
+    lines: ["A file in the folder will not open.", "It listens for the word that is its", "own name."],
+  },
+  {
+    words: ["admin", "root", "su", "superuser", "permission", "permissions", "privilege", "privileges", "access", "password", "login", "authorize"],
+    clue: "c_sudoers",
+    lines: ["Guests have no keys. Real admins borrow", "power with a word in front of a", "command. Four letters."],
+  },
+  {
+    words: ["job", "work", "recruit", "employ", "interview", "freelance", "hire me", "hireme", "candidate"],
+    clue: "c_shape",
+    lines: ["Good instinct. It has to be asked the", "admin way: borrow power, then a verb,", "then a name. Earn rank first."],
+  },
+  { words: ["dir", "list", "files", "folder", "tree"], lines: ["Try ls to see the folder."] },
+  { words: ["read", "view", "less", "more", "show"], lines: ["To read a file, name it: cat FILE."] },
+  { words: ["bye", "goodbye", "leave", "close"], lines: ["Try exit to close the terminal."] },
+];
