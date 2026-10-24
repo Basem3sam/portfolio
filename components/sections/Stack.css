@@ -130,6 +130,14 @@
   transform: scaleX(-1);
 }
 
+/* The dashes flow by animating stroke-dashoffset, which repaints the SVG on the
+   main thread every frame. Static dashes on phones and touch screens. */
+@media (max-width: 991px), (pointer: coarse) {
+  #stack .stx-lanes line {
+    animation: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   #stack .stx-lanes line {
     animation: none;

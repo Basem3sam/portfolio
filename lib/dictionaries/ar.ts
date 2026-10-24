@@ -80,8 +80,11 @@ const ar: Dictionary = {
     liveLabel: "مباشر من GitHub",
     viewRepo: "المستودع",
     viewLive: "الموقع الحيّ",
+    viewFrontend: "الواجهة الأمامية",
+    viewBackend: "الخلفية",
     caseStudy: "دراسة الحالة",
     viewProfile: "عرض ملفي على GitHub",
+    projectDetails: "التفاصيل",
     moreOnGithub: "المزيد على GitHub",
     moreOnGithubText:
       "تظهر هنا قائمة المستودعات الحية (تُجلب في المتصفح). المستودعات المعروضة أعلاه مستثناة حتى لا يظهر شيء مرتين.",
@@ -173,7 +176,7 @@ const ar: Dictionary = {
             { label: "audit log" },
           ],
         },
-        actions: ["live"],
+        actions: ["repo", "live"],
       },
       {
         id: "laravel",

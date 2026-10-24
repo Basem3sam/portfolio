@@ -28,30 +28,53 @@ export default function TideCanvas() {
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    // The shader code lives in its own chunk: this band is far below the fold,
-    // so it should not weigh on the first load. `cancelled` covers unmounting
-    // (or a Strict Mode re-run) before the chunk arrives.
+    // The shader code lives in its own chunk, and the band sits far below the
+    // fold. Neither the chunk nor the GL context (compile + link) is worth
+    // paying for during hydration: both wait until the band is a screen or so
+    // away. The CSS gradient under the transparent canvas carries it until then.
+    // `cancelled` covers unmounting (or a Strict Mode re-run) in the meantime.
     let cancelled = false;
     let destroy: (() => void) | undefined;
+    let started = false;
 
-    import("@/lib/tide")
-      .then(({ mountTide }) => {
-        if (cancelled) return;
-        const tide = mountTide(canvas, host, { staticFrame: reducedMotion });
+    const boot = () => {
+      if (started || cancelled) return;
+      started = true;
+      import("@/lib/tide")
+        .then(({ mountTide }) => {
+          if (cancelled) return;
+          const tide = mountTide(canvas, host, { staticFrame: reducedMotion });
 
-        if (!tide) {
-          canvas.dataset.tide = "off";
-          return;
-        }
+          if (!tide) {
+            canvas.dataset.tide = "off";
+            return;
+          }
 
-        destroy = () => tide.destroy();
-      })
-      .catch(() => {
-        if (!cancelled) canvas.dataset.tide = "off";
-      });
+          destroy = () => tide.destroy();
+        })
+        .catch(() => {
+          if (!cancelled) canvas.dataset.tide = "off";
+        });
+    };
+
+    let near: IntersectionObserver | null = null;
+    if (typeof IntersectionObserver === "function") {
+      near = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((entry) => entry.isIntersecting)) return;
+          near?.disconnect();
+          boot();
+        },
+        { rootMargin: "700px 0px" },
+      );
+      near.observe(canvas);
+    } else {
+      boot();
+    }
 
     return () => {
       cancelled = true;
+      near?.disconnect();
       destroy?.();
     };
   }, []);

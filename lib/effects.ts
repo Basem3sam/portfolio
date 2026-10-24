@@ -164,6 +164,30 @@ export function createEpicCelebration() {
   });
 }
 
+/**
+ * The click particles are arrow letters and emoji. The first time the browser
+ * lays out a glyph that the page font lacks, it has to find a fallback font on
+ * the system, which can stall a frame or two right when a particle appears.
+ * Laying the same glyphs out once, off screen and while idle, pays that cost
+ * before anyone clicks. Safe to call more than once.
+ */
+let prewarmed = false;
+
+export function prewarmEffects() {
+  if (prewarmed || typeof document === "undefined") return;
+  prewarmed = true;
+  const probe = document.createElement("div");
+  probe.setAttribute("aria-hidden", "true");
+  probe.className = "pointer-events-none fixed font-bold";
+  probe.style.cssText =
+    "left:-9999px;top:0;opacity:0;font-size:16px;white-space:nowrap;contain:strict;width:400px;height:40px";
+  probe.textContent = KONAMI_CHARS.join("") + CELEBRATION_EMOJIS.join("");
+  document.body.appendChild(probe);
+  // Reading a layout property forces the glyphs to be shaped now.
+  void probe.offsetWidth;
+  window.setTimeout(() => probe.remove(), 250);
+}
+
 export type ClickPoint = { x: number; y: number };
 
 export function createDirectionalParticles(

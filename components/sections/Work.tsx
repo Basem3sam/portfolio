@@ -6,12 +6,15 @@ import SectionHeader from "@/components/ui/SectionHeader";
 import SitePreview from "@/components/ui/SitePreview";
 import Spotlight from "@/components/ui/Spotlight";
 import WorkKpis from "@/components/sections/WorkPlates";
+import WorkMotion from "@/components/sections/WorkMotion";
 import {
   GITHUB_URL,
   LARAVEL_REPO_URL,
   NEUROSCAN_REPO_URL,
   TROSC_REPO_URL,
   TROSC_URL,
+  ZABTHALAHAK_BACKEND_REPO_URL,
+  ZABTHALAHAK_FRONTEND_REPO_URL,
   ZABTHALAHAK_URL,
 } from "@/data/site";
 import type { Dictionary } from "@/lib/dictionaries/en";
@@ -27,33 +30,30 @@ type WorkProps = {
 
 type Project = Dictionary["work"]["projects"][number];
 
-const projectLinks: Record<string, { repo?: string; live?: string }> = {
+type ProjectLinks = {
+  repo?: string;
+  /** Several repositories, each with its own label (split frontend / backend). */
+  repos?: { href: string; label: "viewFrontend" | "viewBackend" }[];
+  live?: string;
+};
+
+const projectLinks: Record<string, ProjectLinks> = {
   trosc: { repo: TROSC_REPO_URL, live: TROSC_URL },
-  zabthalahak: { live: ZABTHALAHAK_URL },
+  zabthalahak: {
+    live: ZABTHALAHAK_URL,
+    repos: [
+      { href: ZABTHALAHAK_FRONTEND_REPO_URL, label: "viewFrontend" },
+      { href: ZABTHALAHAK_BACKEND_REPO_URL, label: "viewBackend" },
+    ],
+  },
   laravel: { repo: LARAVEL_REPO_URL },
   neuroscan: { repo: NEUROSCAN_REPO_URL },
 };
 
-// Status is a dot plus a word. Only "production" carries the status colour:
-// colour means "this is live". The other states stay neutral (hollow = still
-// being built, solid grey = finished or academic), and the academic row drops
-// the dot entirely, exactly like the mockup template.
-const STATUS_LABEL_CLASS: Record<Project["status"], string> = {
-  production: "st st-live text-status",
-  development: "st st-dev",
-  complete: "st st-done",
-  research: "st st-done",
-  academic: "st st-done",
-};
-
-const STATUS_DOT_CLASS: Record<Project["status"], string> = {
-  production: "dot",
-  development: "dot dot-dev",
-  complete: "dot dot-done",
-  research: "dot dot-done",
-  academic: "dot dot-done",
-};
-
+// Status is a four-segment meter plus a word. Only "production" carries the
+// status colour (colour means "this is live"); the other states stay neutral:
+// half lit while still being built, fully lit when finished, outlined for the
+// academic project.
 /** Splits "100+" into "100" and a honey-coloured "+" (or "%" — "94.8%"). */
 function StatValue({ value }: { value: string }) {
   const match = /^(.*?)([+%])$/.exec(value);
@@ -111,59 +111,52 @@ function KpiGraphic({ index }: { index: number }) {
   );
 }
 
-function Prov({
+function StatusBadge({ project, dict }: { project: Project; dict: Dictionary["work"] }) {
+  const live = project.status === "production";
+  return (
+    <span className={`status-tag status-${project.status}`}>
+      {/* Four segments, like the KPI meters: how far along the project is. */}
+      <span className="meter" aria-hidden="true">
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+      </span>
+      <span className={live ? "text-status" : undefined}>{dict.status[project.status]}</span>
+    </span>
+  );
+}
+
+/** Index, status badge and (for cards that link out) the arrow, on one line. */
+function Eyebrow({
   project,
   dict,
-  withDot,
-  org,
-  period,
+  index,
+  arrow,
 }: {
   project: Project;
   dict: Dictionary["work"];
-  withDot: boolean;
-  org?: string;
-  period?: string;
+  index: number;
+  arrow?: boolean;
 }) {
-  const statusLabel = (
-    <span className={STATUS_LABEL_CLASS[project.status]}>{dict.status[project.status]}</span>
-  );
-
   return (
-    <p className="prov">
-      {withDot ? (
-        <span className="status">
-          <span className={STATUS_DOT_CLASS[project.status]} aria-hidden="true"></span>
-          {statusLabel}
+    <div className="eyebrow">
+      <span className="rx" aria-hidden="true" dir="ltr">
+        {String(index).padStart(2, "0")}
+      </span>
+      <StatusBadge project={project} dict={dict} />
+      {arrow && (
+        <span className="go" aria-hidden="true">
+          <Icon name="arrowRight" className="size-4 rtl:rotate-180" />
         </span>
-      ) : (
-        statusLabel
       )}
-      {org && (
-        <>
-          <span className="sep" aria-hidden="true">
-            ·
-          </span>
-          <span>{org}</span>
-        </>
-      )}
-      {period && (
-        <>
-          <span className="sep" aria-hidden="true">
-            ·
-          </span>
-          <span>{period}</span>
-        </>
-      )}
-      {project.provenance && (
-        <>
-          <span className="sep" aria-hidden="true">
-            ·
-          </span>
-          <span>{project.provenance}</span>
-        </>
-      )}
-    </p>
+    </div>
   );
+}
+
+/** Who it was for and when, or how it came about: one quiet line. */
+function metaOf(project: Project) {
+  return [project.org, project.period, project.provenance].filter(Boolean).join(" · ");
 }
 
 /**
@@ -227,6 +220,11 @@ function ProjectActions({ project, dict }: { project: Project; dict: Dictionary[
   if (project.actions?.includes("repo") && links.repo) {
     items.push({ href: links.repo, label: dict.viewRepo, icon: "github" });
   }
+  if (project.actions?.includes("repo")) {
+    for (const repo of links.repos ?? []) {
+      items.push({ href: repo.href, label: dict[repo.label], icon: "github" });
+    }
+  }
   if (project.actions?.includes("live") && links.live) {
     items.push({ href: links.live, label: dict.viewLive, icon: "externalLink" });
   }
@@ -257,6 +255,38 @@ function rowHref(project: Project): string | undefined {
   return links.live ?? links.repo;
 }
 
+/** First sentence leads the card; the rest waits behind "Details". */
+function splitLead(text: string) {
+  const match = /^(.+?[.!?؟])\s+([\s\S]*)$/.exec(text);
+  return match ? { lead: match[1], rest: match[2] } : { lead: text, rest: "" };
+}
+
+function More({
+  rest,
+  detail,
+  label,
+}: {
+  rest: string;
+  detail?: string;
+  label: string;
+}) {
+  if (!rest && !detail) return null;
+  return (
+    <details className="disc">
+      <summary>
+        <span>{label}</span>
+        <span className="chev" aria-hidden="true">
+          <Icon name="arrowDown" className="size-4" />
+        </span>
+      </summary>
+      <div className="disc-body">
+        {rest && <p>{rest}</p>}
+        {detail && <p className="sub">{detail}</p>}
+      </div>
+    </details>
+  );
+}
+
 function TechList({ tech }: { tech: string[] }) {
   return (
     <ul className="stk" dir="ltr">
@@ -277,20 +307,20 @@ function Row({
   index: number;
 }) {
   const href = rowHref(project);
+  const live = projectLinks[project.id]?.live;
+  const { lead, rest } = splitLead(project.description);
+  const meta = metaOf(project);
 
   return (
     <>
-      <span className="rx" aria-hidden="true" dir="ltr">
-        {String(index).padStart(2, "0")}
-      </span>
       <div className="row-media">
-        <Plate project={project} />
-        {projectLinks[project.id]?.live && (
-          <SitePreview url={projectLinks[project.id].live as string} label={dict.viewLive} />
-        )}
+        <div className="media-stack">
+          {live && <SitePreview url={live} label={dict.viewLive} />}
+          <Plate project={project} />
+        </div>
       </div>
-      <div>
-        <Prov project={project} dict={dict} withDot={project.status !== "academic"} />
+      <div className="row-body">
+        <Eyebrow project={project} dict={dict} index={index} arrow={Boolean(href)} />
         <h3>
           {href ? (
             <a
@@ -298,7 +328,6 @@ function Row({
               href={href}
               target="_blank"
               rel="noopener noreferrer"
-              data-peek={href === projectLinks[project.id]?.live ? "" : undefined}
             >
               {project.name}
             </a>
@@ -306,55 +335,37 @@ function Row({
             project.name
           )}
         </h3>
-        <p className="desc">{project.description}</p>
-        {project.detail && <p className="sub">{project.detail}</p>}
+        {meta && <p className="meta">{meta}</p>}
+        <p className="desc">{lead}</p>
+      </div>
+      <div className="row-foot">
         <TechList tech={project.tech} />
         <ProjectActions project={project} dict={dict} />
       </div>
-      {href && (
-        <span className="go" aria-hidden="true">
-          <Icon name="arrowRight" className="size-4" />
-        </span>
-      )}
+      <More rest={rest} detail={project.detail} label={dict.projectDetails} />
     </>
   );
 }
 
 export default function Work({ dict, github, locale }: WorkProps) {
   const [featured, ...rest] = dict.projects;
+  const featuredText = splitLead(featured?.description ?? "");
 
   return (
     <section id="work" className="sec sec-wash">
+      <WorkMotion />
       <SectionHeader number="01" title={dict.title} lead={dict.lead} />
 
       {featured && (
         <div data-reveal className="spread-wrap">
           <Spotlight className="spread spotlight">
-            <div>
-              <Prov
-                project={featured}
-                dict={dict}
-                withDot
-                org={featured.org}
-                period={featured.period}
-              />
+            <div className="spread-copy">
+              <Eyebrow project={featured} dict={dict} index={1} />
               <h3 className="spread-title">{featured.title ?? featured.name}</h3>
               <span className="slug">{featured.name}</span>
-              <p className="desc">{featured.description}</p>
-
-              {featured.stats && (
-                <WorkKpis>
-                  {featured.stats.map((stat, index) => (
-                    <div key={stat.label} className={`kpi${index === 3 ? " kpi-cov" : ""}`}>
-                      <dt>{stat.label}</dt>
-                      <dd>
-                        <StatValue value={stat.value} />
-                      </dd>
-                      <KpiGraphic index={index} />
-                    </div>
-                  ))}
-                </WorkKpis>
-              )}
+              <p className="meta">{metaOf(featured)}</p>
+              <p className="desc">{featuredText.lead}</p>
+              <TechList tech={featured.tech} />
 
               <div className="actions">
                 <Link
@@ -388,16 +399,38 @@ export default function Work({ dict, github, locale }: WorkProps) {
                   </a>
                 )}
               </div>
-            </div>
-            <div className="spread-media">
-              <Plate project={featured} />
-              {projectLinks[featured.id]?.live && (
-                <SitePreview
-                  url={projectLinks[featured.id].live as string}
-                  label={dict.viewLive}
+              <More
+                  rest={featuredText.rest}
+                  detail={featured.detail}
+                  label={dict.projectDetails}
                 />
-              )}
             </div>
+
+            <div className="spread-media">
+              <div className="media-stack">
+                <Plate project={featured} />
+                {projectLinks[featured.id]?.live && (
+                  <SitePreview
+                    url={projectLinks[featured.id].live as string}
+                    label={dict.viewLive}
+                  />
+                )}
+              </div>
+            </div>
+
+            {featured.stats && (
+              <WorkKpis>
+                {featured.stats.map((stat, index) => (
+                  <div key={stat.label} className={`kpi${index === 3 ? " kpi-cov" : ""}`}>
+                    <dt>{stat.label}</dt>
+                    <dd>
+                      <StatValue value={stat.value} />
+                    </dd>
+                    <KpiGraphic index={index} />
+                  </div>
+                ))}
+              </WorkKpis>
+            )}
           </Spotlight>
         </div>
       )}
@@ -406,7 +439,13 @@ export default function Work({ dict, github, locale }: WorkProps) {
         {rest.map((project, index) => (
           <Spotlight
             key={project.id}
-            className="row spotlight"
+            className={`row spotlight${rowHref(project) ? " is-link" : ""}${
+              rest
+                .slice(Math.floor(index / 2) * 2, Math.floor(index / 2) * 2 + 2)
+                .some((peer) => projectLinks[peer.id]?.live)
+                ? " media-tall"
+                : ""
+            }`}
             style={{ "--stagger-index": index } as CSSProperties}
           >
             <Row project={project} dict={dict} index={index + 2} />

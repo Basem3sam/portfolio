@@ -28,3 +28,5 @@ export const TROSC_API_DOCS_URL = "https://github.com/Basem3sam/trosc-backend/bl
 export const LARAVEL_REPO_URL = "https://github.com/Basem3sam/laravel-ecommerce-app";
 export const NEUROSCAN_REPO_URL = "https://github.com/Basem3sam/neuroscan-ai";
 export const ZABTHALAHAK_URL = "https://zabthalahak.vercel.app/";
+export const ZABTHALAHAK_FRONTEND_REPO_URL = "https://github.com/Basem3sam/zabthalahak-frontend";
+export const ZABTHALAHAK_BACKEND_REPO_URL = "https://github.com/Basem3sam/zabthalahak-backend";

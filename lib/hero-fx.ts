@@ -361,6 +361,7 @@ export function mountHeroFx(
   };
 
   const halftoneFrame = (now: number) => {
+    resolvePointer();
     const t = reduce ? 2 : (now / 1000) * 0.3;
     const [hx, hy] = focus();
     drawHalftone(f, t, now, cols, reduce, dirOf() === 1, hx, hy);
@@ -371,7 +372,15 @@ export function mountHeroFx(
   cleanups.push(() => halftoneResize.disconnect());
   sizeHalftone();
 
+  // Pointer events only record the position; the rect read (a forced layout)
+  // happens at most once per drawn frame, in `resolvePointer`.
+  let pointerDirty = false;
   const updatePointer = () => {
+    pointerDirty = true;
+  };
+  const resolvePointer = () => {
+    if (!pointerDirty) return;
+    pointerDirty = false;
     if (!f.local.inside) {
       f.ptr.on = false;
       return;
@@ -400,6 +409,7 @@ export function mountHeroFx(
   listen(document, "pointerleave", () => {
     f.local.inside = false;
     f.ptr.on = false;
+    pointerDirty = false;
   });
   listen(host, "pointerdown", (event: PointerEvent) => {
     const el = event.target as HTMLElement | null;
@@ -551,15 +561,44 @@ export function mountHeroFx(
         // retina backing store: one device pixel per CSS pixel on phones and
         // 1.5 elsewhere cuts the fragment count 2-4x. `quality` steps down
         // further, to at most half, if frames keep coming in slower than ~15fps.
-        let quality = 1;
+        // Phones start a notch below full resolution (the sky is 5px cells, and
+        // the canvas is smoothly upscaled), and run it at ~25fps.
+        const compact = host.clientWidth < 600;
+        let quality = compact ? 0.8 : 1;
+        const minQuality = 0.5;
+        const frameGap = compact ? 40 : 33;
         let slowFrames = 0;
 
-        const sizeNb = () => {
+        // Layout reads are the expensive part of a frame here: three
+        // getBoundingClientRect() calls at 30fps forced a layout every frame.
+        // The canvas size and the portrait's offset inside the canvas only
+        // change on resize (and while the entrance animation settles), so they
+        // are measured then, and at most every 400ms in between.
+        let focusX = 0.7;
+        let focusY = 0.3;
+        let hasFocus = false;
+        let lastMeasure = -1e9;
+        const measure = () => {
+          lastMeasure = performance.now();
           const r = nb.getBoundingClientRect();
           if (!r.width || !r.height) return;
-          const dpr = Math.min(window.devicePixelRatio || 1, r.width < 600 ? 1 : 1.5) * quality;
           W = r.width;
           H = r.height;
+          const p = pf ? pf.getBoundingClientRect() : null;
+          if (p && p.width) {
+            // viewport-relative on both sides, so scrolling cancels out
+            focusX = p.left + 0.392 * p.width - r.left;
+            focusY = H - (p.top + 0.304 * p.height - r.top);
+            hasFocus = true;
+          } else {
+            hasFocus = false;
+          }
+        };
+
+        const sizeNb = () => {
+          measure();
+          if (W < 2 || H < 2) return;
+          const dpr = Math.min(window.devicePixelRatio || 1, W < 600 ? 1 : 1.5) * quality;
           const w = Math.floor(W * dpr);
           const h = Math.floor(H * dpr);
           if (nb.width !== w || nb.height !== h) {
@@ -608,9 +647,19 @@ export function mountHeroFx(
           rippleIndex = (rippleIndex + 1) % MR;
         };
 
+        // Pointer events only record where the pointer is; the rect reads that
+        // turn it into canvas coordinates run once per drawn frame.
+        let aimDirty = false;
+        let aimStamp = false;
+
         const paint = () => {
-          sizeNb();
+          if (performance.now() - lastMeasure > 400) sizeNb();
           if (W < 2) return;
+          if (aimDirty) {
+            aimDirty = false;
+            aim(aimStamp);
+            aimStamp = false;
+          }
           const t = clock();
           const dt = Math.min(Math.max(t - lastClock, 0), 0.1);
           lastClock = t;
@@ -638,14 +687,8 @@ export function mountHeroFx(
             sB.set([s.tint, s.phase, flare[i], Math.max(s.core * ms, 1.5)], i * 4);
           }
 
-          const canvasRect = nb.getBoundingClientRect();
-          const pfRect = pf ? pf.getBoundingClientRect() : null;
-          let fx = W * 0.7;
-          let fy = H * 0.7;
-          if (pfRect && pfRect.width) {
-            fx = pfRect.left + 0.392 * pfRect.width - canvasRect.left;
-            fy = H - (pfRect.top + 0.304 * pfRect.height - canvasRect.top);
-          }
+          const fx = hasFocus ? focusX : W * 0.7;
+          const fy = hasFocus ? focusY : H * 0.7;
 
           const u = uniforms;
           gl.useProgram(program);
@@ -677,11 +720,12 @@ export function mountHeroFx(
 
         const frame = (now: number) => {
           raf = 0;
-          if (now - lastDraw >= 33) {
+          if (now - lastDraw >= frameGap) {
             if (lastDraw > 0 && now - lastDraw > 66) {
-              if (++slowFrames >= 8 && quality > 0.5) {
-                quality = Math.max(0.5, quality * 0.8);
+              if (++slowFrames >= 8 && quality > minQuality) {
+                quality = Math.max(minQuality, quality * 0.8);
                 slowFrames = 0;
+                sizeNb();
               }
             } else if (slowFrames > 0) {
               slowFrames--;
@@ -715,6 +759,11 @@ export function mountHeroFx(
           if (reduce) paint();
         });
         nebulaResize.observe(nb);
+        if (pf) {
+          nebulaResize.observe(pf);
+          // the portrait rises into place; re-measure when that settles
+          listen(pf, "animationend", measure);
+        }
         cleanups.push(() => nebulaResize.disconnect());
 
         // The page scrolls under a still cursor, so the light is re-aimed from the
@@ -748,11 +797,19 @@ export function mountHeroFx(
             lastPointer.x = event.clientX;
             lastPointer.y = event.clientY;
             lastPointer.seen = true;
-            aim(true);
+            aimDirty = true;
+            aimStamp = true;
           },
           { passive: true },
         );
-        listen(window, "scroll", () => aim(false), { passive: true });
+        listen(
+          window,
+          "scroll",
+          () => {
+            if (lastPointer.seen) aimDirty = true;
+          },
+          { passive: true },
+        );
         listen(document, "pointerleave", () => {
           lastPointer.seen = false;
           inside = false;
@@ -789,6 +846,7 @@ export function mountHeroFx(
         themeObserver.observe(document.body, { attributes: true, attributeFilter: ["class"] });
         cleanups.push(() => themeObserver.disconnect());
 
+        sizeNb();
         paint();
         wake();
         cleanups.push(() => {
@@ -843,7 +901,7 @@ export function mountHeroFx(
   let lastFrame = 0;
   const tick = (now: number) => {
     halftoneRaf = requestAnimationFrame(tick);
-    if (document.hidden || now - lastFrame < 33) return;
+    if (document.hidden || now - lastFrame < (f.W < 700 ? 42 : 33)) return;
     lastFrame = now;
     if (!f.visible || !f.W || !f.H) return;
     if (reduce) {

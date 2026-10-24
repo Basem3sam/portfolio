@@ -96,9 +96,18 @@ export default function Hero({ dict }: HeroProps) {
         alpha = null;
       }
     };
-    if (img?.complete) buildMap();
-    else img?.addEventListener("load", buildMap, { once: true });
-
+    // Off the critical path: the map only matters once someone points at or
+    // presses the portrait, so it is built when the browser is idle.
+    let mapHandle = 0;
+    const buildMapIdle = () => {
+      if (typeof window.requestIdleCallback === "function") {
+        mapHandle = window.requestIdleCallback(buildMap, { timeout: 2500 });
+      } else {
+        mapHandle = window.setTimeout(buildMap, 600);
+      }
+    };
+    if (img?.complete) buildMapIdle();
+    else img?.addEventListener("load", buildMapIdle, { once: true });
     const isNear = (x: number, y: number) => {
       if (orbit) {
         const o = orbit.getBoundingClientRect();
@@ -126,8 +135,20 @@ export default function Hero({ dict }: HeroProps) {
     let pokeTimer = 0;
     const clampUnit = (v: number) => Math.max(-1, Math.min(1, v));
 
+    let px = 0;
+    let py = 0;
+    let moved = false;
     const paint = () => {
       frame = 0;
+      // The rect reads happen here, once per frame, instead of on every
+      // pointermove (mice report at up to 1000Hz).
+      if (moved) {
+        moved = false;
+        const box = pf.getBoundingClientRect();
+        nx = clampUnit((px - (box.left + box.width / 2)) / (box.width * 0.9));
+        ny = clampUnit((py - (box.top + box.height / 2)) / (box.height * 0.9));
+        setNear(isNear(px, py));
+      }
       pf.style.setProperty("--pfx", nx.toFixed(3));
       pf.style.setProperty("--pfy", ny.toFixed(3));
     };
@@ -141,13 +162,13 @@ export default function Hero({ dict }: HeroProps) {
     };
     const onMove = (event: PointerEvent) => {
       if (event.pointerType === "touch") return;
-      const box = pf.getBoundingClientRect();
-      nx = clampUnit((event.clientX - (box.left + box.width / 2)) / (box.width * 0.9));
-      ny = clampUnit((event.clientY - (box.top + box.height / 2)) / (box.height * 0.9));
-      setNear(isNear(event.clientX, event.clientY));
+      px = event.clientX;
+      py = event.clientY;
+      moved = true;
       schedule();
     };
     const onLeave = () => {
+      moved = false;
       nx = 0;
       ny = 0;
       setNear(false);
@@ -157,6 +178,7 @@ export default function Hero({ dict }: HeroProps) {
       // a press on the empty corners of the frame is not a press on the portrait;
       // a keyboard activation (no pointer position) always counts
       const click = event as MouseEvent;
+      if (!alpha) buildMap(); // pressed before the idle build ran
       if (click.detail !== 0 && !isNear(click.clientX, click.clientY)) return;
       pf.removeAttribute("data-poke");
       void pf.offsetWidth; // restart the animation when poked twice in a row
@@ -173,7 +195,9 @@ export default function Hero({ dict }: HeroProps) {
       host.removeEventListener("pointermove", onMove);
       host.removeEventListener("pointerleave", onLeave);
       hit?.removeEventListener("click", onPoke);
-      img?.removeEventListener("load", buildMap);
+      img?.removeEventListener("load", buildMapIdle);
+      if (typeof window.cancelIdleCallback === "function") window.cancelIdleCallback(mapHandle);
+      window.clearTimeout(mapHandle);
       if (frame) cancelAnimationFrame(frame);
       window.clearTimeout(pokeTimer);
     };

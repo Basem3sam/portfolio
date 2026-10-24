@@ -132,7 +132,7 @@ const projects: WorkProject[] = [
         { label: "audit log" },
       ],
     },
-    actions: ["live"],
+    actions: ["repo", "live"],
   },
   {
     id: "laravel",
@@ -257,8 +257,11 @@ const en = {
     liveLabel: "live from github",
     viewRepo: "Repository",
     viewLive: "Live site",
+    viewFrontend: "Frontend",
+    viewBackend: "Backend",
     caseStudy: "Case study",
     viewProfile: "View profile on GitHub",
+    projectDetails: "Details",
     moreOnGithub: "More on GitHub",
     moreOnGithubText:
       "The live repository list renders here, fetched in the browser. Repositories shown above are excluded so nothing appears twice.",

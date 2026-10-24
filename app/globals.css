@@ -612,6 +612,17 @@ html[lang="ar"] {
       0 22px 36px -24px color-mix(in srgb, black calc(var(--np, 0) * 45%), transparent);
   }
 
+  /* A backdrop blur is re-computed for every frame the page scrolls under it,
+     and its cost grows with the radius. On phones a smaller radius reads the
+     same through a 6px-from-the-edge capsule and costs about half as much. */
+  @media (width < 992px) {
+    &::before {
+      backdrop-filter: blur(calc(var(--np, 0) * 12px)) saturate(calc(1 + var(--np, 0) * 0.5));
+      -webkit-backdrop-filter: blur(calc(var(--np, 0) * 12px))
+        saturate(calc(1 + var(--np, 0) * 0.5));
+    }
+  }
+
   /* On phones the container IS the viewport width, so an offset measured from
      its edge (-0.5rem) pushed the capsule past the screen: its left and right
      edges were clipped. Below 576px the offset is measured from the content
@@ -1524,12 +1535,20 @@ html[lang="ar"] :is(h1, h2, h3) {
     opacity: var(--ag-opacity, 0.8);
   }
 
+  /* A radial gradient with a soft falloff instead of `filter: blur(70px)`: the
+     blur re-rasterised three huge layers (and a fourth set in the footer) on
+     the GPU, which is what made scrolling past them stutter on phones. The
+     look is the same soft glow; the cost is one cheap gradient per circle. */
   .ag i {
     position: absolute;
     display: block;
     border-radius: 50%;
-    filter: blur(70px);
-    will-change: transform;
+    background: radial-gradient(
+      closest-side,
+      var(--ag-c),
+      color-mix(in srgb, var(--ag-c) 55%, transparent) 45%,
+      transparent
+    );
     animation: ag-drift calc(46s / var(--ag-speed, 1)) ease-in-out infinite alternate;
   }
 
@@ -1538,7 +1557,7 @@ html[lang="ar"] :is(h1, h2, h3) {
     aspect-ratio: 1;
     left: -12%;
     top: -26%;
-    background: color-mix(in srgb, var(--c-honey-hi) 16%, transparent);
+    --ag-c: color-mix(in srgb, var(--c-honey-hi) 20%, transparent);
   }
 
   .ag[data-variant="mist"] i:nth-child(2) {
@@ -1546,7 +1565,7 @@ html[lang="ar"] :is(h1, h2, h3) {
     aspect-ratio: 1;
     right: -10%;
     bottom: -30%;
-    background: color-mix(in srgb, var(--c-secondary) 12%, transparent);
+    --ag-c: color-mix(in srgb, var(--c-secondary) 16%, transparent);
     animation-delay: -9s;
     animation-direction: alternate-reverse;
   }
@@ -1556,7 +1575,7 @@ html[lang="ar"] :is(h1, h2, h3) {
     aspect-ratio: 1;
     left: 34%;
     top: 20%;
-    background: color-mix(in srgb, var(--c-secondary) 16%, transparent);
+    --ag-c: color-mix(in srgb, var(--c-secondary) 20%, transparent);
     animation-delay: -17s;
   }
 
@@ -1569,10 +1588,26 @@ html[lang="ar"] :is(h1, h2, h3) {
     }
   }
 
+  /* Static on phones, tablets and touch screens: nothing to see drifting at
+     that size, and three always-running animations per section add up. */
+  @media (max-width: 991px), (pointer: coarse) {
+    .ag i {
+      animation: none;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .ag i {
       animation: none;
     }
+  }
+
+  /* ---------- off-screen bands stop animating (PauseOffscreen.tsx) ---------- */
+  [data-offscreen="true"],
+  [data-offscreen="true"] *,
+  [data-offscreen="true"] *::before,
+  [data-offscreen="true"] *::after {
+    animation-play-state: paused !important;
   }
 
   /* ---------- entrance rise (mockup rev 10/32) ---------- */

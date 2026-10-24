@@ -478,6 +478,10 @@ body.dark-mode .hero-s {
   /* The click hunt listens on .pf-hit; the oversized photo must not eat
      clicks meant for the copy beside it. */
   pointer-events: none;
+  /* The click animations move and scale this photo. Without a layer of its own
+     the browser builds one (and rasterises the whole photo) on the first press,
+     which is a dropped frame right when the animation starts. */
+  will-change: transform;
 }
 
 /* The copy stays above the (oversized) photo while it animates. */
@@ -1316,6 +1320,51 @@ html[lang="ar"] .pf-note {
   .hero-s .reach .ibtn {
     flex: 1 1 0;
     width: auto;
+  }
+}
+
+/* --- cheaper portrait ring on phones, tablets and touch screens -----------
+   The ring is drawn through an SVG displacement filter (feTurbulence). While
+   it draws itself, and again every half-second of the "boil" loop, the browser
+   re-rasterises that filter on the main thread, which is what janks the first
+   seconds on a phone. Below the desktop layout (and on any touch device) the
+   ring is drawn clean: no filter, no boil, no tick/twinkle loops. The draw-on,
+   sparkles, ticket and pointer/poke reactions all stay. */
+@media (max-width: 991px), (pointer: coarse) {
+  .pf-orbit g[filter] {
+    filter: none;
+  }
+
+  .o-a {
+    animation: none;
+    opacity: 1;
+  }
+
+  .o-b {
+    display: none;
+  }
+
+  .o-ticks {
+    animation: none;
+  }
+
+  /* keep the pop-in, drop only the endless twinkle */
+  .o-star {
+    animation: ostar 0.6s 2.5s cubic-bezier(0.34, 1.7, 0.64, 1) forwards;
+  }
+
+  .o-star-b {
+    animation-delay: 2.75s;
+  }
+
+  /* the ticket's idle bob and sheen are decoration; keep the ping on the dot */
+  .hire-b {
+    animation: hbin 0.95s 0.7s cubic-bezier(0.34, 1.4, 0.64, 1) backwards;
+  }
+
+  .hb-t::after {
+    animation: none;
+    display: none;
   }
 }
 

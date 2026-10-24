@@ -59,6 +59,7 @@ export default function SitePreview({ url, label }: SitePreviewProps) {
             width={960}
             height={600}
             loading="lazy"
+            decoding="async"
             referrerPolicy="no-referrer"
             onLoad={() => setState("ready")}
             onError={() => setState("failed")}

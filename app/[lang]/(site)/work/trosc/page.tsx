@@ -148,6 +148,7 @@ export default async function TroscCaseStudyPage({ params }: CaseStudyPageProps)
                   href={TROSC_URL}
                   target="_blank"
                   rel="noopener noreferrer"
+                  data-peek=""
                 >
                   <Icon name="externalLink" className="size-4" />
                   {t.actions.liveSite}

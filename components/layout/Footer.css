@@ -182,11 +182,44 @@
   color: var(--c-note);
 }
 
+/* Reach column: every contact icon sits in the same 36px tile at every width.
+   The SVG is padded to make the tile, and an SVG clips to its content box by
+   default, which shaved the strokes off the phone, LinkedIn and GitHub marks.
+   overflow: visible lets the full glyph draw inside the tile. */
+.ft-rc a:not(.ft-up) {
+  gap: 14px;
+}
+
+.ft-rc a:not(.ft-up) svg {
+  box-sizing: border-box;
+  width: 36px;
+  height: 36px;
+  padding: 10px;
+  overflow: visible;
+  border-radius: 50%;
+  background: var(--c-surface);
+  transition: background-color 0.4s ease;
+}
+
+/* the hover underline starts under the text, not under the tile */
+.ft-rc a:not(.ft-up)::after {
+  inset-inline-start: 50px;
+}
+
+.ft-rc a:not(.ft-up):focus-visible svg {
+  background: rgb(255 255 255 / 0.16);
+}
+
+@media (hover: hover) {
+  .ft-rc a:not(.ft-up):hover svg {
+    background: rgb(255 255 255 / 0.16);
+  }
+}
+
 .ft-col a.tel {
   font-family: var(--font-mono-body);
   font-weight: 500;
   font-size: 1rem;
-  direction: ltr;
   color: var(--c-dark-text);
 }
 
@@ -325,57 +358,113 @@
   user-select: none;
 }
 
-/* --- bottom row ----------------------------------------------------------- */
+/* --- bottom row -----------------------------------------------------------
+   Two cells on one baseline grid: the legal line at the start, and the quiet
+   line + secret-terminal glyph at the end. Both lines share one size, colour
+   and style so they read as a pair. The rule spans the full content column;
+   only the *content* steps aside (--btt-clear) where the floating back-to-top
+   button could sit on top of it, instead of a fixed 88px at every width. */
 .foot-bot {
+  --btt-clear: 0px;
   position: relative;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 24px;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  padding-top: 20px;
-  /* clear of the floating back-to-top button */
-  padding-inline-end: 88px;
+  column-gap: 24px;
+  padding-top: 12px;
+  padding-inline-end: var(--btt-clear);
   border-top: 1px solid var(--c-hairline);
-  font-size: var(--text-sm);
+  font-size: 0.8125rem;
+  line-height: 1.5;
   color: var(--c-muted-text);
 }
 
 .foot-end {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 4px 12px;
+  justify-self: end;
+  gap: 4px;
+  min-width: 0;
 }
 
 .foot-quiet {
-  font-size: 0.8125rem;
-  font-style: italic;
-  color: var(--c-muted-text);
-  opacity: 0.9;
+  min-width: 0;
 }
 
+/* The glyph keeps its 44px hit area, but shows a 36px hairline ring so it
+   reads as a deliberate control (same language as the back-to-top pill)
+   rather than a stray icon that only appears on hover. */
 .foot-glyph {
+  position: relative;
   display: grid;
   place-items: center;
+  flex: none;
   width: 44px;
   height: 44px;
   border: 0;
   border-radius: 50%;
   background: transparent;
   color: var(--c-muted-text);
-  opacity: 0.55;
   transition:
-    opacity 0.8s ease,
-    color 0.8s ease,
-    background-color 0.8s ease;
+    color 0.5s ease,
+    background-color 0.5s ease;
+}
+
+.foot-glyph::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 1px solid var(--c-hairline);
+  border-radius: 50%;
+  transition: border-color 0.5s ease;
 }
 
 .foot-glyph:hover,
 .foot-glyph:focus-visible {
-  opacity: 1;
   color: var(--c-note);
   background: var(--c-light-bg);
+}
+
+.foot-glyph:hover::before,
+.foot-glyph:focus-visible::before {
+  border-color: color-mix(in srgb, var(--c-note) 55%, transparent);
+}
+
+.foot-glyph:focus-visible {
+  outline: 2px solid var(--c-note);
+  outline-offset: 2px;
+}
+
+/* Floating back-to-top: 44px at 32px from the edge from 768px up. The content
+   column's own gutter already clears it on wide screens (>= 1272px). */
+@media (min-width: 768px) and (max-width: 991px) {
+  .foot-bot {
+    --btt-clear: 64px;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1271px) {
+  .foot-bot {
+    --btt-clear: 40px;
+  }
+}
+
+/* Below 768px the two cells no longer fit side by side without squeezing the
+   text, so they stack into one centred, symmetrical pair. */
+@media (max-width: 767px) {
+  .foot-bot {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    row-gap: 2px;
+    padding-top: 20px;
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  .foot-end {
+    justify-self: center;
+    justify-content: center;
+  }
 }
 
 /* --- responsive ----------------------------------------------------------- */
@@ -391,15 +480,124 @@
 }
 
 @media (max-width: 560px) {
-  .ft-top {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 28px;
+  /* One calm column, one rhythm: brand → reach → explore → location.
+     No per-column borders; the small labels do the separating. */
+  .foot-in {
+    gap: 36px;
+    padding-top: 56px;
+    padding-bottom: 24px;
   }
 
-  .foot-bot {
-    flex-direction: column;
-    align-items: flex-start;
-    padding-inline-end: 72px;
+  .ft-top {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "brand"
+      "rc"
+      "ex"
+      "loc";
+    gap: 32px;
+  }
+
+  .ft-brand {
+    grid-area: brand;
+    gap: 14px;
+  }
+
+  .ft-rc {
+    grid-area: rc;
+  }
+
+  .ft-ex {
+    grid-area: ex;
+  }
+
+  .ft-loc {
+    grid-area: loc;
+  }
+
+  .ft-line {
+    max-width: 36ch;
+    font-size: 0.9375rem;
+  }
+
+  .ft-col > .lbl {
+    margin-bottom: 8px;
+  }
+
+  /* reach: icon tiles + text, full-width rows */
+  .ft-rc {
+    align-items: stretch;
+    gap: 4px;
+  }
+
+  .ft-rc a:not(.ft-up) {
+    width: 100%;
+    min-height: 52px;
+  }
+
+  .ft-rc a:not(.ft-up)::after,
+  .ft-ex a::after {
+    display: none;
+  }
+
+  /* explore: two tidy columns of plain links */
+  .ft-ex {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 20px;
+    align-items: stretch;
+  }
+
+  .ft-ex > .lbl {
+    grid-column: 1 / -1;
+  }
+
+  .ft-ex a {
+    min-height: 44px;
+  }
+
+  /* location: one soft panel holding city, time and back-to-top */
+  .ft-loc {
+    align-items: stretch;
+    padding: 18px;
+    border: 1px solid var(--c-hairline);
+    border-radius: 18px;
+    background: var(--c-light-bg);
+  }
+
+  .ft-city {
+    font-size: 1.25rem;
+  }
+
+  .ft-up {
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 16px;
+    padding-inline: 16px 6px;
+    font-size: 0.875rem;
+  }
+
+  [dir="rtl"] .ft-up {
+    padding-inline: 16px 6px;
+  }
+
+  /* wordmark: sized to sit well inside the width, with line-height tall
+     enough that background-clip never trims the b/s/m shapes */
+  .foot-word-box {
+    padding-block: 4px;
+  }
+
+  .foot-word {
+    font-size: min(12rem, 14.5cqi);
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+    padding-bottom: 0.1em;
+  }
+
+  /* bottom row: lift it above the floating back-to-top button (20px from the
+     edge on phones) so nothing is squeezed or lopsided. */
+  .foot-in {
+    padding-bottom: 76px;
   }
 }
 

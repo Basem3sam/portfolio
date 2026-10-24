@@ -118,7 +118,15 @@ function trackPointer() {
  */
 export function bindPortraitCursor(hit: HTMLElement, image: HTMLImageElement) {
   trackPointer();
-  preparePortraitHit(image);
+  // The mask decodes the portrait a second time and reads it back, so it waits
+  // for an idle moment instead of competing with hydration and the hero (it is
+  // also built on demand by `isOnPortrait`, so nothing depends on this timing).
+  let idle = 0;
+  if (typeof window.requestIdleCallback === "function") {
+    idle = window.requestIdleCallback(() => preparePortraitHit(image), { timeout: 3000 });
+  } else {
+    idle = window.setTimeout(() => preparePortraitHit(image), 1500);
+  }
   const apply = (x: number, y: number) => {
     hit.style.cursor = isOnPortrait(image, x, y) ? "pointer" : "default";
   };
@@ -135,6 +143,8 @@ export function bindPortraitCursor(hit: HTMLElement, image: HTMLImageElement) {
   // coming, so restore the cursor from the last known position.
   if (lastPointer && hit.matches(":hover")) apply(lastPointer.x, lastPointer.y);
   return () => {
+    if (typeof window.cancelIdleCallback === "function") window.cancelIdleCallback(idle);
+    window.clearTimeout(idle);
     hit.removeEventListener("pointermove", move);
     hit.removeEventListener("pointerleave", leave);
     // The inline cursor is left in place on purpose: the button outlives this

@@ -77,6 +77,102 @@ export default function EasterEgg({ locale }: { locale: Locale }) {
     return () => window.removeEventListener(OPEN_TERMINAL_EVENT, openFromUI);
   }, [arm]);
 
+  // Warm-up. The first click used to download, parse and evaluate the whole
+  // game (the terminal alone is ~1,800 lines) and create the audio context, all
+  // inside the press, which showed up as dropped frames on the first few
+  // clicks. Do that work while the browser is idle instead, so a click only has
+  // to mount and animate. It starts early when someone shows intent (pointing
+  // at the portrait, or any first press) and holds the heaviest step while they
+  // are actively clicking. Skipped on Save-Data and very slow connections.
+  useEffect(() => {
+    const connection = (
+      navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }
+    ).connection;
+    if (connection?.saveData || /(^|-)2g$/.test(connection?.effectiveType ?? "")) return;
+
+    const cancels: Array<() => void> = [];
+    let stopped = false;
+    let lastPress = -Infinity;
+
+    const idle = (task: () => void, timeout: number) => {
+      if (typeof window.requestIdleCallback === "function") {
+        const id = window.requestIdleCallback(task, { timeout });
+        cancels.push(() => window.cancelIdleCallback(id));
+      } else {
+        const id = window.setTimeout(task, Math.min(timeout, 1200));
+        cancels.push(() => window.clearTimeout(id));
+      }
+    };
+
+    // Step 2 (terminal chunk, glyph fallback): never while a click run is in
+    // progress, since evaluating a chunk cannot be interrupted.
+    const warmRest = () => {
+      const run = () => {
+        if (stopped) return;
+        if (performance.now() - lastPress < 1500) {
+          const id = window.setTimeout(run, 1500);
+          cancels.push(() => window.clearTimeout(id));
+          return;
+        }
+        void import("@/components/easter-egg/Terminal").catch(() => {});
+        void import("@/lib/effects")
+          .then((effects) => effects.prewarmEffects())
+          .catch(() => {});
+      };
+      idle(run, 6000);
+    };
+
+    // Step 1 (the game itself). Same specifier as the lazy import, so this is
+    // the very chunk the click will use; only the timing is different.
+    let codeStarted = false;
+    const warmCode = () => {
+      if (codeStarted || stopped) return;
+      codeStarted = true;
+      void import("./EasterEggCore").then(warmRest).catch(() => {});
+    };
+    const warmCodeSoon = () => idle(warmCode, 250);
+
+    const startAfterLoad = () => idle(warmCode, 2500);
+    if (document.readyState === "complete") startAfterLoad();
+    else {
+      window.addEventListener("load", startAfterLoad, { once: true });
+      cancels.push(() => window.removeEventListener("load", startAfterLoad));
+    }
+
+    // Audio needs a gesture first, so it is created after the first touch, key
+    // or press anywhere on the page, but off the click path.
+    let audioQueued = false;
+    const onGesture = () => {
+      warmCodeSoon();
+      if (audioQueued) return;
+      audioQueued = true;
+      idle(() => {
+        void import("@/lib/sounds").then((sounds) => sounds.prepareAudio()).catch(() => {});
+      }, 2000);
+    };
+    const gestures = ["pointerdown", "keydown", "touchstart"] as const;
+    gestures.forEach((name) =>
+      window.addEventListener(name, onGesture, { once: true, passive: true }),
+    );
+    cancels.push(() => gestures.forEach((name) => window.removeEventListener(name, onGesture)));
+
+    const notePress = () => {
+      lastPress = performance.now();
+    };
+    document.addEventListener("pointerdown", notePress, { capture: true, passive: true });
+    cancels.push(() => document.removeEventListener("pointerdown", notePress, true));
+
+    // Pointing at the portrait almost always comes just before pressing it.
+    const portrait = document.querySelector<HTMLElement>("#pf-hit");
+    portrait?.addEventListener("pointerover", warmCodeSoon, { once: true, passive: true });
+    cancels.push(() => portrait?.removeEventListener("pointerover", warmCodeSoon));
+
+    return () => {
+      stopped = true;
+      cancels.forEach((cancel) => cancel());
+    };
+  }, []);
+
   useEffect(() => {
     if (load) return;
 

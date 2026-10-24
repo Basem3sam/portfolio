@@ -849,12 +849,14 @@ body.dark-mode [data-page="case"] {
   outline-offset: -2px;
 }
 
+/* Routes wrap between segments (see `breakable()`), never truncate. */
 [data-page="case"] .ex-path {
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.4;
+  overflow-wrap: break-word;
 }
+
+
 
 [data-page="case"] .verb {
   flex: none;
@@ -1095,18 +1097,211 @@ body.dark-mode [data-page="case"] {
   }
 }
 
+/* The path inside the request bar: its own flex item so it wraps between
+   segments (see `breakable()` in EndpointExplorer.tsx) beside the verb chip. */
+[data-page="case"] .ex-url {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+[data-page="case"] .ex-chip {
+  white-space: nowrap;
+}
+
+/* ---- responsive ----------------------------------------------------------
+   Unlayered, because the v2 rules above are unlayered and beat anything in
+   `@layer components`.
+
+   One compact design for every width up to 900px (no separate tablet and
+   phone layouts): a dropdown instead of the 14-row list, then the request
+   line with Run beside it, the access chips, the response strip, and the
+   body. The full list is for desktop, where it sits beside the response. */
+/* Request line, at every width: route on the left, Run beside it. The route
+   wraps between segments if it must; Run never drops to its own line. */
+[data-page="case"] .ex-bar {
+  flex-wrap: nowrap;
+  gap: 12px;
+}
+
+[data-page="case"] .ex-bar .code {
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: flex-start;
+  line-height: 1.5;
+}
+
+[data-page="case"] .ex-bar .code .verb {
+  margin-top: 1px;
+}
+
+[data-page="case"] .ex-bar .btn {
+  flex: none;
+  min-height: 44px;
+  padding-inline: 16px;
+}
+
+[data-page="case"] .ex-pick {
+  display: none;
+}
+
 @media (max-width: 900px) {
-  [data-page="case"] .ex-list {
-    max-height: 300px;
+  [data-page="case"] .explorer {
+    grid-template-columns: minmax(0, 1fr);
   }
+
+  [data-page="case"] .ex-bar {
+    padding: 10px 12px;
+  }
+
+  [data-page="case"] .ex-bar .code {
+    font-size: 0.875rem;
+  }
+
+  [data-page="case"] .ex-list {
+    display: none;
+  }
+
+  [data-page="case"] .ex-pick {
+    position: relative;
+    display: block;
+    padding: 12px;
+    border-bottom: 1px solid var(--c-hairline);
+    background: color-mix(in srgb, var(--c-light-bg) 60%, transparent);
+  }
+
+  [data-page="case"] .ex-pick::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 27px;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid var(--c-muted-text);
+    border-bottom: 2px solid var(--c-muted-text);
+    transform: translateY(-70%) rotate(45deg);
+    pointer-events: none;
+  }
+
+  [data-page="case"] .ex-pick select {
+    appearance: none;
+    width: 100%;
+    min-height: 48px;
+    padding: 0 44px 0 14px;
+    border: 1px solid var(--c-rule-strong);
+    border-radius: 8px;
+    background: var(--c-page);
+    color: var(--c-dark-text);
+    font: 500 0.875rem var(--font-mono-body);
+    direction: ltr;
+    text-align: start;
+    text-overflow: ellipsis;
+    cursor: pointer;
+  }
+
+  [data-page="case"] .ex-pick select:focus-visible {
+    outline: 2px solid var(--c-secondary);
+    outline-offset: 2px;
+  }
+
+  [data-page="case"] .ex-pick select option,
+  [data-page="case"] .ex-pick select optgroup {
+    background: var(--c-page);
+    color: var(--c-dark-text);
+  }
+
+  [data-page="case"] .ex-meta {
+    padding: 8px 12px;
+  }
+}
+
+/* Very narrow phones: Run drops under the route rather than squeezing it into
+   a column of short lines. */
+@media (max-width: 399px) {
+  [data-page="case"] .ex-bar {
+    flex-wrap: wrap;
+  }
+
+  [data-page="case"] .ex-bar .code {
+    flex-basis: 100%;
+  }
+
+  [data-page="case"] .ex-bar .btn {
+    width: 100%;
+  }
+}
+
+/* Phone: the response strip becomes two short rows. */
+@media (max-width: 599px) {
   [data-page="case"] .ex-stats {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
+
+  [data-page="case"] .ex-stat {
+    gap: 4px;
+    padding: 10px 14px;
+  }
+
+  [data-page="case"] .ex-stat .ex-pill {
+    padding: 5px 12px;
+    font-size: 1rem;
+  }
+
+  [data-page="case"] .ex-ms {
+    font-size: 1.5rem;
+  }
+
+  /* Time: label and typical range share one line, number and meter under. */
   [data-page="case"] .ex-time {
     grid-column: 1 / -1;
     order: 3;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 12px;
+    row-gap: 4px;
+    align-items: end;
     border-top: 1px solid var(--c-hairline);
     border-inline-end: 0;
+  }
+
+  [data-page="case"] .ex-time .ex-k {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  [data-page="case"] .ex-time strong {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  [data-page="case"] .ex-time small {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    justify-self: end;
+    text-align: end;
+  }
+
+  [data-page="case"] .ex-time .ex-meter {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+
+  [data-page="case"] .code-pane {
+    min-height: 0;
+    font-size: 0.8125rem;
+  }
+
+  /* Long values wrap instead of scrolling sideways, and a long body is
+     capped so the section never grows past a screenful. */
+  [data-page="case"] .code-pane pre {
+    max-height: 300px;
+    padding: 12px;
+    overflow: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  [data-page="case"] .ex-res {
+    padding: 8px 12px;
   }
 }
 

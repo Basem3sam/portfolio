@@ -41,6 +41,22 @@ function getContext() {
   return context;
 }
 
+/**
+ * Build the audio context ahead of the first click. Creating an AudioContext
+ * can take tens of milliseconds on some machines (it opens the output device),
+ * which is a visible hitch when it happens inside a click handler. Call this
+ * from an idle callback after any user gesture: the page then has user
+ * activation, so the context is allowed to start.
+ */
+export function prepareAudio() {
+  try {
+    const audio = getContext();
+    if (audio.state === "suspended") audio.resume().catch(() => {});
+  } catch {
+    // no Web Audio: sound is simply off
+  }
+}
+
 export function setupAudio() {
   const init = () => {
     const audio = getContext();

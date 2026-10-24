@@ -1,93 +1,480 @@
 /* ================================================================
-   Work section — port of the mockup's spread, rows, plates and KPI
-   wall (template 2929–3011; rules 246–290, 517–547, 805–890,
-   851–898, 1082–1099, 1182–1211, 1613–1633, 1727–1735, 2048–2068,
-   2122–2133, 2282–2314). The LAST definition of each mockup rule
-   wins here too (rev 11's halftone plate corner supersedes the
-   earlier prompt-mark watermark, rev 14 flips the KPI tile to
-   label → value → graphic, rev 23 turns the request path into a
-   two-column numbered grid).
+   Work section.
 
-   Everything is scoped to `#work`: `.row`, `.plate`, `.desc` and
-   friends are far too generic to leak onto sibling sections. All
-   colour comes from the shared `--c-*` tokens; the section follows
-   the theme (the tonal washes already come from `.sec-wash`).
+   One featured panel (copy and KPI wall on the left, diagram plate and
+   live-site preview on the right) and four project cards. Every card has
+   the same anatomy, top to bottom:
+
+     visual      the live-site preview, or the diagram plate when there is
+                 no live site
+     eyebrow     index, status badge, arrow
+     title       one quiet meta line, one lead sentence
+     foot        tech badges, link buttons
+     details     an accordion row with the rest of the description
+
+   Desktop gives every visual one minimum height so titles line up across a
+   pair; below 900px the cards stack.
+
+   Badge grammar: status is a pill with a dot, technology is a small square
+   mono chip, so the two never read as the same thing.
+
+   Everything is scoped to `#work`; colour comes from the shared `--c-*`
+   tokens, so light and dark follow the theme. Motion answers the pointer or
+   keyboard, plus the one scroll-in the whole section shares.
    ================================================================ */
 
-/* ---------- featured spread ---------- */
-
-#work .spread-wrap {
-  padding-bottom: clamp(24px, 4vw, 48px);
-  border-bottom: 1px solid var(--c-rule-strong);
+#work {
+  interpolate-size: allow-keywords;
 }
 
-/* The featured spread is a panel like the rows below it: it bleeds 20px past
-   the column, fills on hover and clips the pointer glow to its own corners. */
-#work .spread {
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-  gap: clamp(24px, 4cqi, 56px);
-  align-items: start;
-  padding: clamp(20px, 3vw, 32px) 20px;
-  margin-inline: -20px;
-  border: 1px solid transparent;
-  border-radius: 20px;
+/* ---------- eyebrow: index, status badge, arrow ---------- */
+
+#work .eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  min-height: 36px;
+}
+
+#work .rx {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  font: 500 0.8125rem var(--font-mono-body);
+  letter-spacing: 0.04em;
+  color: var(--c-note);
+  direction: ltr;
+  transition: color 0.2s;
+}
+
+/* A short rule ties the index to the badge. */
+#work .rx::after {
+  content: "";
+  width: 18px;
+  height: 1px;
+  margin-inline-start: 12px;
+  background: var(--c-rule-strong);
   transition:
-    background-color 0.3s ease-out,
-    border-color 0.3s ease-out;
+    width 0.4s var(--ease-out),
+    background-color 0.2s;
 }
 
-#work .spread:focus-within {
-  background: var(--c-light-bg);
-  border-color: var(--c-hairline);
+/* Status: a four-segment meter and a word, no pill. The meter is the same
+   device as the KPI segments below it. */
+#work .status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font: 600 0.8125rem/1 var(--font-body);
+  letter-spacing: 0.005em;
+  color: var(--c-light-text);
+  white-space: nowrap;
+}
+
+#work .meter {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  direction: ltr;
+}
+
+#work .meter i {
+  width: 4px;
+  height: 12px;
+  border-radius: 1px;
+  background: var(--c-hairline);
+  box-shadow: inset 0 0 0 1px var(--c-rule-strong);
+  transform-origin: 50% 100%;
+}
+
+#work .meter i:nth-child(1) { height: 8px; }
+#work .meter i:nth-child(2) { height: 10px; }
+#work .meter i:nth-child(3) { height: 12px; }
+#work .meter i:nth-child(4) { height: 14px; }
+
+#work .status-production .meter i {
+  background: var(--c-status);
+  box-shadow: none;
+}
+
+#work .status-development .meter i:nth-child(-n + 2),
+#work .status-complete .meter i,
+#work .status-research .meter i {
+  background: var(--c-muted-text);
+  box-shadow: none;
+}
+
+#work .status-academic .meter i {
+  background: transparent;
+}
+
+/* The arrow ring fills with the action colour and turns on hover. */
+#work .go {
+  flex: none;
+  margin-inline-start: auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--c-rule-strong);
+  display: grid;
+  place-items: center;
+  color: var(--c-dark-text);
+  transition:
+    background-color 0.25s,
+    color 0.25s,
+    border-color 0.25s,
+    transform 0.4s var(--ease-out);
+}
+
+/* ---------- copy ---------- */
+
+#work .meta {
+  margin: 6px 0 0;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--c-muted-text);
+}
+
+#work .desc {
+  color: var(--c-light-text);
+  margin-block: 14px 0;
+}
+
+#work .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#work .actions:empty {
+  display: none;
+}
+
+/* Link buttons: compact, two to a row split evenly. */
+#work .actions .btn {
+  min-height: 40px;
+  padding-inline: 14px;
+  font-size: 0.875rem;
+}
+
+#work .actions .btn {
+  white-space: nowrap;
+}
+
+#work .row .actions:has(.btn:nth-child(2)) .btn {
+  flex: 1 1 0;
+}
+
+/* Technology badges: small square mono chips. */
+#work .stk {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  direction: ltr;
+}
+
+[dir="rtl"] #work .stk {
+  justify-content: flex-end;
+}
+
+#work .stk li {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding-inline: 11px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--c-secondary) 16%, var(--c-hairline));
+  background: color-mix(in srgb, var(--c-secondary) 6%, var(--c-surface));
+  font: 500 0.75rem/1 var(--font-mono-body);
+  letter-spacing: 0.01em;
+  color: var(--c-light-text);
+  transition:
+    border-color 0.3s ease,
+    color 0.3s ease,
+    background-color 0.3s ease;
 }
 
 @media (hover: hover) {
-  #work .spread:hover {
-    background: var(--c-light-bg);
-    border-color: var(--c-hairline);
+  #work .stk li:hover {
+    border-color: var(--c-honey);
+    color: var(--c-dark-text);
+    background: var(--c-surface);
   }
 }
 
-#work .spread-media {
+/* ---------- details accordion ---------- */
+
+#work .disc {
+  position: relative;
+  z-index: 3;
+  border-top: 1px solid var(--c-hairline);
+}
+
+#work .disc summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  padding-inline: var(--more-px, 0px);
+  cursor: pointer;
+  list-style: none;
+  font: 600 0.875rem var(--font-body);
+  color: var(--c-light-text);
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+
+#work .disc summary::-webkit-details-marker {
+  display: none;
+}
+
+@media (hover: hover) {
+  #work .disc summary:hover {
+    background: var(--c-light-bg);
+    color: var(--c-dark-text);
+  }
+}
+
+#work .disc summary:focus-visible {
+  outline: 2px solid var(--c-signal);
+  outline-offset: -2px;
+}
+
+#work .chev {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--c-rule-strong);
   display: grid;
-  gap: 16px;
+  place-items: center;
+  transition:
+    transform 0.45s var(--ease-out),
+    background-color 0.25s,
+    border-color 0.25s,
+    color 0.25s;
+}
+
+#work .disc[open] .chev {
+  transform: rotate(180deg);
+  background: var(--c-secondary);
+  border-color: var(--c-secondary);
+  color: var(--c-on-secondary);
+}
+
+#work .disc[open] summary {
+  color: var(--c-dark-text);
+}
+
+#work .disc-body {
+  display: grid;
+  gap: 12px;
+  padding: 4px var(--more-px, 0px) 22px;
+}
+
+#work .disc-body p {
+  margin: 0;
+  max-width: 62ch;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--c-light-text);
+}
+
+/* The longer note is set apart with the identity colour's rule. */
+#work .disc-body .sub {
+  padding-inline-start: 14px;
+  border-inline-start: 2px solid var(--c-honey);
+  font-size: 0.875rem;
+  color: var(--c-muted-text);
+}
+
+/* Browsers that can animate the disclosure's height do; the rest get a fade. */
+@supports selector(::details-content) {
+  #work .disc::details-content {
+    block-size: 0;
+    overflow: clip;
+    opacity: 0;
+    transition:
+      block-size 0.5s var(--ease-out),
+      opacity 0.35s ease,
+      content-visibility 0.5s allow-discrete;
+  }
+
+  #work .disc[open]::details-content {
+    block-size: auto;
+    opacity: 1;
+  }
+}
+
+@supports not selector(::details-content) {
+  #work .disc[open] .disc-body {
+    animation: more-in 0.35s var(--ease-out);
+  }
+}
+
+@keyframes more-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+/* ---------- media wells ---------- */
+
+/* The well holds the visual (diagram plate, browser preview, or both for the
+   featured project). It is its own container so the two sit side by side
+   whenever the well is wide enough, whatever the viewport. */
+#work .spread-media,
+#work .row-media {
+  container: well / inline-size;
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+#work .media-stack {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  align-content: stretch;
+}
+
+#work .spread-media .media-stack {
+  height: 100%;
+}
+
+#work .media-stack .plate {
   align-self: stretch;
   min-width: 0;
 }
 
-#work .row-media {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  gap: 12px;
+/* A live card's visual is the browser preview with the project's feature
+   badges (the plate, without its header) directly beneath it, at every width,
+   so the card has one template from phone to desktop. */
+#work .media-stack:has(.sp) {
   align-content: start;
+}
+
+#work .media-stack:has(.sp) .plate-head {
+  display: none;
+}
+
+#work .media-stack:has(.sp) .plate-body {
+  padding: 18px 14px 14px;
+  gap: 12px;
+}
+
+/* The browser window always keeps its own 16:10 proportions (the same as on
+   every other page), so a screenshot is never cropped from the middle. */
+@container well (min-width: 560px) {
+  #work .spread-media .media-stack:has(.sp) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    align-items: start;
+  }
+}
+
+/* ---------- featured panel ---------- */
+
+#work .spread-wrap {
+  container: spread / inline-size;
+}
+
+#work .spread {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "copy"
+    "kpis"
+    "media";
+  gap: clamp(24px, 4cqi, 36px) clamp(28px, 4.5cqi, 56px);
+  padding: clamp(20px, 4cqi, 40px);
+  border: 1px solid var(--c-hairline);
+  border-radius: 24px;
+  background: linear-gradient(160deg, var(--c-surface), var(--c-light-bg));
+  box-shadow: var(--sh-sm);
+  transition:
+    border-color 0.3s ease-out,
+    box-shadow 0.3s ease-out;
+}
+
+#work .spread:focus-within {
+  border-color: var(--c-rule-strong);
+  box-shadow: var(--sh-md);
+}
+
+@media (hover: hover) {
+  #work .spread:hover {
+    border-color: var(--c-rule-strong);
+    box-shadow: var(--sh-md);
+  }
+}
+
+#work .spread-copy {
+  grid-area: copy;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   min-width: 0;
 }
 
-#work .spread .plate {
-  transition:
-    transform 0.3s ease-out,
-    border-color 0.25s,
-    box-shadow 0.3s;
+#work .spread-copy > * {
+  max-width: 100%;
 }
 
-@media (hover: hover) {
-  #work .spread:hover .plate {
-    transform: translateY(-4px);
-    border-color: var(--c-muted-text);
-    box-shadow: var(--sh-lg);
-  }
+#work .spread-copy .eyebrow {
+  align-self: stretch;
 }
 
-#work .spread .plate::before {
-  transition: opacity 0.25s;
+#work .spread-media {
+  grid-area: media;
 }
 
-@media (hover: hover) {
-  #work .spread:hover .plate::before {
-    opacity: 0.9;
-  }
+#work .spread .kp {
+  grid-area: kpis;
+  margin: 0;
+}
+
+#work .spread-title {
+  font-size: clamp(2.125rem, 6cqi, 3.5rem);
+  line-height: 1.04;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  margin-top: 20px;
+}
+
+#work .spread-copy .slug {
+  margin-top: 8px;
+}
+
+#work .spread-copy .meta {
+  margin-top: 10px;
+}
+
+#work .spread-copy .desc {
+  margin-block: 18px 0;
+  max-width: 44ch;
+  font-size: 1.1875rem;
+  line-height: 1.55;
+  color: var(--c-dark-text);
+}
+
+#work .spread-copy .stk {
+  margin-top: 20px;
+}
+
+#work .spread-copy .actions {
+  margin-top: 22px;
+}
+
+#work .spread-copy .disc {
+  align-self: stretch;
+  margin-top: 22px;
 }
 
 #work .spread .btn-primary svg {
@@ -100,287 +487,253 @@
   }
 }
 
-#work .spread-title {
-  font-size: clamp(2rem, 5vw, 3.5rem);
-  line-height: 1.05;
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  margin-top: 14px;
+#work .spread .plate {
+  box-shadow: var(--sh-md);
 }
 
-/* ---------- provenance line ---------- */
-/* `.slug`, `.prov` and `.prov .sep` are shared primitives and live in
-   app/globals.css, so the case-study hero can use them too. */
-
-#work .dot-dev {
-  background: transparent;
-  border: 1.5px solid var(--c-muted-text);
-  box-shadow: none;
+#work .spread .plate-body {
+  justify-content: flex-start;
+  padding: 20px 16px 18px;
+  gap: 14px;
 }
 
-#work .dot-done {
-  background: var(--c-muted-text);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-muted-text) 14%, transparent);
+/* When the plate is stretched to the height of the column beside it, its
+   path nodes share the extra height instead of leaving a gap. */
+#work .spread .rpath {
+  flex: 1;
+  grid-auto-rows: 1fr;
+  gap: 10px;
 }
 
-/* ---------- copy ---------- */
-
-#work .desc {
-  color: var(--c-light-text);
-  max-width: 56ch;
-  margin-block: 18px 24px;
+#work .spread .rpath li {
+  padding: 11px 14px;
+  font-size: 0.8125rem;
 }
 
-#work .sub {
-  color: var(--c-muted-text);
-  font-size: 0.875rem;
-  max-width: 62ch;
-  margin-top: 8px;
+/* Four verbs do not fit a narrow tile; three say the same thing. */
+#work .spread .pv-m b:nth-child(4) {
+  display: none;
 }
 
-#work .actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 20px;
-}
+@container spread (max-width: 520px) {
+  #work .spread .kp {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
 
-/* Row tech pills (mockup rev 15 `.stk`); the spread's tech lives in the
-   case study, its KPI wall carries the weight here. */
-#work .stk {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin: 14px 0 0;
-  padding: 0;
-  list-style: none;
-  direction: ltr;
-}
+  #work .spread .kp .kpi,
+  #work .spread .kp[data-n="5"] .kpi:nth-child(n + 4) {
+    grid-column: span 1;
+  }
 
-[dir="rtl"] #work .stk {
-  justify-content: flex-end;
-}
-
-#work .stk li {
-  font: 500 0.75rem/1 var(--font-mono-body);
-  padding: 7px 11px;
-  border-radius: 999px;
-  border: 1px solid var(--c-hairline);
-  background: var(--c-light-bg);
-  color: var(--c-light-text);
-  transition:
-    border-color 0.4s ease,
-    color 0.4s ease,
-    background-color 0.4s ease;
-}
-
-@media (hover: hover) {
-  #work .stk li:hover {
-    border-color: var(--c-honey);
-    color: var(--c-dark-text);
-    background: var(--c-surface);
+  #work .spread .kp[data-n="5"] .kpi:last-child {
+    grid-column: span 2;
   }
 }
 
-/* ---------- rows ---------- */
+@container spread (min-width: 900px) {
+  #work .spread {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    grid-template-areas:
+      "copy media"
+      "kpis media";
+    align-items: start;
+  }
+
+  #work .spread-media,
+  #work .spread-media .media-stack {
+    align-self: stretch;
+  }
+
+  /* The browser window keeps its natural proportions; the plate above it
+     takes whatever height is left, so the media column ends exactly where
+     the KPI wall does. */
+  #work .spread .media-stack {
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+}
+
+/* ---------- project cards ---------- */
 
 #work .rows {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  margin-top: clamp(16px, 2.5vw, 20px);
+}
+
+#work .spotlight::after {
+  display: none;
 }
 
 #work .row {
+  --px: 12px;
+  --more-px: calc(var(--px) + 8px);
   position: relative;
   isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  padding: 12px var(--px) 0;
+  border: 1px solid var(--c-hairline);
+  border-radius: 22px;
+  background: var(--c-surface);
+  box-shadow: var(--sh-xs);
+  overflow: hidden;
+  transition:
+    transform 0.45s var(--ease-out),
+    box-shadow 0.45s ease-out,
+    border-color 0.3s;
+}
+
+#work .row-media {
   display: grid;
-  grid-template-columns: 44px 240px minmax(0, 1fr) 52px;
-  gap: 24px;
-  padding: 32px 20px;
-  margin-inline: -20px;
-  border-bottom: 1px solid var(--c-hairline);
-  transition: background-color 0.25s ease-out;
+  margin-bottom: 18px;
 }
 
-#work .row:has(h3 a:focus-visible) {
-  background: var(--c-light-bg);
+#work .row-body,
+#work .row-foot {
+  padding-inline: 8px;
+  min-width: 0;
 }
 
-@media (hover: hover) {
-  #work .row:hover {
-    background: var(--c-light-bg);
-  }
+#work .row-foot {
+  display: grid;
+  gap: 14px;
+  align-content: end;
+  margin-top: auto;
+  padding-block: 18px 20px;
 }
 
-/* The stretched link covers the whole row, so the focus ring belongs on the
-   row, not on the title text it happens to wrap. */
+#work .row .disc {
+  margin-inline: calc(var(--px) * -1);
+}
+
+#work .row h3 {
+  font-size: clamp(1.375rem, 2.2vw, 1.75rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  margin-top: 16px;
+}
+
+#work .row h3 a {
+  color: inherit;
+  text-decoration: none;
+  background: linear-gradient(var(--c-honey), var(--c-honey)) 0 100% / 0 2px no-repeat;
+  padding-bottom: 2px;
+  transition: background-size 0.4s var(--ease-out);
+}
+
+[dir="rtl"] #work .row h3 a {
+  background-position: 100% 100%;
+}
+
+#work .row .desc {
+  max-width: 54ch;
+  margin-top: 12px;
+  font-size: 1.0625rem;
+  line-height: 1.5;
+}
+
+/* Stretch link: the whole card is one big hit target; buttons, the preview
+   and the accordion sit above it so they keep their own behaviour. */
+#work .row h3 a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+}
+
+#work .row .actions,
+#work .row .actions a,
+#work .row .sp {
+  position: relative;
+  z-index: 3;
+}
+
 #work .row h3 a:focus-visible {
   outline: none;
 }
 
 #work .row:has(h3 a:focus-visible) {
   outline: 2px solid var(--c-signal);
-  outline-offset: -2px;
+  outline-offset: 2px;
 }
 
-#work .row .rx,
-#work .row .plate,
-#work .row .go {
-  position: relative;
-  z-index: 1;
-}
-
-#work .rx {
-  font: 500 0.8125rem var(--font-mono-body);
-  color: var(--c-note);
-  padding-top: 6px;
-  direction: ltr;
-  transition: color 0.2s;
-}
-
-#work .row:has(h3 a:focus-visible) .rx {
-  color: var(--c-dark-text);
-}
-
-@media (hover: hover) {
-  #work .row:hover .rx {
-    color: var(--c-dark-text);
-  }
-}
-
-#work .row h3 {
-  font-size: var(--text-h3);
-  font-weight: 600;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
-  margin-top: 6px;
-  transition: transform 0.25s ease-out;
-}
-
-#work .row:has(h3 a:focus-visible) h3 {
-  transform: translateX(8px);
-}
-
-@media (hover: hover) {
-  #work .row:hover h3 {
-    transform: translateX(8px);
-  }
-}
-
-[dir="rtl"] #work .row:has(h3 a:focus-visible) h3 {
-  transform: translateX(-8px);
-}
-
-@media (hover: hover) {
-  [dir="rtl"] #work .row:hover h3 {
-    transform: translateX(-8px);
-  }
-}
-
-#work .row h3 a {
-  color: inherit;
-  text-decoration: none;
-}
-
-/* Stretch link: the whole row is one big hit target; the action buttons
-   sit above it (z-index 3) so they keep their own destinations. */
-#work .row h3 a::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-}
-
-#work .row .actions,
-#work .row .actions a {
-  position: relative;
-  z-index: 3;
-}
-
-#work .row .desc {
-  max-width: 62ch;
-  margin-top: 10px;
-}
-
-#work .row .actions {
-  margin-top: 12px;
-}
-
-#work .row .plate {
-  transition:
-    transform 0.3s ease-out,
-    border-color 0.25s,
-    box-shadow 0.3s;
-}
-
-#work .row:has(h3 a:focus-visible) .plate {
-  transform: translateY(-4px);
-  border-color: var(--c-muted-text);
-  box-shadow: var(--sh-lg);
-}
-
-@media (hover: hover) {
-  #work .row:hover .plate {
-    transform: translateY(-4px);
-    border-color: var(--c-muted-text);
-    box-shadow: var(--sh-lg);
-  }
-}
-
+/* Hover / focus on a linked card: lift, cobalt edge, the arrow fills and
+   turns, the title underlines, the preview drifts, the plate's halftone
+   wakes. A card with nowhere to go (no link) stays still. */
 #work .row .plate::before {
-  transition: opacity 0.25s;
+  transition: opacity 0.3s;
 }
 
-#work .row:has(h3 a:focus-visible) .plate::before {
-  opacity: 0.9;
+#work .row.is-link:has(h3 a:focus-visible) {
+  box-shadow: var(--sh-lg);
+  border-color: color-mix(in srgb, var(--c-secondary) 45%, var(--c-hairline));
 }
 
-@media (hover: hover) {
-  #work .row:hover .plate::before {
-    opacity: 0.9;
-  }
+#work .row.is-link:has(h3 a:focus-visible) h3 a {
+  background-size: 100% 2px;
 }
 
-#work .go {
-  align-self: center;
-  justify-self: end;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: 1px solid var(--c-rule-strong);
-  display: grid;
-  place-items: center;
-  color: var(--c-dark-text);
-  transition:
-    background-color 0.25s,
-    color 0.25s,
-    border-color 0.25s,
-    transform 0.3s ease-out;
-}
-
-#work .row:has(h3 a:focus-visible) .go {
-  background: var(--c-dark-text);
-  color: var(--c-page);
-  border-color: var(--c-dark-text);
+#work .row.is-link:has(h3 a:focus-visible) .go {
+  background: var(--c-secondary);
+  color: var(--c-on-secondary);
+  border-color: var(--c-secondary);
   transform: rotate(-45deg);
 }
 
-@media (hover: hover) {
-  #work .row:hover .go {
-    background: var(--c-dark-text);
-    color: var(--c-page);
-    border-color: var(--c-dark-text);
-    transform: rotate(-45deg);
-  }
+#work .row.is-link:has(h3 a:focus-visible) .rx {
+  color: var(--c-dark-text);
 }
 
-[dir="rtl"] #work .row:has(h3 a:focus-visible) .go {
+#work .row.is-link:has(h3 a:focus-visible) .rx::after {
+  width: 30px;
+  background: var(--c-honey);
+}
+
+[dir="rtl"] #work .row.is-link:has(h3 a:focus-visible) .go {
   transform: rotate(45deg);
 }
 
 @media (hover: hover) {
-  [dir="rtl"] #work .row:hover .go {
+  #work .row.is-link:hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in srgb, var(--c-secondary) 45%, var(--c-hairline));
+    box-shadow: var(--sh-lg);
+  }
+
+  #work .row.is-link:hover h3 a {
+    background-size: 100% 2px;
+  }
+
+  #work .row.is-link:hover .go {
+    background: var(--c-secondary);
+    color: var(--c-on-secondary);
+    border-color: var(--c-secondary);
+    transform: rotate(-45deg);
+  }
+
+  [dir="rtl"] #work .row.is-link:hover .go {
     transform: rotate(45deg);
+  }
+
+  #work .row.is-link:hover .rx {
+    color: var(--c-dark-text);
+  }
+
+  #work .row.is-link:hover .rx::after {
+    width: 30px;
+    background: var(--c-honey);
+  }
+
+  #work .row.is-link:hover .sp-frame img {
+    transform: scale(1.07) translateY(-1.5%);
+  }
+
+  #work .row.is-link:hover .plate::before {
+    opacity: 0.95;
   }
 }
 
@@ -461,25 +814,6 @@
   gap: 16px;
   flex: 1;
   justify-content: center;
-}
-
-#work .spread .plate {
-  align-self: stretch;
-  min-height: 240px;
-  box-shadow: var(--sh-md);
-}
-
-#work .spread .plate-body {
-  justify-content: flex-start;
-  padding: 28px 18px 22px;
-  gap: 14px;
-}
-
-#work .row .plate {
-  align-self: start;
-  min-width: 0;
-  width: 100%;
-  gap: 0;
 }
 
 /* Request path: a two-column numbered grid (rev 12 replaced the connector
@@ -567,24 +901,6 @@
     border-color: var(--c-honey);
     background: color-mix(in srgb, var(--c-honey) 16%, var(--c-surface));
   }
-}
-
-#work .spread .rpath {
-  flex: 1;
-  grid-auto-rows: 1fr;
-  gap: 12px;
-}
-
-#work .spread .rpath li {
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: space-between;
-  padding: 14px 16px;
-  font-size: 0.875rem;
-}
-
-#work .spread .rpath li::before {
-  font-size: 0.75rem;
 }
 
 /* Grouped services in a dashed box; the caption rides the border. */
@@ -766,87 +1082,368 @@ html[lang="ar"] #work .plate-cap {
   max-width: 60ch;
 }
 
+/* ---------- polish: motion that answers the pointer ---------- */
+
+/* Production: the last segment pulses once in a while, like the live dot. */
+#work .status-production .meter i:last-child {
+  animation: seg-pulse 3.2s ease-in-out infinite;
+}
+
+@keyframes seg-pulse {
+  0%,
+  70%,
+  100% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 0.35;
+  }
+}
+
+/* Tech chips rise one after another when their card is hovered. */
+#work .row .stk li {
+  transition:
+    transform 0.4s var(--ease-out),
+    border-color 0.3s ease,
+    color 0.3s ease,
+    background-color 0.3s ease;
+}
+
+#work .row .stk li:nth-child(2) { transition-delay: 25ms; }
+#work .row .stk li:nth-child(3) { transition-delay: 50ms; }
+#work .row .stk li:nth-child(4) { transition-delay: 75ms; }
+#work .row .stk li:nth-child(5) { transition-delay: 100ms; }
+#work .row .stk li:nth-child(n + 6) { transition-delay: 125ms; }
+
+@media (hover: hover) {
+  #work .row.is-link:hover .stk li {
+    transform: translateY(-2px);
+  }
+}
+
+/* Press feedback. */
+#work .row.is-link:active {
+  transform: translateY(-1px) scale(0.995);
+  transition-duration: 0.12s;
+}
+
+/* The visual brightens a touch while the card is under the pointer. */
+#work .row .sp-frame img {
+  transition:
+    opacity 0.4s ease-out,
+    transform 1s var(--ease-out);
+}
+
+/* Details: the chevron springs, the open panel is tinted, and its text
+   rises in line by line after the height has started to open. */
+#work .chev {
+  transition:
+    transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background-color 0.25s,
+    border-color 0.25s,
+    color 0.25s;
+}
+
+#work .disc {
+  transition: background-color 0.4s ease;
+}
+
+#work .disc[open] {
+  background: color-mix(in srgb, var(--c-light-bg) 75%, transparent);
+}
+
+#work .disc summary:active .chev {
+  transform: scale(0.88);
+}
+
+#work .disc[open] summary:active .chev {
+  transform: rotate(180deg) scale(0.88);
+}
+
+@supports selector(::details-content) {
+  #work .disc-body > * {
+    opacity: 0;
+    transform: translateY(-8px);
+    transition:
+      opacity 0.35s ease,
+      transform 0.5s var(--ease-out);
+  }
+
+  #work .disc[open] .disc-body > * {
+    opacity: 1;
+    transform: none;
+    transition-delay: 0.12s;
+  }
+
+  #work .disc[open] .disc-body > *:nth-child(2) {
+    transition-delay: 0.2s;
+  }
+}
+
+
+/* ---------- details: coordinated open / close (see WorkMotion.tsx) ---------- */
+
+/* While the script measures the final layout nothing may be mid-transition. */
+#work.is-measuring *,
+#work.is-measuring .disc::details-content {
+  transition: none !important;
+}
+
+/* In the two-column layout the script animates the card heights itself, so
+   the CSS height slide stands down for the cards (the featured panel keeps it). */
+@media (min-width: 900px) {
+  #work.js-disc .row .disc::details-content {
+    transition: none;
+  }
+}
+
+/* A closing disclosure keeps its text visible while the card shrinks, but is
+   already drawn as closed: chevron back, text easing out. */
+#work .disc[data-state="closing"] {
+  background: transparent;
+}
+
+#work .disc[data-state="closing"] .chev {
+  transform: none;
+  background: transparent;
+  border-color: var(--c-rule-strong);
+  color: inherit;
+}
+
+#work .disc[data-state="closing"] summary {
+  color: var(--c-light-text);
+}
+
+#work .disc[data-state="closing"] .disc-body > * {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition-delay: 0s;
+}
+
 /* ---------- responsive ---------- */
 
-@media (max-width: 900px) {
+/* Two-up cards. Every visual has the same minimum height (taller when a
+   card in the pair also shows a live preview), so titles line up across a
+   pair without the cards sharing rows; closed cards in a pair are equally
+   tall. Opening one card never stretches its neighbour: while either card of
+   a pair is open, both sit at their own natural height. */
+@media (min-width: 900px) {
+  #work .rows {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  /* WorkMotion measures each pair and sets --pair-media so both visuals are
+     exactly as tall as the taller one; these are the no-script fallbacks. */
+  #work .row-media {
+    min-height: var(--pair-media, 232px);
+  }
+
+  #work .row.media-tall .row-media {
+    min-height: var(--pair-media, 420px);
+  }
+
+  #work .row:nth-child(odd):has(.disc[open]),
+  #work .row:nth-child(odd):has(.disc[open]) + .row,
+  #work .row:nth-child(odd):has(+ .row .disc[open]),
+  #work .row:nth-child(even):has(.disc[open]) {
+    align-self: start;
+  }
+}
+
+@media (max-width: 619.98px) {
+  /* No card inside a card: the featured project sits flat on the page. */
   #work .spread {
-    grid-template-columns: minmax(0, 1fr);
-    margin-inline: 0;
-    padding: 0 0 12px;
-    border-color: transparent;
+    padding: 0;
+    gap: 22px;
+    border: 0;
     border-radius: 0;
+    background: none;
+    box-shadow: none;
   }
 
   #work .spread:hover,
   #work .spread:focus-within {
-    background: transparent;
-    border-color: transparent;
+    border: 0;
+    box-shadow: none;
   }
 
-  #work .spread:hover .plate {
-    transform: none;
-  }
-
-  #work .spread-media {
-    order: -1;
-    align-self: auto;
+  /* Visual first on a phone, like a product card, then the words. */
+  #work .spread {
+    grid-template-areas:
+      "media"
+      "copy"
+      "kpis";
   }
 
   #work .spread-title {
-    font-size: 2.25rem;
+    font-size: 2.125rem;
+    margin-top: 16px;
   }
 
-  /* Rows become cards. */
-  #work .row {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 14px;
-    padding: 18px;
-    margin-inline: 0;
-    margin-bottom: 16px;
-    border: 1px solid var(--c-rule-strong);
-    border-radius: 20px;
-    background: var(--c-surface);
+  #work .spread-copy .desc {
+    font-size: 1.0625rem;
   }
 
-  #work .row .rx {
+  /* The live preview leads the featured visual; the plate follows as a strip. */
+  #work .spread-media .sp {
     order: -1;
+  }
+
+  #work .spread-copy .actions .btn-primary {
+    flex-basis: 100%;
+  }
+
+  /* KPI wall: three small tiles, then two. Numbers only. */
+  #work .spread .kp {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  #work .spread .kp .kpi {
+    grid-column: span 2;
+    padding: 12px 12px 10px;
+    gap: 4px;
+    border-radius: 14px;
+  }
+
+  #work .spread .kp[data-n="5"] .kpi:nth-child(n + 4) {
+    grid-column: span 3;
+  }
+
+  #work .spread .kpi dt {
+    font-size: 0.625rem;
+    letter-spacing: 0.04em;
+  }
+
+  #work .spread .kpi dd {
+    font-size: 1.625rem;
+  }
+
+  #work .spread .pt-v {
+    display: none;
+  }
+
+  /* A plate shrinks to one swipeable strip: the request path, or the
+     services, in a single line. Its header, caption and figures belong to
+     larger screens. */
+  #work .plate::before,
+  #work .plate-head,
+  #work .plate-cap,
+  #work .plate-foot {
+    display: none;
+  }
+
+  #work .plate {
+    box-shadow: none;
+  }
+
+  #work .plate-body,
+  #work .spread .plate-body {
+    padding: 8px;
+    gap: 0;
+  }
+
+  #work .rpath,
+  #work .spread .rpath {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 6px;
+    scrollbar-width: none;
+  }
+
+  #work .rpath::-webkit-scrollbar,
+  #work .rgroup::-webkit-scrollbar {
+    display: none;
+  }
+
+  #work .rpath li,
+  #work .spread .rpath li {
+    flex: none;
+    padding: 7px 10px;
+    white-space: nowrap;
+    font-size: 0.75rem;
+  }
+
+  /* Feature badges stay a wrapped row of chips; only the request path scrolls. */
+  #work .rgroup {
     padding: 0;
+    border: 0;
+  }
+
+  #work .rgroup::before {
+    display: none;
+  }
+
+  #work .media-stack:has(.sp) .plate-body {
+    padding: 12px;
+  }
+
+  #work .row .actions .btn {
+    flex: 1 1 40%;
+    min-height: 44px;
+  }
+
+  /* Cards: airy, one idea at a time. */
+  #work .rows {
+    gap: 14px;
+  }
+
+  #work .row {
+    --px: 10px;
+    border-radius: 20px;
   }
 
   #work .row-media {
-    max-width: 340px;
+    margin-bottom: 14px;
   }
 
-  #work .go {
-    display: none;
+  #work .row h3 {
+    margin-top: 14px;
+    font-size: 1.5rem;
+  }
+
+  #work .row .desc {
+    font-size: 1rem;
+  }
+
+  #work .row-foot {
+    padding-block: 16px 18px;
+  }
+
+  #work .disc summary {
+    min-height: 54px;
   }
 }
 
-@media (max-width: 560px) {
-  #work .spread .rpath {
-    grid-auto-rows: auto;
-  }
+/* ---------- motion ---------- */
 
-  #work .spread .rpath li {
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-  }
+/* The request path only starts lighting up once its panel has scrolled in. */
+#work [data-revealed="false"] .rpath li {
+  animation-play-state: paused;
 }
-
-/* ---------- reduced motion ---------- */
 
 @media (prefers-reduced-motion: reduce) {
   #work .rpath li,
-  #work .live-dot::after {
+  #work .live-dot::after,
+  #work .status-production .meter i,
+  #work .disc-body {
     animation: none;
   }
 
-  #work .spread:hover .plate,
-  #work .row:hover h3,
-  #work .row:has(h3 a:focus-visible) h3,
-  #work .row:hover .plate,
-  #work .row:has(h3 a:focus-visible) .plate {
+  #work .disc::details-content,
+  #work .chev,
+  #work .row,
+  #work .row .go,
+  #work .row h3 a,
+  #work .row .rx::after {
+    transition: none;
+  }
+
+  #work .row.is-link:hover,
+  #work .row.is-link:hover .go,
+  #work .row.is-link:hover .sp-frame img {
     transform: none;
   }
 }

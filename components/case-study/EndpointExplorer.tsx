@@ -1,6 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import Icon from "@/components/ui/Icon";
 import { EXPLORER_CASE_SLICE, type EndpointAccess, type ExplorerEndpoint } from "@/data/trosc";
 import type { TroscDictionary } from "@/lib/dictionaries/trosc";
@@ -32,6 +40,24 @@ const STATUS_TEXT: Record<number, string> = {
 /** Size of the JSON body as it would travel over the wire. */
 function payloadBytes(value: unknown): number {
   return new TextEncoder().encode(JSON.stringify(value)).length;
+}
+
+/**
+ * A route with a soft break point after every "/", so a long path wraps
+ * between segments on a narrow screen instead of snapping mid-word.
+ */
+function breakable(path: string): ReactNode {
+  const parts = path.split("/");
+  return parts.map((part, index) => (
+    <Fragment key={index}>
+      {part}
+      {index < parts.length - 1 && (
+        <>
+          /<wbr />
+        </>
+      )}
+    </Fragment>
+  ));
 }
 
 type RunState =
@@ -149,6 +175,32 @@ export default function EndpointExplorer({ dict }: EndpointExplorerProps) {
 
   return (
     <div className="explorer">
+      {/* Small screens: one compact dropdown replaces the full list, so the
+          explorer reads pick -> run -> response instead of scrolling past
+          14 rows first. The list below is hidden there (and this is hidden
+          on desktop), so only one of the two is ever in the page. */}
+      <div className="ex-pick">
+        <select
+          aria-label={dict.title}
+          value={selectedId}
+          onChange={(event) => pick(event.target.value as ExplorerEndpoint["id"])}
+        >
+          {ACCESS_GROUPS.map((access) => {
+            const items = ENDPOINTS.filter((endpoint) => endpoint.access === access);
+            if (items.length === 0) return null;
+            return (
+              <optgroup key={access} label={dict.groups[access]}>
+                {items.map((endpoint) => (
+                  <option key={endpoint.id} value={endpoint.id}>
+                    {endpoint.method} {endpoint.path}
+                  </option>
+                ))}
+              </optgroup>
+            );
+          })}
+        </select>
+      </div>
+
       <div className="ex-list">
         {ACCESS_GROUPS.map((access) => {
           const items = ENDPOINTS.filter((endpoint) => endpoint.access === access);
@@ -169,7 +221,7 @@ export default function EndpointExplorer({ dict }: EndpointExplorerProps) {
                   <span className="verb" data-m={endpoint.method}>
                     {endpoint.method}
                   </span>
-                  <span className="ex-path">{endpoint.path}</span>
+                  <span className="ex-path">{breakable(endpoint.path)}</span>
                 </button>
               ))}
             </div>
@@ -183,7 +235,7 @@ export default function EndpointExplorer({ dict }: EndpointExplorerProps) {
             <span className="verb" data-m={selected.method}>
               {selected.method}
             </span>
-            {selected.path}
+            <span className="ex-url">{breakable(selected.path)}</span>
           </span>
           <button
             type="button"

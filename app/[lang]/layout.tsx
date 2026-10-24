@@ -9,6 +9,7 @@ import {
 import localFont from "next/font/local";
 import type { ReactNode } from "react";
 import "@/app/globals.css";
+import PauseOffscreen from "@/components/behavior/PauseOffscreen";
 import RevealOnScroll from "@/components/behavior/RevealOnScroll";
 import ScrollManager from "@/components/behavior/ScrollManager";
 import ThemeEffects from "@/components/behavior/ThemeEffects";
@@ -157,6 +158,7 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
         <ThemeEffects />
         <ScrollManager />
         <RevealOnScroll />
+        <PauseOffscreen />
       </body>
     </html>
   );
