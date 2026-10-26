@@ -1,6 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -17,6 +16,7 @@ import MasterCode from "@/components/easter-egg/MasterCode";
 import SecretTerminalAccess from "@/components/easter-egg/SecretTerminalAccess";
 import Toasts, { type ToastData } from "@/components/easter-egg/Notifications";
 import SecretClue from "@/components/easter-egg/SecretClue";
+import Terminal from "@/components/easter-egg/Terminal";
 import {
   animateClue,
   animateProfileClick,
@@ -30,14 +30,6 @@ import { bindPortraitCursor, isOnPortrait } from "@/lib/portrait-hit";
 import { playKonamiSound, playSuccessSound, resumeAudio, setupAudio } from "@/lib/sounds";
 import type { Locale } from "@/lib/i18n";
 import type { TerminalMode } from "@/components/easter-egg/constants";
-
-// The terminal is the biggest piece of the game and nothing needs it until it
-// is opened, so it is its own chunk and is only mounted while open. (It used to
-// be mounted closed on the first click: a whole hidden terminal DOM built in
-// the same frames as the first click animation. It was always remounted fresh
-// on open, so nothing is lost.) EasterEgg warms the chunk while the browser is
-// idle, so opening it does not wait on the network.
-const Terminal = dynamic(() => import("@/components/easter-egg/Terminal"), { ssr: false });
 
 type Overlay = "none" | "prompt" | "keyboard" | "master";
 
@@ -265,6 +257,12 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       if (state.solved) return;
       state.solved = true;
 
+      // Whatever hint is still on screen (the 9/10 one) glitches out as the
+      // master code window arrives, as if the answer had cracked it.
+      setToasts((current) =>
+        current.map((toast) => (toast.kind === "hint" ? { ...toast, cracked: true, clicks: CLICKS_NEEDED } : toast)),
+      );
+
       state.revealed = true;
       state.level = HINT_LEVELS.length - 1;
       syncClue();
@@ -472,7 +470,11 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
         onEngagedChange={setClueEngaged}
       />
       {layers.map((name) => renderOverlay(name, name !== overlay))}
-      {terminalOpen && <Terminal open onClose={closeTerminal} />}
+      <Terminal
+        key={terminalOpen ? "open" : "closed"}
+        open={terminalOpen}
+        onClose={closeTerminal}
+      />
       <Toasts toasts={toasts} locale={locale} onRemove={removeToast} />
     </>
   );

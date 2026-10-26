@@ -360,10 +360,6 @@
   align-content: start;
 }
 
-#work .media-stack:has(.sp) .plate-head {
-  display: none;
-}
-
 #work .media-stack:has(.sp) .plate-body {
   padding: 18px 14px 14px;
   gap: 12px;
@@ -495,19 +491,6 @@
   justify-content: flex-start;
   padding: 20px 16px 18px;
   gap: 14px;
-}
-
-/* When the plate is stretched to the height of the column beside it, its
-   path nodes share the extra height instead of leaving a gap. */
-#work .spread .rpath {
-  flex: 1;
-  grid-auto-rows: 1fr;
-  gap: 10px;
-}
-
-#work .spread .rpath li {
-  padding: 11px 14px;
-  font-size: 0.8125rem;
 }
 
 /* Four verbs do not fit a narrow tile; three say the same thing. */
@@ -814,159 +797,6 @@
   gap: 16px;
   flex: 1;
   justify-content: center;
-}
-
-/* Request path: a two-column numbered grid (rev 12 replaced the connector
-   chain; `.cn` connectors are gone for good). Nodes pulse once per cycle,
-   staggered by --i. */
-#work .rpath {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  counter-reset: st;
-  align-items: stretch;
-  direction: ltr;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-#work .rpath li {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-  padding: 9px 12px;
-  border: 1px solid var(--c-hairline);
-  border-radius: 10px;
-  background: var(--c-surface);
-  font: 500 0.75rem var(--font-mono-body);
-  color: var(--c-dark-text);
-  overflow-wrap: break-word;
-  counter-increment: st;
-  animation: wp-lit 14s ease-in-out infinite;
-  animation-delay: calc(var(--i, 0) * 0.9s);
-}
-
-#work .rpath li::before {
-  content: counter(st, decimal-leading-zero);
-  color: var(--c-note);
-  font-size: 0.6875rem;
-  flex: none;
-  white-space: nowrap;
-}
-
-#work .rpath li.hot {
-  border-color: var(--c-secondary);
-  background: color-mix(in srgb, var(--c-secondary) 10%, transparent);
-  animation-name: wp-lit-hot;
-}
-
-#work .rpath li.live {
-  border-color: var(--c-status);
-  animation-name: wp-lit-live;
-}
-
-@keyframes wp-lit {
-  0%,
-  16%,
-  100% {
-    border-color: var(--c-rule-strong);
-  }
-  6% {
-    border-color: var(--c-honey);
-    background: color-mix(in srgb, var(--c-honey) 16%, var(--c-surface));
-  }
-}
-
-@keyframes wp-lit-hot {
-  0%,
-  16%,
-  100% {
-    border-color: var(--c-secondary);
-  }
-  6% {
-    border-color: var(--c-honey);
-    background: color-mix(in srgb, var(--c-honey) 16%, var(--c-surface));
-  }
-}
-
-@keyframes wp-lit-live {
-  0%,
-  16%,
-  100% {
-    border-color: var(--c-status);
-  }
-  6% {
-    border-color: var(--c-honey);
-    background: color-mix(in srgb, var(--c-honey) 16%, var(--c-surface));
-  }
-}
-
-/* Grouped services in a dashed box; the caption rides the border. */
-#work .rgroup {
-  position: relative;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  border: 1px dashed var(--c-rule-strong);
-  border-radius: 12px;
-  padding: 18px 12px 12px;
-  direction: ltr;
-  list-style: none;
-  margin: 0;
-}
-
-#work .rgroup::before {
-  content: attr(data-cap);
-  position: absolute;
-  top: -8px;
-  inset-inline-start: 12px;
-  padding: 0 6px;
-  background: var(--c-dark-bg);
-  font: 500 0.625rem var(--font-mono-body);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--c-muted-text);
-}
-
-html[lang="ar"] #work .rgroup::before {
-  font-family: var(--font-body);
-  font-size: 0.75rem;
-  letter-spacing: 0;
-  text-transform: none;
-}
-
-#work .rgroup li {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-  font: 500 0.75rem/1 var(--font-mono-body);
-  padding: 6px 9px;
-  border: 1px solid var(--c-rule-strong);
-  border-radius: 8px;
-  background: var(--c-surface);
-  color: var(--c-dark-text);
-  overflow-wrap: break-word;
-}
-
-#work .rgroup li::before {
-  content: "";
-  flex: none;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--c-rule-strong);
-}
-
-#work .rgroup li.hot {
-  border-color: var(--c-secondary);
-  background: color-mix(in srgb, var(--c-secondary) 10%, transparent);
-}
-
-#work .rgroup li.hot::before {
-  background: var(--c-secondary);
 }
 
 #work .plate-cap {
@@ -1324,62 +1154,6 @@ html[lang="ar"] #work .plate-cap {
     display: none;
   }
 
-  /* A plate shrinks to one swipeable strip: the request path, or the
-     services, in a single line. Its header, caption and figures belong to
-     larger screens. */
-  #work .plate::before,
-  #work .plate-head,
-  #work .plate-cap,
-  #work .plate-foot {
-    display: none;
-  }
-
-  #work .plate {
-    box-shadow: none;
-  }
-
-  #work .plate-body,
-  #work .spread .plate-body {
-    padding: 8px;
-    gap: 0;
-  }
-
-  #work .rpath,
-  #work .spread .rpath {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    gap: 6px;
-    scrollbar-width: none;
-  }
-
-  #work .rpath::-webkit-scrollbar,
-  #work .rgroup::-webkit-scrollbar {
-    display: none;
-  }
-
-  #work .rpath li,
-  #work .spread .rpath li {
-    flex: none;
-    padding: 7px 10px;
-    white-space: nowrap;
-    font-size: 0.75rem;
-  }
-
-  /* Feature badges stay a wrapped row of chips; only the request path scrolls. */
-  #work .rgroup {
-    padding: 0;
-    border: 0;
-  }
-
-  #work .rgroup::before {
-    display: none;
-  }
-
-  #work .media-stack:has(.sp) .plate-body {
-    padding: 12px;
-  }
-
   #work .row .actions .btn {
     flex: 1 1 40%;
     min-height: 44px;
@@ -1420,12 +1194,17 @@ html[lang="ar"] #work .plate-cap {
 /* ---------- motion ---------- */
 
 /* The request path only starts lighting up once its panel has scrolled in. */
-#work [data-revealed="false"] .rpath li {
+#work [data-revealed="false"] :is(.rpath, .rgroup) li,
+#work [data-revealed="false"] :is(.rpath, .rgroup) li::before,
+#work [data-revealed="false"] :is(.rpath, .rgroup) li::after {
   animation-play-state: paused;
 }
 
 @media (prefers-reduced-motion: reduce) {
   #work .rpath li,
+  #work .rpath li::before,
+  #work .rpath li::after,
+  #work .rgroup li,
   #work .live-dot::after,
   #work .status-production .meter i,
   #work .disc-body {
@@ -1445,5 +1224,674 @@ html[lang="ar"] #work .plate-cap {
   #work .row.is-link:hover .go,
   #work .row.is-link:hover .sp-frame img {
     transform: none;
+  }
+}
+
+/* ---------- details v2: a drawer with a progress rule ---------- */
+
+/* The label carries a honey tick (identity colour) that grows when the drawer
+   opens; a cobalt rule draws across the top edge as it opens (action colour);
+   hover tints the bar and wakes the chevron before anything is clicked. */
+#work .disc {
+  --disc-tint: color-mix(in srgb, var(--c-secondary) 5%, var(--c-surface));
+  isolation: isolate;
+  transition: background-color 0.45s ease, border-color 0.3s ease, box-shadow 0.45s ease;
+}
+
+#work .disc::before {
+  content: "";
+  position: absolute;
+  inset: -1px 0 auto 0;
+  z-index: 1;
+  height: 2px;
+  background: var(--c-secondary);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.55s cubic-bezier(0.65, 0, 0.35, 1);
+  pointer-events: none;
+}
+
+[dir="rtl"] #work .disc::before {
+  transform-origin: right center;
+}
+
+#work .disc[open]::before {
+  transform: scaleX(1);
+}
+
+#work .disc[data-state="closing"]::before {
+  transform: scaleX(0);
+  transition-duration: 0.35s;
+}
+
+#work .disc[open] {
+  background: var(--disc-tint);
+}
+
+#work .disc[data-state="closing"] {
+  background: transparent;
+}
+
+#work .disc summary > span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  letter-spacing: 0.01em;
+}
+
+#work .disc summary > span:first-child::before {
+  content: "";
+  width: 3px;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--c-honey);
+  transform-origin: center;
+  transition: height 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s;
+  opacity: 0.7;
+}
+
+#work .disc[open] summary > span:first-child::before {
+  height: 22px;
+  opacity: 1;
+}
+
+#work .disc[data-state="closing"] summary > span:first-child::before {
+  height: 14px;
+  opacity: 0.7;
+}
+
+@media (hover: hover) {
+  #work .disc summary:hover {
+    background: color-mix(in srgb, var(--c-secondary) 7%, transparent);
+    color: var(--c-dark-text);
+  }
+
+  #work .disc summary:hover .chev {
+    border-color: var(--c-secondary);
+    color: var(--c-secondary);
+  }
+
+  #work .disc[open] summary:hover .chev {
+    color: var(--c-on-secondary);
+  }
+
+  #work .disc summary:hover > span:first-child::before {
+    opacity: 1;
+  }
+}
+
+#work .disc summary:focus-visible {
+  outline: 2px solid var(--c-signal);
+  outline-offset: -3px;
+  border-radius: 12px;
+}
+
+/* The note: a quiet inset with the honey rule, not a loose paragraph. */
+#work .disc-body {
+  padding-block: 6px 24px;
+}
+
+#work .disc-body .sub {
+  padding: 12px 16px;
+  border-inline-start: 2px solid var(--c-honey);
+  border-radius: 0 12px 12px 0;
+  background: color-mix(in srgb, var(--c-honey) 7%, transparent);
+}
+
+[dir="rtl"] #work .disc-body .sub {
+  border-radius: 12px 0 0 12px;
+}
+
+/* Featured: the drawer is a bordered panel of its own, inset from the copy. */
+#work .spread-copy .disc {
+  --more-px: 18px;
+  border: 1px solid var(--c-hairline);
+  border-radius: 16px;
+  background: var(--c-surface);
+  overflow: hidden;
+}
+
+#work .spread-copy .disc[open] {
+  background: var(--disc-tint);
+  border-color: color-mix(in srgb, var(--c-secondary) 35%, var(--c-hairline));
+  box-shadow: var(--sh-xs);
+}
+
+#work .spread-copy .disc[data-state="closing"] {
+  background: var(--c-surface);
+  border-color: var(--c-hairline);
+}
+
+#work .spread-copy .disc::before {
+  inset: 0 0 auto 0;
+}
+
+#work .spread-copy .disc summary {
+  min-height: 56px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #work .disc,
+  #work .disc::before,
+  #work .disc summary > span:first-child::before {
+    transition: none;
+  }
+}
+
+/* ---------- plates v4: the same window as the live preview ---------- */
+
+/* A plate is a window like the site preview next to it: the same frame, the
+   same title bar (three dots and a pill carrying the project's name), a white
+   surface and a quiet footer. Inside, a plain ruled list; one row at a time is
+   marked, stepping down the list in a loop. Nothing else is decorated, and
+   phone, tablet and desktop share it, left to right and right to left. */
+
+#work .plate {
+  border: 1px solid var(--c-hairline);
+  border-radius: var(--radius-ui-3);
+  background: var(--c-surface);
+  box-shadow: var(--sh-sm);
+}
+
+#work .plate::before,
+#work .row .plate::before,
+#work .row.is-link:hover .plate::before {
+  display: none;
+}
+
+#work .plate .plate-head {
+  direction: ltr;
+  justify-content: flex-start;
+  gap: 5px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--c-hairline);
+  background: var(--c-light-bg);
+}
+
+#work .plate .plate-head::before {
+  content: "";
+  flex: none;
+  width: 7px;
+  height: 7px;
+  margin-inline-end: 30px;
+  border-radius: 50%;
+  background: var(--c-rule-strong);
+  box-shadow:
+    12px 0 0 var(--c-rule-strong),
+    24px 0 0 var(--c-rule-strong);
+}
+
+#work .plate .plate-head .slug {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 10px;
+  overflow: hidden;
+  border: 1px solid var(--c-hairline);
+  border-radius: 999px;
+  background: var(--c-surface);
+  font: 500 0.6875rem/1 var(--font-mono-body);
+  color: var(--c-light-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#work .plate .plate-head .slug::before {
+  display: none;
+}
+
+#work .media-stack .plate .plate-body {
+  padding: 0;
+  gap: 0;
+  justify-content: flex-start;
+}
+
+#work .plate :is(.rpath, .rgroup) {
+  counter-reset: st;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  direction: inherit;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: none;
+  grid-auto-rows: minmax(44px, 1fr);
+  gap: 0;
+  flex: 1;
+}
+
+#work .plate :is(.rpath, .rgroup) li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  min-height: 44px;
+  margin: 0;
+  padding-block: 0;
+  padding-inline: 0 16px;
+  border: 0;
+  border-top: 1px solid var(--c-hairline);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  font: 500 0.8125rem/1.25 var(--font-mono-body);
+  color: var(--c-dark-text);
+  overflow-wrap: anywhere;
+  unicode-bidi: isolate;
+  counter-increment: st;
+  --t: calc(var(--i, 0) * 0.5s + 0.9s);
+  background-image: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--c-honey) 14%, transparent),
+    color-mix(in srgb, var(--c-honey) 4%, transparent)
+  );
+  background-repeat: no-repeat;
+  background-size: 0% 100%;
+  animation:
+    wp-in 0.55s var(--ease-out) both,
+    wp-row 5s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * 70ms + 120ms), var(--t);
+}
+
+/* Rows come in one after another once the plate scrolls into view. */
+#work [data-revealed="false"] .plate :is(.rpath, .rgroup) li {
+  opacity: 0;
+}
+
+@keyframes wp-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+#work .plate .rpath li:first-child {
+  border-top: 0;
+}
+
+
+/* The row that is "current": a honey mark at the start edge. */
+#work .plate :is(.rpath, .rgroup) li::before {
+  content: "";
+  position: absolute;
+  inset-block: -1px;
+  inset-inline-start: 0;
+  width: 2px;
+  background: var(--c-honey);
+  opacity: 0;
+  animation: wp-mark 5s ease-in-out infinite;
+  animation-delay: var(--t);
+}
+
+/* The numbers sit in a gutter, like line numbers in an editor: the plate
+   reads as a small listing, in the site's own mono voice. */
+#work .plate .ix {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-width: 46px;
+  border-inline-end: 1px solid var(--c-hairline);
+  background: var(--c-light-bg);
+  font-style: normal;
+  direction: ltr;
+  animation: wp-gutter 5s ease-in-out infinite;
+  animation-delay: var(--t);
+}
+
+/* The current line also carries a caret after its name, like the hero's. */
+#work .plate .nm {
+  min-width: 0;
+}
+
+#work .plate .nm::after {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 15px;
+  margin-inline-start: 6px;
+  border-radius: 1px;
+  vertical-align: -3px;
+  background: var(--c-honey);
+  opacity: 0;
+  animation: wp-caret 5s steps(1, end) infinite;
+  animation-delay: var(--t);
+}
+
+/* The row's text: the name, then a one-line note in the quiet voice. On a
+   narrow plate the note drops under the name instead of being squeezed. */
+#work .plate .tx {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 1px 14px;
+  padding-block: 6px;
+}
+
+#work .plate .nt {
+  min-width: 0;
+  font: 400 0.75rem/1.3 var(--font-body);
+  unicode-bidi: isolate;
+  color: var(--c-muted-text);
+}
+
+/* The status ring at the far edge: it fills while its row is current. */
+#work .plate .end {
+  flex: none;
+  display: block;
+  width: 9px;
+  height: 9px;
+  box-sizing: border-box;
+  border: 1.5px solid var(--c-rule-strong);
+  border-radius: 50%;
+  font-style: normal;
+  animation: wp-ring 5s ease-in-out infinite;
+  animation-delay: var(--t);
+}
+
+#work .plate .ix::before {
+  content: counter(st, decimal-leading-zero);
+  font: 500 0.6875rem var(--font-mono-body);
+  color: var(--c-note);
+}
+
+#work .plate .plate-n {
+  flex: none;
+  padding-inline: 4px 2px;
+  font: 500 0.6875rem/1 var(--font-mono-body);
+  color: var(--c-muted-text);
+}
+
+/* Grouped services: a small caption row, then the same list. */
+#work .plate .rgroup::before {
+  content: attr(data-cap);
+  padding: 10px 16px 8px;
+  border-bottom: 1px solid var(--c-hairline);
+  font: 500 0.625rem var(--font-mono-body);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--c-muted-text);
+  direction: ltr;
+  text-align: start;
+}
+
+html[lang="ar"] #work .plate .rgroup::before {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+#work .plate .rgroup {
+  grid-template-rows: auto;
+}
+
+/* Footer: the caption, then (trosc) the two figures. */
+#work .plate .plate-cap {
+  padding: 10px 16px;
+  border-top: 1px solid var(--c-hairline);
+  background: var(--c-light-bg);
+}
+
+#work .plate .plate-foot {
+  margin: 0;
+  padding: 14px 16px 16px;
+  border-top: 1px solid var(--c-hairline);
+}
+
+@keyframes wp-row {
+  0% {
+    background-size: 0% 100%;
+    background-position: 0 0;
+  }
+  5%,
+  11% {
+    background-size: 100% 100%;
+    background-position: 0 0;
+  }
+  17%,
+  100% {
+    background-size: 0% 100%;
+    background-position: 100% 0;
+  }
+}
+
+@keyframes wp-gutter {
+  0%,
+  14%,
+  100% {
+    background-color: var(--c-light-bg);
+  }
+  3%,
+  9% {
+    background-color: color-mix(in srgb, var(--c-honey) 22%, var(--c-light-bg));
+  }
+}
+
+@keyframes wp-ring {
+  0%,
+  16%,
+  100% {
+    border-color: var(--c-rule-strong);
+    background: transparent;
+    box-shadow: 0 0 0 0 transparent;
+    transform: scale(1);
+  }
+  3% {
+    border-color: var(--c-honey);
+    background: var(--c-honey);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--c-honey) 45%, transparent);
+    transform: scale(1.3);
+  }
+  9% {
+    border-color: var(--c-honey);
+    background: var(--c-honey);
+    box-shadow: 0 0 0 6px transparent;
+    transform: scale(1);
+  }
+}
+
+@keyframes wp-caret {
+  0%,
+  14%,
+  100% {
+    opacity: 0;
+  }
+  3% {
+    opacity: 1;
+  }
+  6% {
+    opacity: 0.15;
+  }
+  8% {
+    opacity: 1;
+  }
+}
+
+@keyframes wp-mark {
+  0%,
+  14%,
+  100% {
+    opacity: 0;
+  }
+  3%,
+  9% {
+    opacity: 1;
+  }
+}
+
+
+/* While a row is current its note brightens, and the title bar's rule fills in
+   step with the list (--p runs 0 to 1 over one cycle). */
+#work .plate .nt {
+  animation: wp-note 5s ease-in-out infinite;
+  animation-delay: var(--t);
+}
+
+@keyframes wp-note {
+  0%,
+  16%,
+  100% {
+    color: var(--c-muted-text);
+  }
+  4%,
+  11% {
+    color: var(--c-dark-text);
+  }
+}
+
+@property --p {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
+#work .plate .plate-head {
+  position: relative;
+}
+
+#work .plate .plate-head::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -1px;
+  height: 2px;
+  background: var(--c-honey);
+  transform-origin: left center;
+  transform: scaleX(min(1, calc(var(--p) * 10 / var(--n, 6))));
+  animation: wp-p 5s linear infinite;
+  animation-delay: 0.9s;
+  pointer-events: none;
+}
+
+[dir="rtl"] #work .plate .plate-head::after {
+  transform-origin: right center;
+}
+
+@keyframes wp-p {
+  from {
+    --p: 0;
+    opacity: 1;
+  }
+  75% {
+    --p: 1;
+    opacity: 1;
+  }
+  to {
+    --p: 1;
+    opacity: 0;
+  }
+}
+
+/* Hovering a row marks it, like the current line. */
+@media (hover: hover) {
+  #work .plate :is(.rpath, .rgroup) li:hover {
+    background-color: color-mix(in srgb, var(--c-honey) 7%, transparent);
+  }
+
+  #work .plate :is(.rpath, .rgroup) li:hover .nt {
+    color: var(--c-dark-text);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #work .plate .plate-head::after,
+  #work .plate .nt,
+  #work .plate :is(.rpath, .rgroup) li,
+  #work .plate :is(.rpath, .rgroup) li::before,
+  #work .plate .nm::after,
+  #work .plate .end,
+  #work .plate .ix {
+    animation: none;
+  }
+}
+
+/* ---------- plates v9: a ruled table ---------- */
+
+/* Each row reads as a table row: number gutter, name, note, kind, status ring.
+   The columns line up from row to row, so no row is left half empty. Rows sit
+   above the card's stretch link so they can be hovered. */
+#work .row .plate {
+  position: relative;
+  z-index: 3;
+}
+
+#work .plate :is(.rpath, .rgroup) li {
+  display: grid;
+  grid-template-columns: 46px clamp(5.5rem, 26%, 8.5rem) minmax(0, 1fr) auto auto;
+  align-items: center;
+  column-gap: 14px;
+  padding-inline: 0 16px;
+}
+
+#work .plate .ix {
+  align-self: stretch;
+}
+
+#work .plate .nt {
+  padding-block: 8px;
+}
+
+#work .plate .tg {
+  padding: 3px 7px;
+  border: 1px solid var(--c-hairline);
+  border-radius: 5px;
+  font: 500 0.625rem/1 var(--font-mono-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-muted-text);
+  background: var(--c-surface);
+  white-space: nowrap;
+  direction: ltr;
+}
+
+html[lang="ar"] #work .plate .tg {
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Narrow plates: the note drops under the name and the kind steps aside. */
+@container well (max-width: 440px) {
+  #work .plate :is(.rpath, .rgroup) li {
+    grid-template-columns: 46px minmax(0, 1fr) auto;
+    grid-template-areas:
+      "ix nm end"
+      "ix nt end";
+    column-gap: 14px;
+    row-gap: 1px;
+    align-content: center;
+    padding-block: 6px;
+  }
+
+  #work .plate .ix {
+    grid-area: ix;
+    margin-block: -6px;
+  }
+
+  #work .plate .nm {
+    grid-area: nm;
+    align-self: end;
+  }
+
+  #work .plate .nt {
+    grid-area: nt;
+    align-self: start;
+    padding-block: 0;
+  }
+
+  #work .plate .end {
+    grid-area: end;
+  }
+
+  #work .plate .tg {
+    display: none;
   }
 }

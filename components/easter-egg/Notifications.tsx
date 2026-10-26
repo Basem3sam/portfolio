@@ -14,7 +14,7 @@ import type { Locale } from "@/lib/i18n";
 import "@/components/easter-egg/Egg.css";
 
 export type ToastData =
-  | { id: number; kind: "hint"; level: number; clicks: number }
+  | { id: number; kind: "hint"; level: number; clicks: number; cracked?: boolean }
   | { id: number; kind: "reminder"; text: string }
   | { id: number; kind: "reset" }
   | { id: number; kind: "spam" }
@@ -60,13 +60,33 @@ type ToastShellProps = ToastProps & {
   children: ReactNode;
   /** A real close button (pills omit it, as in the mockup). */
   close?: { label: string; delay?: number };
+  /** The hunt was solved: glitch out and go, as if the answer cracked it. */
+  cracked?: boolean;
 };
 
-function ToastShell({ duration, exitDelay, icon, variant, close, onDone, children }: ToastShellProps) {
+/** How long the "cracked" glitch-out plays before the toast is removed. */
+const CRACK_MS = 1000;
+
+function ToastShell({
+  duration,
+  exitDelay,
+  icon,
+  variant,
+  close,
+  cracked,
+  onDone,
+  children,
+}: ToastShellProps) {
   const { shown, dismiss } = useToast(duration, exitDelay, onDone);
 
+  useEffect(() => {
+    if (cracked) dismiss(CRACK_MS);
+  }, [cracked, dismiss]);
+
   return (
-    <div className={`tst${variant ? ` ${variant}` : ""}${shown ? " in" : ""}`}>
+    <div
+      className={`tst${variant ? ` ${variant}` : ""}${shown ? " in" : ""}${cracked ? " cracked" : ""}`}
+    >
       <span className="tic">
         <Icon name={icon} className="i" />
       </span>
@@ -88,11 +108,12 @@ function ToastShell({ duration, exitDelay, icon, variant, close, onDone, childre
 type HintToastProps = ToastProps & {
   level: number;
   clicks: number;
+  cracked?: boolean;
   copy: EggCopy;
   ar: boolean;
 };
 
-function HintToast({ level, clicks, copy, ar, onDone }: HintToastProps) {
+function HintToast({ level, clicks, cracked, copy, ar, onDone }: HintToastProps) {
   const hint = HINT_LEVELS[level];
   const ticks = Array.from({ length: CLICKS_NEEDED }, (_, index) => index < clicks);
 
@@ -102,6 +123,7 @@ function HintToast({ level, clicks, copy, ar, onDone }: HintToastProps) {
       exitDelay={300}
       icon={hint.icon}
       close={{ label: copy.close }}
+      cracked={cracked}
       onDone={onDone}
     >
       <span title={hint.tooltip[ar ? "ar" : "en"]}>{hint.notification[ar ? "ar" : "en"]}</span>
@@ -142,6 +164,7 @@ export default function Toasts({ toasts, locale, onRemove }: ToastsProps) {
                   key={toast.id}
                   level={toast.level}
                   clicks={toast.clicks}
+                  cracked={toast.cracked}
                   copy={copy}
                   ar={ar}
                   onDone={onDone}

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   createContext,
   Fragment,
@@ -18,7 +18,7 @@ import {
 import Icon, { type IconName } from "@/components/ui/Icon";
 import { CV_PATH, GITHUB_URL, LINKEDIN_URL, MAILTO } from "@/data/site";
 import type { Dictionary } from "@/lib/dictionaries/en";
-import type { Locale } from "@/lib/i18n";
+import { isHomePath, switchLocalePath, type Locale } from "@/lib/i18n";
 import { homeAnchorHref } from "@/lib/scroll";
 import { lockScroll, unlockScroll } from "@/lib/scrollLock";
 import { toggleTheme } from "@/lib/theme";
@@ -49,11 +49,31 @@ export function useCommandPalette() {
   return context;
 }
 
-function buildItems(palette: PaletteLabels, nav: NavLabels, locale: Locale): PaletteItem[] {
+function buildItems(
+  palette: PaletteLabels,
+  nav: NavLabels,
+  locale: Locale,
+  pathname: string,
+): PaletteItem[] {
   const linksHref = locale === "ar" ? "/ar/links" : "/links";
-  const languageHref = locale === "ar" ? "/" : "/ar";
+  // The same page in the other language, not the other language's home.
+  const languageHref = switchLocalePath(pathname, locale);
 
   return [
+    // Off home there was no way to ask for "home" at all: every entry below
+    // is a section of it. A real route link, so the URL stays clean.
+    ...(isHomePath(pathname, locale)
+      ? []
+      : [
+          {
+            id: "home",
+            label: nav.homeLabel,
+            group: "navigate" as const,
+            icon: "arrowLeft" as const,
+            href: homeAnchorHref(locale, ""),
+            keywords: "home top start main basem",
+          },
+        ]),
     { id: "work", label: nav.work, group: "navigate", icon: "arrowRight", href: "#work" },
     { id: "stack", label: nav.stack, group: "navigate", icon: "arrowRight", href: "#stack" },
     { id: "about", label: nav.about, group: "navigate", icon: "arrowRight", href: "#about" },
@@ -442,7 +462,11 @@ export default function CommandPaletteProvider({
 }: CommandPaletteProviderProps) {
   const [open, setOpen] = useState(false);
   const openRef = useRef(false);
-  const items = useMemo(() => buildItems(labels, nav, locale), [labels, nav, locale]);
+  const pathname = usePathname();
+  const items = useMemo(
+    () => buildItems(labels, nav, locale, pathname),
+    [labels, nav, locale, pathname],
+  );
 
   useEffect(() => {
     openRef.current = open;

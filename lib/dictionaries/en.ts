@@ -21,9 +21,9 @@ type WorkPlate = {
   /** Caption under the plate's node diagram. */
   caption: string;
   /** Ordered request path; `hot` highlights a step, `live` marks the store. */
-  path?: { label: string; hot?: boolean; live?: boolean }[];
+  path?: { label: string; note?: string; tag?: string; hot?: boolean; live?: boolean }[];
   /** Grouped services list (Docker Compose, RTL storefront…). */
-  group?: { label: string; hot?: boolean }[];
+  group?: { label: string; note?: string; tag?: string; hot?: boolean }[];
   /** Caption above the grouped list. */
   groupCaption?: string;
   /** Two figure facts pinned to the plate's foot. */
@@ -75,12 +75,12 @@ const projects: WorkProject[] = [
     plate: {
       caption: "request path, in order",
       path: [
-        { label: "client" },
-        { label: "rate limit" },
-        { label: "JWT", hot: true },
-        { label: "RBAC" },
-        { label: "services" },
-        { label: "MongoDB", live: true },
+        { label: "client", note: "any client calling the API", tag: "entry" },
+        { label: "rate limit", note: "throttles abusive clients", tag: "guard" },
+        { label: "JWT", note: "access and refresh tokens", tag: "auth", hot: true },
+        { label: "RBAC", note: "three role tiers", tag: "access" },
+        { label: "services", note: "17 business modules", tag: "logic" },
+        { label: "MongoDB", note: "12 collections, Mongoose", tag: "data", live: true },
       ],
       foot: [
         { value: "13", label: "documented security controls" },
@@ -103,12 +103,12 @@ const projects: WorkProject[] = [
       caption: "six services, one compose file",
       groupCaption: "docker compose · 6 services",
       group: [
-        { label: "api" },
-        { label: "worker" },
-        { label: "ai", hot: true },
-        { label: "dashboard" },
-        { label: "postgres" },
-        { label: "redis" },
+        { label: "api", note: "NestJS, store and ad accounts", tag: "service" },
+        { label: "worker", note: "scheduler running the checks", tag: "jobs" },
+        { label: "ai", note: "Python, explains findings", tag: "model", hot: true },
+        { label: "dashboard", note: "Next.js, merchants approve fixes", tag: "ui" },
+        { label: "postgres", note: "system of record", tag: "data" },
+        { label: "redis", note: "in-memory shared state", tag: "cache" },
       ],
     },
   },
@@ -125,14 +125,14 @@ const projects: WorkProject[] = [
       caption: "arabic-first, right to left",
       groupCaption: "rtl storefront",
       group: [
-        { label: "storefront" },
-        { label: "admin", hot: true },
-        { label: "orders" },
-        { label: "inventory" },
-        { label: "audit log" },
+        { label: "storefront", note: "Arabic-first, right to left", tag: "public" },
+        { label: "admin", note: "dashboard for the team", tag: "private", hot: true },
+        { label: "orders", note: "orders and custom requests", tag: "module" },
+        { label: "inventory", note: "stock and printers", tag: "module" },
+        { label: "audit log", note: "who changed what", tag: "log" },
       ],
     },
-    actions: ["repo", "live"],
+    actions: ["live"],
   },
   {
     id: "laravel",
@@ -146,10 +146,10 @@ const projects: WorkProject[] = [
     plate: {
       caption: "mvc",
       path: [
-        { label: "routes" },
-        { label: "controller" },
-        { label: "Eloquent", hot: true },
-        { label: "MySQL" },
+        { label: "routes", note: "map URLs to controllers", tag: "http" },
+        { label: "controller", note: "validates with form requests", tag: "app" },
+        { label: "Eloquent", note: "relations, eager loading", tag: "orm", hot: true },
+        { label: "MySQL", note: "writes in transactions", tag: "data" },
       ],
     },
     actions: ["repo"],
@@ -166,11 +166,11 @@ const projects: WorkProject[] = [
     plate: {
       caption: "pipeline",
       path: [
-        { label: "OpenCV" },
-        { label: "CNN", hot: true },
-        { label: "KNN" },
-        { label: "KMeans" },
-        { label: "consensus" },
+        { label: "OpenCV", note: "cleans and preprocesses scans", tag: "prep" },
+        { label: "CNN", note: "deep-learning classifier", tag: "model", hot: true },
+        { label: "KNN", note: "nearest-neighbour classifier", tag: "model" },
+        { label: "KMeans", note: "clustering classifier", tag: "model" },
+        { label: "consensus", note: "scores agreement", tag: "vote" },
       ],
     },
     actions: ["repo"],
@@ -189,6 +189,7 @@ const en = {
   nav: {
     home: "Basem Esam",
     ariaHome: "Basem Esam - Home",
+    homeLabel: "Home",
     work: "Work",
     stack: "Stack",
     about: "About",
@@ -257,8 +258,6 @@ const en = {
     liveLabel: "live from github",
     viewRepo: "Repository",
     viewLive: "Live site",
-    viewFrontend: "Frontend",
-    viewBackend: "Backend",
     caseStudy: "Case study",
     viewProfile: "View profile on GitHub",
     projectDetails: "Details",

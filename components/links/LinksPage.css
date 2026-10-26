@@ -686,60 +686,258 @@ html[dir="rtl"] .lk:focus-visible[data-trailing="arrowRight"] .go svg {
   }
 }
 
-/* ---------- the primary row: an ink bar, same height as its neighbours ---------- */
+/* ---------- the primary row: the featured action ----------
+   Built from the site's own pieces so it reads as part of it: the signature
+   blue-to-violet gradient of the primary button (a deeper, glowing version in
+   the dark theme), the halftone dot field from the hero fading in from the
+   far edge, a `$` terminal eyebrow, and the gold arrow disc with a twinkling
+   four-point star, as on the "Let's talk" pill. On hover a band of light
+   sweeps across and the card lifts. Every other row keeps the ruled-ledger
+   look, so this is the single obvious first action. */
 
 .lk.primary {
-  margin-bottom: 8px;
-  padding-inline: 16px;
-  border-bottom: 0;
-  border-radius: 14px;
-  background: var(--c-dark-text);
-  color: var(--c-page);
+  --p-bg: linear-gradient(
+    135deg,
+    var(--c-signal) 0%,
+    var(--c-secondary) 55%,
+    color-mix(in srgb, var(--c-secondary) 70%, #6b4be0) 100%
+  );
+  --p-ink: #fff;
+  --p-ink-soft: rgb(255 255 255 / 0.84);
+  --p-eyebrow: rgb(255 255 255 / 0.86);
+  --p-icon: #fff;
+  --p-tile: rgb(255 255 255 / 0.18);
+  --p-dot: rgb(255 255 255 / 0.36);
+  --p-glow: rgb(255 255 255 / 0.3);
+  --p-sheen: rgb(255 255 255 / 0.3);
+  --p-edge: rgb(255 255 255 / 0.2);
+  --p-disc: var(--c-honey-hi);
+  --p-disc-ink: var(--c-primary);
+  --p-star: #fff;
+  --p-shadow:
+    0 16px 30px -16px color-mix(in srgb, var(--c-secondary) 80%, transparent),
+    0 2px 6px color-mix(in srgb, var(--c-signal) 24%, transparent);
+  --p-shadow-hover:
+    0 22px 38px -16px color-mix(in srgb, var(--c-secondary) 90%, transparent),
+    0 3px 8px color-mix(in srgb, var(--c-signal) 30%, transparent);
+
+  grid-template-columns: 40px minmax(0, 1fr) 40px;
+  gap: 16px;
+  min-height: 92px;
+  margin-block: 6px 12px;
+  padding: 18px;
+  border: 0;
+  border-radius: 18px;
+  background: var(--p-bg);
+  color: var(--p-ink);
+  box-shadow:
+    inset 0 0 0 1px var(--p-edge),
+    inset 0 1px 0 rgb(255 255 255 / 0.28),
+    var(--p-shadow);
   overflow: hidden;
+  transition:
+    transform 0.5s var(--ease-out),
+    box-shadow 0.5s var(--ease-out);
 }
 
+.dark-mode .lk.primary {
+  --p-bg: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--c-secondary) 34%, var(--c-page)) 0%,
+    color-mix(in srgb, var(--c-secondary) 20%, var(--c-page)) 55%,
+    color-mix(in srgb, #6b4be0 28%, var(--c-page)) 100%
+  );
+  --p-ink: var(--c-dark-text);
+  --p-ink-soft: color-mix(in srgb, var(--c-dark-text) 74%, transparent);
+  --p-eyebrow: var(--c-honey);
+  --p-icon: var(--c-honey);
+  --p-tile: rgb(255 255 255 / 0.07);
+  --p-dot: rgb(143 178 255 / 0.32);
+  --p-glow: rgb(107 155 255 / 0.3);
+  --p-sheen: rgb(255 255 255 / 0.13);
+  --p-edge: color-mix(in srgb, var(--c-secondary) 46%, transparent);
+  --p-disc: var(--c-honey);
+  --p-disc-ink: var(--c-page);
+  --p-star: #f7e6c4;
+  --p-shadow:
+    0 0 32px rgb(107 155 255 / 0.2),
+    0 14px 30px -14px rgb(0 0 0 / 0.65);
+  --p-shadow-hover:
+    0 0 40px rgb(107 155 255 / 0.32),
+    0 18px 34px -14px rgb(0 0 0 / 0.7);
+}
+
+/* the dot field and glow: halftone, fading out toward the start edge */
+.lk.primary::before,
+html[dir="rtl"] .lk.primary::before {
+  inset: 0;
+  clip-path: none;
+  transition: none;
+  background-image:
+    radial-gradient(circle at 50% 50%, var(--p-dot) 0 1.2px, transparent 1.7px),
+    radial-gradient(circle at 88% 50%, var(--p-glow), transparent 46%);
+  background-size:
+    10px 10px,
+    100% 100%;
+  -webkit-mask-image: linear-gradient(to left, #000 8%, transparent 72%);
+  mask-image: linear-gradient(to left, #000 8%, transparent 72%);
+}
+
+html[dir="rtl"] .lk.primary::before {
+  background-image:
+    radial-gradient(circle at 50% 50%, var(--p-dot) 0 1.2px, transparent 1.7px),
+    radial-gradient(circle at 12% 50%, var(--p-glow), transparent 46%);
+  -webkit-mask-image: linear-gradient(to right, #000 8%, transparent 72%);
+  mask-image: linear-gradient(to right, #000 8%, transparent 72%);
+}
+
+/* the light that sweeps across on hover / focus (replaces the foot rule) */
 .lk.primary::after {
-  inset: auto 0 0;
-  background: var(--c-honey-hi);
-}
-
-.lk.primary b {
-  font-size: 1.125rem;
-}
-
-.lk.primary .sub {
-  color: color-mix(in srgb, var(--c-page) 72%, transparent);
+  inset: 0 auto 0 0;
+  width: 55%;
+  height: auto;
+  background: linear-gradient(100deg, transparent 0%, var(--p-sheen) 50%, transparent 100%);
+  transform: translateX(-120%) skewX(-14deg);
+  transform-origin: center;
+  transition: transform 1.1s var(--ease-out);
 }
 
 .lk.primary .ico {
-  color: var(--c-honey-hi);
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--p-tile);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.24);
+  color: var(--p-icon);
+}
+
+.lk.primary .txt::before {
+  content: "$ open ~/portfolio";
+  content: "$ open ~/portfolio" / "";
+  display: block;
+  margin-bottom: 5px;
+  font: 600 0.6875rem/1 var(--font-mono-body);
+  letter-spacing: 0.08em;
+  direction: ltr;
+  color: var(--p-eyebrow);
+}
+
+html[dir="rtl"] .lk.primary .txt::before {
+  text-align: right;
+}
+
+.lk.primary b {
+  color: var(--p-ink);
+  font-size: 1.1875rem;
+  letter-spacing: -0.015em;
+}
+
+.lk.primary .sub {
+  color: var(--p-ink-soft);
 }
 
 .lk.primary .go {
-  border-color: color-mix(in srgb, var(--c-page) 38%, transparent);
-  color: var(--c-page);
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  background: var(--p-disc);
+  color: var(--p-disc-ink);
+  box-shadow: 0 6px 14px -6px rgb(0 0 0 / 0.45);
+}
+
+/* a small four-point star on the disc's corner, like the hero's sparkles */
+.lk.primary .go::after {
+  content: "";
+  position: absolute;
+  top: -8px;
+  inset-inline-end: -6px;
+  width: 15px;
+  height: 15px;
+  background: var(--p-star);
+  clip-path: polygon(
+    50% 0,
+    61% 39%,
+    100% 50%,
+    61% 61%,
+    50% 100%,
+    39% 61%,
+    0 50%,
+    39% 39%
+  );
+  animation: lk-twinkle 3.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes lk-twinkle {
+  0%,
+  100% {
+    opacity: 0.7;
+    transform: scale(0.72) rotate(0deg);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.1) rotate(18deg);
+  }
+}
+
+.lk.primary:focus-visible {
+  outline-offset: 3px;
+  box-shadow:
+    inset 0 0 0 1px var(--p-edge),
+    inset 0 1px 0 rgb(255 255 255 / 0.28),
+    var(--p-shadow-hover);
+}
+
+.lk.primary:focus-visible::after {
+  transform: translateX(260%) skewX(-14deg);
 }
 
 .lk.primary:focus-visible .ico {
-  color: var(--c-honey-hi);
+  color: var(--p-icon);
 }
 
 .lk.primary:focus-visible .go {
-  background: var(--c-honey-hi);
-  border-color: var(--c-honey-hi);
-  color: var(--c-primary);
+  background: var(--p-disc);
+  border-color: transparent;
+  color: var(--p-disc-ink);
+  transform: scale(1.08);
+  box-shadow:
+    0 0 0 5px rgb(255 255 255 / 0.2),
+    0 8px 18px -6px rgb(0 0 0 / 0.5);
 }
 
 @media (hover: hover) {
+  .lk.primary:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      inset 0 0 0 1px var(--p-edge),
+      inset 0 1px 0 rgb(255 255 255 / 0.28),
+      var(--p-shadow-hover);
+  }
+
+  .lk.primary:hover::after {
+    transform: translateX(260%) skewX(-14deg);
+  }
+
   .lk.primary:hover .ico {
-    color: var(--c-honey-hi);
+    color: var(--p-icon);
   }
 
   .lk.primary:hover .go {
-    background: var(--c-honey-hi);
-    border-color: var(--c-honey-hi);
-    color: var(--c-primary);
+    background: var(--p-disc);
+    border-color: transparent;
+    color: var(--p-disc-ink);
+    transform: scale(1.08);
+    box-shadow:
+      0 0 0 5px rgb(255 255 255 / 0.2),
+      0 8px 18px -6px rgb(0 0 0 / 0.5);
   }
+}
+
+.lk.primary:active {
+  transform: translateY(0) scale(0.995);
 }
 
 /* ---------- entrance: bar, card, ledger ---------- */

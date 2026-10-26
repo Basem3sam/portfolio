@@ -478,10 +478,6 @@ body.dark-mode .hero-s {
   /* The click hunt listens on .pf-hit; the oversized photo must not eat
      clicks meant for the copy beside it. */
   pointer-events: none;
-  /* The click animations move and scale this photo. Without a layer of its own
-     the browser builds one (and rasterises the whole photo) on the first press,
-     which is a dropped frame right when the animation starts. */
-  will-change: transform;
 }
 
 /* The copy stays above the (oversized) photo while it animates. */
@@ -1111,14 +1107,19 @@ body.dark-mode .hero-s {
   /* Clear of both loops: the orange ring ends at ~70% of the frame and the
      cobalt echo at ~72%, so the words start past that and the arrow, which
      hangs off their left side, stops just outside the echo. */
-  left: calc(72% + 1.5em);
+  left: calc(70% + 1.35em);
   margin: 0;
   font-family: var(--font-caveat), var(--font-body);
   /* Scales with the portrait frame like the ring and the ticket do. */
-  font-size: clamp(12px, 3cqw, 26px);
-  font-weight: 500;
+  font-size: clamp(18px, 4.8cqw, 38px);
+  font-weight: 600;
   line-height: 1;
-  color: var(--c-light-text);
+  color: var(--c-dark-text);
+  /* A halo in the page colour keeps the words legible over the glow and photo. */
+  text-shadow:
+    0 0 3px var(--c-page),
+    0 0 8px var(--c-page),
+    0 0 16px var(--c-page);
   rotate: -5deg;
   white-space: nowrap;
   pointer-events: none;
@@ -1151,8 +1152,8 @@ body.dark-mode .hero-s {
 
 html[lang="ar"] .pf-note {
   font-family: var(--font-body);
-  font-size: clamp(11px, 2.7cqw, 22px);
-  font-weight: 500;
+  font-size: clamp(16px, 4.2cqw, 32px);
+  font-weight: 600;
 }
 
 @keyframes pnin {
@@ -1171,6 +1172,19 @@ html[lang="ar"] .pf-note {
    narrow strip with empty gutters), with the headline growing across the
    tablet range instead of staying phone-sized. */
 @media (max-width: 991px) {
+  /* The frame is the whole width here, so the note sits closer in and stays
+     inside it instead of running off the screen edge. */
+  .pf-note {
+    /* Starts past both rings (they end at ~72%) and wraps onto two lines, so
+       it fits in what is left of the frame without touching them. */
+    left: calc(72% + 1.4em);
+    max-width: 4em;
+    white-space: normal;
+    text-wrap: balance; /* "yes," over "that's me", never a lone word */
+    line-height: 1.05;
+    font-size: clamp(16px, 4.6cqw, 30px);
+  }
+
   .hero-s {
     min-height: 0;
   }
@@ -1320,51 +1334,6 @@ html[lang="ar"] .pf-note {
   .hero-s .reach .ibtn {
     flex: 1 1 0;
     width: auto;
-  }
-}
-
-/* --- cheaper portrait ring on phones, tablets and touch screens -----------
-   The ring is drawn through an SVG displacement filter (feTurbulence). While
-   it draws itself, and again every half-second of the "boil" loop, the browser
-   re-rasterises that filter on the main thread, which is what janks the first
-   seconds on a phone. Below the desktop layout (and on any touch device) the
-   ring is drawn clean: no filter, no boil, no tick/twinkle loops. The draw-on,
-   sparkles, ticket and pointer/poke reactions all stay. */
-@media (max-width: 991px), (pointer: coarse) {
-  .pf-orbit g[filter] {
-    filter: none;
-  }
-
-  .o-a {
-    animation: none;
-    opacity: 1;
-  }
-
-  .o-b {
-    display: none;
-  }
-
-  .o-ticks {
-    animation: none;
-  }
-
-  /* keep the pop-in, drop only the endless twinkle */
-  .o-star {
-    animation: ostar 0.6s 2.5s cubic-bezier(0.34, 1.7, 0.64, 1) forwards;
-  }
-
-  .o-star-b {
-    animation-delay: 2.75s;
-  }
-
-  /* the ticket's idle bob and sheen are decoration; keep the ping on the dot */
-  .hire-b {
-    animation: hbin 0.95s 0.7s cubic-bezier(0.34, 1.4, 0.64, 1) backwards;
-  }
-
-  .hb-t::after {
-    animation: none;
-    display: none;
   }
 }
 

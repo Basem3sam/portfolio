@@ -170,29 +170,48 @@ function Plate({ project }: { project: Project }) {
   if (!plate) return null;
 
   return (
-    <figure className="plate" aria-hidden="true">
+    <figure
+      className="plate"
+      aria-hidden="true"
+      style={{ "--n": (plate.path ?? plate.group ?? []).length } as CSSProperties}
+    >
       <div className="plate-head">
         <span className="slug">{project.name}</span>
+        <span className="plate-n" dir="ltr" aria-hidden="true">
+          ×{(plate.path ?? plate.group ?? []).length}
+        </span>
       </div>
       <div className="plate-body">
         {plate.path && (
-          <ol className="rpath">
+          <ol className="rpath" style={{ "--n": plate.path.length } as CSSProperties}>
             {plate.path.map((node, index) => (
               <li
                 key={node.label}
                 className={node.hot ? "hot" : node.live ? "live" : undefined}
                 style={{ "--i": index } as CSSProperties}
               >
-                {node.label}
+                <i className="ix" aria-hidden="true" />
+                <span className="nm">{node.label}</span>
+                {node.note && <span className="nt">{node.note}</span>}
+                {node.tag && <span className="tg">{node.tag}</span>}
+                <i className="end" aria-hidden="true" />
               </li>
             ))}
           </ol>
         )}
         {plate.group && (
           <ul className="rgroup" data-cap={plate.groupCaption}>
-            {plate.group.map((node) => (
-              <li key={node.label} className={node.hot ? "hot" : undefined}>
-                {node.label}
+            {plate.group.map((node, index) => (
+              <li
+                key={node.label}
+                className={node.hot ? "hot" : undefined}
+                style={{ "--i": index } as CSSProperties}
+              >
+                <i className="ix" aria-hidden="true" />
+                <span className="nm">{node.label}</span>
+                {node.note && <span className="nt">{node.note}</span>}
+                {node.tag && <span className="tg">{node.tag}</span>}
+                <i className="end" aria-hidden="true" />
               </li>
             ))}
           </ul>

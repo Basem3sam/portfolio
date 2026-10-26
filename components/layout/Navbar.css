@@ -45,7 +45,7 @@
   transform: translateY(1px);
 }
 
-[dir="rtl"] .nav-links a[aria-current="page"] .nn {
+[dir="rtl"] .nav-links a:is([aria-current="page"], [aria-current="true"]) .nn {
   transform: translateY(0);
 }
 
@@ -55,7 +55,7 @@
   }
 }
 
-.nav-links a[aria-current="page"] .nn {
+.nav-links a:is([aria-current="page"], [aria-current="true"]) .nn {
   color: var(--c-note);
   transform: translateY(-1px);
 }
@@ -135,7 +135,7 @@ nav:not([data-tide])[data-scrolled="false"] .nav-links a {
   color: color-mix(in srgb, var(--c-dark-text) 88%, var(--c-page));
 }
 
-nav:not([data-tide])[data-scrolled="false"] .nav-links a[aria-current="page"] {
+nav:not([data-tide])[data-scrolled="false"] .nav-links a:is([aria-current="page"], [aria-current="true"]) {
   color: var(--c-dark-text);
 }
 
@@ -150,7 +150,7 @@ nav:not([data-tide])[data-scrolled="false"] .text-muted-text {
   color: var(--c-light-text);
 }
 
-nav:not([data-tide])[data-scrolled="false"] .nav-links a[aria-current="page"] .nn {
+nav:not([data-tide])[data-scrolled="false"] .nav-links a:is([aria-current="page"], [aria-current="true"]) .nn {
   color: var(--c-note);
 }
 
@@ -626,7 +626,7 @@ nav[data-tide="true"] #darkModeToggle {
   }
 }
 
-.nav-cta[aria-current="page"] {
+.nav-cta:is([aria-current="page"], [aria-current="true"]) {
   box-shadow:
     inset 0 1px 0 color-mix(in srgb, white 16%, transparent),
     0 0 0 2px color-mix(in srgb, var(--c-honey-hi) 70%, transparent);
@@ -690,4 +690,77 @@ nav[data-tide="true"] .nav-mobile-btn:focus-visible {
     background: color-mix(in srgb, white calc(var(--hi) * 14%), color-mix(in srgb, var(--c-secondary) 11%, transparent));
     border-color: color-mix(in srgb, var(--tide-ink-2) calc(var(--hi) * 70%), color-mix(in srgb, var(--c-secondary) 50%, transparent));
   }
+}
+
+
+/* ---------- Home link beside the logo (off-home routes, lg and up) ----------
+   Off home (the case study) the logo was the only way back to the top of the
+   site and nothing said so. This is an explicit "Home" with a small divider.
+   `display` comes from the `hidden lg:inline-flex` utilities in the markup. */
+
+.nav-home {
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 2.75rem;
+  margin-inline-start: 0.5rem;
+  padding-inline: 0.5rem 0.625rem;
+  border-radius: 0.375rem;
+  color: var(--c-light-text);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.nav-home::before {
+  content: "";
+  width: 1px;
+  height: 1.125rem;
+  margin-inline-end: 0.625rem;
+  background: var(--c-hairline);
+  transition: background-color 0.2s ease;
+}
+
+.nav-home svg {
+  transition: transform 0.25s var(--ease-out);
+}
+
+.nav-home:hover,
+.nav-home:focus-visible {
+  color: var(--c-dark-text);
+}
+
+@media (hover: hover) {
+  .nav-home:hover svg {
+    transform: translateX(-3px);
+  }
+
+  [dir="rtl"] .nav-home:hover svg {
+    transform: translateX(3px) rotate(180deg);
+  }
+}
+
+/* Over the deep-blue tide band it keeps the same light ink as the links,
+   and hands over to the normal colours with the capsule (--hi). */
+nav[data-tide="true"] .nav-home {
+  color: color-mix(in srgb, var(--tide-ink-2) calc(var(--hi) * 100%), var(--c-light-text));
+}
+
+nav[data-tide="true"] .nav-home::before {
+  background: color-mix(in srgb, var(--tide-rule) calc(var(--hi) * 100%), var(--c-hairline));
+}
+
+nav[data-tide="true"] .nav-home:hover,
+nav[data-tide="true"] .nav-home:focus-visible {
+  color: color-mix(in srgb, #ffffff calc(var(--hi) * 100%), var(--c-dark-text));
+}
+
+
+/* ---------- open phone menu: firmer glass ----------
+   The capsule's glass is ~80% opaque, which lets a text-heavy page (the case
+   study) ghost through the margins of the open menu. While it is open the
+   capsule is nearly solid; the panel inside it is already ~95%. */
+
+nav[data-menu-open="true"] .nav-capsule::before {
+  background: color-mix(in srgb, var(--c-page) 97%, transparent);
 }

@@ -17,7 +17,7 @@ import Icon from "@/components/ui/Icon";
 import Mark from "@/components/ui/Mark";
 import { CV_PATH, GITHUB_URL, LINKEDIN_URL, MAILTO, PHONE_DISPLAY, PHONE_TEL } from "@/data/site";
 import type { Dictionary } from "@/lib/dictionaries/en";
-import type { Locale } from "@/lib/i18n";
+import { isHomePath, switchLocalePath, type Locale } from "@/lib/i18n";
 import { getNavbarHeight, homeAnchorHref } from "@/lib/scroll";
 import "./Navbar.css";
 
@@ -112,6 +112,11 @@ type SectionAnchorProps = {
   className?: string;
   style?: CSSProperties;
   active?: boolean;
+  /** What `aria-current` reports while active. `"page"` on home, where the link
+   *  really is the section being read; `"true"` on the case study, where the
+   *  link only marks the part of the site you are in (it points at another
+   *  page, so `"page"` would be wrong for assistive tech). */
+  current?: "page" | "true";
   /** Section-style link that the sliding `.nav-ind` pill may follow. */
   ind?: boolean;
   /** Adds `data-nav-logo`, which `getNavbarHeight()` measures. */
@@ -139,12 +144,13 @@ function SectionAnchor({
   className,
   style,
   active,
+  current: currentValue = "page",
   ind,
   logo,
   ariaLabel,
   children,
 }: SectionAnchorProps) {
-  const current = active ? "page" : undefined;
+  const current = active ? currentValue : undefined;
   const dataNavLogo = {
     ...(logo ? { "data-nav-logo": true } : {}),
     ...(ind ? { "data-nav-ind": true } : {}),
@@ -166,9 +172,13 @@ function SectionAnchor({
     );
   }
 
+  // The logo's `#hero` is just "the top of home": link to the clean `/` (or
+  // `/ar`) rather than leaving `#hero` on the address bar.
+  const target = href === "#hero" ? homeAnchorHref(locale, "") : homeAnchorHref(locale, href);
+
   return (
     <Link
-      href={homeAnchorHref(locale, href)}
+      href={target}
       className={className}
       style={style}
       aria-current={current}
@@ -200,13 +210,20 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
 
   // `proxy.ts` rewrites `/` to `/en`, so the English home is reachable at both
   // URLs. Anywhere else the section anchors below do not exist in the DOM.
-  const isHome = pathname === "/" || pathname === `/${locale}`;
+  const isHome = isHomePath(pathname, locale);
+  const homeHref = homeAnchorHref(locale, "");
+  // Same page, other language (see `switchLocalePath`).
+  const langSwitch = { ...languageSwitch, href: switchLocalePath(pathname, locale) };
 
   // The case study is its own route. Its hero is the deep-blue tide band, so
   // the bar keeps light ink over it until the glass capsule takes over, and
   // the Work link is the section the reader is actually in.
   const onCaseStudy = pathname.endsWith("/work/trosc");
   const activeId = onCaseStudy ? "work" : activeSection;
+  const activeCurrent = onCaseStudy ? "true" : "page";
+  // Off home the menu gains a "Home" row at the top, so every later row's
+  // entrance is staggered one step later.
+  const rowOffset = isHome ? 0 : 1;
 
   // Scroll-spy: the active section is the LAST section whose top edge has
   // crossed above the detection line (32px below the navbar).
@@ -259,7 +276,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
     const indicator = indicatorRef.current;
     if (!bar || !indicator) return;
 
-    const currentLink = () => bar.querySelector<HTMLElement>("a[data-nav-ind][aria-current='page']");
+    const currentLink = () => bar.querySelector<HTMLElement>("a[data-nav-ind][aria-current]");
 
     const move = (el: HTMLElement | null) => {
       // `offsetParent` is null when the desktop list is collapsed (mobile).
@@ -512,6 +529,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
         aria-label={labels.mainNavigation}
         data-scrolled={scrolled}
         data-tide={onCaseStudy ? "true" : undefined}
+        data-menu-open={menuOpen ? "true" : undefined}
         onClick={handleClick}
       >
         <div className="nav-capsule container flex flex-wrap items-center justify-between lg:flex-nowrap">
@@ -533,17 +551,33 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
             ))}
           </div>
 
-          <SectionAnchor
-            href="#hero"
-            isHome={isHome}
-            locale={locale}
-            logo
-            ariaLabel={labels.ariaHome}
-            className="inline-flex min-h-11 items-center gap-2 font-mono text-base font-semibold text-dark-text no-underline transition-colors duration-200 hover:text-secondary"
-          >
-            <Mark className="size-[22px] text-note" />
-            <span>basem.esam</span>
-          </SectionAnchor>
+          <div className="flex items-center">
+            <SectionAnchor
+              href="#hero"
+              isHome={isHome}
+              locale={locale}
+              logo
+              ariaLabel={labels.ariaHome}
+              className="inline-flex min-h-11 items-center gap-2 font-mono text-base font-semibold text-dark-text no-underline transition-colors duration-200 hover:text-secondary"
+            >
+              <Mark className="size-[22px] text-note" />
+              <span>basem.esam</span>
+            </SectionAnchor>
+
+            {/* Off home (the case study) the logo was the only way back to the
+                top of the site and nothing said so. An explicit Home link sits
+                beside it from lg up; on phones the menu carries a Home row. */}
+            {!isHome && (
+              <Link
+                href={homeHref}
+                className="nav-home hidden lg:inline-flex"
+                data-nav-section
+              >
+                <Icon name="arrowLeft" className="size-3.5 rtl:rotate-180" />
+                <span>{labels.homeLabel}</span>
+              </Link>
+            )}
+          </div>
 
           <button
             type="button"
@@ -575,6 +609,20 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
               <div className="mt-3 border-t border-hairline px-2.5 pt-3 pb-3 lg:hidden">
                 <div className="flex flex-col rounded-2xl border border-hairline nav-menu-panel p-3">
                   <div className="flex flex-col">
+                    {!isHome && (
+                      <Link
+                        href={homeHref}
+                        data-nav-section
+                        style={{ animationDelay: "80ms" }}
+                        className={`${menuRow} ${menuOpen ? "motion-safe:animate-menu-item-in" : ""}`}
+                      >
+                        <span className="mn" dir="ltr">
+                          00
+                        </span>
+                        <span className="t">{labels.homeLabel}</span>
+                        <Icon name="arrowRight" className="go rtl:rotate-180" />
+                      </Link>
+                    )}
                     {sections.map((section, index) => {
                       const active = activeId === section.href.slice(1);
                       return (
@@ -584,7 +632,8 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                           isHome={isHome}
                           locale={locale}
                           active={active}
-                          style={{ animationDelay: `${80 + index * 50}ms` }}
+                          current={activeCurrent}
+                          style={{ animationDelay: `${80 + (index + rowOffset) * 50}ms` }}
                           className={`${menuRow} ${active ? "is-active" : ""} ${
                             menuOpen ? "motion-safe:animate-menu-item-in" : ""
                           }`}
@@ -601,7 +650,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
 
                   <div
                     className="menu-tiles"
-                    style={{ animationDelay: `${80 + sections.length * 50}ms` }}
+                    style={{ animationDelay: `${80 + (sections.length + rowOffset) * 50}ms` }}
                   >
                     <Link href={linksHref} className="menu-tile menu-tile-links">
                       <span className="mn" dir="ltr">
@@ -621,7 +670,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
 
                   <div
                     className="menu-foot"
-                    style={{ animationDelay: `${80 + (sections.length + 1) * 50}ms` }}
+                    style={{ animationDelay: `${80 + (sections.length + 1 + rowOffset) * 50}ms` }}
                   >
                     <a href={PHONE_TEL} dir="ltr" className="menu-phone">
                       <Icon name="phone" className="size-5" />
@@ -629,7 +678,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                     </a>
 
                     <div className="menu-util">
-                      <LanguageSwitcher {...languageSwitch} />
+                      <LanguageSwitcher {...langSwitch} />
                       <ThemeToggle
                         id="darkModeToggleMobile"
                         labels={theme}
@@ -675,6 +724,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                           isHome={isHome}
                           locale={locale}
                           active={active}
+                          current={activeCurrent}
                           ind
                         >
                           <span className="nn" dir="ltr" aria-hidden="true">
@@ -695,6 +745,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                       isHome={isHome}
                       locale={locale}
                       active={activeId === "contact"}
+                      current={activeCurrent}
                       ind
                     >
                       <span className="nn" dir="ltr" aria-hidden="true">
@@ -738,7 +789,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                         <Icon name="externalLink" className="size-4" />
                         <span className={auxLabel}>{labels.allLinks}</span>
                       </Link>
-                      <LanguageSwitcher {...languageSwitch} className="nav-ctl nav-ctl-quiet" />
+                      <LanguageSwitcher {...langSwitch} className="nav-ctl nav-ctl-quiet" />
                       <ThemeToggle
                         id="darkModeToggle"
                         labels={theme}
@@ -750,6 +801,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                         isHome={isHome}
                         locale={locale}
                         active={activeId === "contact"}
+                        current={activeCurrent}
                         className={talkButton}
                       >
                         <span>{labels.letsTalk}</span>

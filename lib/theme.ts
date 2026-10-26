@@ -66,7 +66,7 @@ function updateFavicons(theme: Theme) {
   });
 }
 
-export function applyTheme(theme: Theme) {
+function commitTheme(theme: Theme) {
   document.body.classList.toggle(DARK_CLASS, theme === "dark");
   updateFavicons(theme);
   try {
@@ -75,8 +75,36 @@ export function applyTheme(theme: Theme) {
   document.dispatchEvent(new CustomEvent(THEME_EVENT, { detail: { theme } }));
 }
 
+export function applyTheme(theme: Theme) {
+  commitTheme(theme);
+}
+
+type ViewTransitionDocument = Document & {
+  startViewTransition?: (update: () => void) => unknown;
+};
+
+/** A user-driven switch: the old and new page crossfade as one image, so every
+ * colour (and the photo, glows and shadows) eases together instead of snapping. */
+let pendingTheme: Theme | null = null;
+
 export function toggleTheme() {
-  applyTheme(getCurrentTheme() === "dark" ? "light" : "dark");
+  // A second click mid-fade flips from where the first one is heading, not
+  // from the page's still-unchanged class.
+  const next: Theme = (pendingTheme ?? getCurrentTheme()) === "dark" ? "light" : "dark";
+  pendingTheme = next;
+  const doc = document as ViewTransitionDocument;
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (reduced || typeof doc.startViewTransition !== "function") {
+    pendingTheme = null;
+    commitTheme(next);
+    return;
+  }
+
+  doc.startViewTransition(() => {
+    commitTheme(next);
+    if (pendingTheme === next) pendingTheme = null;
+  });
 }
 
 export function subscribeToTheme(callback: () => void) {

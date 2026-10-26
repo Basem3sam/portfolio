@@ -1638,6 +1638,178 @@
     transform: none;
   }
 
+  /* The last hint "cracks" when the hunt is solved: the meter completes in
+     green with a scan sweep, the text flickers once, then the card lifts
+     away. Deliberate and short, not noisy. */
+  .egg .tst.cracked {
+    position: relative;
+    overflow: hidden;
+    pointer-events: none;
+    animation: tst-crack-card 1s linear forwards;
+  }
+
+  .egg .tst.cracked::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 45%;
+    background: linear-gradient(
+      100deg,
+      transparent,
+      rgba(74, 222, 128, 0.22) 45%,
+      rgba(210, 255, 225, 0.5) 50%,
+      rgba(74, 222, 128, 0.22) 55%,
+      transparent
+    );
+    transform: translateX(-110%);
+    animation: tst-crack-sweep 0.5s 0.28s cubic-bezier(0.5, 0, 0.3, 1) forwards;
+    pointer-events: none;
+  }
+
+  .egg .tst.cracked .tp .bar i {
+    animation: tst-crack-seg 0.3s both;
+  }
+
+  .egg .tst.cracked .tp .bar i:nth-child(1) { animation-delay: 0s; }
+  .egg .tst.cracked .tp .bar i:nth-child(2) { animation-delay: 0.03s; }
+  .egg .tst.cracked .tp .bar i:nth-child(3) { animation-delay: 0.06s; }
+  .egg .tst.cracked .tp .bar i:nth-child(4) { animation-delay: 0.09s; }
+  .egg .tst.cracked .tp .bar i:nth-child(5) { animation-delay: 0.12s; }
+  .egg .tst.cracked .tp .bar i:nth-child(6) { animation-delay: 0.15s; }
+  .egg .tst.cracked .tp .bar i:nth-child(7) { animation-delay: 0.18s; }
+  .egg .tst.cracked .tp .bar i:nth-child(8) { animation-delay: 0.21s; }
+  .egg .tst.cracked .tp .bar i:nth-child(9) { animation-delay: 0.24s; }
+  .egg .tst.cracked .tp .bar i:nth-child(10) { animation-delay: 0.27s; }
+
+  .egg .tst.cracked .tic {
+    animation: tst-crack-icon 1s linear forwards;
+  }
+
+  .egg .tst.cracked .tx > span,
+  .egg .tst.cracked .tp b {
+    animation: tst-crack-text 1s linear forwards;
+  }
+
+  @keyframes tst-crack-seg {
+    0% {
+      background: rgba(160, 180, 220, 0.22);
+      transform: scaleY(1);
+    }
+    55% {
+      background: #c9ffd9;
+      transform: scaleY(2.2);
+    }
+    100% {
+      background: var(--e-live);
+      transform: scaleY(1);
+    }
+  }
+
+  @keyframes tst-crack-sweep {
+    to {
+      transform: translateX(320%);
+    }
+  }
+
+  @keyframes tst-crack-card {
+    0%,
+    26% {
+      opacity: 1;
+      transform: none;
+      border-color: var(--e-rule);
+      filter: none;
+    }
+    34% {
+      border-color: rgba(74, 222, 128, 0.7);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4), 0 0 38px rgba(74, 222, 128, 0.28);
+    }
+    52% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    56% {
+      transform: translateX(-3px);
+      opacity: 0.85;
+    }
+    60% {
+      transform: translateX(3px);
+      opacity: 1;
+    }
+    64% {
+      transform: translateX(-1px);
+      opacity: 0.6;
+    }
+    68% {
+      transform: none;
+      opacity: 1;
+      border-color: rgba(74, 222, 128, 0.7);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-10px) scale(0.96);
+      border-color: rgba(74, 222, 128, 0.7);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2), 0 0 60px rgba(74, 222, 128, 0);
+      filter: blur(5px);
+    }
+  }
+
+  @keyframes tst-crack-icon {
+    0%,
+    30% {
+      color: var(--e-hi);
+      background: rgba(224, 164, 88, 0.1);
+    }
+    40%,
+    100% {
+      color: var(--e-live);
+      background: rgba(74, 222, 128, 0.12);
+      border-color: rgba(74, 222, 128, 0.45);
+    }
+  }
+
+  @keyframes tst-crack-text {
+    0%,
+    50% {
+      text-shadow: none;
+      transform: none;
+    }
+    54% {
+      text-shadow: -2px 0 rgba(255, 77, 109, 0.85), 2px 0 rgba(77, 225, 255, 0.85);
+      transform: translateX(-2px);
+    }
+    58% {
+      text-shadow: 2px 0 rgba(255, 77, 109, 0.85), -2px 0 rgba(77, 225, 255, 0.85);
+      transform: translateX(2px);
+    }
+    62% {
+      text-shadow: none;
+      transform: none;
+    }
+    66% {
+      text-shadow: -1px 0 rgba(255, 77, 109, 0.8), 1px 0 rgba(77, 225, 255, 0.8);
+    }
+    72%,
+    100% {
+      text-shadow: none;
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .egg .tst.cracked,
+    .egg .tst.cracked::after,
+    .egg .tst.cracked .tic,
+    .egg .tst.cracked .tx > span,
+    .egg .tst.cracked .tp b,
+    .egg .tst.cracked .tp .bar i {
+      animation: none;
+    }
+
+    .egg .tst.cracked .tp .bar i {
+      background: var(--e-live);
+    }
+  }
+
   .egg .tst .tic {
     display: grid;
     place-items: center;

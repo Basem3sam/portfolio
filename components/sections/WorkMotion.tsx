@@ -61,9 +61,26 @@ export default function WorkMotion() {
     observer.observe(root);
     void document.fonts?.ready.then(equalise);
 
+    // Re-measure whenever a visual itself changes size (a screenshot or a font
+    // arriving late), so the two visuals of a pair never drift apart. Writing
+    // the same heights back does not retrigger it.
+    let frame = 0;
+    const visuals = new ResizeObserver(() => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(equalise);
+    });
+    root.querySelectorAll(".row .sp, .row .plate").forEach((el) => visuals.observe(el));
+    window.addEventListener("load", equalise);
+
     // One in-flight toggle per <details>: how to settle it immediately.
     const pending = new WeakMap<HTMLDetailsElement, () => void>();
     const heights = (cards: HTMLElement[]) => cards.map((c) => c.getBoundingClientRect().height);
+    // Where each direct child of a card sits, measured from the card's top.
+    const offsets = (cards: HTMLElement[]) =>
+      cards.map((c) => {
+        const top = c.getBoundingClientRect().top;
+        return Array.from(c.children).map((child) => child.getBoundingClientRect().top - top);
+      });
 
     const onClick = (event: MouseEvent) => {
       if (!wide.matches || prefersReducedMotion()) return;
@@ -83,6 +100,7 @@ export default function WorkMotion() {
 
       // Where everything is right now, even mid-animation.
       const before = heights(pair);
+      const beforeAt = offsets(pair);
       pending.get(details)?.();
 
       const opening = !details.open;
@@ -92,6 +110,7 @@ export default function WorkMotion() {
       root.classList.add("is-measuring");
       details.open = opening;
       const after = heights(pair);
+      const afterAt = offsets(pair);
       if (!opening) {
         // Keep the text on screen while the card shrinks around it.
         details.open = true;
@@ -107,6 +126,27 @@ export default function WorkMotion() {
         }),
       );
 
+      // A card that was stretched by its neighbour pins its footer (tech list,
+      // actions, Details bar) to the bottom with auto margins. When the pair
+      // stops sharing a height that slack disappears and those blocks would
+      // jump up in one frame. Glide them instead: the layout already is the
+      // final one when opening, and still the old one when closing.
+      const glides: Animation[] = [];
+      pair.forEach((el, i) => {
+        Array.from(el.children).forEach((child, j) => {
+          const delta = (beforeAt[i]?.[j] ?? 0) - (afterAt[i]?.[j] ?? 0);
+          if (Math.abs(delta) < 0.5) return;
+          const rest = "translateY(0)";
+          const moved = `translateY(${opening ? delta : -delta}px)`;
+          glides.push(
+            (child as HTMLElement).animate(
+              [{ transform: opening ? moved : rest }, { transform: opening ? rest : moved }],
+              { duration: DURATION, easing: EASE, fill: "forwards" },
+            ),
+          );
+        });
+      });
+
       const settle = () => {
         pending.delete(details);
         if (!opening) {
@@ -114,6 +154,7 @@ export default function WorkMotion() {
           delete details.dataset.state;
         }
         animations.forEach((a) => a.cancel());
+        glides.forEach((a) => a.cancel());
       };
       pending.set(details, settle);
 
@@ -136,6 +177,9 @@ export default function WorkMotion() {
       root.removeEventListener("click", onClick);
       wide.removeEventListener("change", sync);
       observer.disconnect();
+      visuals.disconnect();
+      cancelAnimationFrame(frame);
+      window.removeEventListener("load", equalise);
       root.classList.remove("js-disc", "is-measuring");
     };
   }, []);

@@ -15,6 +15,22 @@ export function getDictionary(locale: Locale): Dictionary {
   return dictionaries[locale];
 }
 
+/** True for the home route in either URL form (`/` or `/ar`; `/en` is rewritten to `/`). */
+export function isHomePath(pathname: string, locale: Locale) {
+  return pathname === "/" || pathname === `/${locale}`;
+}
+
+/**
+ * The same page in the other language. The switcher used to point at the other
+ * language's home no matter where you were, so flipping language on a case
+ * study threw you off it. English lives at `/…`, Arabic at `/ar/…`.
+ */
+export function switchLocalePath(pathname: string, locale: Locale) {
+  const bare = pathname.replace(/^\/(en|ar)(?=\/|$)/, "") || "/";
+  if (locale === "en") return bare === "/" ? "/ar" : `/ar${bare}`;
+  return bare;
+}
+
 export function getDirection(locale: Locale) {
   return locale === "ar" ? "rtl" : "ltr";
 }
