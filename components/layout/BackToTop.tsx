@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import Icon from "@/components/ui/Icon";
-import { scrollBehavior } from "@/lib/scroll";
+import { SCROLL_TOP_SETTLE_MS, scrollToTop } from "@/lib/scroll";
 
 const THRESHOLD = 300;
 
@@ -51,12 +51,12 @@ export default function BackToTop({ label = "Back to top" }: BackToTopProps) {
     scrollingToTop.current = true;
     setVisible(false);
     event.currentTarget.blur();
-    window.scrollTo({ top: 0, behavior: scrollBehavior() });
+    scrollToTop();
 
     window.setTimeout(() => {
       scrollingToTop.current = false;
       setVisible(window.scrollY > THRESHOLD);
-    }, 1000);
+    }, SCROLL_TOP_SETTLE_MS);
   };
 
   return (

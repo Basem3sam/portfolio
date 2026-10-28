@@ -4,6 +4,8 @@ import { useEffect, useRef, type ReactNode } from "react";
 
 type SpotlightProps = {
   className?: string;
+  /** Opts the card into the scroll story (see lib/story.ts). */
+  story?: "enter" | "pass" | "read" | "exit";
   children: ReactNode;
   style?: React.CSSProperties;
 };
@@ -14,7 +16,7 @@ type SpotlightProps = {
  * events stop while the page scrolls under a still cursor, so while hovered it
  * also re-reads the last known position on scroll.
  */
-export default function Spotlight({ className = "", children, style }: SpotlightProps) {
+export default function Spotlight({ className = "", story, children, style }: SpotlightProps) {
   const ref = useRef<HTMLElement>(null);
   const last = useRef<{ x: number; y: number } | null>(null);
   const frame = useRef(0);
@@ -62,7 +64,7 @@ export default function Spotlight({ className = "", children, style }: Spotlight
   }, []);
 
   return (
-    <article ref={ref} className={className} style={style}>
+    <article ref={ref} className={className} style={style} data-story={story}>
       {children}
     </article>
   );

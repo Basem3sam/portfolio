@@ -1,3 +1,4 @@
+import { Fragment, type CSSProperties } from "react";
 import SectionHeader from "@/components/ui/SectionHeader";
 import type { Dictionary } from "@/lib/dictionaries/en";
 import "./About.css";
@@ -12,7 +13,30 @@ type AboutProps = {
  * 2663–2690). The old standalone Education section lives on as the
  * `.ab-edu` ledger at the bottom.
  */
+/**
+ * Splits a sentence into words so each can light up as it is read (see
+ * ScrollStory.css). Split on spaces only, so Arabic letters keep their joins.
+ * The words are ordinary inline spans: reading order and text are unchanged.
+ */
+function Words({ text }: { text: string }) {
+  const words = text.trim().split(/\s+/);
+  return (
+    <>
+      {words.map((word, index) => (
+        <Fragment key={index}>
+          <span className="w" style={{ "--i": index } as CSSProperties}>
+            {word}
+          </span>
+          {index < words.length - 1 ? " " : null}
+        </Fragment>
+      ))}
+    </>
+  );
+}
+
 export default function About({ dict }: AboutProps) {
+  const leadWords = dict.lead.trim().split(/\s+/).length;
+
   return (
     <section id="about" className="sec sec-panel sec-wash">
       <div className="ag" data-variant="mist" aria-hidden="true">
@@ -25,7 +49,13 @@ export default function About({ dict }: AboutProps) {
 
       <div className="ab3">
         <div className="ab-main" data-reveal>
-          <p className="ab-lead">{dict.lead}</p>
+          <p
+            className="ab-lead"
+            data-story="read"
+            style={{ "--n": leadWords } as CSSProperties}
+          >
+            <Words text={dict.lead} />
+          </p>
           <p className="ab-body">{dict.body}</p>
         </div>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { prefersReducedMotion } from "@/lib/scroll";
+import { prefersReducedMotion, revealBelow } from "@/lib/scroll";
 
 const DURATION = 520;
 const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
@@ -165,7 +165,7 @@ export default function WorkMotion() {
           if (opening) {
             const { bottom } = card.getBoundingClientRect();
             if (bottom > window.innerHeight - 16) {
-              card.scrollIntoView({ block: "nearest", behavior: "smooth" });
+              revealBelow(card);
             }
           }
         })

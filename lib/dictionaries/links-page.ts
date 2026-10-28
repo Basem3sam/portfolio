@@ -14,6 +14,12 @@ export type LinksPageStrings = {
   groupStart: string;
   groupReach: string;
   groupCode: string;
+  /** Accessible names for the copy buttons on the phone and email rows. */
+  copyEmail: string;
+  copyPhone: string;
+  /** Tooltip text before and after a successful copy. */
+  copyTip: string;
+  copied: string;
 };
 
 export const linksPageStrings: Record<"en" | "ar", LinksPageStrings> = {
@@ -22,11 +28,19 @@ export const linksPageStrings: Record<"en" | "ar", LinksPageStrings> = {
     groupStart: "Start here",
     groupReach: "Reach me",
     groupCode: "Code & work",
+    copyEmail: "Copy email address",
+    copyPhone: "Copy phone number",
+    copyTip: "Copy",
+    copied: "Copied",
   },
   ar: {
     chip: "متاح للتدريب والعمل الحر",
     groupStart: "ابدأ من هنا",
     groupReach: "تواصل معي",
     groupCode: "الكود والأعمال",
+    copyEmail: "نسخ البريد الإلكتروني",
+    copyPhone: "نسخ رقم الهاتف",
+    copyTip: "نسخ",
+    copied: "تم النسخ",
   },
 };

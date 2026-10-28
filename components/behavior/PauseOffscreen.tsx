@@ -9,9 +9,13 @@ import { usePathname } from "next/navigation";
  * sheens, the footer mist). Browsers keep ticking them off-screen, and on a
  * phone that is main-thread and compositor time spent on pixels nobody sees.
  *
- * This only flips `data-offscreen` on the band; Footer/globals CSS does the
- * pausing (`animation-play-state`), so nothing is removed and the loops resume
- * exactly where they stopped. No effect on layout, content or transitions.
+ * This only flips `data-offscreen`; the rule in globals.css does the pausing
+ * (`animation-play-state`), so nothing is removed and the loops resume exactly
+ * where they stopped. No effect on layout, content or transitions.
+ *
+ * Bands alone are not enough: the Work band is thousands of pixels tall and is
+ * "visible" whenever any part of it is, yet each project plate runs its own
+ * loops. So the plates and the Stack lanes are observed on their own too.
  */
 export default function PauseOffscreen() {
   const pathname = usePathname();
@@ -28,7 +32,9 @@ export default function PauseOffscreen() {
       { rootMargin: "120px 0px" },
     );
 
-    const bands = document.querySelectorAll<HTMLElement>("main > *, footer.foot");
+    const bands = document.querySelectorAll<HTMLElement>(
+      "main > *, footer.foot, main .plate, main .stx-lanes",
+    );
     bands.forEach((band) => observer.observe(band));
 
     return () => {

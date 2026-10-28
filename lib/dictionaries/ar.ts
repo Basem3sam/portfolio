@@ -11,7 +11,9 @@ const ar: Dictionary = {
   },
   nav: {
     home: "باسم عصام",
-    ariaHome: "باسم عصام — الرئيسية",
+    // The visible wordmark is Latin ("basem.esam"), so the name must contain it
+    // (WCAG 2.5.3 Label in Name).
+    ariaHome: "Basem Esam — الرئيسية",
     homeLabel: "الرئيسية",
     work: "أعمالي",
     stack: "التقنيات",
@@ -80,6 +82,8 @@ const ar: Dictionary = {
     lead: "نظام واحد في الإنتاج، ومشروعان قيد التطوير، ومشروعان سابقان.",
     liveLabel: "مباشر من GitHub",
     viewRepo: "المستودع",
+    viewFrontend: "مستودع الواجهة الأمامية",
+    viewBackend: "مستودع الخادم",
     viewLive: "الموقع الحيّ",
     caseStudy: "دراسة الحالة",
     viewProfile: "عرض ملفي على GitHub",

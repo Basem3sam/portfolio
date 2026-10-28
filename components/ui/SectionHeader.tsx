@@ -21,7 +21,7 @@ type SectionHeaderProps = {
  */
 export default function SectionHeader({ number, title, lead, headingId }: SectionHeaderProps) {
   return (
-    <div className="sh" data-reveal>
+    <div className="sh" data-reveal data-story="enter">
       <div className="sh-top" aria-hidden="true">
         <span className="idx" dir="ltr">
           {number}

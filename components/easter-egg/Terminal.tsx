@@ -1605,6 +1605,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
           data-rank={rank}
           data-crt={crt ? "on" : "off"}
           role="dialog"
+          data-lenis-prevent
           aria-modal="true"
           aria-label="Secret terminal"
           inert={!open}

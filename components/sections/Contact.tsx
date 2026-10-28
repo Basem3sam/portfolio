@@ -65,6 +65,7 @@ export default function Contact({ dict }: ContactProps) {
         <p
           className="ct-big data-[revealed=false]:opacity-0 data-[revealed=true]:animate-reveal-up"
           data-reveal
+          data-story="enter"
         >
           {dict.big}
         </p>

@@ -22,7 +22,7 @@ type CaseStudyPageProps = {
 
 export async function generateMetadata({ params }: CaseStudyPageProps): Promise<Metadata> {
   const { lang } = await params;
-  const locale: Locale = isLocale(lang) ? "en" : "ar";
+  const locale: Locale = isLocale(lang) ? lang : "en";
   const t = getTroscDictionary(locale);
 
   return {

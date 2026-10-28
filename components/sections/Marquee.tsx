@@ -1,4 +1,5 @@
 import "./Marquee.css";
+import MarqueeScrollDrive from "./MarqueeScrollDrive";
 
 // Technologies are proper nouns, so the list is not translated.
 const TECH = [
@@ -37,6 +38,7 @@ function Row({ hidden }: { hidden?: boolean }) {
 export default function Marquee({ label }: MarqueeProps) {
   return (
     <div className="mq">
+      <MarqueeScrollDrive />
       <span className="lbl">{label}</span>
       <div className="mq-view">
         <div className="mq-row">

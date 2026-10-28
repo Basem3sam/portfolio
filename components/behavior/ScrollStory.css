@@ -1,0 +1,101 @@
+/* ============================================================================
+   Scroll story. `lib/story.ts` writes --sp (0 to 1) onto every [data-story]
+   element; everything here only turns that number into motion.
+
+   Rules of the house:
+   - Scoped to html[data-story-on], which the engine sets only once it is
+     running. No JS, or reduced motion: none of this applies and every element
+     keeps its finished state.
+   - Individual transform properties only (translate / scale), never
+     `transform` or `opacity` on elements that already run reveal animations,
+     so nothing fights the existing entrances.
+   ============================================================================ */
+
+/* --- 1. Hero: the page lets go of the first screen --------------------------
+   The copy lifts away faster than the page scrolls and the portrait settles
+   more slowly, so the three layers (sky, portrait, copy) separate. [exit] */
+html[data-story-on] #hero .hero-top,
+html[data-story-on] #hero .hero-body {
+  translate: 0 calc(var(--sp, 0) * -7svh);
+}
+
+html[data-story-on] #hero .pf {
+  translate: 0 calc(var(--sp, 0) * 3.5svh);
+}
+
+/* --- 2. Section headers: the index number settles and the rule draws ---------
+   (the rule's own `scale: var(--sp, 1) 1` already lives in globals.css) [enter] */
+html[data-story-on] .sh .idx {
+  translate: 0 calc((1 - var(--sp, 1)) * 12px);
+}
+
+/* --- 3. Work cards: each one settles into place as it arrives [enter] -------- */
+html[data-story-on] .spotlight[data-story] {
+  scale: calc(0.96 + 0.04 * var(--sp, 1));
+}
+
+/* --- 4. Stack: the request travels the five layers as you scroll [read] -----
+   Each connector fills in turn, each node lights as the packet reaches it, and
+   the honey packet rides the line. `--i` is the stage index (0 to 4). Specificity
+   is raised with [data-revealed] so this wins over the reveal state both ways. */
+html[data-story-on] #stack .stx[data-revealed] .stx-seg::after {
+  transition: none;
+  transform: scaleX(clamp(0, var(--sp, 1) * 5.2 - var(--i, 0), 1));
+}
+
+html[data-story-on] #stack .stx[data-revealed] .stx-node {
+  transition: none;
+  --lit: clamp(0, (var(--sp, 1) * 5.2 - var(--i, 0)) * 6 + 0.6, 1);
+  background: color-mix(in srgb, var(--c-honey) calc(var(--lit) * 100%), var(--c-page));
+  border-color: color-mix(in srgb, var(--c-honey) calc(var(--lit) * 100%), var(--c-secondary));
+}
+
+@media (max-width: 991px) {
+  html[data-story-on] #stack .stx[data-revealed] .stx-seg::after {
+    transform: scaleY(clamp(0, var(--sp, 1) * 5.2 - var(--i, 0), 1));
+  }
+}
+
+@media (min-width: 992px) {
+  /* The packet's track is the whole flow; the comet is its ::before, so the
+     whole thing can move with `translate` (compositor-friendly, no layout). */
+  html[data-story-on] #stack .stx-pkt {
+    animation: none;
+    inset-inline: 0;
+    width: auto;
+    background: none;
+    box-shadow: none;
+    opacity: min(1, calc(var(--sp, 1) * 14), calc((1 - var(--sp, 1)) * 14));
+    translate: calc(var(--sp, 1) * (100% - 30px)) 0;
+  }
+
+  html[dir="rtl"] #stack .stx-pkt {
+    translate: calc(var(--sp, 1) * (100% - 30px) * -1) 0;
+  }
+
+  html[data-story-on] #stack .stx-pkt::before {
+    content: "";
+    display: block;
+    width: 30px;
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, transparent, var(--c-honey));
+    box-shadow: 0 0 16px var(--c-honey);
+  }
+
+  html[dir="rtl"][data-story-on] #stack .stx-pkt::before {
+    background: linear-gradient(270deg, transparent, var(--c-honey));
+  }
+}
+
+/* --- 5. About: the opening statement is read word by word [read] ------------
+   Words start dim and light up as the paragraph scrolls through the reading
+   zone. The floor is kept high enough that the dim words stay legible. */
+html[data-story-on] #about .ab-lead .w {
+  opacity: calc(0.5 + 0.5 * clamp(0, var(--sp, 1) * (var(--n, 1) + 5) - var(--i, 0), 1));
+}
+
+/* --- 6. Contact: the big line rises into place [enter] ----------------------- */
+html[data-story-on] .contact .ct-big {
+  translate: 0 calc((1 - var(--sp, 1)) * 28px);
+}

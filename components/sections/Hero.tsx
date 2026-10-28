@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, type CSSProperties } from "react";
 import Icon from "@/components/ui/Icon";
+import HeroScrollDepth from "@/components/sections/HeroScrollDepth";
 import {
   CV_PATH,
   GITHUB_URL,
@@ -113,7 +114,8 @@ export default function Hero({ dict }: HeroProps) {
         const o = orbit.getBoundingClientRect();
         // the ring's radius is 45.5% of its box; "near" adds a margin outside it
         const reach = o.width * 0.455 * 1.14;
-        if (Math.hypot(x - (o.left + o.width / 2), y - (o.top + o.height / 2)) <= reach) return true;
+        if (Math.hypot(x - (o.left + o.width / 2), y - (o.top + o.height / 2)) <= reach)
+          return true;
       }
       if (img && alpha) {
         const r = img.getBoundingClientRect();
@@ -133,12 +135,22 @@ export default function Hero({ dict }: HeroProps) {
     let ny = 0;
     let near = false;
     let pokeTimer = 0;
+    // The portrait is a little solid object: the smoothed pointer (cx, cy) tilts
+    // it, hovering lifts it (cl), and pressing pushes it in (cp). Each eases
+    // toward its target every frame, so it has weight and springs back.
+    let cx = 0;
+    let cy = 0;
+    let cl = 0;
+    let cp = 0;
+    let pressTarget = 0;
+    let cutoutSet = false;
+    let lastPaint = 0;
     const clampUnit = (v: number) => Math.max(-1, Math.min(1, v));
 
     let px = 0;
     let py = 0;
     let moved = false;
-    const paint = () => {
+    const paint = (now: number = performance.now()) => {
       frame = 0;
       // The rect reads happen here, once per frame, instead of on every
       // pointermove (mice report at up to 1000Hz).
@@ -149,8 +161,32 @@ export default function Hero({ dict }: HeroProps) {
         ny = clampUnit((py - (box.top + box.height / 2)) / (box.height * 0.9));
         setNear(isNear(px, py));
       }
-      pf.style.setProperty("--pfx", nx.toFixed(3));
-      pf.style.setProperty("--pfy", ny.toFixed(3));
+      // Ease by elapsed time, not by frame count, so a 60, 120 or 144Hz screen
+      // feels the same (same approach as CardFx on /links).
+      const steps = lastPaint ? Math.min(now - lastPaint, 64) / (1000 / 60) : 1;
+      lastPaint = now;
+      const ease = (rate: number) => 1 - Math.pow(1 - rate, steps);
+      cx += (nx - cx) * ease(0.14);
+      cy += (ny - cy) * ease(0.14);
+      cl += ((near ? 1 : 0) - cl) * ease(0.16);
+      cp += (pressTarget - cp) * ease(0.24);
+      const settled =
+        Math.abs(nx - cx) < 0.002 &&
+        Math.abs(ny - cy) < 0.002 &&
+        Math.abs((near ? 1 : 0) - cl) < 0.004 &&
+        Math.abs(pressTarget - cp) < 0.004;
+      if (settled) {
+        cx = nx;
+        cy = ny;
+        cl = near ? 1 : 0;
+        cp = pressTarget;
+        lastPaint = 0;
+      }
+      pf.style.setProperty("--pfx", cx.toFixed(3));
+      pf.style.setProperty("--pfy", cy.toFixed(3));
+      pf.style.setProperty("--lift", cl.toFixed(3));
+      pf.style.setProperty("--press", cp.toFixed(3));
+      if (!settled) schedule();
     };
     const schedule = () => {
       if (!frame) frame = requestAnimationFrame(paint);
@@ -158,7 +194,14 @@ export default function Hero({ dict }: HeroProps) {
     const setNear = (value: boolean) => {
       if (value === near) return;
       near = value;
+      // The sheen is masked to the person using the photo already on screen
+      // (no extra download); the mask has to be in place before it is shown.
+      if (value && !cutoutSet && img) {
+        cutoutSet = true;
+        pf.style.setProperty("--cutout", `url("${img.currentSrc || img.src}")`);
+      }
       pf.toggleAttribute("data-near", value);
+      schedule();
     };
     const onMove = (event: PointerEvent) => {
       if (event.pointerType === "touch") return;
@@ -187,7 +230,32 @@ export default function Hero({ dict }: HeroProps) {
       pokeTimer = window.setTimeout(() => pf.removeAttribute("data-poke"), 1200);
     };
 
+    // Pressing the portrait pushes it in toward the press point, then it
+    // springs back. Touch has no hover, so a finger tilts it only while down.
+    const onPress = (event: Event) => {
+      const down = event as PointerEvent;
+      if (!alpha) buildMap();
+      px = down.clientX;
+      py = down.clientY;
+      moved = true;
+      pressTarget = isNear(px, py) ? 1 : 0;
+      schedule();
+    };
+    const onRelease = (event: PointerEvent) => {
+      pressTarget = 0;
+      if (event.pointerType === "touch") {
+        nx = 0;
+        ny = 0;
+        moved = false;
+        setNear(false);
+      }
+      schedule();
+    };
+
     const hit = pf.querySelector(".pf-hit");
+    hit?.addEventListener("pointerdown", onPress);
+    window.addEventListener("pointerup", onRelease);
+    window.addEventListener("pointercancel", onRelease);
     host.addEventListener("pointermove", onMove, { passive: true });
     host.addEventListener("pointerleave", onLeave);
     hit?.addEventListener("click", onPoke);
@@ -195,6 +263,9 @@ export default function Hero({ dict }: HeroProps) {
       host.removeEventListener("pointermove", onMove);
       host.removeEventListener("pointerleave", onLeave);
       hit?.removeEventListener("click", onPoke);
+      hit?.removeEventListener("pointerdown", onPress);
+      window.removeEventListener("pointerup", onRelease);
+      window.removeEventListener("pointercancel", onRelease);
       img?.removeEventListener("load", buildMapIdle);
       if (typeof window.cancelIdleCallback === "function") window.cancelIdleCallback(mapHandle);
       window.clearTimeout(mapHandle);
@@ -204,7 +275,8 @@ export default function Hero({ dict }: HeroProps) {
   }, []);
 
   return (
-    <section id="hero" className="hero-s" aria-labelledby="h-name" ref={hostRef}>
+    <section id="hero" className="hero-s" aria-labelledby="h-name" data-story="exit" ref={hostRef}>
+      <HeroScrollDepth />
       <canvas className="hero-cv" ref={halftoneRef} aria-hidden="true" />
       <canvas className="nb-cv" ref={nebulaRef} aria-hidden="true" />
 
@@ -232,7 +304,13 @@ export default function Hero({ dict }: HeroProps) {
           </p>
         </div>
 
-        <div className="pf" id="pf" ref={pfRef} data-rise style={{ "--d": "200ms" } as CSSProperties}>
+        <div
+          className="pf"
+          id="pf"
+          ref={pfRef}
+          data-rise
+          style={{ "--d": "200ms" } as CSSProperties}
+        >
           <div className="pf-glow" aria-hidden="true"></div>
           <picture>
             <source
@@ -250,7 +328,7 @@ export default function Hero({ dict }: HeroProps) {
               sizes={PROFILE_CUTOUT_SIZES_HERO}
               alt={dict.portraitAlt}
               width={640}
-              height={598}
+              height={640}
               fetchPriority="high"
             />
           </picture>
@@ -288,18 +366,46 @@ export default function Hero({ dict }: HeroProps) {
               <g className="o-layer o-near">
                 <g className="o-jig">
                   <g filter="url(#pf-rough)">
-                    <path className="o-echo" pathLength={1} d="M100 -3 C158 -4 206 44 205 102 C204 160 156 207 100 206 C42 207 -6 158 -5 100 C-4 44 44 -4 100 -3" />
+                    <path
+                      className="o-echo"
+                      pathLength={1}
+                      d="M100 -3 C158 -4 206 44 205 102 C204 160 156 207 100 206 C42 207 -6 158 -5 100 C-4 44 44 -4 100 -3"
+                    />
                     <g className="o-take o-a">
-                      <path className="o-hi" pathLength={1} d="M128 11 C172 20 197 62 191 105 C185 151 149 191 100 191 C52 191 11 155 9 104 C7 55 44 13 97 9 C122 7 144 13 160 27" />
-                      <path className="o-loop" pathLength={1} d="M128 11 C172 20 197 62 191 105 C185 151 149 191 100 191 C52 191 11 155 9 104 C7 55 44 13 97 9 C122 7 144 13 160 27" />
+                      <path
+                        className="o-hi"
+                        pathLength={1}
+                        d="M128 11 C172 20 197 62 191 105 C185 151 149 191 100 191 C52 191 11 155 9 104 C7 55 44 13 97 9 C122 7 144 13 160 27"
+                      />
+                      <path
+                        className="o-loop"
+                        pathLength={1}
+                        d="M128 11 C172 20 197 62 191 105 C185 151 149 191 100 191 C52 191 11 155 9 104 C7 55 44 13 97 9 C122 7 144 13 160 27"
+                      />
                       <path className="o-press" pathLength={1} d="M128 11 C172 20 197 62 191 105" />
-                      <path className="o-pencil" pathLength={1} d="M21 62 C15 102 29 148 69 177 C101 195 142 186 170 159" />
+                      <path
+                        className="o-pencil"
+                        pathLength={1}
+                        d="M21 62 C15 102 29 148 69 177 C101 195 142 186 170 159"
+                      />
                     </g>
                     <g className="o-take o-b">
-                      <path className="o-hi" pathLength={1} d="M126 12 C170 17 199 60 192 103 C187 153 146 193 100 190 C50 193 9 157 10 106 C6 58 46 11 99 11 C124 10 142 16 156 30" />
-                      <path className="o-loop" pathLength={1} d="M126 12 C170 17 199 60 192 103 C187 153 146 193 100 190 C50 193 9 157 10 106 C6 58 46 11 99 11 C124 10 142 16 156 30" />
+                      <path
+                        className="o-hi"
+                        pathLength={1}
+                        d="M126 12 C170 17 199 60 192 103 C187 153 146 193 100 190 C50 193 9 157 10 106 C6 58 46 11 99 11 C124 10 142 16 156 30"
+                      />
+                      <path
+                        className="o-loop"
+                        pathLength={1}
+                        d="M126 12 C170 17 199 60 192 103 C187 153 146 193 100 190 C50 193 9 157 10 106 C6 58 46 11 99 11 C124 10 142 16 156 30"
+                      />
                       <path className="o-press" pathLength={1} d="M126 12 C170 17 199 60 192 103" />
-                      <path className="o-pencil" pathLength={1} d="M20 65 C16 105 31 146 71 175 C102 193 140 188 168 162" />
+                      <path
+                        className="o-pencil"
+                        pathLength={1}
+                        d="M20 65 C16 105 31 146 71 175 C102 193 140 188 168 162"
+                      />
                     </g>
                     <circle className="o-blot" cx="128" cy="11" r="2.6" />
                     <g className="o-ticks">
@@ -318,12 +424,18 @@ export default function Hero({ dict }: HeroProps) {
                     own middle. */}
                 <g transform="translate(197 148)">
                   <g className="o-sw o-sw-a">
-                    <path className="o-star o-star-a" d="M0 -8 C1 -2.5 2.5 -1 8 0 C2.5 1 1 2.5 0 8 C-1 2.5 -2.5 1 -8 0 C-2.5 -1 -1 -2.5 0 -8 Z" />
+                    <path
+                      className="o-star o-star-a"
+                      d="M0 -8 C1 -2.5 2.5 -1 8 0 C2.5 1 1 2.5 0 8 C-1 2.5 -2.5 1 -8 0 C-2.5 -1 -1 -2.5 0 -8 Z"
+                    />
                   </g>
                 </g>
                 <g transform="translate(212 118) scale(0.55)">
                   <g className="o-sw o-sw-b">
-                    <path className="o-star o-star-b" d="M0 -8 C1 -2.5 2.5 -1 8 0 C2.5 1 1 2.5 0 8 C-1 2.5 -2.5 1 -8 0 C-2.5 -1 -1 -2.5 0 -8 Z" />
+                    <path
+                      className="o-star o-star-b"
+                      d="M0 -8 C1 -2.5 2.5 -1 8 0 C2.5 1 1 2.5 0 8 C-1 2.5 -2.5 1 -8 0 C-2.5 -1 -1 -2.5 0 -8 Z"
+                    />
                   </g>
                 </g>
               </g>

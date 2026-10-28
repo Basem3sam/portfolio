@@ -97,7 +97,7 @@ export default function Stack({ dict }: StackProps) {
       <div className="container">
         <SectionHeader number="03" title={dict.title} lead={dict.lead} />
 
-        <div className="sflow">
+        <div className="sflow" data-story="read">
           {/* Honey comet that rides the connector line (decorative). */}
           <span className="stx-pkt" aria-hidden="true"></span>
 

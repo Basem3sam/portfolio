@@ -69,7 +69,7 @@ export default function LinksStage({ alt }: LinksStageProps) {
           sizes={PROFILE_CUTOUT_SIZES_LINKS}
           alt={alt}
           width={640}
-          height={598}
+          height={640}
           className="lk-photo"
           fetchPriority="high"
         />

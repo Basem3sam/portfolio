@@ -301,6 +301,7 @@ function PaletteDialog({
       ></div>
       <div
         role="dialog"
+        data-lenis-prevent
         aria-modal="true"
         aria-label={labels.ariaLabel}
         onKeyDown={handleDialogKeyDown}

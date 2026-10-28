@@ -12,6 +12,8 @@ import "@/app/globals.css";
 import PauseOffscreen from "@/components/behavior/PauseOffscreen";
 import RevealOnScroll from "@/components/behavior/RevealOnScroll";
 import ScrollManager from "@/components/behavior/ScrollManager";
+import ScrollStory from "@/components/behavior/ScrollStory";
+import SmoothScroll from "@/components/behavior/SmoothScroll";
 import ThemeEffects from "@/components/behavior/ThemeEffects";
 import ThemeScript from "@/components/behavior/ThemeScript";
 import JsonLd from "@/components/seo/JsonLd";
@@ -156,6 +158,8 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
         {children}
         <JsonLd />
         <ThemeEffects />
+        <SmoothScroll />
+        <ScrollStory />
         <ScrollManager />
         <RevealOnScroll />
         <PauseOffscreen />

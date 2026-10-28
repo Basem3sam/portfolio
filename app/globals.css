@@ -39,7 +39,7 @@
   --animate-hero-in-3: heroIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) 320ms both;
   --animate-rule-grow: ruleGrow 0.7s cubic-bezier(0.4, 0, 0.2, 1) 150ms backwards;
   --animate-glow-breathe: glowBreathe 16s ease-in-out infinite;
-  --animate-reveal-up: revealUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+  --animate-reveal-up: revealUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) backwards;
   --animate-github-card: githubCard 0.6s cubic-bezier(0.4, 0, 0.2, 1) backwards;
   --animate-scanline: scanline 8s linear infinite;
   --animate-crt-sweep: crtSweep 7s linear infinite;
@@ -109,7 +109,7 @@
   @keyframes revealUp {
     from {
       opacity: 0;
-      transform: translateY(40px);
+      transform: translateY(28px);
     }
   }
 
@@ -794,10 +794,45 @@ html[lang="ar"] {
     scrollbar-gutter: stable;
   }
 
+  /* Offscreen bands stop their endless loops (PauseOffscreen sets the flag).
+     They resume exactly where they stopped; nothing is removed. */
+  [data-offscreen="true"],
+  [data-offscreen="true"] *,
+  [data-offscreen="true"] *::before,
+  [data-offscreen="true"] *::after {
+    animation-play-state: paused !important;
+  }
+
+  /* Lenis (smooth wheel scrolling). Its own stylesheet, inlined so the rules
+     live next to the html rule they interact with. Lenis scrolls with
+     behavior: "instant", so the scroll-behavior above only governs native
+     jumps (keyboard, find-in-page) and the no-JS case. */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+
+  /* Deliberately no ".lenis-stopped { overflow: clip }" (Lenis's default).
+     lib/scrollLock.ts already freezes the page with a fixed body, which also
+     holds on iOS; clipping the root as well made it stop being a scroll
+     container and reset the scroll position to the top on unlock. */
+
+  .lenis [data-lenis-prevent],
+  .lenis [data-lenis-prevent-wheel],
+  .lenis [data-lenis-prevent-touch],
+  .lenis [data-lenis-prevent-vertical],
+  .lenis [data-lenis-prevent-horizontal] {
+    overscroll-behavior: contain;
+  }
+
+  /* While a glide is running, an iframe under the cursor would swallow the
+     wheel and stall the page. At rest it stays fully interactive. */
+  .lenis.lenis-smooth iframe {
+    pointer-events: none;
+  }
+
   body {
     background-color: var(--c-page);
-    background-image: var(--bg-ambient);
-    background-attachment: fixed;
     color: var(--c-dark-text);
     font-family: var(--font-body);
     line-height: 1.6;
@@ -811,6 +846,19 @@ html[lang="ar"] {
   h3 {
     font-family: var(--font-display-body);
     text-wrap: balance;
+  }
+
+  /* The ambient wash lives on its own fixed layer instead of
+     "background-attachment: fixed" on the body. Same look, but the browser can
+     composite it, so it is not repainted on every scroll frame (which smooth
+     scrolling makes visible as jank, most of all on phones and laptops). */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: var(--bg-ambient);
   }
 
   body::after {
@@ -922,7 +970,7 @@ html[lang="ar"] {
   }
 
   [data-reveal][data-stagger][data-revealed="true"] > * {
-    animation: revealUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+    animation: revealUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) backwards;
     animation-delay: calc(var(--stagger) * var(--stagger-index));
   }
 
@@ -980,6 +1028,7 @@ html[lang="ar"] {
     background-image: none;
   }
 
+  body::before,
   body::after {
     display: none;
   }

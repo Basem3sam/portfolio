@@ -112,6 +112,7 @@ export default function OverlayShell({
           ref={cardRef}
           tabIndex={-1}
           role="dialog"
+          data-lenis-prevent
           aria-modal="true"
           aria-label={title}
           className={`egc${cardClassName ? ` ${cardClassName}` : ""}`}

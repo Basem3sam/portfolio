@@ -377,7 +377,7 @@ export default function Work({ dict, github, locale }: WorkProps) {
 
       {featured && (
         <div data-reveal className="spread-wrap">
-          <Spotlight className="spread spotlight">
+          <Spotlight className="spread spotlight" story="enter">
             <div className="spread-copy">
               <Eyebrow project={featured} dict={dict} index={1} />
               <h3 className="spread-title">{featured.title ?? featured.name}</h3>
@@ -458,6 +458,7 @@ export default function Work({ dict, github, locale }: WorkProps) {
         {rest.map((project, index) => (
           <Spotlight
             key={project.id}
+            story="enter"
             className={`row spotlight${rowHref(project) ? " is-link" : ""}${
               rest
                 .slice(Math.floor(index / 2) * 2, Math.floor(index / 2) * 2 + 2)

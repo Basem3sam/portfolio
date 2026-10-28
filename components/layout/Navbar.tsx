@@ -771,7 +771,10 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                       <button
                         type="button"
                         onClick={openPalette}
-                        aria-label={palette.trigger}
+                        // The name must contain the visible shortcut text
+                        // (WCAG 2.5.3), so voice control can say "click Ctrl K".
+                        aria-label={`${palette.trigger}, ${modKey} K`}
+                        suppressHydrationWarning
                         className={`${paletteButton} group/palette`}
                       >
                         <Icon name="search" className="size-4" />

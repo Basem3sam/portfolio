@@ -257,6 +257,8 @@ const en = {
     lead: "One system in production, two builds in progress, and two earlier projects.",
     liveLabel: "live from github",
     viewRepo: "Repository",
+    viewFrontend: "Frontend repository",
+    viewBackend: "Backend repository",
     viewLive: "Live site",
     caseStudy: "Case study",
     viewProfile: "View profile on GitHub",

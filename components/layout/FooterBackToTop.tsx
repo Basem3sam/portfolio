@@ -1,7 +1,7 @@
 "use client";
 
 import type { MouseEvent, ReactNode } from "react";
-import { scrollBehavior } from "@/lib/scroll";
+import { scrollToTop } from "@/lib/scroll";
 
 type FooterBackToTopProps = {
   className?: string;
@@ -17,7 +17,7 @@ type FooterBackToTopProps = {
 export default function FooterBackToTop({ className, children }: FooterBackToTopProps) {
   const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    window.scrollTo({ top: 0, behavior: scrollBehavior() });
+    scrollToTop();
     event.currentTarget.blur();
   };
 
