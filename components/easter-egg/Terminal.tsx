@@ -79,7 +79,11 @@ import {
   nextFortune,
   notesOutput,
   hintOutput,
-  hireDenied,
+  HIRE_BARE,
+  HOUSE_RULE,
+  SECRET_DENIED,
+  REPLAY_LINES,
+  SUDO_LIST,
   hireOutput,
   historyOutput,
   lsOutput,
@@ -635,10 +639,16 @@ export default function Terminal({ open, onClose }: TerminalProps) {
         text:
           count > 0
             ? 'Type "trophies" or "notes" to pick up the trail.'
-            : `Type "help". ${TOTAL_DISCOVERIES} trophies hide here, and not every command is listed.`,
+            : `Type "help". ${TOTAL_DISCOVERIES} trophies hide here.`,
         delay: 1050,
       },
-      { id: 7, tone: "plain", text: "", delay: 1200 },
+      {
+        id: 7,
+        tone: "plain",
+        html: `<span class="dim">${HOUSE_RULE}</span>`,
+        delay: 1150,
+      },
+      { id: 8, tone: "plain", text: "", delay: 1250 },
     ];
   });
   const [glitch, setGlitch] = useState(false);
@@ -672,6 +682,8 @@ export default function Terminal({ open, onClose }: TerminalProps) {
   const fortuneCalls = useRef(0);
   const fortuneShift = useRef(Math.floor(Math.random() * 10));
   const cupsRef = useRef(0);
+  /** history length when the last hint was given: a hint costs one move. */
+  const hintGate = useRef(-10);
   const openedAt = useRef(Date.now());
 
   const count = found.length;
@@ -999,6 +1011,28 @@ export default function Terminal({ open, onClose }: TerminalProps) {
     const args = tokens.slice(1).map((token) => token.toLowerCase());
     const user = rankFor(foundRef.current.length);
 
+    const bang = head.match(/^!(\d+)$/);
+    if (bang || word === "replay") {
+      const n = Number(bang ? bang[1] : args[0]);
+      if (!foundRef.current.includes("history")) {
+        append([
+          { tone: "error", text: "replay: nothing to replay yet." },
+          { tone: "info", text: "Read a log first. Hidden files start with a dot." },
+        ]);
+      } else if (!Number.isInteger(n) || !REPLAY_LINES[n]) {
+        append([{ tone: "info", text: "Usage: replay N, with N a line number from the history (1 to 9)." }]);
+      } else {
+        const line = REPLAY_LINES[n];
+        if (line.run) {
+          emit(`  <span class="dim">replaying line ${n}:</span> <span class="cmd">${escapeHtml(line.run)}</span>`);
+          run(line.run);
+        } else if (line.say) {
+          emit(line.say.split("\n").map((row) => `  <span class="dim">${escapeHtml(row)}</span>`).join("\n"));
+        }
+      }
+      return;
+    }
+
     switch (word) {
       case "clear":
         finishTyping();
@@ -1183,10 +1217,12 @@ export default function Terminal({ open, onClose }: TerminalProps) {
           emit(lsOutput(false));
         } else if (file === "secret.txt") {
           // Locked on purpose: the command of the same name is the key.
-          append([
-            { tone: "error", text: "cat: secret.txt: permission denied" },
-            { tone: "info", text: "It only opens for its own name." },
-          ]);
+          append(
+            SECRET_DENIED.map((text, index) => ({
+              tone: index === 0 ? ("error" as const) : ("info" as const),
+              text,
+            })),
+          );
           giveClue("c_locked");
         } else if (FILE_COMMAND[file]) {
           emit(COMMAND_OUTPUT[FILE_COMMAND[file]]);
@@ -1341,6 +1377,16 @@ export default function Terminal({ open, onClose }: TerminalProps) {
           emit(`  <span class="wl">No trophies left.</span> <span class="dim">You have everything.</span>`);
           return;
         }
+        // A hint costs a move: run something else between two hints, so the
+        // ladder cannot be climbed by repeating one word.
+        if (history.current.length < hintGate.current + 2) {
+          append([
+            { tone: "info", text: "Try something first." },
+            { tone: "plain", html: `<span class="dim">Run any command, then ask again.</span>` },
+          ]);
+          return;
+        }
+        hintGate.current = history.current.length;
         const level = Math.min(3, (hintsRef.current[target.id] ?? 0) + 1) as 1 | 2 | 3;
         hintsRef.current = { ...hintsRef.current, [target.id]: level };
         persist();
@@ -1374,27 +1420,24 @@ export default function Terminal({ open, onClose }: TerminalProps) {
 
       case "sudo": {
         const passwordLine = `[sudo] password for ${user}: ********`;
-        if (args[0] === "hire") {
-          const owned = foundRef.current.filter((id) => id !== "hire").length;
+        if (args[0] === "-l") {
+          emit(SUDO_LIST);
+          discover("sudo");
+          giveClue("c_shape");
+        } else if (args[0] === "hire") {
           if (!args[1]) {
             append([
               { tone: "error", text: "hire: who? A verb needs a name." },
-              { tone: "info", text: "Whose terminal is this?" },
+              { tone: "info", text: "5 letters. Whose machine is this?" },
             ]);
           } else if (args[1] !== "basem") {
             append([
               { tone: "error", text: `hire: no candidate named "${tokens[2]}" here` },
-              { tone: "info", text: "Try the person this terminal belongs to." },
+              { tone: "info", text: "5 letters. Whose machine is this?" },
             ]);
-          } else if (rankFor(owned) === "guest" || rankFor(owned) === "explorer") {
-            emit(passwordLine);
-            later(900, () => {
-              playErrorSound();
-              emit(hireDenied(user, 10 - owned));
-              pulse(500);
-            });
           } else {
-            // Password, a short authentication bar, then the offer.
+            // Password, a short authentication bar, then the offer. No rank
+            // gate: whoever works out the command has earned the answer.
             const [, ...rest] = hireOutput(user).split("\n");
             emit(passwordLine);
             later(800, () => append([{ tone: "plain", kind: "bar", text: "authenticating", ms: 900 }]));
@@ -1412,16 +1455,15 @@ export default function Terminal({ open, onClose }: TerminalProps) {
             emit(SUDO_DENIED.replace("%USER%", user));
             pulse(500);
             discover("sudo");
+            giveClue("c_shape");
           });
         }
         return;
       }
 
       case "hire":
-        append([
-          { tone: "error", text: "hire: permission denied" },
-          { tone: "info", text: "This one needs more privileges." },
-        ]);
+        emit(HIRE_BARE);
+        giveClue("c_shape");
         return;
 
       case "rm":

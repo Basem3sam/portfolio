@@ -335,7 +335,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
 
       syncClue();
       if (state.level === 4 && clueRef.current) animateClue(clueRef.current, "reveal", 2000);
-      startResetTimer(state.spamActive ? 3000 : 5000);
+      startResetTimer(state.spamActive ? 3000 : 9000);
     };
 
     // The pointer cursor follows the person's outline (set per-move), so the

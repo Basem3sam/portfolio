@@ -62,76 +62,79 @@ type HintLevel = {
   showNotification: boolean;
 };
 
-/** The photo-hunt hint ladder (mockup HINTS, line 4583). */
+/** The photo-hunt hint ladder. Every line describes something the person can
+    SEE the portrait do, in the order it does it. None names the code: the
+    terminal asks for the same habit (read what is on screen, then act). */
 export const HINT_LEVELS: HintLevel[] = [
   { tooltip: { en: "...", ar: "..." }, notification: { en: "", ar: "" }, icon: "helpCircle", showNotification: false },
   {
-    tooltip: { en: "You found something! Keep exploring…", ar: "اكتشفتَ شيئًا! واصل الاستكشاف…" },
+    tooltip: { en: "It reacts. Watch which way it moves.", ar: "إنه يتفاعل. راقب اتجاه حركته." },
     notification: {
-      en: "Secret discovered! Keep clicking to reveal more…",
-      ar: "اكتشفتَ سرًا! واصل الضغط لتعرف المزيد…",
+      en: "It reacted. Click again and watch which way it moves.",
+      ar: "تفاعلت الصورة. اضغط مجددًا وراقب اتجاه حركتها.",
     },
     icon: "eye",
     showNotification: true,
   },
   {
-    tooltip: { en: "Follow the arrow patterns…", ar: "اتبع نمط الأسهم…" },
+    tooltip: { en: "Up, up. Then the opposite, twice.", ar: "لأعلى مرتين. ثم العكس مرتين." },
     notification: {
-      en: "Notice the arrow directions? There's a pattern…",
-      ar: "هل لاحظتَ اتجاه الأسهم؟ هناك نمط…",
+      en: "Two bounces up, then two down. The order matters.",
+      ar: "نطّتان لأعلى ثم نطّتان لأسفل. الترتيب مهم.",
     },
     icon: "gamepad",
     showNotification: true,
   },
   {
-    tooltip: { en: "Up, up, down, down…", ar: "أعلى، أعلى، أسفل، أسفل…" },
+    tooltip: { en: "Now it slides: left, right, left, right.", ar: "الآن تنزلق: يسار، يمين، يسار، يمين." },
     notification: {
-      en: "It's a famous gaming sequence! Keep going…",
-      ar: "إنه تسلسل شهير في الألعاب! أكمل…",
+      en: "Now it slides sideways, one way and back, twice.",
+      ar: "الآن تنزلق جانبيًا، ذهابًا وإيابًا، مرتين.",
     },
     icon: "gamepad",
     showNotification: true,
   },
   {
-    tooltip: { en: "↑↑↓↓←→←→", ar: "↑↑↓↓←→←→" },
+    tooltip: { en: "Eight moves, then a flash. One more flash.", ar: "ثماني حركات ثم وميض. بقي وميض واحد." },
     notification: {
-      en: "Almost there! Just need the final buttons…",
-      ar: "اقتربتَ! بقيت الأزرار الأخيرة…",
+      en: "That was a flash, not a move. One more is coming.",
+      ar: "كان ذلك وميضًا وليس حركة. بقي وميض آخر.",
     },
     icon: "gamepad",
     showNotification: true,
   },
   {
-    tooltip: { en: "↑↑↓↓←→←→BA · Complete the sequence!", ar: "↑↑↓↓←→←→BA · أكمل التسلسل!" },
+    tooltip: { en: "One flash left, then you have all ten.", ar: "بقي وميض واحد ثم تكتمل العشر." },
     notification: {
-      en: "One more click! Complete the sequence.",
-      ar: "نقرة أخيرة! أكمل التسلسل.",
+      en: "One more click. Then you will have seen all ten.",
+      ar: "نقرة أخيرة. وبعدها تكون قد رأيت الحركات العشر.",
     },
     icon: "trophy",
     showNotification: true,
   },
 ];
 
-/** Gentle, escalating hints after a wrong keypad attempt (mockup `H`, 4709). */
+/** Feedback after a wrong keypad attempt. It describes the portrait, never
+    the code, and gets more concrete each time. */
 export const FAIL_HINTS: Localised[] = [
   {
-    en: "Not quite. The clues are on the page itself.",
-    ar: "ليس تمامًا. التلميحات في الصفحة نفسها.",
+    en: "Not quite. The portrait performed it, move by move.",
+    ar: "ليس تمامًا. الصورة أدّتها حركةً بحركة.",
   },
-  { en: "A famous cheat code from 1986.", ar: "رمز غش شهير من عام 1986." },
+  { en: "The order is the order it moved in.", ar: "الترتيب هو ترتيب حركتها." },
   {
-    en: "The portrait has been trying to tell you something.",
-    ar: "الصورة كانت تحاول إخبارك بشيء.",
+    en: "Eight moves, then two flashes. Click it and watch.",
+    ar: "ثماني حركات ثم وميضان. اضغط عليها وراقب.",
   },
 ];
 
-/** Reminder pings while the clue button is open (mockup STR.rem, 4595). */
+/** Reminder pings while the clue button is open. */
 export const REMINDERS: Localised[] = [
-  { en: "Remember the Konami code?", ar: "هل تذكر كود كونامي؟" },
-  { en: "↑↑↓↓←→←→BA unlocks the terminal", ar: "↑↑↓↓←→←→BA يفتح الطرفية" },
-  { en: "Some gaming history might help…", ar: "قد يساعدك القليل من تاريخ الألعاب…" },
-  { en: "Arrow keys, then two letters.", ar: "أسهم، ثم حرفان." },
-  { en: "Ctrl + Shift + B is for the impatient.", ar: "Ctrl + Shift + B لقليلي الصبر." },
+  { en: "Watch which way the portrait moves.", ar: "راقب اتجاه حركة الصورة." },
+  { en: "Ten clicks, ten moves, in order.", ar: "عشر نقرات، عشر حركات، بالترتيب." },
+  { en: "The keypad has the same buttons you saw.", ar: "لوحة المفاتيح فيها الأزرار نفسها التي رأيتها." },
+  { en: "Eight moves, then two flashes.", ar: "ثماني حركات ثم وميضان." },
+  { en: "No keyboard? Ctrl + Shift + B opens the keypad.", ar: "بلا لوحة مفاتيح؟ Ctrl + Shift + B يفتح لوحة المفاتيح." },
 ];
 
 /**

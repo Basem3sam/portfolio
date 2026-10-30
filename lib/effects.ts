@@ -190,36 +190,51 @@ export function prewarmEffects() {
 
 export type ClickPoint = { x: number; y: number };
 
+// One click, one key: the glyph and its drift are the key the portrait is
+// performing on this click, so the particles repeat what the photo shows
+// instead of adding noise. Same order as CLICK_ANIMATION_ORDER below.
+const CLICK_KEYS: { glyph: string; dx: number; dy: number }[] = [
+  { glyph: "↑", dx: 0, dy: -1 },
+  { glyph: "↑", dx: 0, dy: -1 },
+  { glyph: "↓", dx: 0, dy: 1 },
+  { glyph: "↓", dx: 0, dy: 1 },
+  { glyph: "←", dx: -1, dy: 0 },
+  { glyph: "→", dx: 1, dy: 0 },
+  { glyph: "←", dx: -1, dy: 0 },
+  { glyph: "→", dx: 1, dy: 0 },
+  { glyph: "B", dx: 0, dy: 0 },
+  { glyph: "A", dx: 0, dy: 0 },
+];
+
 export function createDirectionalParticles(
   element: HTMLElement,
   clickCount: number,
   point?: ClickPoint,
 ) {
-  const directions = ["↑", "↓", "←", "→", "B", "A"];
+  const key = CLICK_KEYS[(clickCount - 1) % CLICK_KEYS.length];
   const rect = element.getBoundingClientRect();
   // Emit from the spot that was clicked; the middle of the photo is only the
   // fallback (keyboard activation has no pointer position).
   const originX = point ? point.x : rect.left + rect.width / 2;
   const originY = point ? point.y : rect.top + rect.height / 2;
 
-  for (let index = 0; index < Math.min(clickCount, 4); index++) {
-    const x = (Math.random() - 0.5) * 2;
-    const y = (Math.random() - 0.5) * 2;
+  for (let index = 0; index < 3; index++) {
+    const spread = (index - 1) * 14;
     const particle = spawn(
       "pointer-events-none fixed z-[10002] font-bold text-[#fbbf24]",
       {
-        left: `${originX}px`,
-        top: `${originY}px`,
-        fontSize: `${12 + clickCount * 1.5}px`,
+        left: `${originX + (key.dy === 0 ? 0 : spread)}px`,
+        top: `${originY + (key.dx === 0 ? 0 : spread)}px`,
+        fontSize: `${14 + clickCount * 1.5}px`,
       },
       1200,
-      directions[index % directions.length],
+      key.glyph,
     );
     particle.animate(
       [
-        { transform: "translate(0, 0) scale(1) rotate(0deg)", opacity: 0.8 },
+        { transform: "translate(0, 0) scale(1)", opacity: 0.9 },
         {
-          transform: `translate(${x * 120}px, ${y * 120 - 60}px) scale(0) rotate(180deg)`,
+          transform: `translate(${key.dx * 110}px, ${key.dy * 110}px) scale(${key.dx || key.dy ? 0.4 : 1.8})`,
           opacity: 0,
         },
       ],
