@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { isLowTier, onLowTier } from "@/lib/perf";
 
 type RGB = [number, number, number];
 
@@ -57,7 +58,8 @@ export default function LinksBackdrop() {
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
 
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // `let`: a device that turns out to be struggling drops to the still version.
+    let reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches || isLowTier();
     const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
     let width = 0;
@@ -242,7 +244,15 @@ export default function LinksBackdrop() {
       }
     }
 
+    const offLow = onLowTier(() => {
+      reduced = true;
+      cancelAnimationFrame(frame);
+      window.removeEventListener("pointermove", onMove);
+      draw(performance.now());
+    });
+
     return () => {
+      offLow();
       cancelAnimationFrame(frame);
       window.clearTimeout(resizeTimer);
       window.removeEventListener("resize", onResize);

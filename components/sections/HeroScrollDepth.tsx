@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { isLowTier, onLowTier } from "@/lib/perf";
 import { prefersReducedMotion } from "@/lib/scroll";
 
 /**
@@ -14,7 +15,7 @@ import { prefersReducedMotion } from "@/lib/scroll";
  */
 export default function HeroScrollDepth() {
   useEffect(() => {
-    if (prefersReducedMotion()) return;
+    if (prefersReducedMotion() || isLowTier()) return;
     const hero = document.getElementById("hero");
     if (!hero) return;
 
@@ -38,11 +39,17 @@ export default function HeroScrollDepth() {
     window.addEventListener("scroll", onScroll, { passive: true });
     write();
 
-    return () => {
+    const teardown = () => {
       observer.disconnect();
       window.removeEventListener("scroll", onScroll);
       if (frame) cancelAnimationFrame(frame);
       hero.style.removeProperty("--hero-drift");
+    };
+    const offLow = onLowTier(teardown);
+
+    return () => {
+      offLow();
+      teardown();
     };
   }, []);
 

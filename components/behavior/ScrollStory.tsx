@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { getLenis } from "@/lib/lenis";
+import { isLowTier, onLowTier } from "@/lib/perf";
 import { prefersReducedMotion } from "@/lib/scroll";
 import { createStory } from "@/lib/story";
 import "./ScrollStory.css";
@@ -17,10 +18,19 @@ export default function ScrollStory() {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (prefersReducedMotion()) return;
+    if (prefersReducedMotion() || isLowTier()) return;
 
     const story = createStory();
     let stop = () => {};
+    let ended = false;
+    const end = () => {
+      if (ended) return;
+      ended = true;
+      stop();
+      story.destroy();
+    };
+    // A device that cannot keep up gets the finished page, not the choreography.
+    const offLow = onLowTier(end);
 
     // One frame later, so the new page has laid out and Lenis is registered.
     const start = requestAnimationFrame(() => {
@@ -37,8 +47,8 @@ export default function ScrollStory() {
 
     return () => {
       cancelAnimationFrame(start);
-      stop();
-      story.destroy();
+      offLow();
+      end();
     };
   }, [pathname]);
 

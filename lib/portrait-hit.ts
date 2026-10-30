@@ -41,18 +41,21 @@ function grow(src: Uint8Array, radius: number): Uint8Array {
 
 function build(image: HTMLImageElement) {
   if (mask || loading) return loading ?? Promise.resolve();
-  const src = image.currentSrc || image.src;
+  // Reads the pixels of the <img> that is already on screen. This used to load
+  // the photo a second time through a `new Image()` with `crossOrigin`, which
+  // is a CORS-mode request the browser cannot answer from the <img>'s cache
+  // entry, so every visit downloaded the portrait twice (44 to 75 KB on the
+  // page's most important image). The photo is same-origin, so the canvas is
+  // never tainted; if it ever were, the catch below falls back as before.
   loading = new Promise<void>((resolve) => {
-    const probe = new Image();
-    probe.crossOrigin = "anonymous";
-    probe.onload = () => {
+    const read = () => {
       try {
         const canvas = document.createElement("canvas");
         canvas.width = SIZE;
         canvas.height = SIZE;
         const ctx = canvas.getContext("2d", { willReadFrequently: true });
         if (ctx) {
-          ctx.drawImage(probe, 0, 0, SIZE, SIZE);
+          ctx.drawImage(image, 0, 0, SIZE, SIZE);
           const data = ctx.getImageData(0, 0, SIZE, SIZE).data;
           const solid = new Uint8Array(SIZE * SIZE);
           for (let i = 0; i < solid.length; i++) solid[i] = data[i * 4 + 3] > ALPHA_MIN ? 1 : 0;
@@ -63,8 +66,12 @@ function build(image: HTMLImageElement) {
       }
       resolve();
     };
-    probe.onerror = () => resolve();
-    probe.src = src;
+    if (image.complete && image.naturalWidth > 0) {
+      read();
+    } else {
+      image.addEventListener("load", read, { once: true });
+      image.addEventListener("error", () => resolve(), { once: true });
+    }
   });
   return loading;
 }

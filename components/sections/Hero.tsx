@@ -191,15 +191,35 @@ export default function Hero({ dict }: HeroProps) {
     const schedule = () => {
       if (!frame) frame = requestAnimationFrame(paint);
     };
+    // The sheen is masked to the person. The mask is drawn from the photo that
+    // is already on screen into a small in-memory image, so it costs no
+    // download (a CSS mask-image URL is fetched in CORS mode and cannot reuse
+    // the <img>'s cached copy, so it used to fetch the photo a second time).
+    // The sheen only shows once the mask exists (data-cutout).
+    let cutoutUrl = "";
+    let disposed = false;
+    const makeCutout = () => {
+      if (cutoutSet || !img || !img.complete || !img.naturalWidth) return;
+      cutoutSet = true;
+      const side = 512;
+      const canvas = document.createElement("canvas");
+      canvas.width = side;
+      canvas.height = side;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      ctx.drawImage(img, 0, 0, side, side);
+      canvas.toBlob((blob) => {
+        if (!blob || disposed) return;
+        cutoutUrl = URL.createObjectURL(blob);
+        pf.style.setProperty("--cutout", `url("${cutoutUrl}")`);
+        pf.setAttribute("data-cutout", "");
+      }, "image/png");
+    };
+
     const setNear = (value: boolean) => {
       if (value === near) return;
       near = value;
-      // The sheen is masked to the person using the photo already on screen
-      // (no extra download); the mask has to be in place before it is shown.
-      if (value && !cutoutSet && img) {
-        cutoutSet = true;
-        pf.style.setProperty("--cutout", `url("${img.currentSrc || img.src}")`);
-      }
+      if (value) makeCutout();
       pf.toggleAttribute("data-near", value);
       schedule();
     };
@@ -264,6 +284,10 @@ export default function Hero({ dict }: HeroProps) {
       host.removeEventListener("pointerleave", onLeave);
       hit?.removeEventListener("click", onPoke);
       hit?.removeEventListener("pointerdown", onPress);
+      disposed = true;
+      if (cutoutUrl) URL.revokeObjectURL(cutoutUrl);
+      pf.removeAttribute("data-cutout");
+      pf.style.removeProperty("--cutout");
       window.removeEventListener("pointerup", onRelease);
       window.removeEventListener("pointercancel", onRelease);
       img?.removeEventListener("load", buildMapIdle);

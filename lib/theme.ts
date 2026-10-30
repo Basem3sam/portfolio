@@ -4,6 +4,9 @@ const STORAGE_KEY = "theme";
 const DARK_CLASS = "dark-mode";
 const THEME_EVENT = "themeChange";
 
+/** The browser UI colour (the phone's address bar and status area). */
+const THEME_COLORS: Record<Theme, string> = { light: "#fbfbfd", dark: "#0e1522" };
+
 const FAVICONS: Record<Theme, { png32: string; png16: string; apple: string }> = {
   light: {
     png32: "/assets/icons/light/favicon-32x32.png",
@@ -66,9 +69,21 @@ function updateFavicons(theme: Theme) {
   });
 }
 
+// Next renders two theme-color tags keyed to the *system* scheme, so they would
+// ignore the site's own toggle (a dark phone on the light theme kept a dark
+// bar). Set both to the active theme's colour in place; the tags stay React's.
+function updateThemeColor(theme: Theme) {
+  document.head.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach((meta) => {
+    if (meta.getAttribute("content") !== THEME_COLORS[theme]) {
+      meta.setAttribute("content", THEME_COLORS[theme]);
+    }
+  });
+}
+
 function commitTheme(theme: Theme) {
   document.body.classList.toggle(DARK_CLASS, theme === "dark");
   updateFavicons(theme);
+  updateThemeColor(theme);
   try {
     localStorage.setItem(STORAGE_KEY, theme);
   } catch {}

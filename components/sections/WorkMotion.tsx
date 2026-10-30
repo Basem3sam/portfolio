@@ -21,6 +21,18 @@ const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
  * The featured panel and the single-column layout keep the CSS-only slide, and
  * `prefers-reduced-motion` skips all of it. Renders nothing.
  */
+/**
+ * The element's layout height, which CSS transforms do not change. The cards
+ * get an arrival `scale` from the scroll story, and getBoundingClientRect()
+ * reports the *scaled* size, so measuring with it froze heights about 4% too
+ * small for any card still arriving. Computed height is the border-box height
+ * here (everything is box-sizing: border-box), with the rect as a fallback.
+ */
+function layoutHeight(element: Element) {
+  const height = parseFloat(getComputedStyle(element).height);
+  return Number.isFinite(height) ? height : element.getBoundingClientRect().height;
+}
+
 export default function WorkMotion() {
   useEffect(() => {
     const root = document.getElementById("work");
@@ -34,14 +46,36 @@ export default function WorkMotion() {
       const rows = Array.from(root.querySelectorAll<HTMLElement>(".row"));
       rows.forEach((row) => row.style.removeProperty("--pair-media"));
       if (!wide.matches) return;
-      for (let i = 0; i < rows.length; i += 2) {
-        const pair = rows.slice(i, i + 2);
-        pair.forEach((row) => row.style.setProperty("--pair-media", "0px"));
-        const tallest = Math.max(
-          ...pair.map((row) => row.querySelector(".row-media")?.getBoundingClientRect().height ?? 0),
-        );
-        pair.forEach((row) => row.style.setProperty("--pair-media", `${Math.ceil(tallest)}px`));
-      }
+
+      // Batched: neutralise every pair, measure them all in ONE layout, then
+      // write the results. It used to write, measure and write per pair, which
+      // forced a full layout of this tall section once per pair, several times
+      // while the page loaded (the biggest script cost in a load profile).
+      const pairs: HTMLElement[][] = [];
+      for (let i = 0; i < rows.length; i += 2) pairs.push(rows.slice(i, i + 2));
+      rows.forEach((row) => row.style.setProperty("--pair-media", "0px"));
+      const tallest = pairs.map((pair) =>
+        Math.max(
+          ...pair.map((row) => {
+            const media = row.querySelector(".row-media");
+            return media ? layoutHeight(media) : 0;
+          }),
+        ),
+      );
+      pairs.forEach((pair, i) =>
+        pair.forEach((row) => row.style.setProperty("--pair-media", `${Math.ceil(tallest[i])}px`)),
+      );
+    };
+
+    // The load event, font arrival and the observers below often fire within
+    // a frame of each other; run the measurement once for all of them.
+    let equaliseFrame = 0;
+    const scheduleEqualise = () => {
+      if (equaliseFrame) return;
+      equaliseFrame = requestAnimationFrame(() => {
+        equaliseFrame = 0;
+        equalise();
+      });
     };
 
     const sync = () => {
@@ -56,10 +90,10 @@ export default function WorkMotion() {
     const observer = new ResizeObserver(() => {
       if (root.clientWidth === lastWidth) return;
       lastWidth = root.clientWidth;
-      equalise();
+      scheduleEqualise();
     });
     observer.observe(root);
-    void document.fonts?.ready.then(equalise);
+    void document.fonts?.ready.then(scheduleEqualise);
 
     // Re-measure whenever a visual itself changes size (a screenshot or a font
     // arriving late), so the two visuals of a pair never drift apart. Writing
@@ -67,20 +101,19 @@ export default function WorkMotion() {
     let frame = 0;
     const visuals = new ResizeObserver(() => {
       cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(equalise);
+      scheduleEqualise();
     });
     root.querySelectorAll(".row .sp, .row .plate").forEach((el) => visuals.observe(el));
-    window.addEventListener("load", equalise);
+    window.addEventListener("load", scheduleEqualise);
 
     // One in-flight toggle per <details>: how to settle it immediately.
     const pending = new WeakMap<HTMLDetailsElement, () => void>();
-    const heights = (cards: HTMLElement[]) => cards.map((c) => c.getBoundingClientRect().height);
+    const heights = (cards: HTMLElement[]) => cards.map(layoutHeight);
     // Where each direct child of a card sits, measured from the card's top.
+    // (offsetTop is relative to the card, which is positioned, and like the
+    // heights above it ignores the arrival scale.)
     const offsets = (cards: HTMLElement[]) =>
-      cards.map((c) => {
-        const top = c.getBoundingClientRect().top;
-        return Array.from(c.children).map((child) => child.getBoundingClientRect().top - top);
-      });
+      cards.map((c) => Array.from(c.children).map((child) => (child as HTMLElement).offsetTop));
 
     const onClick = (event: MouseEvent) => {
       if (!wide.matches || prefersReducedMotion()) return;
@@ -179,7 +212,8 @@ export default function WorkMotion() {
       observer.disconnect();
       visuals.disconnect();
       cancelAnimationFrame(frame);
-      window.removeEventListener("load", equalise);
+      window.removeEventListener("load", scheduleEqualise);
+      cancelAnimationFrame(equaliseFrame);
       root.classList.remove("js-disc", "is-measuring");
     };
   }, []);

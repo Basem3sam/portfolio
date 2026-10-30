@@ -1,0 +1,72 @@
+/* ============================================================================
+   Route flow: the progress bar and the soft page-to-page transition.
+   Also the one place the performance tier (lib/perf.ts) switches off pure
+   decoration in CSS.
+   ============================================================================ */
+
+/* --- progress bar: appears the moment a link to another page is pressed ----- */
+.nav-progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 100000;
+  height: 2px;
+  pointer-events: none;
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, var(--c-secondary), var(--c-honey));
+  box-shadow: 0 0 10px color-mix(in srgb, var(--c-honey) 55%, transparent);
+}
+
+html[dir="rtl"] .nav-progress {
+  transform-origin: 100% 50%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-progress {
+    display: none;
+  }
+}
+
+/* --- page transition ---------------------------------------------------------
+   Scoped to data-vt="route", which RouteFlow sets only while it runs a page
+   change, so the theme toggle's own crossfade keeps its default look.
+   The old page leaves quickly, the new one arrives a beat later and settles
+   upward, and the page colour is held behind both so nothing flashes. */
+html[data-vt="route"]::view-transition {
+  background: var(--c-page);
+}
+
+html[data-vt="route"]::view-transition-old(root),
+html[data-vt="route"]::view-transition-new(root) {
+  mix-blend-mode: normal;
+}
+
+html[data-vt="route"]::view-transition-old(root) {
+  animation: route-out 0.24s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+html[data-vt="route"]::view-transition-new(root) {
+  animation: route-in 0.5s 0.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes route-out {
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes route-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+/* --- performance tier "low": drop the full-screen grain overlay --------------
+   It is a fixed, full-viewport blended layer, the costliest purely decorative
+   thing on the page for a weak GPU. */
+html[data-perf="low"] body::after {
+  display: none;
+}

@@ -1453,7 +1453,7 @@ html[lang="ar"] .pf-note {
   left: -23.3%;
 }
 
-.pf[data-near] > picture::after {
+.pf[data-near][data-cutout] > picture::after {
   opacity: 1;
 }
 
