@@ -19,24 +19,61 @@ type GitHubRepoCardProps = {
   dict: Dictionary["github"];
 };
 
+/** A familiar colour for the common languages; anything else stays neutral. */
+const languageColors: Record<string, string> = {
+  JavaScript: "#f1e05a",
+  TypeScript: "#3178c6",
+  Python: "#3572a5",
+  PHP: "#8892bf",
+  HTML: "#e34c26",
+  CSS: "#7a52c9",
+  Java: "#d9822b",
+  "C++": "#f34b7d",
+  C: "#8a8a8a",
+  "C#": "#2fa24a",
+  Go: "#00add8",
+  Rust: "#dea584",
+  Shell: "#89e051",
+  Blade: "#f7523f",
+  Vue: "#41b883",
+  Dart: "#00b4ab",
+};
+
+/** A stable hue from the repository's name, kept in the site's blue-to-violet range. */
+function hueOf(name: string) {
+  let hash = 0;
+  for (const char of name) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  return 205 + (hash % 85);
+}
+
 export default function GitHubRepoCard({ repo, index, locale, dict }: GitHubRepoCardProps) {
   const name = formatRepositoryName(repo.name);
   const topics = repo.topics?.slice(0, 3) ?? [];
   const demoUrl = repo.homepage && isWebUrl(repo.homepage) ? repo.homepage : null;
+  const hue = hueOf(repo.name);
+  const languageColor = repo.language ? languageColors[repo.language] : undefined;
 
   return (
     <li className="gh-item">
       <Spotlight
         className="gh-card spotlight"
-        style={{ "--i": Math.min(index, 8) } as CSSProperties}
+        style={{ "--i": Math.min(index, 8), "--h": hue } as CSSProperties}
       >
+        <span className="gh-wm" aria-hidden="true">
+          {name.charAt(0)}
+        </span>
+
         <div className="gh-top">
-          <span className="gh-ix" aria-hidden="true">
-            {String(index + 1).padStart(2, "0")}
-          </span>
-          {repo.language && <span className="gh-lang">{repo.language}</span>}
+          {repo.language && (
+            <span
+              className="gh-lang"
+              style={languageColor ? ({ "--lc": languageColor } as CSSProperties) : undefined}
+            >
+              {repo.language}
+            </span>
+          )}
           <span className="gh-go" aria-hidden="true">
-            <Icon name="arrowRight" className="size-4" />
+            <Icon name="arrowRight" className="size-4 rtl:rotate-180" />
           </span>
         </div>
 
@@ -88,7 +125,7 @@ export default function GitHubRepoCard({ repo, index, locale, dict }: GitHubRepo
               </li>
             )}
           </ul>
-          <span>
+          <span className="gh-date">
             {dict.updated} {formatDate(repo.updated_at, locale)}
           </span>
         </div>

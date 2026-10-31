@@ -5,8 +5,10 @@ import Link from "next/link";
 import SectionHeader from "@/components/ui/SectionHeader";
 import SitePreview from "@/components/ui/SitePreview";
 import Spotlight from "@/components/ui/Spotlight";
-import WorkKpis from "@/components/sections/WorkPlates";
-import WorkMotion from "@/components/sections/WorkMotion";
+import WorkDetails from "@/components/sections/WorkDetails";
+import WorkScroll from "@/components/sections/WorkScroll";
+import WorkStat from "@/components/sections/WorkStat";
+import WorkTilt from "@/components/sections/WorkTilt";
 import {
   GITHUB_URL,
   LARAVEL_REPO_URL,
@@ -19,7 +21,6 @@ import {
 } from "@/data/site";
 import type { Dictionary } from "@/lib/dictionaries/en";
 import type { Locale } from "@/lib/i18n";
-import "@/components/ui/KpiLedger.css";
 import "./Work.css";
 
 type WorkProps = {
@@ -29,6 +30,8 @@ type WorkProps = {
 };
 
 type Project = Dictionary["work"]["projects"][number];
+
+type Stop = { label: string; note?: string; tag?: string; hot?: boolean; live?: boolean };
 
 type ProjectLinks = {
   repo?: string;
@@ -50,186 +53,166 @@ const projectLinks: Record<string, ProjectLinks> = {
   neuroscan: { repo: NEUROSCAN_REPO_URL },
 };
 
-// Status is a four-segment meter plus a word. Only "production" carries the
-// status colour (colour means "this is live"); the other states stay neutral:
-// half lit while still being built, fully lit when finished, outlined for the
-// academic project.
-/** Splits "100+" into "100" and a honey-coloured "+" (or "%" — "94.8%"). */
-function StatValue({ value }: { value: string }) {
-  const match = /^(.*?)([+%])$/.exec(value);
-  if (!match) return value;
-  return (
-    <>
-      {match[1]}
-      <em>{match[2]}</em>
-    </>
-  );
-}
+/** One glyph per state, so the status reads at a glance without a badge. */
+const statusIcons: Record<Project["status"], IconName> = {
+  production: "activity",
+  development: "gitBranch",
+  complete: "checkCircle",
+  academic: "layers",
+  research: "code",
+};
 
 /**
- * Decorative micro-graphic at the foot of a KPI tile (mockup rev 21). The
- * shapes are bespoke per fact — HTTP verbs, a segment meter, avatars — so
- * they are keyed by tile position; the facts themselves always come from the
- * dictionary. Everything here is aria-hidden and informational text lives in
- * the tile's dt/dd.
+ * Where the project stands: a small glyph and a word, set as plain text. Only
+ * "In production" carries the status colour (colour means "this is live").
  */
-function KpiGraphic({ index }: { index: number }) {
-  if (index === 0) {
-    return (
-      <span className="pt-v pv-m" aria-hidden="true">
-        <b>GET</b>
-        <b>POST</b>
-        <b>PUT</b>
-        <b>DEL</b>
-      </span>
-    );
-  }
-
-  if (index === 4) {
-    return (
-      <span className="pt-v pv-a" aria-hidden="true">
-        <i></i>
-        <i></i>
-        <i></i>
-        <i></i>
-        <i></i>
-        <em>+</em>
-      </span>
-    );
-  }
-
-  // Segment meters: collections (12) and services (17) light every segment;
-  // statement coverage lights 19 of 20, which is 94.8% rounded to a twentieth.
-  const segments = index === 1 ? 12 : index === 2 ? 17 : 20;
-  const lit = index === 3 ? 19 : segments;
-  return (
-    <span className={`pt-v pv-s${index === 1 ? " pv-k" : ""}`} aria-hidden="true">
-      {Array.from({ length: segments }, (_, k) => (
-        <i key={k} className={k < lit ? "on" : undefined} style={{ "--k": k } as CSSProperties}></i>
-      ))}
-    </span>
-  );
-}
-
-function StatusBadge({ project, dict }: { project: Project; dict: Dictionary["work"] }) {
+function Status({ project, dict }: { project: Project; dict: Dictionary["work"] }) {
   const live = project.status === "production";
   return (
-    <span className={`status-tag status-${project.status}`}>
-      {/* Four segments, like the KPI meters: how far along the project is. */}
-      <span className="meter" aria-hidden="true">
-        <i></i>
-        <i></i>
-        <i></i>
-        <i></i>
-      </span>
+    <span className={`status status-${project.status}`}>
+      <Icon name={statusIcons[project.status]} className="status-ico size-4" />
       <span className={live ? "text-status" : undefined}>{dict.status[project.status]}</span>
     </span>
   );
 }
 
-/** Index, status badge and (for cards that link out) the arrow, on one line. */
-function Eyebrow({
-  project,
-  dict,
-  index,
-  arrow,
-}: {
-  project: Project;
-  dict: Dictionary["work"];
-  index: number;
-  arrow?: boolean;
-}) {
-  return (
-    <div className="eyebrow">
-      <span className="rx" aria-hidden="true" dir="ltr">
-        {String(index).padStart(2, "0")}
-      </span>
-      <StatusBadge project={project} dict={dict} />
-      {arrow && (
-        <span className="go" aria-hidden="true">
-          <Icon name="arrowRight" className="size-4 rtl:rotate-180" />
-        </span>
-      )}
-    </div>
+/** Who it was for and when, or how it came about: short facts, one per line. */
+function Meta({ project }: { project: Project }) {
+  const parts = [project.org, project.period, project.provenance].filter(
+    (part): part is string => Boolean(part),
   );
-}
-
-/** Who it was for and when, or how it came about: one quiet line. */
-function metaOf(project: Project) {
-  return [project.org, project.period, project.provenance].filter(Boolean).join(" · ");
+  if (parts.length === 0) return null;
+  return (
+    <p className="meta">
+      {parts.map((part) => (
+        <span key={part}>{part}</span>
+      ))}
+    </p>
+  );
 }
 
 /**
- * The decorative plate: a dark-in-dark / recessed-in-light panel holding the
- * project's request path (numbered steps) or grouped services, plus an
- * optional caption and two figure facts. Hidden from assistive tech — the
- * same facts are readable in the description and KPI tiles.
+ * A request's route through the system, one stop per layer, on a rail. A bright
+ * packet travels down it on a loop and each stop glows as it passes. Decorative:
+ * every fact here is also in the description, so it is hidden from assistive tech.
  */
-function Plate({ project }: { project: Project }) {
+function Trace({ project }: { project: Project }) {
   const plate = project.plate;
-  if (!plate) return null;
+  const stops: Stop[] = plate?.path ?? [];
+  if (!plate || stops.length === 0) return null;
 
   return (
     <figure
-      className="plate"
+      className="trace"
       aria-hidden="true"
-      style={{ "--n": (plate.path ?? plate.group ?? []).length } as CSSProperties}
+      data-reveal
+      style={{ "--n": stops.length } as CSSProperties}
     >
-      <div className="plate-head">
-        <span className="slug">{project.name}</span>
-        <span className="plate-n" dir="ltr" aria-hidden="true">
-          ×{(plate.path ?? plate.group ?? []).length}
-        </span>
-      </div>
-      <div className="plate-body">
-        {plate.path && (
-          <ol className="rpath" style={{ "--n": plate.path.length } as CSSProperties}>
-            {plate.path.map((node, index) => (
-              <li
-                key={node.label}
-                className={node.hot ? "hot" : node.live ? "live" : undefined}
-                style={{ "--i": index } as CSSProperties}
-              >
-                <i className="ix" aria-hidden="true" />
-                <span className="nm">{node.label}</span>
-                {node.note && <span className="nt">{node.note}</span>}
-                {node.tag && <span className="tg">{node.tag}</span>}
-                <i className="end" aria-hidden="true" />
+      <figcaption className="trace-head">
+        <span className="trace-ping" />
+        {plate.caption}
+      </figcaption>
+      <div className="trace-run">
+        <span className="packet" />
+        <ol className="trace-list">
+          {stops.map((stop, index) => {
+            const kind = stop.hot ? "hot" : stop.live ? "live" : undefined;
+            return (
+              <li key={stop.label} className={kind} style={{ "--i": index } as CSSProperties}>
+                <span className="t-dot" />
+                <span className="t-name">{stop.label}</span>
+                {stop.note && <span className="t-note">{stop.note}</span>}
+                {stop.tag && <span className="t-tag">{stop.tag}</span>}
               </li>
-            ))}
-          </ol>
-        )}
-        {plate.group && (
-          <ul className="rgroup" data-cap={plate.groupCaption}>
-            {plate.group.map((node, index) => (
-              <li
-                key={node.label}
-                className={node.hot ? "hot" : undefined}
-                style={{ "--i": index } as CSSProperties}
-              >
-                <i className="ix" aria-hidden="true" />
-                <span className="nm">{node.label}</span>
-                {node.note && <span className="nt">{node.note}</span>}
-                {node.tag && <span className="tg">{node.tag}</span>}
-                <i className="end" aria-hidden="true" />
-              </li>
-            ))}
-          </ul>
-        )}
-        <p className="plate-cap">{plate.caption}</p>
-        {plate.foot && (
-          <div className="plate-foot">
-            {plate.foot.map((fact) => (
-              <div key={fact.label}>
-                <b>{fact.value}</b>
-                <span>{fact.label}</span>
-              </div>
-            ))}
-          </div>
-        )}
+            );
+          })}
+        </ol>
       </div>
+      {plate.foot && (
+        <div className="trace-foot">
+          {plate.foot.map((fact) => (
+            <div key={fact.label}>
+              <b>{fact.value}</b>
+              <span>{fact.label}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </figure>
   );
+}
+
+/**
+ * A system made of parts, not a path: each part is a tile (or, beside a live
+ * preview, a floating pill). Decorative, like the trace.
+ */
+function Modules({ project, compact = false }: { project: Project; compact?: boolean }) {
+  const plate = project.plate;
+  const parts: Stop[] = plate?.group ?? [];
+  if (!plate || parts.length === 0) return null;
+
+  return (
+    <figure
+      className={`mods${compact ? " mods-pills" : ""}`}
+      aria-hidden="true"
+      data-reveal
+      style={{ "--n": parts.length } as CSSProperties}
+    >
+      {!compact && (
+        <figcaption className="trace-head">
+          <span className="trace-ping" />
+          {plate.groupCaption ?? plate.caption}
+        </figcaption>
+      )}
+      <ul>
+        {parts.map((part, index) => (
+          <li
+            key={part.label}
+            className={part.hot ? "hot" : undefined}
+            style={{ "--i": index } as CSSProperties}
+          >
+            <span className="m-top">
+              <b>{part.label}</b>
+              {part.tag && <span className="m-tag">{part.tag}</span>}
+            </span>
+            {!compact && part.note && <span className="m-note">{part.note}</span>}
+          </li>
+        ))}
+      </ul>
+    </figure>
+  );
+}
+
+function TechList({ tech }: { tech: string[] }) {
+  return (
+    <ul className="stk" dir="ltr">
+      {tech.map((name) => (
+        <li key={name}>{name}</li>
+      ))}
+    </ul>
+  );
+}
+
+/** First sentence leads the card; the rest waits in the details sheet. */
+function splitLead(text: string) {
+  const match = /^(.+?[.!?؟])\s+([\s\S]*)$/.exec(text);
+  return match ? { lead: match[1], rest: match[2] } : { lead: text, rest: "" };
+}
+
+function Details({ rest, detail, label }: { rest: string; detail?: string; label: string }) {
+  if (!rest && !detail) return null;
+  return (
+    <WorkDetails label={label}>
+      {rest && <p>{rest}</p>}
+      {detail && <p className="note">{detail}</p>}
+    </WorkDetails>
+  );
+}
+
+/** The link a whole card stretches over: the live site, else the repository. */
+function cardHref(project: Project): string | undefined {
+  const links = projectLinks[project.id] ?? {};
+  return links.live ?? links.repo;
 }
 
 function ProjectActions({ project, dict }: { project: Project; dict: Dictionary["work"] }) {
@@ -268,55 +251,123 @@ function ProjectActions({ project, dict }: { project: Project; dict: Dictionary[
   );
 }
 
-/** The link a whole row stretches over: the live site, else the repository. */
-function rowHref(project: Project): string | undefined {
-  const links = projectLinks[project.id] ?? {};
-  return links.live ?? links.repo;
-}
+/* ------------------------------------------------------------------ */
+/* The flagship                                                        */
+/* ------------------------------------------------------------------ */
 
-/** First sentence leads the card; the rest waits behind "Details". */
-function splitLead(text: string) {
-  const match = /^(.+?[.!?؟])\s+([\s\S]*)$/.exec(text);
-  return match ? { lead: match[1], rest: match[2] } : { lead: text, rest: "" };
-}
-
-function More({
-  rest,
-  detail,
-  label,
+function Featured({
+  project,
+  dict,
+  locale,
 }: {
-  rest: string;
-  detail?: string;
-  label: string;
+  project: Project;
+  dict: Dictionary["work"];
+  locale: Locale;
 }) {
-  if (!rest && !detail) return null;
+  const links = projectLinks[project.id] ?? {};
+  const { lead, rest } = splitLead(project.description);
+
   return (
-    <details className="disc">
-      <summary>
-        <span>{label}</span>
-        <span className="chev" aria-hidden="true">
-          <Icon name="arrowDown" className="size-4" />
-        </span>
-      </summary>
-      <div className="disc-body">
-        {rest && <p>{rest}</p>}
-        {detail && <p className="sub">{detail}</p>}
-      </div>
-    </details>
+    <div className="feat-wrap" data-px data-pause>
+      <Spotlight className="feat spotlight">
+        <div className="feat-aurora" aria-hidden="true" />
+        <div className="feat-rings" aria-hidden="true" />
+        <div className="feat-grain" aria-hidden="true" />
+
+        <div className="feat-copy">
+          <Status project={project} dict={dict} />
+          <h3 className="feat-title">{project.title ?? project.name}</h3>
+          <span className="slug">{project.name}</span>
+          <Meta project={project} />
+          <p className="desc">{lead}</p>
+          <TechList tech={project.tech} />
+          <div className="actions">
+            <Link
+              className="btn btn-primary"
+              href={locale === "ar" ? "/ar/work/trosc" : "/work/trosc"}
+            >
+              {dict.caseStudy}
+              <Icon name="arrowRight" className="size-4 rtl:rotate-180" />
+            </Link>
+            {links.repo && (
+              <a
+                className="btn btn-ghost"
+                href={links.repo}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Icon name="github" className="size-4" />
+                {dict.viewRepo}
+              </a>
+            )}
+            {links.live && (
+              <a
+                className="btn btn-ghost"
+                href={links.live}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-peek=""
+              >
+                <Icon name="externalLink" className="size-4" />
+                {dict.viewLive}
+              </a>
+            )}
+          </div>
+          <div className="feat-more">
+            <Details rest={rest} detail={project.detail} label={dict.projectDetails} />
+          </div>
+        </div>
+
+        <WorkTilt className="feat-art">
+          {links.live && (
+            <div className="depth depth-a">
+              <div className="art-window">
+                <SitePreview url={links.live} label={dict.viewLive} />
+              </div>
+            </div>
+          )}
+          <div className="depth depth-b">
+            <div className="art-trace">
+              <Trace project={project} />
+            </div>
+          </div>
+        </WorkTilt>
+
+        {project.stats && (
+          <dl className="facts" data-n={project.stats.length}>
+            {project.stats.map((stat) => (
+              <div key={stat.label} className="fact">
+                <dt>{stat.label}</dt>
+                <dd>
+                  <WorkStat value={stat.value} />
+                </dd>
+              </div>
+            ))}
+          </dl>
+        )}
+      </Spotlight>
+    </div>
   );
 }
 
-function TechList({ tech }: { tech: string[] }) {
-  return (
-    <ul className="stk" dir="ltr">
-      {tech.map((name) => (
-        <li key={name}>{name}</li>
-      ))}
-    </ul>
-  );
+/* ------------------------------------------------------------------ */
+/* The other projects                                                  */
+/* ------------------------------------------------------------------ */
+
+function Visual({ project, dict }: { project: Project; dict: Dictionary["work"] }) {
+  const live = projectLinks[project.id]?.live;
+  if (live) {
+    return (
+      <>
+        <SitePreview url={live} label={dict.viewLive} />
+        <Modules project={project} compact />
+      </>
+    );
+  }
+  return project.plate?.group ? <Modules project={project} /> : <Trace project={project} />;
 }
 
-function Row({
+function Card({
   project,
   dict,
   index,
@@ -325,169 +376,79 @@ function Row({
   dict: Dictionary["work"];
   index: number;
 }) {
-  const href = rowHref(project);
-  const live = projectLinks[project.id]?.live;
+  const href = cardHref(project);
   const { lead, rest } = splitLead(project.description);
-  const meta = metaOf(project);
 
   return (
-    <>
-      <div className="row-media">
-        <div className="media-stack">
-          {live && <SitePreview url={live} label={dict.viewLive} />}
-          <Plate project={project} />
+    <div
+      className="card-wrap"
+      data-reveal
+      data-px
+      data-pause
+      data-project={project.id}
+      style={{ "--c": index } as CSSProperties}
+    >
+      <Spotlight className={`card spotlight${href ? " is-link" : ""}`}>
+        <div className="stage">
+          <Visual project={project} dict={dict} />
         </div>
-      </div>
-      <div className="row-body">
-        <Eyebrow project={project} dict={dict} index={index} arrow={Boolean(href)} />
-        <h3>
-          {href ? (
-            <a
-              className="stretch"
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {project.name}
-            </a>
-          ) : (
-            project.name
-          )}
-        </h3>
-        {meta && <p className="meta">{meta}</p>}
-        <p className="desc">{lead}</p>
-      </div>
-      <div className="row-foot">
-        <TechList tech={project.tech} />
-        <ProjectActions project={project} dict={dict} />
-      </div>
-      <More rest={rest} detail={project.detail} label={dict.projectDetails} />
-    </>
+
+        <div className="card-main">
+          <div className="card-head">
+            <Status project={project} dict={dict} />
+            {href && (
+              <span className="go" aria-hidden="true">
+                <Icon name="arrowRight" className="size-4 rtl:rotate-180" />
+              </span>
+            )}
+          </div>
+          <h3>
+            {href ? (
+              <a className="stretch" href={href} target="_blank" rel="noopener noreferrer">
+                {project.name}
+              </a>
+            ) : (
+              project.name
+            )}
+          </h3>
+          <Meta project={project} />
+          <p className="desc">{lead}</p>
+          <TechList tech={project.tech} />
+          <div className="card-bar">
+            <ProjectActions project={project} dict={dict} />
+            <Details rest={rest} detail={project.detail} label={dict.projectDetails} />
+          </div>
+        </div>
+      </Spotlight>
+    </div>
   );
 }
 
 export default function Work({ dict, github, locale }: WorkProps) {
   const [featured, ...rest] = dict.projects;
-  const featuredText = splitLead(featured?.description ?? "");
 
   return (
     <section id="work" className="sec sec-wash">
-      <WorkMotion />
+      <WorkScroll />
       <SectionHeader number="01" title={dict.title} lead={dict.lead} />
 
-      {featured && (
-        <div data-reveal className="spread-wrap">
-          <Spotlight className="spread spotlight" story="enter">
-            <div className="spread-copy">
-              <Eyebrow project={featured} dict={dict} index={1} />
-              <h3 className="spread-title">{featured.title ?? featured.name}</h3>
-              <span className="slug">{featured.name}</span>
-              <p className="meta">{metaOf(featured)}</p>
-              <p className="desc">{featuredText.lead}</p>
-              <TechList tech={featured.tech} />
+      {featured && <Featured project={featured} dict={dict} locale={locale} />}
 
-              <div className="actions">
-                <Link
-                  className="btn btn-primary"
-                  href={locale === "ar" ? "/ar/work/trosc" : "/work/trosc"}
-                >
-                  {dict.caseStudy}
-                  <Icon name="arrowRight" className="size-4 rtl:rotate-180" />
-                </Link>
-                {projectLinks[featured.id]?.repo && (
-                  <a
-                    className="btn btn-ghost"
-                    href={projectLinks[featured.id].repo}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Icon name="github" className="size-4" />
-                    {dict.viewRepo}
-                  </a>
-                )}
-                {projectLinks[featured.id]?.live && (
-                  <a
-                    className="btn btn-ghost"
-                    href={projectLinks[featured.id].live}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    data-peek=""
-                  >
-                    <Icon name="externalLink" className="size-4" />
-                    {dict.viewLive}
-                  </a>
-                )}
-              </div>
-              <More
-                  rest={featuredText.rest}
-                  detail={featured.detail}
-                  label={dict.projectDetails}
-                />
-            </div>
-
-            <div className="spread-media">
-              <div className="media-stack">
-                <Plate project={featured} />
-                {projectLinks[featured.id]?.live && (
-                  <SitePreview
-                    url={projectLinks[featured.id].live as string}
-                    label={dict.viewLive}
-                  />
-                )}
-              </div>
-            </div>
-
-            {featured.stats && (
-              <WorkKpis>
-                {featured.stats.map((stat, index) => (
-                  <div key={stat.label} className={`kpi${index === 3 ? " kpi-cov" : ""}`}>
-                    <dt>{stat.label}</dt>
-                    <dd>
-                      <StatValue value={stat.value} />
-                    </dd>
-                    <KpiGraphic index={index} />
-                  </div>
-                ))}
-              </WorkKpis>
-            )}
-          </Spotlight>
-        </div>
-      )}
-
-      <div className="rows stagger-80" data-reveal data-stagger>
+      <div className="cards">
         {rest.map((project, index) => (
-          <Spotlight
-            key={project.id}
-            story="enter"
-            className={`row spotlight${rowHref(project) ? " is-link" : ""}${
-              rest
-                .slice(Math.floor(index / 2) * 2, Math.floor(index / 2) * 2 + 2)
-                .some((peer) => projectLinks[peer.id]?.live)
-                ? " media-tall"
-                : ""
-            }`}
-            style={{ "--stagger-index": index } as CSSProperties}
-          >
-            <Row project={project} dict={dict} index={index + 2} />
-          </Spotlight>
+          <Card key={project.id} project={project} dict={dict} index={index} />
         ))}
       </div>
 
       <div className="live-block print:hidden">
         <div className="live-head">
-          <span className="lbl live-lbl">
-            <span className="live-dot" aria-hidden="true"></span>
-            {dict.liveLabel}
-          </span>
-          <span className="live-rule" aria-hidden="true"></span>
-          <a className="pillbtn" href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
-            <Icon name="github" className="size-4" />
-            {dict.viewProfile}
-            <Icon name="externalLink" className="size-4" />
+          <h3 className="live-lbl">{dict.liveLabel}</h3>
+          <a className="live-link" href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
+            <span>{dict.viewProfile}</span>
+            <Icon name="arrowRight" className="size-4 rtl:rotate-180" />
           </a>
         </div>
         <GitHubProjects locale={locale} dict={github} />
-        <p className="quiet">{dict.moreOnGithubText}</p>
       </div>
     </section>
   );

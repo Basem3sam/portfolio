@@ -255,7 +255,7 @@ const en = {
   work: {
     title: "Work",
     lead: "One system in production, two builds in progress, and two earlier projects.",
-    liveLabel: "live from github",
+    liveLabel: "Live from GitHub",
     viewRepo: "Repository",
     viewFrontend: "Frontend repository",
     viewBackend: "Backend repository",

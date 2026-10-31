@@ -1,4 +1,8 @@
-/* A live site shown as a browser window (Work spread and rows). */
+/* A live site shown as a framed screenshot (Work: featured panel and cards).
+
+   The frame owns its size: a fixed aspect ratio is reserved before the image
+   exists, so a screenshot loading, or failing, cannot move the layout. The
+   ratio can be changed per placement with --sp-ratio. */
 
 .sp {
   position: relative;
@@ -7,27 +11,11 @@
   border: 1px solid var(--c-hairline);
   border-radius: var(--radius-ui-3);
   background: var(--c-surface);
-  box-shadow: var(--sh-sm);
   color: inherit;
   text-decoration: none;
   transition:
-    transform 0.3s var(--ease-out),
-    border-color 0.25s,
-    box-shadow 0.3s;
-}
-
-.sp:focus-visible {
-  transform: translateY(-3px);
-  border-color: var(--c-muted-text);
-  box-shadow: var(--sh-lg);
-}
-
-@media (hover: hover) {
-  .sp:hover {
-    transform: translateY(-3px);
-    border-color: var(--c-muted-text);
-    box-shadow: var(--sh-lg);
-  }
+    border-color 0.25s ease,
+    box-shadow 0.35s ease;
 }
 
 .sp:focus-visible {
@@ -35,115 +23,115 @@
   outline-offset: 3px;
 }
 
+@media (hover: hover) {
+  .sp:hover {
+    border-color: var(--c-rule-strong);
+    box-shadow: var(--sh-md);
+  }
+}
+
+/* Address line: the host on the left, the open icon on the right. */
 .sp-bar {
   direction: ltr;
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 8px 10px;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 12px;
   border-bottom: 1px solid var(--c-hairline);
-  background: var(--c-light-bg);
-}
-
-.sp-bar i {
-  flex: none;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--c-rule-strong);
+  background: var(--c-surface);
 }
 
 .sp-host {
   min-width: 0;
-  margin-inline-start: 8px;
-  padding: 4px 10px;
   overflow: hidden;
-  flex: 1;
-  border-radius: 999px;
-  background: var(--c-surface);
-  border: 1px solid var(--c-hairline);
-  font: 500 0.6875rem/1 var(--font-mono-body);
-  color: var(--c-light-text);
+  font: 500 0.75rem/1 var(--font-mono-body);
+  color: var(--c-muted-text);
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.sp-open {
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--c-muted-text);
+  transition:
+    color 0.25s ease,
+    translate 0.35s var(--ease-out);
+}
+
+@media (hover: hover) {
+  .sp:hover .sp-open {
+    color: var(--c-secondary);
+    translate: 2px -2px;
+  }
 }
 
 .sp-frame {
   position: relative;
   display: block;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: var(--sp-ratio, 16 / 10);
   overflow: hidden;
-  background: linear-gradient(
-    90deg,
-    var(--c-hairline) 0%,
-    color-mix(in srgb, var(--c-hairline) 45%, var(--c-surface)) 50%,
-    var(--c-hairline) 100%
-  );
-  background-size: 220% 100%;
-  animation: sp-shimmer 1.5s ease-in-out infinite;
-}
-
-.sp[data-state="ready"] .sp-frame,
-.sp[data-state="failed"] .sp-frame {
-  animation: none;
   background: var(--c-light-bg);
 }
 
+/* The host stands in for the screenshot until it is there. */
+.sp-ph {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font: 500 0.8125rem var(--font-mono-body);
+  color: var(--c-muted-text);
+  opacity: 0.7;
+  transition: opacity 0.4s ease;
+}
+
+.sp[data-state="loading"] .sp-ph {
+  animation: sp-breathe 1.8s ease-in-out infinite;
+}
+
+.sp[data-state="ready"] .sp-ph {
+  opacity: 0;
+}
+
 .sp-frame img {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: top;
   opacity: 0;
+  scale: 1.015;
   transition:
-    opacity 0.4s ease-out,
-    transform 0.8s var(--ease-out);
+    opacity 0.55s ease,
+    scale 0.9s var(--ease-out);
 }
 
 .sp[data-state="ready"] .sp-frame img {
   opacity: 1;
+  scale: 1;
 }
 
-@media (hover: hover) {
-  .sp:hover .sp-frame img {
-    transform: scale(1.03);
-  }
-}
-
-.sp-fail {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  font: 500 0.875rem var(--font-mono-body);
-  color: var(--c-muted-text);
-}
-
-@keyframes sp-shimmer {
-  from {
-    background-position: 120% 0;
-  }
-  to {
-    background-position: -120% 0;
+@keyframes sp-breathe {
+  50% {
+    opacity: 0.35;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .sp,
-  .sp-frame,
+  .sp-open,
+  .sp-ph,
   .sp-frame img {
     animation: none;
     transition: none;
   }
 
-  .sp:focus-visible {
-    transform: none;
-  }
-
-  @media (hover: hover) {
-    .sp:hover {
-      transform: none;
-    }
+  .sp-frame img {
+    scale: 1;
   }
 }

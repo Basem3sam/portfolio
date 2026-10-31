@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Icon from "@/components/ui/Icon";
 import "./SitePreview.css";
 
 type SitePreviewProps = {
@@ -18,9 +19,13 @@ const hostOf = (url: string) => {
 };
 
 /**
- * A live site as a small browser window: its own address bar over a fresh
- * screenshot. The whole frame is the link. If the capture cannot load the
- * frame keeps its address bar and shows the host instead of an empty box.
+ * A live site as a framed screenshot with its address above it. The whole
+ * frame is the link.
+ *
+ * The frame reserves its final size from the first paint (a fixed aspect
+ * ratio), so the screenshot arriving, or failing, never moves anything around
+ * it. While it loads the frame shows the host on a quiet tint; if the capture
+ * cannot load, that is simply what stays.
  */
 export default function SitePreview({ url, label }: SitePreviewProps) {
   const [state, setState] = useState<"loading" | "ready" | "failed">("loading");
@@ -43,15 +48,18 @@ export default function SitePreview({ url, label }: SitePreviewProps) {
       data-state={state}
     >
       <span className="sp-bar" aria-hidden="true">
-        <i></i>
-        <i></i>
-        <i></i>
         <span className="sp-host" dir="ltr">
           {host}
         </span>
+        <span className="sp-open">
+          <Icon name="externalLink" className="size-3.5" />
+        </span>
       </span>
       <span className="sp-frame" aria-hidden="true">
-        {state !== "failed" ? (
+        <span className="sp-ph" dir="ltr">
+          {host}
+        </span>
+        {state !== "failed" && (
           <img
             ref={image}
             src={shot}
@@ -64,10 +72,6 @@ export default function SitePreview({ url, label }: SitePreviewProps) {
             onLoad={() => setState("ready")}
             onError={() => setState("failed")}
           />
-        ) : (
-          <span className="sp-fail" dir="ltr">
-            {host}
-          </span>
         )}
       </span>
     </a>

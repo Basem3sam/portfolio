@@ -242,7 +242,7 @@ test("work KPI values align on one line at every width", async ({ page }) => {
   // coverage tile's label wrap to two lines on phones, which drops that
   // tile's value a line below its row-mate without changing the grid.
   const expectRows = async (expected: number[]) => {
-    const tiles = page.locator("#work .kpi");
+    const tiles = page.locator("#work .fact");
     expect(await tiles.count()).toBe(5);
 
     const tops = await tiles.evaluateAll((els) =>
@@ -258,7 +258,7 @@ test("work KPI values align on one line at every width", async ({ page }) => {
     expect(rows.map((row) => row.length)).toEqual(expected);
 
     // The values themselves stay on one line at every width.
-    const valueLines = await page.locator("#work .kpi dd").evaluateAll((els) =>
+    const valueLines = await page.locator("#work .fact dd").evaluateAll((els) =>
       els.map((el) => {
         const lineHeight = Number.parseFloat(getComputedStyle(el).lineHeight);
         return Math.round(el.getBoundingClientRect().height / lineHeight);
@@ -267,7 +267,7 @@ test("work KPI values align on one line at every width", async ({ page }) => {
     expect(valueLines).toEqual([1, 1, 1, 1, 1]);
   };
 
-  await expectRows([3, 2]);
+  await expectRows([5]);
   await page.setViewportSize({ width: 390, height: 844 });
   await expectRows([2, 2, 1]);
   await page.setViewportSize({ width: 320, height: 568 });

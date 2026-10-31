@@ -1,149 +1,137 @@
 /* ================================================================
    Work section.
 
-   One featured panel (copy and KPI wall on the left, diagram plate and
-   live-site preview on the right) and four project cards. Every card has
-   the same anatomy, top to bottom:
+     feat    the flagship. A dark ink panel with a slow aurora behind it; the
+             live site floats on the right in a window that leans toward the
+             pointer, and the architecture trace hangs off its corner as a
+             glass card. The headline numbers count up underneath.
+     cards   the other projects, as a bento: a tinted stage holding each
+             project's own diagram or live site over its copy. Stage and copy
+             line up across a row (subgrid), so the seams match.
+     live    repositories fetched from GitHub (cards: GitHub.css).
 
-     visual      the live-site preview, or the diagram plate when there is
-                 no live site
-     eyebrow     index, status badge, arrow
-     title       one quiet meta line, one lead sentence
-     foot        tech badges, link buttons
-     details     an accordion row with the rest of the description
+   Motion, all of it quiet and all of it switched off for reduced motion:
+     - cards rise in out of a soft blur, one after the other
+     - the trace lights up in order, then a packet keeps travelling it
+     - numbers count up once; the aurora drifts; pills and the trace card float
+     - the live window leans toward the pointer
+     - "Details" is a sheet that rises inside its own card, so nothing in the
+       layout ever moves when it opens
 
-   Desktop gives every visual one minimum height so titles line up across a
-   pair; below 900px the cards stack.
-
-   Badge grammar: status is a pill with a dot, technology is a small square
-   mono chip, so the two never read as the same thing.
-
-   Everything is scoped to `#work`; colour comes from the shared `--c-*`
-   tokens, so light and dark follow the theme. Motion answers the pointer or
-   keyboard, plus the one scroll-in the whole section shares.
+   Scoped to `#work`; colours come from the shared `--c-*` tokens, except the
+   flagship's own ink palette, which is the same in light and dark themes.
+   Logical properties throughout, so right-to-left is the same layout mirrored.
    ================================================================ */
 
+/* The ring offset is a registered length so it can be animated: rings drawn with
+   it move outward like a signal leaving a source, with no extra elements. */
+@property --o {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
 #work {
-  interpolate-size: allow-keywords;
+  --w-ease: var(--ease-out);
+  /* Film grain: tiny noise tiles with the transparency baked in, one for light
+     surfaces and one for the dark flagship. */
+  --grain-d: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .1  0 0 0 0 .12  0 0 0 0 .3  0 0 0 .09 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  --grain-l: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .8  0 0 0 0 .86  0 0 0 0 1  0 0 0 .12 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
 }
 
-/* ---------- eyebrow: index, status badge, arrow ---------- */
-
-#work .eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-  min-height: 36px;
+.dark-mode #work {
+  --grain-d: var(--grain-l);
 }
 
-#work .rx {
-  flex: none;
+/* ---------- shared bits ---------- */
+
+#work .status {
   display: inline-flex;
   align-items: center;
-  font: 500 0.8125rem var(--font-mono-body);
-  letter-spacing: 0.04em;
-  color: var(--c-note);
-  direction: ltr;
-  transition: color 0.2s;
-}
-
-/* A short rule ties the index to the badge. */
-#work .rx::after {
-  content: "";
-  width: 18px;
-  height: 1px;
-  margin-inline-start: 12px;
-  background: var(--c-rule-strong);
-  transition:
-    width 0.4s var(--ease-out),
-    background-color 0.2s;
-}
-
-/* Status: a four-segment meter and a word, no pill. The meter is the same
-   device as the KPI segments below it. */
-#work .status-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
+  gap: 8px;
   font: 600 0.8125rem/1 var(--font-body);
-  letter-spacing: 0.005em;
+  letter-spacing: 0.01em;
   color: var(--c-light-text);
   white-space: nowrap;
 }
 
-#work .meter {
-  display: inline-flex;
-  align-items: flex-end;
-  gap: 2px;
-  direction: ltr;
-}
-
-#work .meter i {
-  width: 4px;
-  height: 12px;
-  border-radius: 1px;
-  background: var(--c-hairline);
-  box-shadow: inset 0 0 0 1px var(--c-rule-strong);
-  transform-origin: 50% 100%;
-}
-
-#work .meter i:nth-child(1) { height: 8px; }
-#work .meter i:nth-child(2) { height: 10px; }
-#work .meter i:nth-child(3) { height: 12px; }
-#work .meter i:nth-child(4) { height: 14px; }
-
-#work .status-production .meter i {
-  background: var(--c-status);
-  box-shadow: none;
-}
-
-#work .status-development .meter i:nth-child(-n + 2),
-#work .status-complete .meter i,
-#work .status-research .meter i {
-  background: var(--c-muted-text);
-  box-shadow: none;
-}
-
-#work .status-academic .meter i {
-  background: transparent;
-}
-
-/* The arrow ring fills with the action colour and turns on hover. */
-#work .go {
+#work .status-ico {
   flex: none;
-  margin-inline-start: auto;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 1px solid var(--c-rule-strong);
-  display: grid;
-  place-items: center;
-  color: var(--c-dark-text);
-  transition:
-    background-color 0.25s,
-    color 0.25s,
-    border-color 0.25s,
-    transform 0.4s var(--ease-out);
+  color: var(--c-muted-text);
 }
 
-/* ---------- copy ---------- */
+#work .status-production .status-ico {
+  color: var(--c-status);
+}
+
+/* The one live state: its pulse line draws itself, then rests. */
+#work .status-production .status-ico polyline {
+  stroke-dasharray: 60;
+  animation: pulse-draw 4.5s ease-in-out infinite;
+}
+
+@keyframes pulse-draw {
+  0% {
+    stroke-dashoffset: 60;
+  }
+  35%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+#work .slug {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: 500 0.875rem/1.3 var(--font-mono-body);
+  color: var(--c-muted-text);
+}
 
 #work .meta {
-  margin: 6px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
   font-size: 0.875rem;
   line-height: 1.4;
   color: var(--c-muted-text);
 }
 
 #work .desc {
+  margin: 0;
   color: var(--c-light-text);
-  margin-block: 14px 0;
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+#work .stk {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  direction: ltr;
+  font: 500 0.78125rem/1.5 var(--font-mono-body);
+  color: var(--c-light-text);
+}
+
+[dir="rtl"] #work .stk {
+  justify-content: flex-end;
+}
+
+#work .stk li:not(:last-child)::after {
+  content: "/";
+  margin-inline: 9px;
+  color: var(--c-rule-strong);
 }
 
 #work .actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
 }
 
@@ -151,267 +139,843 @@
   display: none;
 }
 
-/* Link buttons: compact, two to a row split evenly. */
 #work .actions .btn {
-  min-height: 40px;
-  padding-inline: 14px;
+  min-height: 42px;
+  padding-inline: 16px;
   font-size: 0.875rem;
-}
-
-#work .actions .btn {
   white-space: nowrap;
 }
 
-#work .row .actions:has(.btn:nth-child(2)) .btn {
-  flex: 1 1 0;
+/* The shared pointer glow, made quiet; the edge bar is not used here. */
+#work .spotlight::before {
+  background: radial-gradient(
+    560px circle at var(--mx, 30%) var(--my, 40%),
+    color-mix(in srgb, var(--c-secondary) 8%, transparent),
+    transparent 70%
+  );
 }
 
-/* Technology badges: small square mono chips. */
-#work .stk {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  direction: ltr;
+#work .spotlight::after {
+  display: none;
 }
 
-[dir="rtl"] #work .stk {
-  justify-content: flex-end;
-}
+/* ---------- details: the trigger and the sheet that rises in the card ---------- */
 
-#work .stk li {
+#work .disc-btn {
+  position: relative;
+  z-index: 3;
   display: inline-flex;
   align-items: center;
-  height: 28px;
-  padding-inline: 11px;
-  border-radius: 8px;
-  border: 1px solid color-mix(in srgb, var(--c-secondary) 16%, var(--c-hairline));
-  background: color-mix(in srgb, var(--c-secondary) 6%, var(--c-surface));
-  font: 500 0.75rem/1 var(--font-mono-body);
-  letter-spacing: 0.01em;
-  color: var(--c-light-text);
-  transition:
-    border-color 0.3s ease,
-    color 0.3s ease,
-    background-color 0.3s ease;
+  gap: 8px;
+  min-height: 44px;
+  margin-inline-start: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--c-dark-text);
+  font: 600 0.9375rem var(--font-body);
+  cursor: pointer;
+}
+
+/* A line under the label that draws in on hover and stays while it is open. */
+#work .disc-text {
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1.5px no-repeat;
+  padding-bottom: 3px;
+  transition: background-size 0.4s var(--w-ease);
+}
+
+[dir="rtl"] #work .disc-text {
+  background-position: 100% 100%;
+}
+
+#work .disc-chev {
+  transition: rotate 0.5s var(--w-ease);
+}
+
+#work .disc-btn[aria-expanded="true"] .disc-text {
+  background-size: 100% 1.5px;
+}
+
+#work .disc-btn[aria-expanded="true"] .disc-chev {
+  rotate: 180deg;
 }
 
 @media (hover: hover) {
-  #work .stk li:hover {
-    border-color: var(--c-honey);
-    color: var(--c-dark-text);
-    background: var(--c-surface);
+  #work .disc-btn:hover .disc-text {
+    background-size: 100% 1.5px;
+  }
+
+  #work .disc-btn:hover .disc-chev {
+    translate: 0 2px;
+  }
+
+  #work .disc-btn[aria-expanded="true"]:hover .disc-chev {
+    translate: 0 -2px;
   }
 }
 
-/* ---------- details accordion ---------- */
-
-#work .disc {
-  position: relative;
-  z-index: 3;
-  border-top: 1px solid var(--c-hairline);
+#work .disc-btn:focus-visible,
+#work .sheet-x:focus-visible {
+  outline: 2px solid var(--c-signal);
+  outline-offset: 4px;
+  border-radius: 4px;
 }
 
-#work .disc summary {
+#work .scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  background: rgba(7, 11, 30, 0.5);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.4s ease,
+    visibility 0s linear 0.4s;
+}
+
+#work .scrim[data-open="true"] {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+#work .sheet {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 7;
+  max-height: min(100%, 540px);
+  overflow: auto;
+  padding: 18px clamp(20px, 3vw, 32px) 28px;
+  border-top: 1px solid var(--c-hairline);
+  border-radius: 24px 24px 0 0;
+  background: var(--c-surface);
+  box-shadow: 0 -30px 60px -30px rgba(10, 20, 80, 0.45);
+  translate: 0 104%;
+  visibility: hidden;
+  transition:
+    translate 0.6s var(--w-ease),
+    visibility 0s linear 0.6s;
+}
+
+#work .sheet[data-open="true"] {
+  translate: 0 0;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+#work .sheet-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  min-height: 52px;
-  padding-inline: var(--more-px, 0px);
-  cursor: pointer;
-  list-style: none;
-  font: 600 0.875rem var(--font-body);
-  color: var(--c-light-text);
-  transition:
-    background-color 0.2s,
-    color 0.2s;
-}
-
-#work .disc summary::-webkit-details-marker {
-  display: none;
-}
-
-@media (hover: hover) {
-  #work .disc summary:hover {
-    background: var(--c-light-bg);
-    color: var(--c-dark-text);
-  }
-}
-
-#work .disc summary:focus-visible {
-  outline: 2px solid var(--c-signal);
-  outline-offset: -2px;
-}
-
-#work .chev {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  border: 1px solid var(--c-rule-strong);
-  display: grid;
-  place-items: center;
-  transition:
-    transform 0.45s var(--ease-out),
-    background-color 0.25s,
-    border-color 0.25s,
-    color 0.25s;
-}
-
-#work .disc[open] .chev {
-  transform: rotate(180deg);
-  background: var(--c-secondary);
-  border-color: var(--c-secondary);
-  color: var(--c-on-secondary);
-}
-
-#work .disc[open] summary {
+  margin-bottom: 14px;
+  font: 700 1rem var(--font-display-body);
   color: var(--c-dark-text);
 }
 
-#work .disc-body {
+#work .sheet-x {
   display: grid;
-  gap: 12px;
-  padding: 4px var(--more-px, 0px) 22px;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-inline-end: -8px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
-#work .disc-body p {
-  margin: 0;
+@media (hover: hover) {
+  #work .sheet-x:hover {
+    background: color-mix(in srgb, var(--c-secondary) 10%, transparent);
+  }
+}
+
+#work .sheet-body {
+  display: grid;
+  gap: 14px;
+}
+
+/* Content arrives a beat after the sheet, so it never looks cut off mid-rise. */
+#work .sheet-body > * {
+  opacity: 0;
+  translate: 0 10px;
+  transition:
+    opacity 0.3s ease,
+    translate 0.4s var(--w-ease);
+}
+
+#work .sheet[data-open="true"] .sheet-body > * {
+  opacity: 1;
+  translate: 0 0;
+  transition-duration: 0.5s;
+  transition-delay: 0.18s;
+}
+
+#work .sheet[data-open="true"] .sheet-body > :nth-child(2) {
+  transition-delay: 0.28s;
+}
+
+#work .sheet-body p {
   max-width: 62ch;
+  margin: 0;
   font-size: 0.9375rem;
   line-height: 1.65;
   color: var(--c-light-text);
 }
 
-/* The longer note is set apart with the identity colour's rule. */
-#work .disc-body .sub {
-  padding-inline-start: 14px;
+#work .sheet-body .note {
+  padding: 12px 16px;
   border-inline-start: 2px solid var(--c-honey);
+  border-radius: 0 12px 12px 0;
+  background: color-mix(in srgb, var(--c-honey) 8%, transparent);
   font-size: 0.875rem;
   color: var(--c-muted-text);
 }
 
-/* Browsers that can animate the disclosure's height do; the rest get a fade. */
-@supports selector(::details-content) {
-  #work .disc::details-content {
-    block-size: 0;
-    overflow: clip;
+[dir="rtl"] #work .sheet-body .note {
+  border-radius: 12px 0 0 12px;
+}
+
+/* ---------- trace: the route of a request, with a packet travelling it ---------- */
+
+#work .trace {
+  --t-fg: var(--c-dark-text);
+  --t-muted: var(--c-muted-text);
+  --t-line: var(--c-hairline);
+  --t-rail: var(--c-rule-strong);
+  --t-dot: var(--c-surface);
+  --t-cycle: 6s;
+  container: trace / inline-size;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  margin: 0;
+  padding: 16px 18px 14px;
+  border: 1px solid color-mix(in srgb, var(--c-hairline) 90%, transparent);
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--c-surface) 80%, transparent);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 18px 40px -28px rgba(20, 30, 90, 0.35);
+}
+
+#work .trace-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 12px;
+  font: 500 0.8125rem/1.3 var(--font-body);
+  color: var(--t-muted, var(--c-muted-text));
+}
+
+#work .trace-ping {
+  position: relative;
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--c-secondary);
+}
+
+#work .trace-ping::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border: 1px solid var(--c-secondary);
+  border-radius: 50%;
+  opacity: 0;
+  animation: ping 2.4s ease-out infinite;
+}
+
+@keyframes ping {
+  0% {
+    scale: 0.5;
+    opacity: 0.8;
+  }
+  75%,
+  100% {
+    scale: 1.6;
     opacity: 0;
-    transition:
-      block-size 0.5s var(--ease-out),
-      opacity 0.35s ease,
-      content-visibility 0.5s allow-discrete;
-  }
-
-  #work .disc[open]::details-content {
-    block-size: auto;
-    opacity: 1;
   }
 }
 
-@supports not selector(::details-content) {
-  #work .disc[open] .disc-body {
-    animation: more-in 0.35s var(--ease-out);
-  }
+#work .trace-run {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
 }
 
-@keyframes more-in {
-  from {
-    opacity: 0;
-    transform: translateY(-6px);
-  }
+#work .trace-list {
+  display: grid;
+  flex: 1;
+  grid-template-rows: repeat(var(--n, 5), minmax(40px, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-/* ---------- media wells ---------- */
+#work .trace-list li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 22px minmax(5rem, 7rem) minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 12px;
+  padding-block: 5px;
+}
 
-/* The well holds the visual (diagram plate, browser preview, or both for the
-   featured project). It is its own container so the two sit side by side
-   whenever the well is wide enough, whatever the viewport. */
-#work .spread-media,
-#work .row-media {
-  container: well / inline-size;
+/* The rail, running through the dots from the first stop to the last. */
+#work .trace-list li::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 4px;
+  width: 1px;
+  background: var(--t-rail);
+  transform-origin: top;
+}
+
+#work .trace-list li:first-child::before {
+  inset-block-start: 50%;
+}
+
+#work .trace-list li:last-child::before {
+  inset-block-end: 50%;
+}
+
+#work .trace-list li + li::after {
+  content: "";
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 22px 0;
+  height: 1px;
+  background: var(--t-line);
+}
+
+#work .t-dot {
   position: relative;
   z-index: 1;
+  justify-self: start;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid var(--t-rail);
+  background: var(--t-dot);
+}
+
+#work .t-name {
   min-width: 0;
+  font: 500 0.8125rem/1.3 var(--font-mono-body);
+  color: var(--t-fg);
+  overflow-wrap: anywhere;
+  unicode-bidi: isolate;
 }
 
-#work .media-stack {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 12px;
-  align-content: stretch;
-}
-
-#work .spread-media .media-stack {
-  height: 100%;
-}
-
-#work .media-stack .plate {
-  align-self: stretch;
+#work .t-note {
   min-width: 0;
+  font: 400 0.8125rem/1.35 var(--font-body);
+  color: var(--t-muted);
 }
 
-/* A live card's visual is the browser preview with the project's feature
-   badges (the plate, without its header) directly beneath it, at every width,
-   so the card has one template from phone to desktop. */
-#work .media-stack:has(.sp) {
-  align-content: start;
+#work .t-tag {
+  font: 500 0.6875rem/1 var(--font-mono-body);
+  color: var(--t-muted);
+  text-align: end;
+  white-space: nowrap;
+  unicode-bidi: isolate;
 }
 
-#work .media-stack:has(.sp) .plate-body {
-  padding: 18px 14px 14px;
-  gap: 12px;
+html[lang="ar"] #work .t-tag,
+html[lang="ar"] #work .m-tag {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
 }
 
-/* The browser window always keeps its own 16:10 proportions (the same as on
-   every other page), so a screenshot is never cropped from the middle. */
-@container well (min-width: 560px) {
-  #work .spread-media .media-stack:has(.sp) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
-    align-items: start;
+#work .trace-list .hot .t-dot {
+  border-color: var(--c-secondary);
+  background: var(--c-secondary);
+}
+
+#work .trace-list .hot .t-name {
+  font-weight: 700;
+}
+
+#work .trace-list .live .t-dot {
+  border-color: var(--c-status);
+  background: var(--c-status);
+}
+
+/* The packet: a point of light that runs the rail, top to bottom, once per
+   cycle. Each stop glows as it passes (delay = the time the packet gets there). */
+#work .packet {
+  position: absolute;
+  z-index: 2;
+  inset-inline-start: -2px;
+  top: calc(50% / var(--n, 5));
+  width: 13px;
+  height: 13px;
+  margin-top: -6.5px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0 22%, color-mix(in srgb, var(--c-secondary) 80%, #fff) 55%);
+  box-shadow:
+    0 0 14px 3px color-mix(in srgb, var(--c-secondary) 70%, transparent),
+    0 0 0 1px rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  animation: packet-run var(--t-cycle) linear infinite;
+}
+
+@keyframes packet-run {
+  0% {
+    top: calc(50% / var(--n, 5));
+    opacity: 0;
+    scale: 0.4;
+  }
+  4% {
+    top: calc(50% / var(--n, 5));
+    opacity: 1;
+    scale: 1;
+  }
+  72% {
+    top: calc(100% - 50% / var(--n, 5));
+    opacity: 1;
+    scale: 1;
+  }
+  80% {
+    top: calc(100% - 50% / var(--n, 5));
+    opacity: 0;
+    scale: 2;
+  }
+  100% {
+    top: calc(100% - 50% / var(--n, 5));
+    opacity: 0;
   }
 }
 
-/* ---------- featured panel ---------- */
-
-#work .spread-wrap {
-  container: spread / inline-size;
+@keyframes stop-glow {
+  0% {
+    scale: 1;
+    box-shadow: 0 0 0 0 transparent;
+  }
+  3% {
+    scale: 1.45;
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--c-secondary) 28%, transparent);
+    background: var(--c-secondary);
+    border-color: var(--c-secondary);
+  }
+  16%,
+  100% {
+    scale: 1;
+    box-shadow: 0 0 0 0 transparent;
+  }
 }
 
-#work .spread {
+#work .trace-foot {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 4px;
+  padding-top: 14px;
+  border-top: 1px solid var(--t-line);
+}
+
+#work .trace-foot div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+#work .trace-foot b {
+  font: 600 1.375rem/1 var(--font-mono-body);
+  color: var(--t-fg);
+  text-align: start;
+  unicode-bidi: isolate;
+}
+
+[dir="rtl"] #work .trace-foot b {
+  text-align: right;
+}
+
+#work .trace-foot span {
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: var(--t-muted);
+}
+
+/* A narrow trace puts each note under its name. */
+@container trace (max-width: 399.98px) {
+  #work .trace-list li {
+    grid-template-columns: 22px minmax(0, 1fr) auto;
+    grid-template-areas:
+      "dot name tag"
+      "dot note note";
+    row-gap: 1px;
+    align-content: center;
+  }
+
+  #work .t-dot {
+    grid-area: dot;
+    align-self: center;
+  }
+
+  #work .t-name {
+    grid-area: name;
+    align-self: end;
+  }
+
+  #work .t-note {
+    grid-area: note;
+    align-self: start;
+  }
+
+  #work .t-tag {
+    grid-area: tag;
+    align-self: end;
+  }
+}
+
+/* First sight: the rail draws and the stops appear in order, once. Then the
+   packet loop takes over. Nothing runs until RevealOnScroll flags the figure;
+   without the flag (no script, reduced motion) the finished trace just shows. */
+#work .trace[data-revealed="false"] .trace-list li {
+  opacity: 0;
+}
+
+#work .trace[data-revealed="false"] .packet,
+#work .trace[data-revealed="false"] .t-dot {
+  animation-play-state: paused;
+}
+
+#work .trace[data-revealed="true"] .trace-list li {
+  animation: trace-in 0.6s var(--w-ease) backwards;
+  animation-delay: calc(var(--i, 0) * 120ms + 120ms);
+}
+
+#work .trace[data-revealed="true"] .trace-list li::before {
+  animation: trace-rail 0.6s var(--w-ease) backwards;
+  animation-delay: calc(var(--i, 0) * 120ms + 120ms);
+}
+
+#work .trace .t-dot {
+  animation: stop-glow var(--t-cycle) linear infinite;
+  animation-delay: calc(
+    var(--t-cycle) * (0.04 + 0.68 * var(--i, 0) / (var(--n, 5) - 1)) + 1.2s
+  );
+}
+
+#work .trace .packet {
+  animation-delay: 1.2s;
+}
+
+@keyframes trace-in {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
+
+@keyframes trace-rail {
+  from {
+    scale: 1 0;
+  }
+}
+
+/* ---------- modules: a system made of parts ---------- */
+
+#work .mods {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  margin: 0;
+}
+
+#work .mods .trace-head {
+  padding-bottom: 12px;
+}
+
+#work .mods ul {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#work .mods li {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--c-hairline) 90%, transparent);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--c-surface) 82%, transparent);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 12px 28px -22px rgba(20, 30, 90, 0.4);
+  transition:
+    translate 0.4s var(--w-ease),
+    border-color 0.25s ease,
+    box-shadow 0.4s ease;
+}
+
+@media (hover: hover) {
+  #work .mods li:hover {
+    translate: 0 -3px;
+    border-color: color-mix(in srgb, var(--c-secondary) 40%, var(--c-hairline));
+    box-shadow: 0 18px 32px -20px rgba(40, 60, 200, 0.45);
+  }
+}
+
+#work .m-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+#work .m-top b {
+  font: 600 0.8125rem/1.2 var(--font-mono-body);
+  color: var(--c-dark-text);
+  unicode-bidi: isolate;
+}
+
+#work .m-tag {
+  font: 500 0.6875rem/1 var(--font-mono-body);
+  color: var(--c-muted-text);
+  white-space: nowrap;
+}
+
+#work .m-note {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--c-muted-text);
+}
+
+#work .mods li.hot {
+  border-color: color-mix(in srgb, var(--c-secondary) 50%, var(--c-hairline));
+  background: color-mix(in srgb, var(--c-secondary) 9%, var(--c-surface));
+}
+
+#work .mods li.hot .m-top b::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-inline-end: 8px;
+  border-radius: 50%;
+  background: var(--c-secondary);
+  vertical-align: 1px;
+  animation: status-pulse-blue 2.4s ease-in-out infinite;
+}
+
+@keyframes status-pulse-blue {
+  50% {
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--c-secondary) 14%, transparent);
+  }
+}
+
+#work .mods[data-revealed="false"] li {
+  opacity: 0;
+}
+
+#work .mods[data-revealed="true"] li {
+  animation: mod-in 0.6s var(--w-ease) backwards;
+  animation-delay: calc(var(--i, 0) * 80ms + 100ms);
+}
+
+@keyframes mod-in {
+  from {
+    opacity: 0;
+    scale: 0.92;
+    translate: 0 10px;
+  }
+}
+
+/* Beside a live preview the parts become pills that float over its edge. */
+#work .mods-pills {
+  flex: none;
+  margin-top: -22px;
+  padding-inline: 12px;
+}
+
+#work .mods-pills ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+#work .mods-pills li {
+  flex-direction: row;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 999px;
+  animation: bob 5.5s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -1.1s);
+}
+
+#work .mods-pills[data-revealed="false"] li {
+  animation: none;
+}
+
+@keyframes bob {
+  50% {
+    translate: 0 -5px;
+  }
+}
+
+#work .mods-pills .m-top {
+  gap: 10px;
+}
+
+/* ================================================================
+   Flagship
+   ================================================================ */
+
+#work .feat-wrap {
+  container: feat / inline-size;
+}
+
+#work .feat {
+  --ink: #0a1128;
+  --fg: #eef1ff;
+  --fg-2: #a9b4de;
+  --line: rgba(255, 255, 255, 0.11);
+  --fp: clamp(22px, 4.6cqi, 52px);
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   grid-template-areas:
     "copy"
-    "kpis"
-    "media";
-  gap: clamp(24px, 4cqi, 36px) clamp(28px, 4.5cqi, 56px);
-  padding: clamp(20px, 4cqi, 40px);
-  border: 1px solid var(--c-hairline);
-  border-radius: 24px;
-  background: linear-gradient(160deg, var(--c-surface), var(--c-light-bg));
-  box-shadow: var(--sh-sm);
-  transition:
-    border-color 0.3s ease-out,
-    box-shadow 0.3s ease-out;
+    "art"
+    "facts";
+  gap: clamp(28px, 5cqi, 44px);
+  padding: var(--fp);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: clamp(24px, 3.4cqi, 32px);
+  background: var(--ink);
+  color: var(--fg);
+  box-shadow:
+    0 50px 90px -50px rgba(20, 35, 120, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
 
-#work .spread:focus-within {
-  border-color: var(--c-rule-strong);
-  box-shadow: var(--sh-md);
+#work .feat.spotlight::before {
+  background: radial-gradient(
+    640px circle at var(--mx, 30%) var(--my, 40%),
+    rgba(143, 178, 255, 0.13),
+    transparent 70%
+  );
 }
 
-@media (hover: hover) {
-  #work .spread:hover {
-    border-color: var(--c-rule-strong);
-    box-shadow: var(--sh-md);
+/* Backdrop, three layers. The aurora is two soft lights that drift; the rings
+   are a signal leaving its source, flowing outward from behind the live window;
+   the grain keeps the dark from looking like a flat fill. Scroll depth: the
+   aurora and rings lag the page. */
+#work .feat-aurora {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  overflow: hidden;
+  pointer-events: none;
+  translate: 0 calc(var(--sy, 0) * -36px);
+}
+
+#work .feat-aurora::before,
+#work .feat-aurora::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(46px);
+}
+
+#work .feat-aurora::before {
+  top: -30%;
+  inset-inline-end: -12%;
+  width: 62%;
+  aspect-ratio: 1;
+  background: radial-gradient(closest-side, rgba(59, 91, 245, 0.7), transparent);
+  animation: aurora-a 18s ease-in-out infinite alternate;
+}
+
+#work .feat-aurora::after {
+  bottom: -35%;
+  inset-inline-start: -10%;
+  width: 48%;
+  aspect-ratio: 1;
+  background: radial-gradient(closest-side, rgba(224, 164, 88, 0.34), transparent);
+  animation: aurora-b 22s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-a {
+  to {
+    translate: -14% 12%;
+    scale: 1.15;
   }
 }
 
-#work .spread-copy {
+@keyframes aurora-b {
+  to {
+    translate: 18% -10%;
+    scale: 1.2;
+  }
+}
+
+#work .feat-rings {
+  position: absolute;
+  inset: -12% -6%;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    repeating-radial-gradient(
+      circle at 74% 30%,
+      transparent calc(var(--o) + 0px) calc(var(--o) + 34px),
+      rgba(176, 196, 255, 0.15) calc(var(--o) + 34px) calc(var(--o) + 35px)
+    ),
+    repeating-radial-gradient(
+      circle at 6% 96%,
+      transparent calc(var(--o) * 1.3) calc(var(--o) * 1.3 + 44.5px),
+      rgba(240, 190, 120, 0.16) calc(var(--o) * 1.3 + 44.5px) calc(var(--o) * 1.3 + 45.5px)
+    );
+  mask-image: radial-gradient(75% 90% at 62% 40%, #000 0%, transparent 74%);
+  translate: 0 calc(var(--sy, 0) * -18px);
+  animation: ring-flow 11s linear infinite;
+}
+
+/* One period of every ring set is the distance --o travels: 35px here, scaled
+   in each gradient so the loop is seamless. */
+@keyframes ring-flow {
+  from {
+    --o: 0px;
+  }
+  to {
+    --o: 35px;
+  }
+}
+
+#work .feat-grain {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: var(--grain-l);
+  opacity: 0.55;
+  mix-blend-mode: soft-light;
+}
+
+#work .feat-copy {
   grid-area: copy;
   display: flex;
   flex-direction: column;
@@ -419,1479 +983,790 @@
   min-width: 0;
 }
 
-#work .spread-copy > * {
-  max-width: 100%;
+#work .feat .status {
+  color: var(--fg-2);
 }
 
-#work .spread-copy .eyebrow {
-  align-self: stretch;
+#work .feat .status-ico {
+  color: var(--fg-2);
 }
 
-#work .spread-media {
-  grid-area: media;
+#work .feat .text-status,
+#work .feat .status-production .status-ico {
+  color: #62e7a6;
 }
 
-#work .spread .kp {
-  grid-area: kpis;
-  margin: 0;
+#work .feat-title {
+  margin: 20px 0 0;
+  font-family: var(--font-display-body);
+  font-size: clamp(2.375rem, 1rem + 5.4cqi, 4.5rem);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+  color: #fff;
+  text-wrap: balance;
 }
 
-#work .spread-title {
-  font-size: clamp(2.125rem, 6cqi, 3.5rem);
-  line-height: 1.04;
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  margin-top: 20px;
-}
-
-#work .spread-copy .slug {
-  margin-top: 8px;
-}
-
-#work .spread-copy .meta {
+#work .feat .slug {
   margin-top: 10px;
+  color: var(--fg-2);
 }
 
-#work .spread-copy .desc {
-  margin-block: 18px 0;
+#work .feat .meta {
+  margin-top: 16px;
+  color: var(--fg-2);
+}
+
+#work .feat .desc {
   max-width: 44ch;
-  font-size: 1.1875rem;
-  line-height: 1.55;
-  color: var(--c-dark-text);
-}
-
-#work .spread-copy .stk {
   margin-top: 20px;
+  font-size: 1.1875rem;
+  line-height: 1.5;
+  color: var(--fg);
 }
 
-#work .spread-copy .actions {
-  margin-top: 22px;
+#work .feat .stk {
+  margin-top: 24px;
 }
 
-#work .spread-copy .disc {
+#work .feat .stk {
+  color: #cfd7f7;
+}
+
+#work .feat .stk li:not(:last-child)::after {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+#work .feat .actions {
   align-self: stretch;
-  margin-top: 22px;
+  margin-top: 28px;
 }
 
-#work .spread .btn-primary svg {
-  transition: transform 0.25s ease-out;
+#work .feat .btn-ghost {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
 }
 
 @media (hover: hover) {
-  #work .spread .btn-primary:hover svg {
-    transform: translateX(3px);
+  #work .feat .btn-ghost:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.1);
   }
 }
 
-#work .spread .plate {
-  box-shadow: var(--sh-md);
+#work .feat .btn-primary svg {
+  transition: translate 0.25s var(--w-ease);
 }
 
-#work .spread .plate-body {
-  justify-content: flex-start;
-  padding: 20px 16px 18px;
-  gap: 14px;
-}
-
-/* Four verbs do not fit a narrow tile; three say the same thing. */
-#work .spread .pv-m b:nth-child(4) {
-  display: none;
-}
-
-@container spread (max-width: 520px) {
-  #work .spread .kp {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
+@media (hover: hover) {
+  #work .feat .btn-primary:hover svg {
+    translate: 3px 0;
   }
 
-  #work .spread .kp .kpi,
-  #work .spread .kp[data-n="5"] .kpi:nth-child(n + 4) {
-    grid-column: span 1;
-  }
-
-  #work .spread .kp[data-n="5"] .kpi:last-child {
-    grid-column: span 2;
+  [dir="rtl"] #work .feat .btn-primary:hover svg {
+    translate: -3px 0;
   }
 }
 
-@container spread (min-width: 900px) {
-  #work .spread {
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-    grid-template-areas:
-      "copy media"
-      "kpis media";
-    align-items: start;
-  }
-
-  #work .spread-media,
-  #work .spread-media .media-stack {
-    align-self: stretch;
-  }
-
-  /* The browser window keeps its natural proportions; the plate above it
-     takes whatever height is left, so the media column ends exactly where
-     the KPI wall does. */
-  #work .spread .media-stack {
-    grid-template-rows: minmax(0, 1fr) auto;
-  }
+/* Under the buttons, a rule and one quiet line: the details trigger sits on
+   its own, in the copy column, rather than crowding the buttons. */
+#work .feat-more {
+  align-self: stretch;
+  margin-top: 26px;
+  border-top: 1px solid var(--line);
 }
 
-/* ---------- project cards ---------- */
-
-#work .rows {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 16px;
-  margin-top: clamp(16px, 2.5vw, 20px);
+#work .feat .disc-btn {
+  margin-inline-start: 0;
+  color: #fff;
 }
 
-#work .spotlight::after {
-  display: none;
+#work .feat .sheet {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: #101a3d;
+  box-shadow: 0 -30px 70px -20px rgba(0, 0, 0, 0.7);
 }
 
-#work .row {
-  --px: 12px;
-  --more-px: calc(var(--px) + 8px);
+#work .feat .sheet-head,
+#work .feat .sheet-x {
+  color: #fff;
+}
+
+#work .feat .sheet-x {
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+#work .feat .sheet-body p {
+  color: var(--fg-2);
+}
+
+#work .feat .sheet-body .note {
+  color: #cdd5f5;
+}
+
+/* Artwork: the live site floats in a window that leans toward the pointer; the
+   trace is a glass card hanging off its corner. */
+#work .feat-art {
+  --px: 0;
+  --py: 0;
+  grid-area: art;
   position: relative;
-  isolation: isolate;
-  display: flex;
-  flex-direction: column;
-  padding: 12px var(--px) 0;
-  border: 1px solid var(--c-hairline);
-  border-radius: 22px;
-  background: var(--c-surface);
-  box-shadow: var(--sh-xs);
-  overflow: hidden;
-  transition:
-    transform 0.45s var(--ease-out),
-    box-shadow 0.45s ease-out,
-    border-color 0.3s;
-}
-
-#work .row-media {
   display: grid;
-  margin-bottom: 18px;
+  min-width: 0;
+  perspective: 1500px;
 }
 
-#work .row-body,
-#work .row-foot {
-  padding-inline: 8px;
+/* Two depth layers, both in the same cell: the window drifts slowly with the
+   scroll, the trace card faster, which is what makes it hang in front. */
+#work .depth {
+  grid-area: 1 / 1;
   min-width: 0;
 }
 
-#work .row-foot {
+#work .depth-a {
+  translate: 0 calc(var(--sy, 0) * -22px);
+}
+
+#work .depth-b {
+  align-self: end;
+  justify-self: start;
+  width: min(100%, 440px);
+  margin-top: 54%;
+  translate: 0 calc(var(--sy, 0) * -58px);
+}
+
+#work .art-window {
+  width: 100%;
+  transform-style: preserve-3d;
+  transform: rotateY(calc(-7deg + var(--px) * 5deg))
+    rotateX(calc(3deg - var(--py) * 4deg + var(--sy, 0) * 2.5deg));
+  transition: transform 0.7s var(--w-ease);
+  animation: float 9s ease-in-out infinite;
+}
+
+[dir="rtl"] #work .art-window {
+  transform: rotateY(calc(7deg + var(--px) * 5deg))
+    rotateX(calc(3deg - var(--py) * 4deg + var(--sy, 0) * 2.5deg));
+}
+
+@keyframes float {
+  50% {
+    translate: 0 -8px;
+  }
+}
+
+#work .feat .sp {
+  --sp-ratio: 16 / 9;
+  border-color: rgba(255, 255, 255, 0.16);
+  border-radius: 16px;
+  background: #0d1633;
+  box-shadow:
+    0 60px 90px -40px rgba(0, 0, 0, 0.8),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+#work .feat .sp-bar {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+#work .feat .sp-host,
+#work .feat .sp-open {
+  color: #a9b4de;
+}
+
+#work .feat .sp-frame {
+  background: #0b1230;
+}
+
+#work .feat .sp-ph {
+  color: #6e7bb0;
+}
+
+#work .art-trace {
+  translate: calc(var(--px) * -10px) calc(var(--py) * -8px);
+  transition: translate 0.7s var(--w-ease);
+}
+
+#work .art-trace .trace {
+  --t-fg: #f2f4ff;
+  --t-muted: #9eabd6;
+  --t-line: rgba(255, 255, 255, 0.1);
+  --t-rail: rgba(255, 255, 255, 0.26);
+  --t-dot: #101a3d;
+  padding: 18px 20px 16px;
+  border-color: rgba(255, 255, 255, 0.16);
+  border-radius: 22px;
+  background: rgba(10, 17, 44, 0.72);
+  backdrop-filter: blur(22px) saturate(1.5);
+  box-shadow:
+    0 40px 70px -30px rgba(0, 0, 0, 0.75),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  animation: float 7s ease-in-out infinite reverse;
+}
+
+#work .art-trace .trace-ping {
+  background: #62e7a6;
+}
+
+#work .art-trace .trace-ping::after {
+  border-color: #62e7a6;
+}
+
+#work .art-trace .packet {
+  background: radial-gradient(circle, #fff 0 22%, #9bb8ff 60%);
+  box-shadow:
+    0 0 16px 4px rgba(120, 160, 255, 0.75),
+    0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
+/* The five headline numbers, large, under a rule. */
+#work .facts {
+  grid-area: facts;
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 24px;
+  margin: 0;
+}
+
+#work .fact {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+  padding-block: 18px 6px;
+  border-top: 1px solid var(--line);
+}
+
+#work .facts[data-n="5"] .fact:last-child {
+  grid-column: span 2;
+}
+
+#work .fact dt {
+  font: 500 0.8125rem/1.35 var(--font-body);
+  color: var(--fg-2);
+}
+
+#work .fact dd {
+  margin: 0;
+  font: 700 clamp(2.125rem, 1rem + 3.2cqi, 3.5rem) / 1 var(--font-display-body);
+  letter-spacing: -0.045em;
+  color: #fff;
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: start;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+[dir="rtl"] #work .fact dd {
+  text-align: right;
+}
+
+#work .fact dd em {
+  margin-inline-start: 3px;
+  font-size: 0.55em;
+  font-style: normal;
+  font-weight: 500;
+  letter-spacing: 0;
+  vertical-align: 0.5em;
+  color: var(--c-honey-hi);
+}
+
+/* Tablet and up: the numbers sit in a single line. */
+@container feat (min-width: 560px) {
+  #work .facts {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  #work .facts[data-n="5"] .fact:last-child {
+    grid-column: auto;
+  }
+}
+
+/* The stacked artwork is a wide window with the trace tucked under its edge. */
+@container feat (max-width: 959.98px) {
+  #work .depth-b {
+    width: min(100%, 480px);
+    margin-top: 40%;
+    justify-self: center;
+  }
+}
+
+@container feat (max-width: 559.98px) {
+  #work .depth-b {
+    margin-top: 54%;
+  }
+
+  #work .art-trace {
+    translate: 0 0;
+  }
+
+  #work .art-window {
+    transform: rotateY(-4deg) rotateX(2deg);
+  }
+
+  [dir="rtl"] #work .art-window {
+    transform: rotateY(4deg) rotateX(2deg);
+  }
+
+  #work .feat-copy .actions .btn-primary {
+    flex-basis: 100%;
+  }
+}
+
+/* Wide: copy beside the artwork, numbers along the bottom. */
+@container feat (min-width: 960px) {
+  #work .feat {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.04fr);
+    grid-template-areas:
+      "copy art"
+      "facts facts";
+    column-gap: clamp(32px, 5cqi, 64px);
+    align-items: center;
+  }
+
+  #work .depth-b {
+    width: min(78%, 440px);
+    margin-top: 40%;
+    margin-inline-start: -6%;
+  }
+}
+
+/* ================================================================
+   The other projects: bento
+   ================================================================ */
+
+#work .cards {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(16px, 2.2vw, 24px);
+  margin-top: clamp(16px, 2.2vw, 24px);
+}
+
+#work .card-wrap {
+  --a1: var(--c-secondary);
+  --a2: var(--c-honey);
+  display: flex;
+  min-width: 0;
+}
+
+#work .card-wrap[data-project="store-advisor"] {
+  --a1: #7c5cff;
+  --a2: var(--c-secondary);
+}
+
+#work .card-wrap[data-project="zabthalahak"] {
+  --a1: var(--c-honey);
+  --a2: #f05d7a;
+}
+
+#work .card-wrap[data-project="laravel"] {
+  --a1: #f05340;
+  --a2: var(--c-honey);
+}
+
+#work .card-wrap[data-project="neuroscan"] {
+  --a1: #14b8a6;
+  --a2: var(--c-secondary);
+}
+
+/* Cards rise in out of a soft blur, one after the other. */
+#work .card-wrap[data-revealed="false"] {
+  opacity: 0;
+}
+
+#work .card-wrap[data-revealed="true"] {
+  animation: card-in 1s var(--w-ease) backwards;
+  animation-delay: calc(var(--c, 0) * 110ms);
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    translate: 0 36px;
+    filter: blur(10px);
+  }
+}
+
+#work .card {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--c-hairline);
+  border-radius: 28px;
+  /* Paper: grain over a faint wash of the project's colour, fading to plain. */
+  background:
+    var(--grain-d),
+    linear-gradient(165deg, color-mix(in srgb, var(--a1) 7%, var(--c-surface)), var(--c-surface) 46%),
+    var(--c-surface);
+  box-shadow: var(--sh-sm);
+  transition:
+    translate 0.5s var(--w-ease),
+    border-color 0.3s ease,
+    box-shadow 0.5s ease;
+}
+
+/* The stage: the project's two colours as soft light, and rings flowing out of
+   two opposite corners. Where the two sets cross they interfere, which is what
+   gives it depth; it is the same signal motif as the flagship, in the
+   project's own colours. */
+#work .stage {
+  position: relative;
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  justify-content: center;
   gap: 14px;
-  align-content: end;
+  min-width: 0;
+  padding: clamp(18px, 3vw, 28px);
+  border-bottom: 1px solid var(--c-hairline);
+  background:
+    var(--grain-d),
+    radial-gradient(90% 120% at 0% 0%, color-mix(in srgb, var(--a1) 26%, transparent), transparent 62%),
+    radial-gradient(80% 110% at 100% 100%, color-mix(in srgb, var(--a2) 20%, transparent), transparent 62%),
+    var(--c-light-bg);
+}
+
+#work .stage::before,
+#work .stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  animation: ring-flow 12s linear infinite;
+}
+
+#work .stage::before {
+  background: repeating-radial-gradient(
+    circle at 100% 0%,
+    transparent calc(var(--o) * 0.771429) calc(var(--o) * 0.771429 + 26px),
+    color-mix(in srgb, var(--a1) 34%, transparent) calc(var(--o) * 0.771429 + 26px)
+      calc(var(--o) * 0.771429 + 27px)
+  );
+  mask-image: radial-gradient(circle at 100% 0%, #000 0%, transparent 70%);
+}
+
+#work .stage::after {
+  background: repeating-radial-gradient(
+    circle at 0% 100%,
+    transparent calc(var(--o) * 0.942857) calc(var(--o) * 0.942857 + 32px),
+    color-mix(in srgb, var(--a2) 30%, transparent) calc(var(--o) * 0.942857 + 32px)
+      calc(var(--o) * 0.942857 + 33px)
+  );
+  mask-image: radial-gradient(circle at 0% 100%, #000 0%, transparent 70%);
+  animation-duration: 15s;
+}
+
+#work .stage > * {
+  position: relative;
+  translate: 0 calc(var(--sy, 0) * 10px);
+}
+
+#work .stage .sp {
+  --sp-ratio: 16 / 10;
+  box-shadow: 0 30px 50px -30px rgba(20, 30, 90, 0.5);
+}
+
+#work .card-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  padding: clamp(20px, 3vw, 30px);
+}
+
+#work .card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  align-self: stretch;
+  min-height: 32px;
+}
+
+#work .card h3 {
+  margin: 14px 0 0;
+  font-family: var(--font-display-body);
+  font-size: clamp(1.5rem, 1.1rem + 1.2vw, 2rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  overflow-wrap: anywhere;
+}
+
+#work .card .meta {
+  margin-top: 8px;
+}
+
+#work .card .desc {
+  max-width: 54ch;
+  margin-top: 14px;
+}
+
+#work .card .stk {
+  margin-top: 20px;
+}
+
+#work .card-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  align-self: stretch;
   margin-top: auto;
-  padding-block: 18px 20px;
+  padding-top: 24px;
 }
 
-#work .row .disc {
-  margin-inline: calc(var(--px) * -1);
+#work .go {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--c-rule-strong);
+  border-radius: 50%;
+  color: var(--c-muted-text);
+  transition:
+    translate 0.4s var(--w-ease),
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease;
 }
 
-#work .row h3 {
-  font-size: clamp(1.375rem, 2.2vw, 1.75rem);
-  font-weight: 600;
-  line-height: 1.15;
-  letter-spacing: -0.015em;
-  margin-top: 16px;
-}
-
-#work .row h3 a {
+/* One link stretched over the whole card; the buttons, the preview and the
+   details control sit above it. */
+#work .card h3 a {
   color: inherit;
   text-decoration: none;
   background: linear-gradient(var(--c-honey), var(--c-honey)) 0 100% / 0 2px no-repeat;
   padding-bottom: 2px;
-  transition: background-size 0.4s var(--ease-out);
+  transition: background-size 0.45s var(--w-ease);
 }
 
-[dir="rtl"] #work .row h3 a {
+[dir="rtl"] #work .card h3 a {
   background-position: 100% 100%;
 }
 
-#work .row .desc {
-  max-width: 54ch;
-  margin-top: 12px;
-  font-size: 1.0625rem;
-  line-height: 1.5;
-}
-
-/* Stretch link: the whole card is one big hit target; buttons, the preview
-   and the accordion sit above it so they keep their own behaviour. */
-#work .row h3 a::after {
+#work .card h3 a::after {
   content: "";
   position: absolute;
   inset: 0;
-  z-index: 2;
-  border-radius: inherit;
+  z-index: 1;
 }
 
-#work .row .actions,
-#work .row .actions a,
-#work .row .sp {
+#work .card .sp,
+#work .card .actions {
   position: relative;
-  z-index: 3;
+  z-index: 2;
 }
 
-#work .row h3 a:focus-visible {
+#work .card h3 a:focus-visible {
   outline: none;
 }
 
-#work .row:has(h3 a:focus-visible) {
+#work .card:has(h3 a:focus-visible) {
   outline: 2px solid var(--c-signal);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 
-/* Hover / focus on a linked card: lift, cobalt edge, the arrow fills and
-   turns, the title underlines, the preview drifts, the plate's halftone
-   wakes. A card with nowhere to go (no link) stays still. */
-#work .row .plate::before {
-  transition: opacity 0.3s;
-}
-
-#work .row.is-link:has(h3 a:focus-visible) {
-  box-shadow: var(--sh-lg);
+#work .card.is-link:has(h3 a:focus-visible),
+#work .card.is-link:focus-within {
   border-color: color-mix(in srgb, var(--c-secondary) 45%, var(--c-hairline));
 }
 
-#work .row.is-link:has(h3 a:focus-visible) h3 a {
-  background-size: 100% 2px;
-}
-
-#work .row.is-link:has(h3 a:focus-visible) .go {
-  background: var(--c-secondary);
-  color: var(--c-on-secondary);
-  border-color: var(--c-secondary);
-  transform: rotate(-45deg);
-}
-
-#work .row.is-link:has(h3 a:focus-visible) .rx {
-  color: var(--c-dark-text);
-}
-
-#work .row.is-link:has(h3 a:focus-visible) .rx::after {
-  width: 30px;
-  background: var(--c-honey);
-}
-
-[dir="rtl"] #work .row.is-link:has(h3 a:focus-visible) .go {
-  transform: rotate(45deg);
-}
-
 @media (hover: hover) {
-  #work .row.is-link:hover {
-    transform: translateY(-4px);
-    border-color: color-mix(in srgb, var(--c-secondary) 45%, var(--c-hairline));
-    box-shadow: var(--sh-lg);
+  #work .card.is-link:hover {
+    translate: 0 -5px;
+    border-color: color-mix(in srgb, var(--c-secondary) 40%, var(--c-hairline));
+    box-shadow:
+      0 40px 70px -40px rgba(40, 60, 200, 0.5),
+      var(--sh-md);
   }
 
-  #work .row.is-link:hover h3 a {
+  #work .card.is-link:hover h3 a {
     background-size: 100% 2px;
   }
 
-  #work .row.is-link:hover .go {
+  #work .card.is-link:hover .go {
+    translate: 3px -3px;
+    border-color: var(--c-secondary);
     background: var(--c-secondary);
     color: var(--c-on-secondary);
-    border-color: var(--c-secondary);
-    transform: rotate(-45deg);
   }
 
-  [dir="rtl"] #work .row.is-link:hover .go {
-    transform: rotate(45deg);
-  }
-
-  #work .row.is-link:hover .rx {
-    color: var(--c-dark-text);
-  }
-
-  #work .row.is-link:hover .rx::after {
-    width: 30px;
-    background: var(--c-honey);
-  }
-
-  #work .row.is-link:hover .sp-frame img {
-    transform: scale(1.07) translateY(-1.5%);
-  }
-
-  #work .row.is-link:hover .plate::before {
-    opacity: 0.95;
+  [dir="rtl"] #work .card.is-link:hover .go {
+    translate: -3px -3px;
   }
 }
 
-/* ---------- plates (diagram panels) ---------- */
-
-#work .plate {
-  margin: 0;
-  position: relative;
-  border: 1px solid var(--c-hairline);
-  border-radius: var(--radius-ui-2);
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--c-dark-bg) 88%, var(--c-surface)),
-    var(--c-dark-bg)
-  );
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  isolation: isolate;
-  box-shadow: var(--sh-sm);
-}
-
-/* Halftone corner that echoes the hero sky (rev 11's `.plate::before`,
-   which superseded the original prompt-mark watermark). */
-#work .plate::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto auto;
-  bottom: auto;
-  width: 190px;
-  height: 130px;
-  z-index: -1;
-  opacity: 0.55;
-  background: radial-gradient(circle, var(--c-secondary) 1.1px, transparent 1.5px) 0 0 / 11px 11px;
-  -webkit-mask: radial-gradient(90% 100% at 100% 0, #000, transparent 72%);
-  mask: radial-gradient(90% 100% at 100% 0, #000, transparent 72%);
-}
-
-[dir="rtl"] #work .plate::before {
-  inset: 0 auto auto 0;
-  -webkit-mask: radial-gradient(90% 100% at 0 0, #000, transparent 72%);
-  mask: radial-gradient(90% 100% at 0 0, #000, transparent 72%);
-}
-
-#work .plate-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--c-hairline);
-  background: color-mix(in srgb, var(--c-surface) 45%, transparent);
-}
-
-#work .plate-head .slug {
-  margin: 0;
-  font-size: 0.75rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--c-light-text);
-}
-
-#work .plate-head .slug::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--c-honey);
-  flex: none;
-}
-
-#work .plate-body {
-  padding: 22px 14px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  flex: 1;
-  justify-content: center;
-}
-
-#work .plate-cap {
-  font: 500 0.75rem var(--font-mono-body);
-  letter-spacing: 0.02em;
-  color: var(--c-muted-text);
-  direction: ltr;
-  margin: 0;
-}
-
-html[lang="ar"] #work .plate-cap {
-  font-family: var(--font-body);
-  font-size: 0.8125rem;
-}
-
-#work .plate-foot {
-  margin-top: auto;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  border-top: 1px solid var(--c-rule-strong);
-  padding-top: 16px;
-}
-
-#work .plate-foot div {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-#work .plate-foot div + div {
-  padding-inline-start: 18px;
-  border-inline-start: 1px solid var(--c-hairline);
-}
-
-#work .plate-foot b {
-  font: 500 1.75rem/1 var(--font-mono-body);
-  color: var(--c-dark-text);
-  direction: ltr;
-  text-align: start;
-  unicode-bidi: isolate;
-}
-
-#work .plate-foot span {
-  font-size: 0.8125rem;
-  color: var(--c-light-text);
-  line-height: 1.35;
-}
-
-/* ---------- live from GitHub ---------- */
-
-#work .live-block {
-  margin-top: clamp(56px, 8vw, 88px);
-}
-
-#work .live-head {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-bottom: clamp(28px, 4vw, 40px);
-}
-
-#work .live-lbl {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--c-light-text);
-}
-
-#work .live-dot {
-  position: relative;
-  width: 8px;
-  height: 8px;
-  flex: none;
-  border-radius: 50%;
-  background: var(--c-status);
-}
-
-#work .live-dot::after {
-  content: "";
-  position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  border: 1px solid var(--c-status);
-  opacity: 0;
-  animation: live-ping 2.4s ease-out infinite;
-}
-
-@keyframes live-ping {
-  0% {
-    transform: scale(0.5);
-    opacity: 0.7;
-  }
-  70%,
-  100% {
-    transform: scale(1.5);
-    opacity: 0;
-  }
-}
-
-#work .live-rule {
-  flex: 1;
-  min-width: 24px;
-  height: 1px;
-  background: var(--c-rule-strong);
-}
-
-#work .quiet {
-  margin-top: 32px;
-  color: var(--c-muted-text);
-  font-size: 0.875rem;
-  max-width: 60ch;
-}
-
-/* ---------- polish: motion that answers the pointer ---------- */
-
-/* Production: the last segment pulses once in a while, like the live dot. */
-#work .status-production .meter i:last-child {
-  animation: seg-pulse 3.2s ease-in-out infinite;
-}
-
-@keyframes seg-pulse {
-  0%,
-  70%,
-  100% {
-    opacity: 1;
-  }
-  80% {
-    opacity: 0.35;
-  }
-}
-
-/* Tech chips rise one after another when their card is hovered. */
-#work .row .stk li {
-  transition:
-    transform 0.4s var(--ease-out),
-    border-color 0.3s ease,
-    color 0.3s ease,
-    background-color 0.3s ease;
-}
-
-#work .row .stk li:nth-child(2) { transition-delay: 25ms; }
-#work .row .stk li:nth-child(3) { transition-delay: 50ms; }
-#work .row .stk li:nth-child(4) { transition-delay: 75ms; }
-#work .row .stk li:nth-child(5) { transition-delay: 100ms; }
-#work .row .stk li:nth-child(n + 6) { transition-delay: 125ms; }
-
-@media (hover: hover) {
-  #work .row.is-link:hover .stk li {
-    transform: translateY(-2px);
-  }
-}
-
-/* Press feedback. */
-#work .row.is-link:active {
-  transform: translateY(-1px) scale(0.995);
-  transition-duration: 0.12s;
-}
-
-/* The visual brightens a touch while the card is under the pointer. */
-#work .row .sp-frame img {
-  transition:
-    opacity 0.4s ease-out,
-    transform 1s var(--ease-out);
-}
-
-/* Details: the chevron springs, the open panel is tinted, and its text
-   rises in line by line after the height has started to open. */
-#work .chev {
-  transition:
-    transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1),
-    background-color 0.25s,
-    border-color 0.25s,
-    color 0.25s;
-}
-
-#work .disc {
-  transition: background-color 0.4s ease;
-}
-
-#work .disc[open] {
-  background: color-mix(in srgb, var(--c-light-bg) 75%, transparent);
-}
-
-#work .disc summary:active .chev {
-  transform: scale(0.88);
-}
-
-#work .disc[open] summary:active .chev {
-  transform: rotate(180deg) scale(0.88);
-}
-
-@supports selector(::details-content) {
-  #work .disc-body > * {
-    opacity: 0;
-    transform: translateY(-8px);
-    transition:
-      opacity 0.35s ease,
-      transform 0.5s var(--ease-out);
-  }
-
-  #work .disc[open] .disc-body > * {
-    opacity: 1;
-    transform: none;
-    transition-delay: 0.12s;
-  }
-
-  #work .disc[open] .disc-body > *:nth-child(2) {
-    transition-delay: 0.2s;
-  }
-}
-
-
-/* ---------- details: coordinated open / close (see WorkMotion.tsx) ---------- */
-
-/* While the script measures the final layout nothing may be mid-transition. */
-#work.is-measuring *,
-#work.is-measuring .disc::details-content {
-  transition: none !important;
-}
-
-/* In the two-column layout the script animates the card heights itself, so
-   the CSS height slide stands down for the cards (the featured panel keeps it). */
+/* Two columns from a laptop: stage and copy line up across each row. */
 @media (min-width: 900px) {
-  #work.js-disc .row .disc::details-content {
-    transition: none;
-  }
-}
-
-/* A closing disclosure keeps its text visible while the card shrinks, but is
-   already drawn as closed: chevron back, text easing out. */
-#work .disc[data-state="closing"] {
-  background: transparent;
-}
-
-#work .disc[data-state="closing"] .chev {
-  transform: none;
-  background: transparent;
-  border-color: var(--c-rule-strong);
-  color: inherit;
-}
-
-#work .disc[data-state="closing"] summary {
-  color: var(--c-light-text);
-}
-
-#work .disc[data-state="closing"] .disc-body > * {
-  opacity: 0;
-  transform: translateY(-8px);
-  transition-delay: 0s;
-}
-
-/* ---------- responsive ---------- */
-
-/* Two-up cards. Every visual has the same minimum height (taller when a
-   card in the pair also shows a live preview), so titles line up across a
-   pair without the cards sharing rows; closed cards in a pair are equally
-   tall. Opening one card never stretches its neighbour: while either card of
-   a pair is open, both sit at their own natural height. */
-@media (min-width: 900px) {
-  #work .rows {
+  #work .cards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px;
+    column-gap: clamp(16px, 2.2vw, 24px);
+    row-gap: 0;
   }
 
-  /* WorkMotion measures each pair and sets --pair-media so both visuals are
-     exactly as tall as the taller one; these are the no-script fallbacks. */
-  #work .row-media {
-    min-height: var(--pair-media, 232px);
+  #work .card-wrap {
+    display: grid;
+    grid-row: span 2;
+    grid-template-rows: subgrid;
+    margin-bottom: clamp(16px, 2.2vw, 24px);
   }
 
-  #work .row.media-tall .row-media {
-    min-height: var(--pair-media, 420px);
+  #work .card {
+    display: grid;
+    grid-row: span 2;
+    grid-template-rows: subgrid;
+    row-gap: 0;
   }
 
-  #work .row:nth-child(odd):has(.disc[open]),
-  #work .row:nth-child(odd):has(.disc[open]) + .row,
-  #work .row:nth-child(odd):has(+ .row .disc[open]),
-  #work .row:nth-child(even):has(.disc[open]) {
-    align-self: start;
+  #work .stage {
+    min-height: 0;
   }
 }
 
-@media (max-width: 619.98px) {
-  /* No card inside a card: the featured project sits flat on the page. */
-  #work .spread {
-    padding: 0;
-    gap: 22px;
-    border: 0;
-    border-radius: 0;
-    background: none;
-    box-shadow: none;
+/* A single wide column (tablet): stage beside copy. */
+@media (min-width: 640px) and (max-width: 899.98px) {
+  #work .card {
+    flex-direction: row;
   }
 
-  #work .spread:hover,
-  #work .spread:focus-within {
-    border: 0;
-    box-shadow: none;
+  #work .stage {
+    flex: 0 0 44%;
+    border-bottom: 0;
+    border-inline-end: 1px solid var(--c-hairline);
   }
+}
 
-  /* Visual first on a phone, like a product card, then the words. */
-  #work .spread {
-    grid-template-areas:
-      "media"
-      "copy"
-      "kpis";
-  }
-
-  #work .spread-title {
-    font-size: 2.125rem;
-    margin-top: 16px;
-  }
-
-  #work .spread-copy .desc {
-    font-size: 1.0625rem;
-  }
-
-  /* The live preview leads the featured visual; the plate follows as a strip. */
-  #work .spread-media .sp {
-    order: -1;
-  }
-
-  #work .spread-copy .actions .btn-primary {
-    flex-basis: 100%;
-  }
-
-  /* KPI wall: three small tiles, then two. Numbers only. */
-  #work .spread .kp {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 8px;
-  }
-
-  #work .spread .kp .kpi {
-    grid-column: span 2;
-    padding: 12px 12px 10px;
-    gap: 4px;
-    border-radius: 14px;
-  }
-
-  #work .spread .kp[data-n="5"] .kpi:nth-child(n + 4) {
-    grid-column: span 3;
-  }
-
-  #work .spread .kpi dt {
-    font-size: 0.625rem;
-    letter-spacing: 0.04em;
-  }
-
-  #work .spread .kpi dd {
-    font-size: 1.625rem;
-  }
-
-  #work .spread .pt-v {
+/* In a narrow stage the floating pills drop their tags. */
+@media (max-width: 1099.98px) {
+  #work .mods-pills .m-tag {
     display: none;
   }
+}
 
-  #work .row .actions .btn {
+/* On a phone the buttons share the line. */
+@media (max-width: 479.98px) {
+  #work .card .actions .btn {
     flex: 1 1 40%;
     min-height: 44px;
   }
 
-  /* Cards: airy, one idea at a time. */
-  #work .rows {
-    gap: 14px;
-  }
-
-  #work .row {
-    --px: 10px;
-    border-radius: 20px;
-  }
-
-  #work .row-media {
-    margin-bottom: 14px;
-  }
-
-  #work .row h3 {
-    margin-top: 14px;
-    font-size: 1.5rem;
-  }
-
-  #work .row .desc {
-    font-size: 1rem;
-  }
-
-  #work .row-foot {
-    padding-block: 16px 18px;
-  }
-
-  #work .disc summary {
-    min-height: 54px;
+  #work .card .disc-btn {
+    flex: 1 1 100%;
+    justify-content: space-between;
   }
 }
 
-/* ---------- motion ---------- */
+/* ================================================================
+   Live from GitHub (cards live in GitHub.css)
+   ================================================================ */
 
-/* The request path only starts lighting up once its panel has scrolled in. */
-#work [data-revealed="false"] :is(.rpath, .rgroup) li,
-#work [data-revealed="false"] :is(.rpath, .rgroup) li::before,
-#work [data-revealed="false"] :is(.rpath, .rgroup) li::after {
-  animation-play-state: paused;
+#work .live-block {
+  margin-top: clamp(72px, 10vw, 120px);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  #work .rpath li,
-  #work .rpath li::before,
-  #work .rpath li::after,
-  #work .rgroup li,
-  #work .live-dot::after,
-  #work .status-production .meter i,
-  #work .disc-body {
-    animation: none;
-  }
-
-  #work .disc::details-content,
-  #work .chev,
-  #work .row,
-  #work .row .go,
-  #work .row h3 a,
-  #work .row .rx::after {
-    transition: none;
-  }
-
-  #work .row.is-link:hover,
-  #work .row.is-link:hover .go,
-  #work .row.is-link:hover .sp-frame img {
-    transform: none;
-  }
-}
-
-/* ---------- details v2: a drawer with a progress rule ---------- */
-
-/* The label carries a honey tick (identity colour) that grows when the drawer
-   opens; a cobalt rule draws across the top edge as it opens (action colour);
-   hover tints the bar and wakes the chevron before anything is clicked. */
-#work .disc {
-  --disc-tint: color-mix(in srgb, var(--c-secondary) 5%, var(--c-surface));
-  isolation: isolate;
-  transition: background-color 0.45s ease, border-color 0.3s ease, box-shadow 0.45s ease;
-}
-
-#work .disc::before {
-  content: "";
-  position: absolute;
-  inset: -1px 0 auto 0;
-  z-index: 1;
-  height: 2px;
-  background: var(--c-secondary);
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform 0.55s cubic-bezier(0.65, 0, 0.35, 1);
-  pointer-events: none;
-}
-
-[dir="rtl"] #work .disc::before {
-  transform-origin: right center;
-}
-
-#work .disc[open]::before {
-  transform: scaleX(1);
-}
-
-#work .disc[data-state="closing"]::before {
-  transform: scaleX(0);
-  transition-duration: 0.35s;
-}
-
-#work .disc[open] {
-  background: var(--disc-tint);
-}
-
-#work .disc[data-state="closing"] {
-  background: transparent;
-}
-
-#work .disc summary > span:first-child {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  letter-spacing: 0.01em;
-}
-
-#work .disc summary > span:first-child::before {
-  content: "";
-  width: 3px;
-  height: 14px;
-  border-radius: 2px;
-  background: var(--c-honey);
-  transform-origin: center;
-  transition: height 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s;
-  opacity: 0.7;
-}
-
-#work .disc[open] summary > span:first-child::before {
-  height: 22px;
-  opacity: 1;
-}
-
-#work .disc[data-state="closing"] summary > span:first-child::before {
-  height: 14px;
-  opacity: 0.7;
-}
-
-@media (hover: hover) {
-  #work .disc summary:hover {
-    background: color-mix(in srgb, var(--c-secondary) 7%, transparent);
-    color: var(--c-dark-text);
-  }
-
-  #work .disc summary:hover .chev {
-    border-color: var(--c-secondary);
-    color: var(--c-secondary);
-  }
-
-  #work .disc[open] summary:hover .chev {
-    color: var(--c-on-secondary);
-  }
-
-  #work .disc summary:hover > span:first-child::before {
-    opacity: 1;
-  }
-}
-
-#work .disc summary:focus-visible {
-  outline: 2px solid var(--c-signal);
-  outline-offset: -3px;
-  border-radius: 12px;
-}
-
-/* The note: a quiet inset with the honey rule, not a loose paragraph. */
-#work .disc-body {
-  padding-block: 6px 24px;
-}
-
-#work .disc-body .sub {
-  padding: 12px 16px;
-  border-inline-start: 2px solid var(--c-honey);
-  border-radius: 0 12px 12px 0;
-  background: color-mix(in srgb, var(--c-honey) 7%, transparent);
-}
-
-[dir="rtl"] #work .disc-body .sub {
-  border-radius: 12px 0 0 12px;
-}
-
-/* Featured: the drawer is a bordered panel of its own, inset from the copy. */
-#work .spread-copy .disc {
-  --more-px: 18px;
-  border: 1px solid var(--c-hairline);
-  border-radius: 16px;
-  background: var(--c-surface);
-  overflow: hidden;
-}
-
-#work .spread-copy .disc[open] {
-  background: var(--disc-tint);
-  border-color: color-mix(in srgb, var(--c-secondary) 35%, var(--c-hairline));
-  box-shadow: var(--sh-xs);
-}
-
-#work .spread-copy .disc[data-state="closing"] {
-  background: var(--c-surface);
-  border-color: var(--c-hairline);
-}
-
-#work .spread-copy .disc::before {
-  inset: 0 0 auto 0;
-}
-
-#work .spread-copy .disc summary {
-  min-height: 56px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  #work .disc,
-  #work .disc::before,
-  #work .disc summary > span:first-child::before {
-    transition: none;
-  }
-}
-
-/* ---------- plates v4: the same window as the live preview ---------- */
-
-/* A plate is a window like the site preview next to it: the same frame, the
-   same title bar (three dots and a pill carrying the project's name), a white
-   surface and a quiet footer. Inside, a plain ruled list; one row at a time is
-   marked, stepping down the list in a loop. Nothing else is decorated, and
-   phone, tablet and desktop share it, left to right and right to left. */
-
-#work .plate {
-  border: 1px solid var(--c-hairline);
-  border-radius: var(--radius-ui-3);
-  background: var(--c-surface);
-  box-shadow: var(--sh-sm);
-}
-
-#work .plate::before,
-#work .row .plate::before,
-#work .row.is-link:hover .plate::before {
-  display: none;
-}
-
-#work .plate .plate-head {
-  direction: ltr;
-  justify-content: flex-start;
-  gap: 5px;
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--c-hairline);
-  background: var(--c-light-bg);
-}
-
-#work .plate .plate-head::before {
-  content: "";
-  flex: none;
-  width: 7px;
-  height: 7px;
-  margin-inline-end: 30px;
-  border-radius: 50%;
-  background: var(--c-rule-strong);
-  box-shadow:
-    12px 0 0 var(--c-rule-strong),
-    24px 0 0 var(--c-rule-strong);
-}
-
-#work .plate .plate-head .slug {
-  flex: 1;
-  min-width: 0;
-  padding: 4px 10px;
-  overflow: hidden;
-  border: 1px solid var(--c-hairline);
-  border-radius: 999px;
-  background: var(--c-surface);
-  font: 500 0.6875rem/1 var(--font-mono-body);
-  color: var(--c-light-text);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-#work .plate .plate-head .slug::before {
-  display: none;
-}
-
-#work .media-stack .plate .plate-body {
-  padding: 0;
-  gap: 0;
-  justify-content: flex-start;
-}
-
-#work .plate :is(.rpath, .rgroup) {
-  counter-reset: st;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  direction: inherit;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: none;
-  grid-auto-rows: minmax(44px, 1fr);
-  gap: 0;
-  flex: 1;
-}
-
-#work .plate :is(.rpath, .rgroup) li {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  min-width: 0;
-  min-height: 44px;
-  margin: 0;
-  padding-block: 0;
-  padding-inline: 0 16px;
-  border: 0;
-  border-top: 1px solid var(--c-hairline);
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  font: 500 0.8125rem/1.25 var(--font-mono-body);
-  color: var(--c-dark-text);
-  overflow-wrap: anywhere;
-  unicode-bidi: isolate;
-  counter-increment: st;
-  --t: calc(var(--i, 0) * 0.5s + 0.9s);
-  background-image: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--c-honey) 14%, transparent),
-    color-mix(in srgb, var(--c-honey) 4%, transparent)
-  );
-  background-repeat: no-repeat;
-  background-size: 0% 100%;
-  animation:
-    wp-in 0.55s var(--ease-out) both,
-    wp-row 5s ease-in-out infinite;
-  animation-delay: calc(var(--i, 0) * 70ms + 120ms), var(--t);
-}
-
-/* Rows come in one after another once the plate scrolls into view. */
-#work [data-revealed="false"] .plate :is(.rpath, .rgroup) li {
-  opacity: 0;
-}
-
-@keyframes wp-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-#work .plate .rpath li:first-child {
-  border-top: 0;
-}
-
-
-/* The row that is "current": a honey mark at the start edge. */
-#work .plate :is(.rpath, .rgroup) li::before {
-  content: "";
-  position: absolute;
-  inset-block: -1px;
-  inset-inline-start: 0;
-  width: 2px;
-  background: var(--c-honey);
-  opacity: 0;
-  animation: wp-mark 5s ease-in-out infinite;
-  animation-delay: var(--t);
-}
-
-/* The numbers sit in a gutter, like line numbers in an editor: the plate
-   reads as a small listing, in the site's own mono voice. */
-#work .plate .ix {
-  align-self: stretch;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: none;
-  min-width: 46px;
-  border-inline-end: 1px solid var(--c-hairline);
-  background: var(--c-light-bg);
-  font-style: normal;
-  direction: ltr;
-  animation: wp-gutter 5s ease-in-out infinite;
-  animation-delay: var(--t);
-}
-
-/* The current line also carries a caret after its name, like the hero's. */
-#work .plate .nm {
-  min-width: 0;
-}
-
-#work .plate .nm::after {
-  content: "";
-  display: inline-block;
-  width: 7px;
-  height: 15px;
-  margin-inline-start: 6px;
-  border-radius: 1px;
-  vertical-align: -3px;
-  background: var(--c-honey);
-  opacity: 0;
-  animation: wp-caret 5s steps(1, end) infinite;
-  animation-delay: var(--t);
-}
-
-/* The row's text: the name, then a one-line note in the quiet voice. On a
-   narrow plate the note drops under the name instead of being squeezed. */
-#work .plate .tx {
-  flex: 1;
-  min-width: 0;
+#work .live-head {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 1px 14px;
-  padding-block: 6px;
+  justify-content: space-between;
+  gap: 8px 24px;
+  margin-bottom: clamp(22px, 3vw, 32px);
 }
 
-#work .plate .nt {
-  min-width: 0;
-  font: 400 0.75rem/1.3 var(--font-body);
-  unicode-bidi: isolate;
-  color: var(--c-muted-text);
-}
-
-/* The status ring at the far edge: it fills while its row is current. */
-#work .plate .end {
-  flex: none;
-  display: block;
-  width: 9px;
-  height: 9px;
-  box-sizing: border-box;
-  border: 1.5px solid var(--c-rule-strong);
-  border-radius: 50%;
-  font-style: normal;
-  animation: wp-ring 5s ease-in-out infinite;
-  animation-delay: var(--t);
-}
-
-#work .plate .ix::before {
-  content: counter(st, decimal-leading-zero);
-  font: 500 0.6875rem var(--font-mono-body);
-  color: var(--c-note);
-}
-
-#work .plate .plate-n {
-  flex: none;
-  padding-inline: 4px 2px;
-  font: 500 0.6875rem/1 var(--font-mono-body);
-  color: var(--c-muted-text);
-}
-
-/* Grouped services: a small caption row, then the same list. */
-#work .plate .rgroup::before {
-  content: attr(data-cap);
-  padding: 10px 16px 8px;
-  border-bottom: 1px solid var(--c-hairline);
-  font: 500 0.625rem var(--font-mono-body);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--c-muted-text);
-  direction: ltr;
-  text-align: start;
-}
-
-html[lang="ar"] #work .plate .rgroup::before {
-  font-family: var(--font-body);
-  font-size: 0.75rem;
-  letter-spacing: 0;
-  text-transform: none;
-}
-
-#work .plate .rgroup {
-  grid-template-rows: auto;
-}
-
-/* Footer: the caption, then (trosc) the two figures. */
-#work .plate .plate-cap {
-  padding: 10px 16px;
-  border-top: 1px solid var(--c-hairline);
-  background: var(--c-light-bg);
-}
-
-#work .plate .plate-foot {
+#work .live-lbl {
   margin: 0;
-  padding: 14px 16px 16px;
-  border-top: 1px solid var(--c-hairline);
+  font-family: var(--font-display-body);
+  font-size: clamp(1.75rem, 1.2rem + 2vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  color: var(--c-dark-text);
 }
 
-@keyframes wp-row {
-  0% {
-    background-size: 0% 100%;
-    background-position: 0 0;
-  }
-  5%,
-  11% {
-    background-size: 100% 100%;
-    background-position: 0 0;
-  }
-  17%,
-  100% {
-    background-size: 0% 100%;
-    background-position: 100% 0;
-  }
+/* A plain text link: the underline draws in, the arrow leans forward. */
+#work .live-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--c-dark-text);
+  text-decoration: none;
 }
 
-@keyframes wp-gutter {
-  0%,
-  14%,
-  100% {
-    background-color: var(--c-light-bg);
-  }
-  3%,
-  9% {
-    background-color: color-mix(in srgb, var(--c-honey) 22%, var(--c-light-bg));
-  }
+#work .live-link span {
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1.5px no-repeat;
+  padding-bottom: 3px;
+  transition: background-size 0.4s var(--w-ease);
 }
 
-@keyframes wp-ring {
-  0%,
-  16%,
-  100% {
-    border-color: var(--c-rule-strong);
-    background: transparent;
-    box-shadow: 0 0 0 0 transparent;
-    transform: scale(1);
-  }
-  3% {
-    border-color: var(--c-honey);
-    background: var(--c-honey);
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--c-honey) 45%, transparent);
-    transform: scale(1.3);
-  }
-  9% {
-    border-color: var(--c-honey);
-    background: var(--c-honey);
-    box-shadow: 0 0 0 6px transparent;
-    transform: scale(1);
-  }
+[dir="rtl"] #work .live-link span {
+  background-position: 100% 100%;
 }
 
-@keyframes wp-caret {
-  0%,
-  14%,
-  100% {
-    opacity: 0;
-  }
-  3% {
-    opacity: 1;
-  }
-  6% {
-    opacity: 0.15;
-  }
-  8% {
-    opacity: 1;
-  }
+#work .live-link svg {
+  transition: translate 0.35s var(--w-ease);
 }
 
-@keyframes wp-mark {
-  0%,
-  14%,
-  100% {
-    opacity: 0;
-  }
-  3%,
-  9% {
-    opacity: 1;
-  }
-}
-
-
-/* While a row is current its note brightens, and the title bar's rule fills in
-   step with the list (--p runs 0 to 1 over one cycle). */
-#work .plate .nt {
-  animation: wp-note 5s ease-in-out infinite;
-  animation-delay: var(--t);
-}
-
-@keyframes wp-note {
-  0%,
-  16%,
-  100% {
-    color: var(--c-muted-text);
-  }
-  4%,
-  11% {
-    color: var(--c-dark-text);
-  }
-}
-
-@property --p {
-  syntax: "<number>";
-  inherits: false;
-  initial-value: 0;
-}
-
-#work .plate .plate-head {
-  position: relative;
-}
-
-#work .plate .plate-head::after {
-  content: "";
-  position: absolute;
-  inset: auto 0 -1px;
-  height: 2px;
-  background: var(--c-honey);
-  transform-origin: left center;
-  transform: scaleX(min(1, calc(var(--p) * 10 / var(--n, 6))));
-  animation: wp-p 5s linear infinite;
-  animation-delay: 0.9s;
-  pointer-events: none;
-}
-
-[dir="rtl"] #work .plate .plate-head::after {
-  transform-origin: right center;
-}
-
-@keyframes wp-p {
-  from {
-    --p: 0;
-    opacity: 1;
-  }
-  75% {
-    --p: 1;
-    opacity: 1;
-  }
-  to {
-    --p: 1;
-    opacity: 0;
-  }
-}
-
-/* Hovering a row marks it, like the current line. */
 @media (hover: hover) {
-  #work .plate :is(.rpath, .rgroup) li:hover {
-    background-color: color-mix(in srgb, var(--c-honey) 7%, transparent);
+  #work .live-link:hover span {
+    background-size: 100% 1.5px;
   }
 
-  #work .plate :is(.rpath, .rgroup) li:hover .nt {
-    color: var(--c-dark-text);
+  #work .live-link:hover svg {
+    translate: 4px 0;
+  }
+
+  [dir="rtl"] #work .live-link:hover svg {
+    translate: -4px 0;
   }
 }
+
+#work .live-link:focus-visible {
+  outline: 2px solid var(--c-signal);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* ---------- reduced motion: finished states only ---------- */
 
 @media (prefers-reduced-motion: reduce) {
-  #work .plate .plate-head::after,
-  #work .plate .nt,
-  #work .plate :is(.rpath, .rgroup) li,
-  #work .plate :is(.rpath, .rgroup) li::before,
-  #work .plate .nm::after,
-  #work .plate .end,
-  #work .plate .ix {
+  #work .feat-aurora::before,
+  #work .feat-aurora::after,
+  #work .art-window,
+  #work .art-trace .trace,
+  #work .mods-pills li,
+  #work .feat-rings,
+  #work .stage::before,
+  #work .stage::after,
+  #work .status-production .status-ico polyline,
+  #work .trace-ping::after,
+  #work .card-wrap,
+  #work .trace .t-dot,
+  #work .trace .trace-list li,
+  #work .trace .trace-list li::before,
+  #work .mods li {
     animation: none;
   }
-}
 
-/* ---------- plates v9: a ruled table ---------- */
-
-/* Each row reads as a table row: number gutter, name, note, kind, status ring.
-   The columns line up from row to row, so no row is left half empty. Rows sit
-   above the card's stretch link so they can be hovered. */
-#work .row .plate {
-  position: relative;
-  z-index: 3;
-}
-
-#work .plate :is(.rpath, .rgroup) li {
-  display: grid;
-  grid-template-columns: 46px clamp(5.5rem, 26%, 8.5rem) minmax(0, 1fr) auto auto;
-  align-items: center;
-  column-gap: 14px;
-  padding-inline: 0 16px;
-}
-
-#work .plate .ix {
-  align-self: stretch;
-}
-
-#work .plate .nt {
-  padding-block: 8px;
-}
-
-#work .plate .tg {
-  padding: 3px 7px;
-  border: 1px solid var(--c-hairline);
-  border-radius: 5px;
-  font: 500 0.625rem/1 var(--font-mono-body);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--c-muted-text);
-  background: var(--c-surface);
-  white-space: nowrap;
-  direction: ltr;
-}
-
-html[lang="ar"] #work .plate .tg {
-  font-family: var(--font-body);
-  font-size: 0.6875rem;
-  letter-spacing: 0;
-  text-transform: none;
-}
-
-/* Narrow plates: the note drops under the name and the kind steps aside. */
-@container well (max-width: 440px) {
-  #work .plate :is(.rpath, .rgroup) li {
-    grid-template-columns: 46px minmax(0, 1fr) auto;
-    grid-template-areas:
-      "ix nm end"
-      "ix nt end";
-    column-gap: 14px;
-    row-gap: 1px;
-    align-content: center;
-    padding-block: 6px;
-  }
-
-  #work .plate .ix {
-    grid-area: ix;
-    margin-block: -6px;
-  }
-
-  #work .plate .nm {
-    grid-area: nm;
-    align-self: end;
-  }
-
-  #work .plate .nt {
-    grid-area: nt;
-    align-self: start;
-    padding-block: 0;
-  }
-
-  #work .plate .end {
-    grid-area: end;
-  }
-
-  #work .plate .tg {
+  #work .packet {
     display: none;
+  }
+
+  #work .art-window {
+    transform: rotateY(-4deg);
+  }
+
+  [dir="rtl"] #work .art-window {
+    transform: rotateY(4deg);
   }
 }
