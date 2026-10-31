@@ -143,27 +143,25 @@ function Trace({ project }: { project: Project }) {
 }
 
 /**
- * A system made of parts, not a path: each part is a tile (or, beside a live
- * preview, a floating pill). Decorative, like the trace.
+ * A system made of parts, not a path: each part is a tile. Decorative, like
+ * the trace.
  */
-function Modules({ project, compact = false }: { project: Project; compact?: boolean }) {
+function Modules({ project }: { project: Project }) {
   const plate = project.plate;
   const parts: Stop[] = plate?.group ?? [];
   if (!plate || parts.length === 0) return null;
 
   return (
     <figure
-      className={`mods${compact ? " mods-pills" : ""}`}
+      className="mods"
       aria-hidden="true"
       data-reveal
       style={{ "--n": parts.length } as CSSProperties}
     >
-      {!compact && (
-        <figcaption className="trace-head">
-          <span className="trace-ping" />
-          {plate.groupCaption ?? plate.caption}
-        </figcaption>
-      )}
+      <figcaption className="trace-head">
+        <span className="trace-ping" />
+        {plate.groupCaption ?? plate.caption}
+      </figcaption>
       <ul>
         {parts.map((part, index) => (
           <li
@@ -175,10 +173,76 @@ function Modules({ project, compact = false }: { project: Project; compact?: boo
               <b>{part.label}</b>
               {part.tag && <span className="m-tag">{part.tag}</span>}
             </span>
-            {!compact && part.note && <span className="m-note">{part.note}</span>}
+            {part.note && <span className="m-note">{part.note}</span>}
           </li>
         ))}
       </ul>
+    </figure>
+  );
+}
+
+/** A glyph per kind of part, chosen from the tag the data already carries. */
+function nodeIcon(tag?: string): IconName {
+  if (tag === "public") return "globe";
+  if (tag === "private") return "lock";
+  if (tag === "log") return "eye";
+  return "box";
+}
+
+/**
+ * A system with two faces and a shared core, drawn as one: the first two parts
+ * (the surfaces people use) feed the remaining parts (the modules behind them)
+ * through connecting lines along which a signal flows. Used where a project
+ * has a live site, so its plate sits under the preview. Decorative: the same
+ * facts are in the description.
+ */
+function SystemMap({ project }: { project: Project }) {
+  const plate = project.plate;
+  const parts: Stop[] = plate?.group ?? [];
+  if (!plate || parts.length < 3) return <Modules project={project} />;
+
+  const faces = parts.slice(0, 2);
+  const core = parts.slice(2);
+
+  const node = (part: Stop, index: number, base: number) => (
+    <li
+      key={part.label}
+      className={`sm-node${part.hot ? " hot" : ""}`}
+      style={{ "--i": index + base } as CSSProperties}
+    >
+      <span className="sm-row">
+        <span className="sm-ico">
+          <Icon name={nodeIcon(part.tag)} className="size-3.5" />
+        </span>
+        <b className="sm-name">{part.label}</b>
+        {part.tag && <span className="sm-tag">{part.tag}</span>}
+      </span>
+      {part.note && <span className="sm-note">{part.note}</span>}
+    </li>
+  );
+
+  return (
+    <figure
+      className="sysmap"
+      aria-hidden="true"
+      data-reveal
+      style={{ "--n": core.length } as CSSProperties}
+    >
+      <ul className="sm-faces">{faces.map((part, index) => node(part, index, 0))}</ul>
+      <div className="sm-join">
+        {faces.map((part) => (
+          <i key={part.label} />
+        ))}
+      </div>
+      <div className="sm-stem">
+        <i />
+      </div>
+      <div className="sm-rail">
+        {core.map((part) => (
+          <i key={part.label} />
+        ))}
+      </div>
+      <ul className="sm-core">{core.map((part, index) => node(part, index, 2))}</ul>
     </figure>
   );
 }
@@ -199,10 +263,20 @@ function splitLead(text: string) {
   return match ? { lead: match[1], rest: match[2] } : { lead: text, rest: "" };
 }
 
-function Details({ rest, detail, label }: { rest: string; detail?: string; label: string }) {
+function Details({
+  rest,
+  detail,
+  label,
+  title,
+}: {
+  rest: string;
+  detail?: string;
+  label: string;
+  title: string;
+}) {
   if (!rest && !detail) return null;
   return (
-    <WorkDetails label={label}>
+    <WorkDetails label={label} title={title}>
       {rest && <p>{rest}</p>}
       {detail && <p className="note">{detail}</p>}
     </WorkDetails>
@@ -314,7 +388,12 @@ function Featured({
             )}
           </div>
           <div className="feat-more">
-            <Details rest={rest} detail={project.detail} label={dict.projectDetails} />
+            <Details
+              rest={rest}
+              detail={project.detail}
+              label={dict.projectDetails}
+              title={project.title ?? project.name}
+            />
           </div>
         </div>
 
@@ -360,7 +439,7 @@ function Visual({ project, dict }: { project: Project; dict: Dictionary["work"] 
     return (
       <>
         <SitePreview url={live} label={dict.viewLive} />
-        <Modules project={project} compact />
+        <SystemMap project={project} />
       </>
     );
   }
@@ -416,7 +495,12 @@ function Card({
           <TechList tech={project.tech} />
           <div className="card-bar">
             <ProjectActions project={project} dict={dict} />
-            <Details rest={rest} detail={project.detail} label={dict.projectDetails} />
+            <Details
+              rest={rest}
+              detail={project.detail}
+              label={dict.projectDetails}
+              title={project.title ?? project.name}
+            />
           </div>
         </div>
       </Spotlight>

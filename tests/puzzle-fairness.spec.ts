@@ -1,11 +1,20 @@
 import { expect, test } from "@playwright/test";
 import {
+  BASH_HISTORY_OUTPUT,
   CLUES,
+  COMMAND_OUTPUT,
   DISCOVERIES,
+  HIRE_BARE,
   REPLAY_LINES,
   SOURCES,
+  SUDO_DENIED,
+  SUDO_LIST,
   TOTAL_DISCOVERIES,
   helpOutput,
+  hireOutput,
+  neofetchOutput,
+  sudoReply,
+  whoamiOutput,
 } from "@/lib/terminalCommands";
 
 /*
@@ -120,6 +129,100 @@ test.describe("terminal puzzle fair play", () => {
   test("no help line exceeds the 40-column grid", () => {
     for (const row of plain(helpOutput(["history", "sudo"])).split("\n")) {
       expect(row.length, row).toBeLessThanOrEqual(40);
+    }
+  });
+});
+
+/*
+ * The finale (sudo hire basem) must be findable without being handed over.
+ * Pointers: the visitor should meet the idea from several directions, and each
+ * one has to say where to look, never the command itself.
+ */
+test.describe("the finale is pointed to, not spelled out", () => {
+  const SPELLED_OUT = /sudo\s+hire|hire\s+basem|hire\s+me\b/i;
+
+  const neofetch = plain(neofetchOutput({ rank: "guest", count: 0, theme: "amber", uptime: "1s" }));
+  const whoami = plain(whoamiOutput("guest", "guest", 0));
+  const sudoList = plain(SUDO_LIST);
+
+  test("at least five different places lead toward it", () => {
+    const pointers: Record<string, boolean> = {
+      "contact names the word sudo": /sudo/.test(plain(COMMAND_OUTPUT.contact)),
+      "whoami says a guest may still ask": /may still ask/i.test(whoami),
+      "neofetch says the machine is open to work": /open to work/i.test(neofetch),
+      "todo.md says someone else has to run the last item": /someone else/i.test(plain(COMMAND_OUTPUT.todo)),
+      "the history points at todo.md": /todo\.md/.test(plain(BASH_HISTORY_OUTPUT)),
+      "sudo -l says where the verb is printed": /\.env/.test(sudoList),
+      "sudo -l says where the name is printed": /neofetch/.test(sudoList),
+    };
+    const missing = Object.entries(pointers).filter(([, ok]) => !ok).map(([name]) => name);
+    expect(missing, `missing pointers:\n${missing.join("\n")}`).toEqual([]);
+  });
+
+  test("nothing before the answer is typed prints the whole command", () => {
+    const texts = [
+      COMMAND_OUTPUT.contact,
+      COMMAND_OUTPUT.todo,
+      COMMAND_OUTPUT.about,
+      BASH_HISTORY_OUTPUT,
+      SUDO_LIST,
+      SUDO_DENIED,
+      HIRE_BARE,
+      neofetch,
+      whoami,
+      ...CLUES.map((c) => c.text),
+      ...SOURCES.map((s) => s.text()),
+    ].map(plain);
+    for (const text of texts) expect(text).not.toMatch(SPELLED_OUT);
+    // The opt-in hint ladder is the one place that may say it, and only last.
+    const hire = DISCOVERIES.find((d) => d.id === "hire")!;
+    expect(hire.clues[0]).not.toMatch(SPELLED_OUT);
+    expect(hire.clues[1]).toContain("sudo hire basem");
+  });
+
+  test("the sudo -l clue gives a definition, a count and a place to look for both words", () => {
+    expect(sudoList).toMatch(/VERB[\s\S]*\(4\)/);
+    expect(sudoList).toMatch(/NAME[\s\S]*\(5\)/);
+    expect(sudoList).toMatch(/first key in \.env/);
+    expect(sudoList).toMatch(/neofetch/);
+    for (const row of sudoList.split("\n")) expect(row.length, row).toBeLessThanOrEqual(40);
+  });
+
+  test("the answer works, and so does the name the .env key itself suggests", () => {
+    expect(sudoReply(["hire", "basem"]).kind).toBe("hire");
+    expect(sudoReply(["hire", "me"]).kind).toBe("hire");
+    expect(sudoReply(["-l"]).kind).toBe("list");
+  });
+
+  test("a near miss is told how it missed, never what the answer is", () => {
+    const replies = [
+      sudoReply(["employ", "basem"], ["employ", "basem"]),
+      sudoReply(["fire", "basem"], ["fire", "basem"]),
+      sudoReply(["hire"], ["hire"]),
+      sudoReply(["hire", "bob"], ["hire", "bob"]),
+      sudoReply(["hire", "alice"], ["hire", "alice"]),
+      sudoReply([], []),
+    ];
+    for (const reply of replies) {
+      expect(reply.kind).not.toBe("hire");
+      const said = "error" in reply ? [reply.error, ...reply.info] : "info" in reply ? reply.info : [];
+      for (const line of said) {
+        expect(line).not.toMatch(SPELLED_OUT);
+        expect(line.length, line).toBeLessThanOrEqual(38);
+      }
+    }
+    const wrongLength = sudoReply(["employ", "basem"], ["employ", "basem"]);
+    expect(wrongLength.kind === "denied" && wrongLength.info.join(" ")).toMatch(/6 letters, not 4/);
+    const rightLength = sudoReply(["fire", "basem"], ["fire", "basem"]);
+    expect(rightLength.kind === "denied" && rightLength.info.join(" ")).toMatch(/right length/i);
+    const wrongName = sudoReply(["hire", "bob"], ["hire", "bob"]);
+    expect(wrongName.kind === "hire-help" && wrongName.info.join(" ")).toMatch(/neofetch/);
+  });
+
+  test("the recap of the trail appears only after the command is right", () => {
+    expect(plain(hireOutput("guest"))).toMatch(/How the trail led here/);
+    for (const text of [COMMAND_OUTPUT.contact, SUDO_LIST, BASH_HISTORY_OUTPUT]) {
+      expect(plain(text)).not.toMatch(/How the trail led here/);
     }
   });
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import { createElement, useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { prefersReducedMotion } from "@/lib/scroll";
 
 /** Whole brew, in ms. Terminal.tsx prints the closing message after this, and
@@ -59,7 +59,10 @@ function airRow(phase: Phase, row: number, frame: number, level: number): string
 function renderCup(phase: Phase, frame: number, level: number): ReactNode[] {
   const out: ReactNode[] = [];
   const line = (key: string, ...parts: ReactNode[]) => {
-    out.push(<span key={key}>{parts}</span>, "\n");
+    // The parts are one fixed row, not a list. Passed as an array child, React
+    // wants a key on every element in it ("Each child in a list should have a
+    // unique key"); passed as separate children it does not.
+    out.push(createElement("span", { key }, ...parts), "\n");
   };
 
   for (let row = 0; row < 3; row++) {

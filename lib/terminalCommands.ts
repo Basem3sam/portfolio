@@ -106,7 +106,7 @@ export const DISCOVERIES: readonly Discovery[] = [
   { id: "matrix", chapter: "replay", label: "Took the red pill", hint: "Run line 6 of the shell history", typed: "matrix", clues: ["Line 6 is one word. You do not need to know what it does.", "Type: matrix, or replay 6"] },
   { id: "hack", chapter: "replay", label: "Tried to hack in", hint: "Run line 7 of the shell history", typed: "hack", clues: ["Line 7 is one word, four letters.", "Type: hack, or replay 7"] },
   { id: "sudo", chapter: "escalate", label: "Asked for more power", hint: "Use the word that line 8 of the history starts with", typed: "sudo", clues: ["whoami says you are not in the sudoers file. Run sudo on its own to see how it works.", "Type: sudo"] },
-  { id: "hire", chapter: "escalate", label: "Hired the developer", hint: "Ask for the one thing a guest may ask", typed: "sudo hire basem", clues: ["sudo -l gives a definition and a letter count for each word. History line 8 has the same counts.", "Type: sudo hire basem"] },
+  { id: "hire", chapter: "escalate", label: "Hired the developer", hint: "Ask for the one thing a guest may ask", typed: "sudo hire basem", clues: ["sudo -l gives a definition and a letter count for each word, and says where each is printed. History line 8 has the same counts.", "Type: sudo hire basem"] },
 ];
 
 export const TOTAL_DISCOVERIES = DISCOVERIES.length;
@@ -130,7 +130,7 @@ export const CLUES: readonly Clue[] = [
   { id: "c_fuel", target: "coffee", text: "History line 3 is one word. neofetch shows a line named fuel." },
   { id: "c_locked", target: "secret", text: "cat secret.txt is refused. The lock wants a 6-letter word from the file name." },
   { id: "c_sudoers", target: "sudo", text: "whoami: not in the sudoers file. History line 8 starts with sudo." },
-  { id: "c_shape", target: "hire", text: "History line 8 is scrubbed: a verb (4 letters) and a name (5 letters)." },
+  { id: "c_shape", target: "hire", text: "History line 8 is scrubbed: a verb (4 letters) and a name (5 letters). todo.md has the same gap." },
 ];
 
 export const RANKS = [
@@ -280,7 +280,8 @@ export const BASH_HISTORY_OUTPUT = [
   `  ${dim("9")}  exit`,
   "",
   `  ${dim("Line 8 was scrubbed: a verb (4) and")}`,
-  `  ${dim("a name (5).")}`,
+  `  ${dim("a name (5). todo.md has the same gap:")}`,
+  `  ${dim("someone else has to run it.")}`,
   `  ${dim("Run any line again:")} ${hint("replay 6")}`,
 ].join("\n");
 
@@ -400,6 +401,7 @@ export function whoamiOutput(user: string, rank: RankId, count: number, session?
     `  ${key("status", 10)}<span class="ok">impressed</span>`,
     "",
     `  ${dim("Curious people find the good stuff.")}`,
+    `  ${dim("A guest may still ask for one thing.")}`,
   ].join("\n");
 }
 
@@ -437,6 +439,11 @@ export function hireOutput(user: string) {
     `  ${key("linkedin", 10)}${link(LINKEDIN_URL, "linkedin.com/in/BasemEsam")}`,
     `  ${key("cv", 10)}${link(CV_PATH, "basem-esam-cv.pdf")}`,
     "",
+    `  ${dim("How the trail led here:")}`,
+    `  ${dim(".env      HIRE_ME=true")}`,
+    `  ${dim("todo.md   someone else has to run it")}`,
+    `  ${dim("neofetch  basem@portfolio")}`,
+    "",
     `  ${badge("Achievement unlocked: good hire")}`,
   ].join("\n");
 }
@@ -455,10 +462,14 @@ export const SUDO_LIST = [
   "  A guest may ask for one thing:",
   `    ${bright("sudo VERB NAME")}`,
   "",
-  `  ${key("VERB", 7)}take on as staff ${dim("(4)")}`,
+  `  ${key("VERB", 7)}what a company does to`,
+  `  ${key("", 7)}the person it takes on ${dim("(4)")}`,
+  `  ${key("", 7)}${dim("The first key in .env says it.")}`,
   `  ${key("NAME", 7)}whose machine this is ${dim("(5)")}`,
+  `  ${key("", 7)}${dim("neofetch prints it before @.")}`,
   "",
-  `  ${dim("Same shape as line 8 of the history.")}`,
+  `  ${dim("Same shape as line 8 of the history,")}`,
+  `  ${dim("and the last open item in todo.md.")}`,
 ].join("\n");
 
 /** `cat secret.txt`: refused, but the refusal says what the lock wants. */
@@ -475,6 +486,45 @@ export const HIRE_BARE = [
   `<span class="err">hire: permission denied</span>`,
   dim("Admin only. sudo borrows admin power."),
 ].join("\n");
+
+/* ------------------------------------------------------------- sudo logic */
+
+export type SudoReply =
+  | { kind: "list" }
+  | { kind: "rm" }
+  | { kind: "hire" }
+  | { kind: "hire-help"; error: string; info: string[] }
+  | { kind: "denied"; info: string[] };
+
+const NAME_NUDGE = ["5 letters. Whose machine is this?", "neofetch prints it before @."];
+
+/** What `sudo ARGS` does. Pure, so the fair-play test can read every reply and
+    Terminal.tsx only has to show it. A near miss is told how it missed (wrong
+    length, wrong word, wrong name) and where to look. No reply ever spells the
+    answer out. `args` is lower-cased, `shown` is what the player typed. */
+export function sudoReply(args: readonly string[], shown: readonly string[] = args): SudoReply {
+  const verb = args[0];
+  if (verb === "-l") return { kind: "list" };
+  if (verb === "rm") return { kind: "rm" };
+
+  if (verb === "hire") {
+    const name = args[1];
+    if (!name) return { kind: "hire-help", error: "hire: who? A verb needs a name.", info: NAME_NUDGE };
+    // "me" is what the .env key says (HIRE_ME), so it is a fair thing to try.
+    if (name === "basem" || name === "me") return { kind: "hire" };
+    return { kind: "hire-help", error: `hire: no candidate named "${shown[1]}" here`, info: NAME_NUDGE };
+  }
+
+  const info: string[] = [];
+  if (verb && !verb.startsWith("-")) {
+    info.push(
+      verb.length === 4
+        ? "Right length, wrong word. See .env."
+        : `"${(shown[0] ?? verb).slice(0, 12)}": ${verb.length} letters, not 4.`,
+    );
+  }
+  return { kind: "denied", info };
+}
 
 /** Wrap prose to the terminal grid with a hanging two-space indent. */
 export function wrapText(text: string, width = COLS - 4): string[] {
@@ -766,6 +816,9 @@ export const COMMAND_OUTPUT: Record<string, string> = {
     "  collaborations and freelance work.",
     "",
     `  ${hint("open email")} ${dim("starts a message")}`,
+    "",
+    `  ${dim("A guest may ask this machine for")}`,
+    `  ${dim("one more thing. The word is sudo.")}`,
   ].join("\n"),
 
   todo: [
@@ -776,6 +829,7 @@ export const COMMAND_OUTPUT: Record<string, string> = {
     `  ${dim("[ ]")} sleep`,
     `  ${dim("[ ]")} sudo ____ _____`,
     `      ${dim("not me. Someone else has to run it.")}`,
+    `      ${dim("It takes a team that wants me.")}`,
   ].join("\n"),
 
   secret: [
@@ -979,6 +1033,7 @@ export function neofetchOutput({ rank, count, theme, uptime }: NeofetchInfo) {
     `${key("infra", 9)}Docker, Linux, Bash`,
     `${key("api", 9)}100+ endpoints`,
     `${key("users", 9)}200+ members`,
+    `${key("status", 9)}open to work`,
     `${key("fuel", 9)}dark roast`,
     `${key("rank", 9)}<span class="hl">${rank}</span>`,
     `${key("trophies", 9)}${count}/${TOTAL_DISCOVERIES}`,
@@ -1068,7 +1123,7 @@ export const INTENTS: Intent[] = [
     lines: ["Guests have no keys. whoami shows your", "rank. Line 8 of the shell history", "starts with the word that borrows power."],
   },
   {
-    words: ["job", "work", "recruit", "employ", "interview", "freelance", "hire me", "hireme", "candidate"],
+    words: ["job", "work", "recruit", "employ", "interview", "freelance", "hire me", "hireme", "candidate", "hiring", "employer", "offer", "onboard", "career", "vacancy"],
     clue: "c_shape",
     lines: ["Good instinct. Guests may ask one thing,", "and sudo explains how. Run it on its", "own and read the usage line."],
   },

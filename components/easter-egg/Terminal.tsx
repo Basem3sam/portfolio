@@ -85,6 +85,7 @@ import {
   REPLAY_LINES,
   SUDO_LIST,
   hireOutput,
+  sudoReply,
   historyOutput,
   lsOutput,
   openListOutput,
@@ -1420,39 +1421,38 @@ export default function Terminal({ open, onClose }: TerminalProps) {
 
       case "sudo": {
         const passwordLine = `[sudo] password for ${user}: ********`;
-        if (args[0] === "-l") {
+        // What each reply is lives in sudoReply (lib/terminalCommands.ts), so
+        // the fair-play test can read every one; this only shows it.
+        const reply = sudoReply(args, tokens.slice(1));
+        if (reply.kind === "list") {
           emit(SUDO_LIST);
           discover("sudo");
           giveClue("c_shape");
-        } else if (args[0] === "hire") {
-          if (!args[1]) {
-            append([
-              { tone: "error", text: "hire: who? A verb needs a name." },
-              { tone: "info", text: "5 letters. Whose machine is this?" },
-            ]);
-          } else if (args[1] !== "basem") {
-            append([
-              { tone: "error", text: `hire: no candidate named "${tokens[2]}" here` },
-              { tone: "info", text: "5 letters. Whose machine is this?" },
-            ]);
-          } else {
-            // Password, a short authentication bar, then the offer. No rank
-            // gate: whoever works out the command has earned the answer.
-            const [, ...rest] = hireOutput(user).split("\n");
-            emit(passwordLine);
-            later(800, () => append([{ tone: "plain", kind: "bar", text: "authenticating", ms: 900 }]));
-            later(1900, () => {
-              emit(rest.join("\n"));
-              discover("hire");
-            });
-          }
-        } else if (args[0] === "rm") {
+        } else if (reply.kind === "hire-help") {
+          append([
+            { tone: "error", text: reply.error },
+            ...reply.info.map((text) => ({ tone: "info" as const, text })),
+          ]);
+        } else if (reply.kind === "hire") {
+          // Password, a short authentication bar, then the offer. No rank
+          // gate: whoever works out the command has earned the answer.
+          const [, ...rest] = hireOutput(user).split("\n");
+          emit(passwordLine);
+          later(800, () => append([{ tone: "plain", kind: "bar", text: "authenticating", ms: 900 }]));
+          later(1900, () => {
+            emit(rest.join("\n"));
+            discover("hire");
+          });
+        } else if (reply.kind === "rm") {
           runRm(() => discover("sudo"));
         } else {
           emit(passwordLine);
           later(900, () => {
             playErrorSound();
             emit(SUDO_DENIED.replace("%USER%", user));
+            if (reply.info.length) {
+              append(reply.info.map((text) => ({ tone: "info" as const, text })));
+            }
             pulse(500);
             discover("sudo");
             giveClue("c_shape");

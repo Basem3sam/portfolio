@@ -110,28 +110,36 @@
   min-height: 34px;
 }
 
-/* The repository's initial, drawn as an outline and set into the corner,
-   behind the text: it identifies the card without badges or logos. */
+/* The repository's initial, set into the corner behind the text as a soft
+   filled letter that fades out toward the middle of the card. It is filled, not
+   outlined: stroking a glyph also draws the seams where a font builds a letter
+   from overlapping shapes (a "B" shows them), which never looks clean. */
 .gh-wm {
   position: absolute;
   z-index: -1;
-  inset-inline-end: -0.06em;
+  inset-inline-end: -0.04em;
   bottom: -0.2em;
   font: 800 9.5rem/1 var(--font-display-body);
   text-transform: uppercase;
   color: transparent;
-  -webkit-text-stroke: 1.5px hsl(var(--h, 225) 75% 58% / 0.26);
+  background: linear-gradient(
+    150deg,
+    hsl(var(--h, 225) 80% 60% / 0.2),
+    hsl(var(--h, 225) 80% 60% / 0.02) 75%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
   pointer-events: none;
   user-select: none;
   transition:
     translate 0.6s var(--ease-out),
-    -webkit-text-stroke-color 0.4s ease;
+    filter 0.4s ease;
 }
 
 @media (hover: hover) {
   .gh-card:hover .gh-wm {
     translate: -8px -10px;
-    -webkit-text-stroke-color: hsl(var(--h, 225) 80% 58% / 0.5);
+    filter: saturate(1.5) brightness(1.05);
   }
 
   [dir="rtl"] .gh-card:hover .gh-wm {

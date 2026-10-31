@@ -247,6 +247,7 @@
   z-index: 7;
   max-height: min(100%, 540px);
   overflow: auto;
+  overscroll-behavior: contain;
   padding: 18px clamp(20px, 3vw, 32px) 28px;
   border-top: 1px solid var(--c-hairline);
   border-radius: 24px 24px 0 0;
@@ -271,8 +272,28 @@
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 14px;
-  font: 700 1rem var(--font-display-body);
   color: var(--c-dark-text);
+}
+
+/* The project's name stays on the sheet, so it reads on its own once the page
+   has scrolled the card out from under it. */
+#work .sheet-title {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+#work .sheet-title small {
+  font: 600 0.75rem/1 var(--font-body);
+  letter-spacing: 0.02em;
+  color: var(--c-muted-text);
+}
+
+#work .sheet-title b {
+  font: 700 clamp(1.25rem, 1rem + 1vw, 1.625rem) / 1.1 var(--font-display-body);
+  letter-spacing: -0.025em;
+  overflow-wrap: anywhere;
 }
 
 #work .sheet-x {
@@ -802,41 +823,336 @@ html[lang="ar"] #work .m-tag {
   }
 }
 
-/* Beside a live preview the parts become pills that float over its edge. */
-#work .mods-pills {
-  flex: none;
-  margin-top: -22px;
-  padding-inline: 12px;
-}
+/* ---------- system map: two faces over a shared core ---------- */
 
-#work .mods-pills ul {
+#work .sysmap {
+  --sm-gap: 10px;
+  --sm-line: color-mix(in srgb, var(--c-secondary) 38%, var(--c-hairline));
+  container: sysmap / inline-size;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
+  flex-direction: column;
+  min-width: 0;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--c-hairline) 90%, transparent);
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--c-surface) 80%, transparent);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 18px 40px -28px rgba(20, 30, 90, 0.35);
 }
 
-#work .mods-pills li {
-  flex-direction: row;
-  align-items: center;
-  padding: 8px 14px;
-  border-radius: 999px;
-  animation: bob 5.5s ease-in-out infinite;
-  animation-delay: calc(var(--i, 0) * -1.1s);
+#work .sm-faces,
+#work .sm-core {
+  display: grid;
+  gap: var(--sm-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-#work .mods-pills[data-revealed="false"] li {
-  animation: none;
+#work .sm-faces {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-@keyframes bob {
-  50% {
-    translate: 0 -5px;
+#work .sm-core {
+  grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr));
+}
+
+#work .sm-node {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 11px 12px 12px;
+  border: 1px solid color-mix(in srgb, var(--c-hairline) 92%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--c-surface) 88%, transparent);
+  box-shadow: 0 12px 26px -22px rgba(20, 30, 90, 0.45);
+  transition:
+    translate 0.4s var(--w-ease),
+    border-color 0.25s ease,
+    box-shadow 0.4s ease;
+}
+
+@media (hover: hover) {
+  #work .sm-node:hover {
+    translate: 0 -3px;
+    border-color: color-mix(in srgb, var(--c-secondary) 45%, var(--c-hairline));
+    box-shadow: 0 18px 30px -20px rgba(40, 60, 200, 0.5);
   }
 }
 
-#work .mods-pills .m-top {
-  gap: 10px;
+#work .sm-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+#work .sm-ico {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: var(--c-light-bg);
+  color: var(--c-light-text);
+}
+
+#work .sm-name {
+  min-width: 0;
+  font: 600 0.8125rem/1.2 var(--font-mono-body);
+  color: var(--c-dark-text);
+  overflow-wrap: break-word;
+  unicode-bidi: isolate;
+}
+
+#work .sm-tag {
+  margin-inline-start: auto;
+  font: 500 0.6875rem/1 var(--font-mono-body);
+  color: var(--c-muted-text);
+  white-space: nowrap;
+}
+
+html[lang="ar"] #work .sm-tag {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+}
+
+#work .sm-note {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--c-muted-text);
+}
+
+/* In the core row the tag sits under the name, so the name keeps its width. */
+#work .sm-core .sm-row {
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+
+#work .sm-core .sm-name {
+  flex: 1 1 0;
+}
+
+#work .sm-core .sm-tag {
+  flex-basis: 100%;
+  margin-inline-start: 30px;
+  font-size: 0.65625rem;
+}
+
+/* The private side is the one the design turns on. */
+#work .sm-node.hot {
+  border-color: color-mix(in srgb, var(--c-secondary) 55%, var(--c-hairline));
+  background: color-mix(in srgb, var(--c-secondary) 8%, var(--c-surface));
+}
+
+#work .sm-node.hot .sm-ico {
+  background: var(--c-secondary);
+  color: var(--c-on-secondary);
+}
+
+/* Connectors. Each is a 1px line drawn from a pseudo-element: a faint solid
+   base, with dashes of the accent colour flowing along it. The join gathers the
+   two faces to a single stem; the rail fans the stem out to every module. */
+#work .sm-join,
+#work .sm-rail {
+  display: grid;
+  gap: var(--sm-gap);
+  height: 18px;
+}
+
+#work .sm-join {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+#work .sm-rail {
+  grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr));
+}
+
+#work .sm-join i,
+#work .sm-rail i {
+  position: relative;
+}
+
+#work .sm-join i::before,
+#work .sm-join i::after,
+#work .sm-rail i::before,
+#work .sm-rail i::after,
+#work .sm-stem i {
+  content: "";
+  position: absolute;
+}
+
+/* vertical runs: the drop from a face, the stem, the drop into a module */
+#work .sm-join i::after,
+#work .sm-rail i::after,
+#work .sm-stem i {
+  width: 1px;
+  background:
+    repeating-linear-gradient(to bottom, var(--c-secondary) 0 3px, transparent 3px 8px) 0 0 / 1px 8px,
+    linear-gradient(var(--sm-line), var(--sm-line));
+  animation: sm-flow-v 1.6s linear infinite;
+}
+
+#work .sm-join i::after {
+  inset-block: 0 0;
+  inset-inline-start: 50%;
+}
+
+#work .sm-rail i::after {
+  inset-block: 0 0;
+  inset-inline-start: 50%;
+}
+
+#work .sm-stem {
+  position: relative;
+  height: 16px;
+}
+
+#work .sm-stem i {
+  inset-block: 0;
+  inset-inline-start: 50%;
+}
+
+/* horizontal runs: the join's bottom edge and the rail's top edge */
+#work .sm-join i::before,
+#work .sm-rail i::before {
+  height: 1px;
+  background:
+    repeating-linear-gradient(to right, var(--c-secondary) 0 3px, transparent 3px 8px) 0 0 / 8px 1px,
+    linear-gradient(var(--sm-line), var(--sm-line));
+  animation: sm-flow-h 1.6s linear infinite;
+}
+
+#work .sm-join i::before {
+  inset-block-end: 0;
+  inset-inline: calc(var(--sm-gap) / -2) calc(var(--sm-gap) / -2);
+}
+
+#work .sm-join i:first-child::before {
+  inset-inline-start: 50%;
+}
+
+#work .sm-join i:last-child::before {
+  inset-inline-end: 50%;
+}
+
+#work .sm-rail i::before {
+  inset-block-start: 0;
+  inset-inline: calc(var(--sm-gap) / -2) calc(var(--sm-gap) / -2);
+}
+
+#work .sm-rail i:first-child::before {
+  inset-inline-start: 50%;
+}
+
+#work .sm-rail i:last-child::before {
+  inset-inline-end: 50%;
+}
+
+@keyframes sm-flow-v {
+  to {
+    background-position: 0 8px, 0 0;
+  }
+}
+
+@keyframes sm-flow-h {
+  to {
+    background-position: 8px 0, 0 0;
+  }
+}
+
+/* A narrow map keeps every part: tags go under names, icons and the core's
+   notes are dropped, and the type tightens so no name ever has to break. */
+@container sysmap (max-width: 400px) {
+  #work .sm-node {
+    padding: 10px 9px 11px;
+  }
+
+  #work .sm-row {
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+
+  #work .sm-ico {
+    display: none;
+  }
+
+  #work .sm-name {
+    flex: 1 1 100%;
+    font-size: 0.75rem;
+  }
+
+  #work .sm-tag,
+  #work .sm-core .sm-tag {
+    flex-basis: 100%;
+    margin-inline-start: 0;
+    font-size: 0.65625rem;
+  }
+
+  #work .sm-core .sm-note {
+    display: none;
+  }
+}
+
+/* The tightest case (a tablet's side-by-side stage): smaller gaps and type so
+   the longest module name still fits on one line. */
+@container sysmap (max-width: 330px) {
+  #work .sysmap {
+    --sm-gap: 6px;
+    padding: 10px;
+  }
+
+  #work .sm-node {
+    padding-inline: 6px;
+  }
+
+  #work .sm-core .sm-name {
+    font-size: 0.6875rem;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Built in order: the faces, then the lines, then the core. */
+#work .sysmap[data-revealed="false"] .sm-node {
+  opacity: 0;
+}
+
+#work .sysmap[data-revealed="true"] .sm-node {
+  animation: mod-in 0.6s var(--w-ease) backwards;
+  animation-delay: calc(var(--i, 0) * 120ms + 100ms);
+}
+
+#work .sysmap[data-revealed="true"] .sm-join i::after,
+#work .sysmap[data-revealed="true"] .sm-join i::before,
+#work .sysmap[data-revealed="true"] .sm-stem i,
+#work .sysmap[data-revealed="true"] .sm-rail i::before,
+#work .sysmap[data-revealed="true"] .sm-rail i::after {
+  opacity: 1;
+}
+
+#work .sysmap[data-revealed="false"] .sm-join i::after,
+#work .sysmap[data-revealed="false"] .sm-join i::before,
+#work .sysmap[data-revealed="false"] .sm-stem i,
+#work .sysmap[data-revealed="false"] .sm-rail i::before,
+#work .sysmap[data-revealed="false"] .sm-rail i::after {
+  opacity: 0;
+}
+
+#work .sm-join i::after,
+#work .sm-join i::before,
+#work .sm-stem i,
+#work .sm-rail i::before,
+#work .sm-rail i::after {
+  transition: opacity 0.6s ease 0.45s;
+}
+
+/* The map is taller than a lone diagram, so its preview is a wider, shorter crop. */
+#work .card-wrap[data-project="zabthalahak"] .stage .sp {
+  --sp-ratio: 16 / 7;
 }
 
 /* ================================================================
@@ -1093,6 +1409,10 @@ html[lang="ar"] #work .m-tag {
   color: #fff;
 }
 
+#work .feat .sheet-title small {
+  color: var(--fg-2);
+}
+
 #work .feat .sheet-x {
   border-color: rgba(255, 255, 255, 0.22);
 }
@@ -1283,6 +1603,20 @@ html[lang="ar"] #work .m-tag {
 
   #work .facts[data-n="5"] .fact:last-child {
     grid-column: auto;
+  }
+}
+
+/* A wide sheet sets the two paragraphs side by side instead of leaving the
+   right half empty. */
+@container feat (min-width: 760px) {
+  #work .feat .sheet {
+    padding-inline: var(--fp);
+  }
+
+  #work .feat .sheet-body:has(.note) {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 40px;
+    align-items: start;
   }
 }
 
@@ -1633,21 +1967,20 @@ html[lang="ar"] #work .m-tag {
 
 /* A single wide column (tablet): stage beside copy. */
 @media (min-width: 640px) and (max-width: 899.98px) {
+  #work .card .sheet-body:has(.note) {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 32px;
+    align-items: start;
+  }
+
   #work .card {
     flex-direction: row;
   }
 
   #work .stage {
-    flex: 0 0 44%;
+    flex: 0 0 48%;
     border-bottom: 0;
     border-inline-end: 1px solid var(--c-hairline);
-  }
-}
-
-/* In a narrow stage the floating pills drop their tags. */
-@media (max-width: 1099.98px) {
-  #work .mods-pills .m-tag {
-    display: none;
   }
 }
 
@@ -1744,7 +2077,12 @@ html[lang="ar"] #work .m-tag {
   #work .feat-aurora::after,
   #work .art-window,
   #work .art-trace .trace,
-  #work .mods-pills li,
+  #work .sm-node,
+  #work .sm-join i::before,
+  #work .sm-join i::after,
+  #work .sm-stem i,
+  #work .sm-rail i::before,
+  #work .sm-rail i::after,
   #work .feat-rings,
   #work .stage::before,
   #work .stage::after,
