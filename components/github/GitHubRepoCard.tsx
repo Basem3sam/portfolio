@@ -99,6 +99,23 @@ export default function GitHubRepoCard({ repo, index, locale, dict }: GitHubRepo
           </ul>
         )}
 
+        {/* The demo link sits above the footer, not under it, so the divider and
+            the stats stay on the same line across every card in the row whether
+            or not a repository has a demo. */}
+        {demoUrl && (
+          <a
+            href={demoUrl}
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+            className="btn btn-ghost gh-demo"
+            data-peek=""
+            aria-label={`${dict.demo}: ${name}`}
+          >
+            <Icon name="externalLink" className="size-4" />
+            {dict.demo}
+          </a>
+        )}
+
         <div className="gh-foot">
           <ul className="gh-stats">
             <li title={`${dict.stars}: ${repo.stargazers_count.toLocaleString()}`}>
@@ -129,20 +146,6 @@ export default function GitHubRepoCard({ repo, index, locale, dict }: GitHubRepo
             {dict.updated} {formatDate(repo.updated_at, locale)}
           </span>
         </div>
-
-        {demoUrl && (
-          <a
-            href={demoUrl}
-            target="_blank"
-            rel="noopener noreferrer nofollow"
-            className="btn btn-ghost gh-demo"
-            data-peek=""
-            aria-label={`${dict.demo}: ${name}`}
-          >
-            <Icon name="externalLink" className="size-4" />
-            {dict.demo}
-          </a>
-        )}
       </Spotlight>
     </li>
   );

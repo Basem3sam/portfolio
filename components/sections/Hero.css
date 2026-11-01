@@ -573,7 +573,7 @@ body.dark-mode .hero-s {
   border-radius: 14px;
   background: transparent;
   color: inherit;
-  cursor: default; /* the pointer cursor is set per-move, over the person only */
+  cursor: default; /* becomes a pointer per-move, over the person only (portrait-hit.ts) */
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
@@ -1426,8 +1426,8 @@ html[lang="ar"] .pf-note {
    They tilt the photo in perspective, so the head turns toward the cursor and
    the shoulders stay put, and the page's scroll (--sp, from the scroll story)
    leans it back a little as the hero is left behind. Nothing here says
-   "button": the cursor stays an arrow, there is no hover label or outline. The
-   response alone is the invitation.
+   "button" beyond the pointer cursor over the person (set in lib/portrait-hit.ts);
+   there is no hover label or outline. The tilt is the rest of the invitation.
 
    z-index: 1 is the level the <img> had before it sat inside a transformed
    box, so the stacking order against the ring, glow and ticket is unchanged. */

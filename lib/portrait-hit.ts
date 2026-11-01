@@ -120,12 +120,13 @@ function trackPointer() {
 }
 
 /**
- * Keeps the portrait's cursor an ordinary arrow. The photo hunt is an easter
- * egg, so nothing about the portrait may announce that it can be pressed: no
- * pointer cursor, no hover label. (It used to switch to a pointer over the
- * person, which gave the egg away.) The portrait still answers the pointer
- * with its tilt and press, and that is the whole invitation. Kept as a binding
- * so the egg code that calls it does not change. Returns a cleanup function.
+ * Shows a pointer cursor while the mouse is over the person in the portrait,
+ * so it reads as clickable, and an ordinary arrow over the transparent corners
+ * of the photo's box and everywhere else. The check uses the same alpha mask as
+ * the click itself, so the pointer appears exactly where a press counts. (It
+ * was an arrow everywhere for a while, so that the photo hunt would not be
+ * given away; the pointer is back on purpose.) Touch has no cursor, so it is
+ * ignored. Returns a cleanup function.
  */
 export function bindPortraitCursor(hit: HTMLElement, image: HTMLImageElement) {
   trackPointer();
@@ -139,10 +140,7 @@ export function bindPortraitCursor(hit: HTMLElement, image: HTMLImageElement) {
     idle = window.setTimeout(() => preparePortraitHit(image), 1500);
   }
   const apply = (x: number, y: number) => {
-    void image;
-    void x;
-    void y;
-    hit.style.cursor = "default";
+    hit.style.cursor = isOnPortrait(image, x, y) ? "pointer" : "default";
   };
   const move = (event: PointerEvent) => {
     if (event.pointerType === "touch") return;
