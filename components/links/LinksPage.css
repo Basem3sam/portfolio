@@ -228,6 +228,11 @@
   --lk-h: 300px;
   position: relative;
   height: var(--lk-h);
+  /* The plate is a size container, so the portrait below is sized from the
+     plate's real height (cqh) rather than from --lk-h. They differ whenever the
+     plate is stretched by its row (the horizontal card), and the portrait used
+     to stop short of the foot there. */
+  container-type: size;
   overflow: hidden;
   border-bottom: 1px solid var(--c-hairline);
   /* Rev 8 (line 1024): the stage follows the theme. */
@@ -279,11 +284,15 @@ body.dark-mode .lk-stage {
    shoulders running off the bottom like the hero. No filter: the old
    drop-shadow smeared a dark halo over the arms and shoulders. */
 .lk-stage .lk-photo {
-  --lk-s: calc(var(--lk-h) * 1.28);
+  --lk-s: 128cqh;
   position: absolute;
   z-index: 1;
-  top: calc(var(--lk-h) * -0.21);
-  left: calc(50% - var(--lk-s) * 0.584);
+  top: -21cqh;
+  /* The face sits at 49.5% across the square; the shoulders' box centre is at
+     58%, and centring that put the head ~20px left of the plate's middle at
+     every width. 0.51 puts the face on the centre line and still lets the
+     (turned) shoulders run off the right edge a little less than the left. */
+  left: calc(50% - var(--lk-s) * 0.51);
   width: var(--lk-s);
   height: var(--lk-s);
   max-width: none;
@@ -307,10 +316,32 @@ body.dark-mode .lk-stage {
 
 .lk-status {
   margin-bottom: 8px;
+  /* The chip is shared with other sections as a centred inline-flex. Here the
+     dot stays on the first line and the words wrap inside their own column, so
+     a second line sits under the first word instead of under the dot. The text
+     and the dot share one font size and line height so `1lh` lines them up. */
+  display: flex;
+  align-items: flex-start;
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+html[lang="ar"] .lk-status {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.lk-status .st {
+  min-width: 0;
+  font-size: inherit;
+  line-height: inherit;
+  text-wrap: balance;
 }
 
 .lk-status .dot {
   position: relative;
+  margin-top: 4px; /* fallback for browsers without the lh unit */
+  margin-top: calc((1lh - 9px) / 2);
 }
 
 .lk-status .dot::after {
@@ -346,6 +377,11 @@ body.dark-mode .lk-stage {
   gap: 2px;
 }
 
+/* The name and its caret are one unit: they never break onto two lines. */
+.lk-body h1 .nm {
+  white-space: nowrap;
+}
+
 html[dir="rtl"] .lk-body h1 {
   letter-spacing: 0;
   line-height: 1.3;
@@ -359,6 +395,9 @@ html[dir="rtl"] .lk-body h1 {
   color: var(--c-light-text);
   font-size: 1.0625rem;
   line-height: 1.5;
+  /* If it ever has to wrap, split it evenly ("Backend Engineer / & CS
+     Student") instead of leaving "Student" alone on a line. */
+  text-wrap: balance;
 }
 
 .lk-meta {
@@ -366,9 +405,16 @@ html[dir="rtl"] .lk-body h1 {
   padding-top: 14px;
   border-top: 1px solid var(--c-hairline);
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 4px 12px;
+}
+
+/* The place and the clock are each one piece; when the row is too narrow for
+   both, the clock drops to its own line rather than either one breaking. */
+.lk-meta > * {
+  white-space: nowrap;
 }
 
 .lk-time {
@@ -1715,11 +1761,20 @@ html[dir="rtl"] .lk-g[data-revealed="true"] .lk.primary .txt::before {
 @container links (min-width: 640px) and (max-width: 759px) {
   .lk-card {
     display: grid;
-    grid-template-columns: 300px minmax(0, 1fr);
+    /* 40% for the plate leaves the text column ~290px, enough for the name,
+       the role, the status chip and the place/clock row on one line each. */
+    grid-template-columns: minmax(220px, 40%) minmax(0, 1fr);
+  }
+
+  /* One explicit height for the plate and the card row, so the plate always
+     fills the card (no blank strip under it) and the portrait, sized from the
+     plate (cqh), has a definite height to scale from. */
+  .lk-card {
+    grid-template-rows: var(--lk-h-card, 312px);
   }
 
   .lk-stage {
-    --lk-h: 320px;
+    --lk-h: var(--lk-h-card, 312px);
     height: var(--lk-h);
     border-bottom: 0;
     border-inline-end: 1px solid var(--c-hairline);
@@ -1727,7 +1782,7 @@ html[dir="rtl"] .lk-g[data-revealed="true"] .lk.primary .txt::before {
 
   .lk-body {
     justify-content: center;
-    padding: 24px 24px 22px;
+    padding: 24px 22px 22px;
   }
 
   .lk-body h1 {
@@ -1786,6 +1841,14 @@ html[dir="rtl"] .lk-g[data-revealed="true"] .lk.primary .txt::before {
   .lk-meta {
     margin-top: 10px;
     padding-top: 12px;
+  }
+}
+
+/* Very small phones: the status chip fits on one line. */
+@container links (max-width: 359px) {
+  .lk-status {
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
   }
 }
 
