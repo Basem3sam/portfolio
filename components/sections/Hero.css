@@ -157,6 +157,10 @@ body.dark-mode .hero-s {
   grid-area: body;
   min-width: 0;
   padding-bottom: clamp(24px, 3vw, 48px);
+  /* The call-to-action rows lay themselves out from the width of this column,
+     not from the viewport, so they look the same on a 700px tablet and a
+     1000px laptop whose copy column happens to be the same width. */
+  container: herobody / inline-size;
 }
 
 /* --- horizon veil -------------------------------------------------------
@@ -357,6 +361,44 @@ body.dark-mode .hero-s {
   }
 }
 
+/* --- call-to-action rows: narrow column (default) -------------------------
+   Nothing in these rows is ever allowed to shrink below its own content, so
+   button labels never wrap and the phone tile always keeps its padding. Rows
+   stack instead. */
+.hero-s .actions,
+.hero-s .reach {
+  gap: 8px;
+}
+
+.hero-s .actions .btn {
+  flex: 1 1 0;
+  min-width: max-content;
+  white-space: nowrap;
+}
+
+.hero-s .reach .ibtn {
+  flex: 1 1 0;
+  width: auto;
+}
+
+/* Narrow column: the phone tile takes a whole row and the three icon tiles
+   share the row under it, so a lone icon never ends up on a line of its own. */
+.hero-s .reach .tel {
+  flex: 1 1 100%;
+  min-width: max-content;
+  justify-content: center;
+  padding-inline: 12px;
+  border: 1px solid var(--c-hairline);
+  border-radius: var(--radius-ui-2);
+  background-color: var(--c-page);
+  white-space: nowrap;
+}
+
+.hero-s .reach .tel:focus-visible {
+  outline: 2px solid var(--c-signal);
+  outline-offset: 3px;
+}
+
 /* --- desktop CTA block ---------------------------------------------------
    Both rows used to be content-sized flex rows, so the two buttons ended well
    short of the phone + social row and left a hole on the right. Here they
@@ -364,8 +406,9 @@ body.dark-mode .hero-s {
    phone link sits under the primary button (columns 1-3) and the three icon
    tiles split the ghost button's span (columns 4, 5, 6). Left edge, right
    edge and the centre gutter line up in both rows, and RTL mirrors for free.
-   Below 992px the existing full-width phone layout is untouched. */
-@media (min-width: 992px) {
+   It applies whenever the copy column is at least 24rem wide (a container
+   query on .hero-body), whatever the viewport, so there is no jump at 991/992. */
+@container herobody (min-width: 24rem) {
   .hero-s .actions,
   .hero-s .reach {
     display: grid;
@@ -428,6 +471,18 @@ body.dark-mode .hero-s {
     outline-offset: 3px;
   }
 }
+
+/* Stacked hero (below 992px): the copy column is the full width of the page,
+   so the call-to-action rows fill it and share the paragraph's left and right
+   edges instead of stopping at 28rem and leaving a gap on the right. From
+   992px the column is narrower than that anyway and the 28rem cap applies. */
+@media (max-width: 991px) {
+  .hero-s .actions,
+  .hero-s .reach {
+    max-width: none;
+  }
+}
+
 
 /* --- portrait ----------------------------------------------------------- */
 .pf {
@@ -1275,47 +1330,6 @@ html[lang="ar"] .pf-note {
 
   .hero-body {
     padding-top: 4px;
-  }
-
-  .hero-s .actions,
-  .hero-s .reach {
-    gap: 8px;
-  }
-
-  /* The two calls to action share one row when both fit on it, and each takes
-     the full width when they do not. */
-  .hero-s .actions .btn {
-    flex: 1 1 0;
-    min-width: max-content;
-  }
-
-  /* The phone tile never shrinks below its own content, so its padding is
-     always kept. When the row is too tight for tile + three icons, the icons
-     drop to a second line and share its width (they grow only when alone on
-     a line, because the tile's grow factor is far larger). */
-  .hero-s .reach {
-    flex-wrap: wrap;
-  }
-
-  .hero-s .reach .ibtn {
-    flex: 1 1 44px;
-    width: auto;
-  }
-
-  .hero-s .reach .tel {
-    flex: 100 1 auto;
-    min-width: max-content;
-    justify-content: center;
-    padding-inline: 12px;
-    border: 1px solid var(--c-hairline);
-    border-radius: var(--radius-ui-2);
-    background-color: var(--c-page);
-    white-space: nowrap;
-  }
-
-  .hero-s .reach .tel:focus-visible {
-    outline: 2px solid var(--c-signal);
-    outline-offset: 3px;
   }
 }
 

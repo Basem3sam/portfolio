@@ -623,9 +623,16 @@ html[lang="ar"] {
     }
   }
 
+  /* From 992px the capsule grows 20px past the content on each side, but the
+     container is only 960px wide until 1200px, so just above 992px there are
+     fewer than 20px between it and the screen edge and the capsule ran off the
+     screen. The growth is capped at the space that really exists (viewport
+     minus container, halved, minus 1rem of slack for a classic scrollbar). */
   @media (width >= 992px) {
     &::before {
-      inset-inline: calc(var(--np, 0) * -1.25rem);
+      inset-inline: calc(
+        var(--np, 0) * -1 * min(1.25rem, max(0px, (100vw - 100%) / 2 - 1rem))
+      );
     }
   }
 }
