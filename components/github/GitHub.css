@@ -294,7 +294,9 @@
   gap: 6px 16px;
   margin-top: auto;
   padding-top: 14px;
-  border-top: 1px solid var(--c-hairline);
+  /* Drawn from the text colour, so it stays visible on the tinted card in both
+     themes (the plain hairline token is too faint against it). */
+  border-top: 1px solid color-mix(in srgb, var(--c-dark-text) 18%, transparent);
   font: 500 0.75rem/1.2 var(--font-mono-body);
   color: var(--c-muted-text);
 }

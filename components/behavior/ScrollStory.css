@@ -34,25 +34,40 @@ html[data-story-on] .spotlight[data-story] {
   scale: calc(0.96 + 0.04 * var(--sp, 1));
 }
 
-/* --- 4. Stack: the request travels the five layers as you scroll [read] -----
-   Each connector fills in turn, each node lights as the packet reaches it, and
-   the honey packet rides the line. `--i` is the stage index (0 to 4). Specificity
-   is raised with [data-revealed] so this wins over the reveal state both ways. */
+/* --- 4. Stack: the request travels the five layers as you scroll [trace] ----
+   One number, --sp, says where the packet is. Each column turns it into --head:
+   how much of its own stretch of line the packet's head has covered (below 0
+   not yet arrived, above 1 already gone; the small (1 - sp) term is the comet's
+   30px head start). `--i` is the stage index (0 to 4). Everything below reads
+   --head, so the connector, the node, the slab and the 3D plates (which use
+   the same --sp) cannot drift apart. Specificity is raised with [data-revealed]
+   so this wins over the reveal state both ways. */
+html[data-story-on] #stack .stx {
+  --head: calc(var(--sp, 1) * 5 - var(--i, 0) + 0.12 * (1 - var(--sp, 1)));
+}
+
 html[data-story-on] #stack .stx[data-revealed] .stx-seg::after {
   transition: none;
-  transform: scaleX(clamp(0, var(--sp, 1) * 5.2 - var(--i, 0), 1));
+  transform: scaleX(clamp(0, var(--head), 1));
 }
 
 html[data-story-on] #stack .stx[data-revealed] .stx-node {
-  transition: none;
-  --lit: clamp(0, (var(--sp, 1) * 5.2 - var(--i, 0)) * 6 + 0.6, 1);
+  transition: transform 0.3s ease;
+  --lit: clamp(0, (var(--head) + 0.03) * 14, 1);
   background: color-mix(in srgb, var(--c-honey) calc(var(--lit) * 100%), var(--c-page));
   border-color: color-mix(in srgb, var(--c-honey) calc(var(--lit) * 100%), var(--c-secondary));
 }
 
+/* The slab of the layer the packet is in lifts at its head, in step with the
+   packet (and with the lit plate); hovering its plate lifts it too. */
+html[data-story-on] #stack .stx-slab::after {
+  animation: none;
+  opacity: max(var(--hot, 0), clamp(0, min(var(--head) * 5, (1.1 - var(--head)) * 3), 1));
+}
+
 @media (max-width: 991px) {
   html[data-story-on] #stack .stx[data-revealed] .stx-seg::after {
-    transform: scaleY(clamp(0, var(--sp, 1) * 5.2 - var(--i, 0), 1));
+    transform: scaleY(clamp(0, var(--head), 1));
   }
 }
 

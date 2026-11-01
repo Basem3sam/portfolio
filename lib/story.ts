@@ -13,6 +13,10 @@
  *   pass   0 as it appears at the bottom, 1 as it leaves at the top.
  *   read   0 when its top reaches 88% of the viewport, 1 when its bottom
  *          reaches 42%. For text that fills in as it is read.
+ *   trace  0 when its top reaches 90% of the viewport, 1 when its top reaches
+ *          46%. A short, tight scrub for a figure that should finish while
+ *          it is still well on screen (the Stack flow). Tall elements, such
+ *          as the same flow stacked on a phone, stretch to cover their height.
  *   exit   0 while its top is at the top of the page, 1 once it has
  *          scrolled out. For the hero.
  *
@@ -23,9 +27,9 @@
  * defaults (`var(--sp, 1)`) leave every element in its finished state.
  */
 
-export type StoryKind = "enter" | "pass" | "read" | "exit";
+export type StoryKind = "enter" | "pass" | "read" | "trace" | "exit";
 
-const KINDS: readonly StoryKind[] = ["enter", "pass", "read", "exit"];
+const KINDS: readonly StoryKind[] = ["enter", "pass", "read", "trace", "exit"];
 
 type Item = {
   el: HTMLElement;
@@ -55,6 +59,8 @@ export function storyProgress(kind: StoryKind, top: number, height: number, scro
       return (vh - t) / (vh + height);
     case "read":
       return (vh * 0.88 - t) / (vh * 0.46 + height);
+    case "trace":
+      return (vh * 0.9 - t) / (vh * 0.44 + Math.max(0, height - vh * 0.6));
     case "exit":
       return -t / Math.max(1, height);
   }

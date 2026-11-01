@@ -8,36 +8,17 @@ type StackProps = {
 };
 
 /**
- * Decorative "request lanes": thin horizontal traces with packets streaming
- * left to right at different speeds, replacing the old square grid. Pure SVG
- * + CSS; deterministic so server and client markup always agree.
- */
-const DASHES = [
-  { d: "44 356", p: 400 },
-  { d: "24 236", p: 260 },
-  { d: "64 436", p: 500 },
-  { d: "18 182", p: 200 },
-] as const;
-
-const LANES = Array.from({ length: 18 }, (_, i) => {
-  const dash = DASHES[(i * 3 + (i >> 2)) % DASHES.length];
-  return {
-    y: 34 + i * 41 + ((i * 37) % 19),
-    dash: dash.d,
-    period: dash.p,
-    dur: 9 + ((i * 7) % 11) * 1.7,
-    delay: -((i * 13) % 17),
-    hot: i % 6 === 2,
-  };
-});
-
-/**
  * Stack (section 03). Always-dark: the `--c-*` tokens are re-declared inside
  * `#stack` in Stack.css, so every Tailwind token utility used here inverts
  * automatically in both themes.
  *
  * The five stages read as one request travelling Edge → Gate → App → Data →
- * Ship (mockup lines 2645–2662). The decorative layers — the drifting mist,
+ * Ship (mockup lines 2645–2662). The connector, the packet, the nodes, the slabs
+ * and the 3D plates are all driven by one scroll value (`data-story="trace"`
+ * on `.sflow`), so they always agree about where the request is. The background is that idea drawn as a
+ * cross-section: each stage owns a tonal slab (cold at the Edge, warm at Ship)
+ * that fills downward from its node and brightens as the comet passes, over a
+ * ruler under the connector line. The decorative layers — the slabs, the ruler,
  * the 3D plate stack and the packet comet — are all `aria-hidden`; the stages
  * themselves are real content (h3 per stage) and stay fully readable with JS
  * disabled or reduced motion on: the connector lines and lit nodes default to
@@ -48,56 +29,25 @@ export default function Stack({ dict }: StackProps) {
 
   return (
     <section id="stack" className="py-16 md:py-24">
-      {/* Drifting mist (mockup `.sec-mist` via the shared `.ag` primitive). */}
-      <div className="ag" data-variant="mist" aria-hidden="true">
-        <i></i>
-        <i></i>
-        <i></i>
-      </div>
-
-      {/* Request lanes: replaces the square grid. Decorative, hidden < 992px. */}
-      <svg className="stx-lanes" viewBox="0 0 1200 800" preserveAspectRatio="none" aria-hidden="true">
-        {LANES.map((lane, i) => (
-          <line key={`t${i}`} className="trace" x1="0" x2="1200" y1={lane.y} y2={lane.y} />
-        ))}
-        {LANES.map((lane, i) => (
-          <line
-            key={i}
-            x1="0"
-            x2="1200"
-            y1={lane.y}
-            y2={lane.y}
-            strokeDasharray={lane.dash}
-            className={lane.hot ? "hot" : undefined}
-            style={
-              {
-                "--p": `${lane.period}px`,
-                animationDuration: `${lane.dur + 8}s`,
-                animationDelay: `${lane.delay}s`,
-              } as CSSProperties
-            }
-          />
-        ))}
-      </svg>
-
-      {/* 3D plate stack + caption: a decorative echo of the five layers.
-          Shown only on wide screens; static (fully drawn) without motion. */}
-      <div className="xl" aria-hidden="true">
-        <div className="xl-s">
-          {stages.map((stage, i) => (
-            <i key={stage.key} style={{ "--n": i } as CSSProperties}>
-              <b>{stage.key}</b>
-            </i>
-          ))}
-          <span className="xl-p"></span>
-        </div>
-        <p className="xl-c">{dict.caption}</p>
-      </div>
-
       <div className="container">
         <SectionHeader number="03" title={dict.title} lead={dict.lead} />
 
-        <div className="sflow" data-story="read">
+        <div className="sflow" data-story="trace">
+          {/* 3D plate stack + caption: a decorative echo of the five layers,
+              placed inside the flow so it shares the flow's scroll value.
+              Shown only on wide screens; static (finished) without motion. */}
+          <div className="xl" aria-hidden="true">
+            <div className="xl-s">
+              {stages.map((stage, i) => (
+                <i key={stage.key} style={{ "--n": i } as CSSProperties}>
+                  <b>{stage.key}</b>
+                </i>
+              ))}
+              <span className="xl-p"></span>
+            </div>
+            <p className="xl-c">{dict.caption}</p>
+          </div>
+
           {/* Honey comet that rides the connector line (decorative). */}
           <span className="stx-pkt" aria-hidden="true"></span>
 
@@ -111,6 +61,7 @@ export default function Stack({ dict }: StackProps) {
                 data-reveal
               >
                 {/* Connector line + node: the request path through this layer. */}
+                <span className="stx-slab" aria-hidden="true"></span>
                 <span className="stx-seg" aria-hidden="true"></span>
                 <span className="stx-node" aria-hidden="true"></span>
 
