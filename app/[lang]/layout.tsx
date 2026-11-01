@@ -13,6 +13,7 @@ import PauseOffscreen from "@/components/behavior/PauseOffscreen";
 import PerfGovernor from "@/components/behavior/PerfGovernor";
 import RouteFlow from "@/components/behavior/RouteFlow";
 import RevealOnScroll from "@/components/behavior/RevealOnScroll";
+import ScrollbarTone from "@/components/behavior/ScrollbarTone";
 import ScrollManager from "@/components/behavior/ScrollManager";
 import ScrollStory from "@/components/behavior/ScrollStory";
 import SmoothScroll from "@/components/behavior/SmoothScroll";
@@ -165,6 +166,7 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
         <ScrollStory />
         <RouteFlow />
         <ScrollManager />
+        <ScrollbarTone />
         <RevealOnScroll />
         <PauseOffscreen />
       </body>

@@ -25,12 +25,15 @@ export function lockScroll() {
   // Stop Lenis so it cannot keep animating (or intercept the wheel) underneath.
   getLenis()?.stop();
   document.documentElement.style.overflow = "hidden";
+  // Lets the stylesheet darken the scrollbar strip beside a dark overlay.
+  document.documentElement.setAttribute("data-scroll-locked", "");
 }
 
 export function unlockScroll() {
   if (!locked) return;
   locked = false;
   document.documentElement.style.overflow = "";
+  document.documentElement.removeAttribute("data-scroll-locked");
   getLenis()?.start();
   // The position was never moved, so this only matters if something else did.
   if (Math.abs(window.scrollY - lockedY) > 1) {
