@@ -340,6 +340,17 @@ body.dark-mode .hero-s {
   transition: color 0.3s ease;
 }
 
+/* The icons are flex items inside a nowrap row. Without this they are the only
+   thing allowed to shrink when the row gets tight, so on narrow phones the
+   phone icon was squeezed below 16px. */
+.hero-s .reach .tel svg,
+.hero-s .reach .ibtn svg {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  min-width: 1rem;
+}
+
 @media (hover: hover) {
   .hero-s .reach .tel:hover {
     color: var(--c-secondary);
@@ -1278,13 +1289,22 @@ html[lang="ar"] .pf-note {
     min-width: max-content;
   }
 
+  /* The phone tile never shrinks below its own content, so its padding is
+     always kept. When the row is too tight for tile + three icons, the icons
+     drop to a second line and share its width (they grow only when alone on
+     a line, because the tile's grow factor is far larger). */
   .hero-s .reach {
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
+  }
+
+  .hero-s .reach .ibtn {
+    flex: 1 1 44px;
+    width: auto;
   }
 
   .hero-s .reach .tel {
-    flex: 1 1 0;
-    min-width: 0;
+    flex: 100 1 auto;
+    min-width: max-content;
     justify-content: center;
     padding-inline: 12px;
     border: 1px solid var(--c-hairline);
@@ -1324,21 +1344,6 @@ html[lang="ar"] .pf-note {
 
   .hero-s .reach .tel {
     font-size: 0.875rem;
-  }
-}
-
-@media (max-width: 349px) {
-  .hero-s .reach {
-    flex-wrap: wrap;
-  }
-
-  .hero-s .reach .tel {
-    flex-basis: 100%;
-  }
-
-  .hero-s .reach .ibtn {
-    flex: 1 1 0;
-    width: auto;
   }
 }
 
