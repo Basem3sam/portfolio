@@ -607,6 +607,10 @@ function ScreenFx({ rain, burst }: { rain: { run: number; ms: number }; burst: n
 
 /* ------------------------------------------------------------ terminal */
 
+/** How long the exit plays, in ms. Keep in step with `egpoweroff` / `egoff` in Egg.css. */
+const CLOSE_MS_CRT = 460;
+const CLOSE_MS = 300;
+
 type TerminalProps = {
   open: boolean;
   onClose: () => void;
@@ -615,6 +619,8 @@ type TerminalProps = {
 export default function Terminal({ open, onClose }: TerminalProps) {
   const [stored] = useState(loadStored);
   const [shown, setShown] = useState(false);
+  /** True while the screen plays its exit; `onClose` only runs once it ends. */
+  const [closing, setClosing] = useState(false);
   const [lines, setLines] = useState<Line[]>(() => {
     const ok = '[<span class="ok"> OK </span>]';
     const count = stored.found.length;
@@ -686,6 +692,8 @@ export default function Terminal({ open, onClose }: TerminalProps) {
   /** history length when the last hint was given: a hint costs one move. */
   const hintGate = useRef(-10);
   const openedAt = useRef(Date.now());
+  const closingRef = useRef(false);
+  const closeTimer = useRef(0);
 
   const count = found.length;
   const rank = rankFor(count);
@@ -745,6 +753,23 @@ export default function Terminal({ open, onClose }: TerminalProps) {
           : { ...line, shown: entry.length };
       }),
     );
+  };
+
+  /**
+   * Every way out (Esc, `exit`, the X, a click on the backdrop) comes through
+   * here. The screen plays its exit first (a CRT shuts to a bright line and a
+   * dot; with the retro screen off it just settles and fades) and only then is
+   * the terminal told to close, which unmounts it. Without this the parent
+   * swapped the terminal out in the same frame, so it vanished with no exit.
+   */
+  const requestClose = () => {
+    if (closingRef.current) return;
+    closingRef.current = true;
+    finishTyping();
+    setClosing(true);
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const ms = reduce ? 0 : crtRef.current ? CLOSE_MS_CRT : CLOSE_MS;
+    closeTimer.current = window.setTimeout(onClose, ms);
   };
 
   const append = (items: NewLine[]) => {
@@ -902,7 +927,10 @@ export default function Terminal({ open, onClose }: TerminalProps) {
 
   useEffect(() => {
     const pending = timers.current;
-    return () => pending.forEach((timer) => window.clearTimeout(timer));
+    return () => {
+      pending.forEach((timer) => window.clearTimeout(timer));
+      window.clearTimeout(closeTimer.current);
+    };
   }, []);
 
   // The status line clock: only ticks while the terminal is open.
@@ -918,8 +946,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
     const handleGlobalKeys = (event: globalThis.KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
-        finishTyping();
-        onClose();
+        requestClose();
         return;
       }
 
@@ -1041,7 +1068,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
         return;
 
       case "exit":
-        onClose();
+        requestClose();
         return;
 
       case "help":
@@ -1623,17 +1650,15 @@ export default function Terminal({ open, onClose }: TerminalProps) {
     }
   };
 
-  const close = () => {
-    finishTyping();
-    onClose();
-  };
+  const close = requestClose;
 
   const progress = { "--p": `${(count / TOTAL_DISCOVERIES) * 100}%` } as CSSProperties;
 
   return (
     <div className="egg">
       <div
-        className={`eov dim${open && shown ? " show" : ""}`}
+        className={`eov dim${open && shown && !closing ? " show" : ""}${closing ? " closing" : ""}`}
+        style={closing ? ({ "--out": `${crt ? CLOSE_MS_CRT : CLOSE_MS}ms` } as CSSProperties) : undefined}
         onClick={(event) => {
           if (event.target === event.currentTarget) close();
         }}
@@ -1642,7 +1667,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
           ref={dialogRef}
           id="secret-terminal"
           dir="ltr"
-          className="eterm"
+          className={`eterm${closing ? " closing" : ""}`}
           data-theme={theme}
           data-rank={rank}
           data-crt={crt ? "on" : "off"}
@@ -1650,7 +1675,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
           data-lenis-prevent
           aria-modal="true"
           aria-label="Secret terminal"
-          inert={!open}
+          inert={!open || closing}
         >
           <div className="eth">
             <b>

@@ -73,7 +73,7 @@ function fallingConfetti(
   lifetime: number,
 ) {
   const confetti = spawn(
-    "pointer-events-none fixed top-[-20px] z-[10002] h-5 w-2.5 opacity-0",
+    "pointer-events-none fixed top-[-20px] z-[10007] h-5 w-2.5 opacity-0",
     { background: color, left },
     lifetime,
   );
@@ -90,7 +90,7 @@ export function createCelebrationParticles() {
   spawnSequence(30, 50, () => {
     flyingParticle(
       pick(CELEBRATION_EMOJIS),
-      "pointer-events-none fixed z-[10003] text-[20px]",
+      "pointer-events-none fixed z-[10007] text-[20px]",
       {
         left: `${window.innerWidth / 2 + (Math.random() - 0.5) * 200}px`,
         top: `${window.innerHeight / 2 + (Math.random() - 0.5) * 200}px`,
@@ -113,11 +113,63 @@ export function createConfettiBurst() {
   });
 }
 
-export function createEpicCelebration() {
-  spawnSequence(isLowEndDevice() ? 15 : 50, 50, () => {
+/**
+ * A gold ring that leaves the point of the press and sweeps off the screen,
+ * with a soft warm flash behind it. It is what makes the tenth press land:
+ * the whole page answers before anything opens. Skipped for reduced motion.
+ */
+function shockwave(origin: { x: number; y: number }) {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  const { x, y } = origin;
+  // Radius to the farthest corner, so the ring always leaves the screen.
+  const reach = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+  const size = Math.ceil(reach * 2);
+
+  const flash = spawn(
+    "pointer-events-none fixed inset-0 z-[10004]",
+    { background: `radial-gradient(circle at ${x}px ${y}px, rgba(255, 233, 170, 0.5), rgba(254, 202, 87, 0.12) 38%, transparent 62%)` },
+    900,
+  );
+  flash.animate([{ opacity: 0 }, { opacity: 1, offset: 0.16 }, { opacity: 0 }], {
+    duration: 800,
+    easing: "ease-out",
+    fill: "forwards",
+  });
+
+  [0, 160].forEach((delay, index) => {
+    const ring = spawn(
+      "pointer-events-none fixed z-[10004] rounded-full",
+      {
+        left: `${x - size / 2}px`,
+        top: `${y - size / 2}px`,
+        width: `${size}px`,
+        height: `${size}px`,
+        willChange: "transform, opacity",
+        background:
+          index === 0
+            ? "radial-gradient(circle closest-side, transparent 0 58%, rgba(254, 202, 87, 0.95) 63%, rgba(255, 159, 67, 0.35) 66%, transparent 71%)"
+            : "radial-gradient(circle closest-side, transparent 0 60%, rgba(104, 219, 251, 0.7) 63%, transparent 67%)",
+      },
+      delay + 1300,
+    );
+    ring.animate(
+      [
+        { transform: "scale(0.03)", opacity: 1 },
+        { transform: "scale(1)", opacity: 0 },
+      ],
+      { duration: 1100, delay, easing: "cubic-bezier(0.16, 0.8, 0.3, 1)", fill: "both" },
+    );
+  });
+}
+
+export function createEpicCelebration(origin?: { x: number; y: number }) {
+  shockwave(origin ?? { x: window.innerWidth / 2, y: window.innerHeight / 2 });
+
+  spawnSequence(isLowEndDevice() ? 15 : 50, 24, () => {
     const color = pick(EPIC_COLORS);
     const firework = spawn(
-      "pointer-events-none fixed z-[10003] font-bold",
+      "pointer-events-none fixed z-[10007] font-bold",
       {
         left: `${Math.random() * window.innerWidth}px`,
         top: `${Math.random() * window.innerHeight}px`,
@@ -146,21 +198,20 @@ export function createEpicCelebration() {
   spawnSequence(30, 100, () => {
     flyingParticle(
       pick(KONAMI_CHARS),
-      "pointer-events-none fixed top-1/2 left-1/2 z-[10003] font-bold",
+      "pointer-events-none fixed top-1/2 left-1/2 z-[10007] font-bold",
       { fontSize: `${15 + Math.random() * 15}px`, color: pick(EPIC_COLORS) },
       (Math.random() - 0.5) * 300,
       (Math.random() - 0.5) * 300,
     );
   });
 
-  spawnSequence(isLowEndDevice() ? 30 : 150, 20, () => {
-    fallingConfetti(
-      pick(EPIC_COLORS),
-      `${Math.random() * 100}vw`,
-      Math.random() * 2000,
-      3000,
-      3000,
-    );
+  // Confetti: a heavy burst in the first second, then a thinner rain that
+  // carries on in front of the master window. Each piece is only removed after
+  // it has finished falling (it used to be cut off part-way down).
+  spawnSequence(isLowEndDevice() ? 40 : 170, 9, (index) => {
+    const delay = index < 100 ? Math.random() * 500 : 400 + Math.random() * 1500;
+    const duration = 2400 + Math.random() * 900;
+    fallingConfetti(pick(EPIC_COLORS), `${Math.random() * 100}vw`, delay, duration, delay + duration + 150);
   });
 }
 

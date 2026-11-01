@@ -40,6 +40,14 @@ export const CLICKS_NEEDED = 10;
 export const CLUE_START_CLICK = 3;
 export const CLUE_LINGER_MS = 30000;
 
+/**
+ * The tenth press gets its own moment on the page (shockwave, flash, fireworks,
+ * confetti) before the master code window fades in. Opening the window at once
+ * put it over the celebration, which was only visible for the first fraction of
+ * a second. The confetti still falls in front of the window once it is open.
+ */
+export const MASTER_REVEAL_DELAY_MS = 1100;
+
 export const isMobileViewport = () => window.innerWidth <= 768;
 
 export function getHintLevel(clicks: number) {

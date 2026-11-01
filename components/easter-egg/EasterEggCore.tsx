@@ -8,6 +8,7 @@ import {
   CLUE_START_CLICK,
   HINT_LEVELS,
   KONAMI_CODE,
+  MASTER_REVEAL_DELAY_MS,
   REMINDERS,
   getHintLevel,
 } from "@/components/easter-egg/constants";
@@ -80,6 +81,8 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
     solved: false,
     resume: null as (() => void) | null,
     resetTimer: 0,
+    /** Pending open of the master window; 0 when none is waiting. */
+    revealTimer: 0,
   });
 
   const addToast = useCallback((toast: NewToast) => {
@@ -202,6 +205,8 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
 
     const reset = (notify: boolean) => {
       window.clearTimeout(state.resetTimer);
+      window.clearTimeout(state.revealTimer);
+      state.revealTimer = 0;
       state.resume = null;
       state.clicks = 0;
       state.level = 0;
@@ -253,7 +258,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
     // Guarded so clicks past ten do not stack duplicate master windows;
     // the window stays until it is closed, then the hunt quietly resets
     // so it stays replayable.
-    const solve = () => {
+    const solve = (origin?: { x: number; y: number }) => {
       if (state.solved) return;
       state.solved = true;
 
@@ -267,10 +272,24 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       state.level = HINT_LEVELS.length - 1;
       syncClue();
       if (clueRef.current) animateClue(clueRef.current, "celebration", 2000);
-      setQuick(false);
-      setOverlay((current) => (current === "none" ? "master" : current));
-      createEpicCelebration();
+      // The page gets its celebration first: the shockwave leaves the point of
+      // the press, then fireworks and confetti burst. The master window fades
+      // in a beat later (MASTER_REVEAL_DELAY_MS) instead of covering them, and
+      // the confetti keeps falling in front of it.
+      const rect = image.getBoundingClientRect();
+      createEpicCelebration(origin ?? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
       resumeAudio().then(() => playSuccessSound());
+
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.clearTimeout(state.revealTimer);
+      state.revealTimer = window.setTimeout(
+        () => {
+          state.revealTimer = 0;
+          setQuick(false);
+          setOverlay((current) => (current === "none" ? "master" : current));
+        },
+        reduceMotion ? 0 : MASTER_REVEAL_DELAY_MS,
+      );
 
       window.clearTimeout(state.resetTimer);
       state.resume = null;
@@ -281,6 +300,10 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       // Only the person counts, not the transparent corners of the photo's box.
       // Keyboard activation (detail 0) has no position and always counts.
       if (event.detail > 0 && !isOnPortrait(image, event.clientX, event.clientY)) return;
+
+      // The tenth press is already celebrating; extra presses in the beat
+      // before the window opens must not trip the spam reset and cancel it.
+      if (state.revealTimer) return;
 
       const now = Date.now();
       if (now - state.lastClick < MIN_CLICK_INTERVAL) return;
@@ -325,7 +348,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       }
 
       if (state.clicks >= CLICKS_NEEDED) {
-        solve();
+        solve(point);
         return;
       }
 
@@ -348,6 +371,8 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       target.removeEventListener("click", handleClick);
       unbindCursor();
       window.clearTimeout(state.resetTimer);
+      window.clearTimeout(state.revealTimer);
+      state.revealTimer = 0;
     };
   }, [addToast, pathname]);
 

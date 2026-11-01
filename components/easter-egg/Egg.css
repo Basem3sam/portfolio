@@ -1595,6 +1595,83 @@
     }
   }
 
+  /* Power-off: the mirror of the power-on above. The screen collapses to a
+     bright line, the line shortens to a dot, the dot goes out, and the page
+     behind comes back. The glow is the terminal's own highlight colour, so it
+     follows `theme <name>`. With the retro screen off (`crt off`) there is no
+     tube to shut: the window just settles and fades. Keep the durations in step
+     with CLOSE_MS_CRT / CLOSE_MS in Terminal.tsx. */
+  .egg .eov.closing {
+    transition:
+      opacity var(--out, 0.3s) ease-in,
+      visibility 0s var(--out, 0.3s);
+  }
+
+  .egg .eterm.closing {
+    transition: transform 0.3s var(--e-ease);
+    animation: egoff 0.3s ease-in forwards;
+  }
+
+  .egg .eterm[data-crt="on"].closing {
+    animation: egpoweroff 0.46s cubic-bezier(0.55, 0, 0.75, 0.4) forwards;
+  }
+
+  .egg .eterm[data-crt="on"].closing::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    pointer-events: none;
+    background: color-mix(in srgb, var(--e-hi) 55%, white);
+    opacity: 0;
+    animation: egoffglow 0.46s ease-in forwards;
+  }
+
+  @keyframes egoff {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes egpoweroff {
+    0% {
+      clip-path: inset(0 0 0 0 round 18px);
+      filter: none;
+      opacity: 1;
+    }
+    55% {
+      clip-path: inset(49.7% 0 49.7% 0 round 18px);
+      filter: brightness(1.6);
+      opacity: 1;
+    }
+    85% {
+      clip-path: inset(49.8% 40% 49.8% 40% round 18px);
+      filter: brightness(2.4);
+      opacity: 1;
+    }
+    100% {
+      clip-path: inset(49.85% 49.5% 49.85% 49.5% round 18px);
+      filter: brightness(3);
+      opacity: 0;
+    }
+  }
+
+  /* the bright slice: fades in over the content as the screen collapses */
+  @keyframes egoffglow {
+    0% {
+      opacity: 0;
+    }
+    35% {
+      opacity: 0.18;
+    }
+    55% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
   /* ---- toasts (mockup lines 1443–1467) ---- */
   .egg .tl {
     position: fixed;
@@ -2326,6 +2403,8 @@
     }
 
     .egg .eov.show .eterm[data-crt="on"],
+    .egg .eterm.closing,
+    .egg .eterm.closing::after,
     .egg .eti:focus-within .eg .cur,
     .egg .etb .ln,
     .egg .etb .ln.cl,
