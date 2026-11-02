@@ -793,24 +793,14 @@ html[lang="ar"] {
   -webkit-backdrop-filter: blur(2px);
 }
 
-/* Registered so the page scrollbar's thumb colours can be transitioned (see
-   "Light mode: the page scrollbar's strip" in the base layer). */
-@property --sb-thumb {
+/* Registered with inherits:false so setting it on <html> (ScrollbarTone does,
+   as the band under the scroll position changes) restyles only <html>. As an
+   ordinary custom property it is inherited, and every change forced a style
+   recalculation of the whole document in the middle of a scroll. */
+@property --edge-color {
   syntax: "<color>";
-  inherits: true;
-  initial-value: rgba(59, 91, 245, 0.5);
-}
-
-@property --sb-thumb-hover {
-  syntax: "<color>";
-  inherits: true;
-  initial-value: rgba(59, 91, 245, 0.75);
-}
-
-@property --sb-thumb-active {
-  syntax: "<color>";
-  inherits: true;
-  initial-value: rgba(59, 91, 245, 0.85);
+  inherits: false;
+  initial-value: #05123a;
 }
 
 @layer base {
@@ -1011,16 +1001,6 @@ html[lang="ar"] {
 
   html:not(:has(.dark-mode)) {
     background-color: var(--c-page);
-    --sb-thumb: color-mix(in srgb, var(--c-secondary) 50%, transparent);
-    --sb-thumb-hover: color-mix(in srgb, var(--c-secondary) 75%, transparent);
-    --sb-thumb-active: color-mix(in srgb, var(--c-secondary) 85%, transparent);
-  }
-
-  html[data-edge="dark"]:not(:has(.dark-mode)),
-  html[data-scroll-locked]:not(:has(.dark-mode)) {
-    --sb-thumb: color-mix(in srgb, #9db8ff 48%, transparent);
-    --sb-thumb-hover: color-mix(in srgb, #9db8ff 72%, transparent);
-    --sb-thumb-active: color-mix(in srgb, #9db8ff 85%, transparent);
   }
 
   html[data-edge="dark"]:not(:has(.dark-mode)) {
@@ -1031,29 +1011,44 @@ html[lang="ar"] {
     background-color: #060b16;
   }
 
+  /* The thumb colours are written straight into each state. They used to live
+     in three inherited, transitioned custom properties, which restyled every
+     element on the page for each frame of a 0.7s fade, exactly while the
+     visitor was scrolling. The thumb now switches at once; only the strip
+     (the html background, which restyles nothing else) still fades. */
   html:not(:has(.dark-mode))::-webkit-scrollbar-thumb {
-    background-color: var(--sb-thumb);
+    background-color: color-mix(in srgb, var(--c-secondary) 50%, transparent);
+  }
+
+  html[data-edge="dark"]:not(:has(.dark-mode))::-webkit-scrollbar-thumb,
+  html[data-scroll-locked]:not(:has(.dark-mode))::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, #9db8ff 48%, transparent);
   }
 
   @media (hover: hover) {
     html:not(:has(.dark-mode))::-webkit-scrollbar-thumb:hover {
-      background-color: var(--sb-thumb-hover);
+      background-color: color-mix(in srgb, var(--c-secondary) 75%, transparent);
+    }
+
+    html[data-edge="dark"]:not(:has(.dark-mode))::-webkit-scrollbar-thumb:hover,
+    html[data-scroll-locked]:not(:has(.dark-mode))::-webkit-scrollbar-thumb:hover {
+      background-color: color-mix(in srgb, #9db8ff 72%, transparent);
     }
   }
 
   html:not(:has(.dark-mode))::-webkit-scrollbar-thumb:active {
-    background-color: var(--sb-thumb-active);
+    background-color: color-mix(in srgb, var(--c-secondary) 85%, transparent);
   }
 
-  /* A slow, even-ended ease: the change starts and lands gently, and it is
-     long enough to read as the strip settling rather than switching. */
+  html[data-edge="dark"]:not(:has(.dark-mode))::-webkit-scrollbar-thumb:active,
+  html[data-scroll-locked]:not(:has(.dark-mode))::-webkit-scrollbar-thumb:active {
+    background-color: color-mix(in srgb, #9db8ff 85%, transparent);
+  }
+
+  /* A slow, even-ended ease for the strip only. */
   @media (prefers-reduced-motion: no-preference) {
     html:not(:has(.dark-mode)) {
-      transition:
-        background-color 0.7s cubic-bezier(0.45, 0, 0.25, 1),
-        --sb-thumb 0.7s cubic-bezier(0.45, 0, 0.25, 1),
-        --sb-thumb-hover 0.7s cubic-bezier(0.45, 0, 0.25, 1),
-        --sb-thumb-active 0.7s cubic-bezier(0.45, 0, 0.25, 1);
+      transition: background-color 0.5s cubic-bezier(0.45, 0, 0.25, 1);
     }
   }
 

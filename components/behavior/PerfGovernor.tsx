@@ -9,6 +9,7 @@ const SCROLL_SAMPLE_FRAMES = 45;
 /** How long after load it keeps watching before it concludes the device is fine. */
 const WATCH_MS = 60000;
 const SETTLE_MS = 3500;
+const STRIKES_NEEDED = 2;
 const SLOW_P75_MS = 38; // a quarter of frames slower than this is under ~26fps
 
 /**
@@ -70,6 +71,7 @@ export default function PerfGovernor() {
     let last = 0;
     let frame = 0;
     let done = false;
+    let strikes = 0;
 
     const onScroll = () => {
       lastScroll = performance.now();
@@ -102,7 +104,13 @@ export default function PerfGovernor() {
       }
       last = now;
 
-      if (slow(scrolling, SCROLL_SAMPLE_FRAMES) || slow(idle, SAMPLE_FRAMES)) {
+      // One bad window is not a verdict: a font swap, a heavy hydration or a
+      // background tab can stall 45 frames once. Two in a row is. (A "low"
+      // verdict switches off the scroll story, the Stack flow included, and is
+      // remembered for the tab, so it must not fire on a single hiccup.)
+      const bad = slow(scrolling, SCROLL_SAMPLE_FRAMES) || slow(idle, SAMPLE_FRAMES);
+      if (bad) strikes += 1;
+      if (strikes >= STRIKES_NEEDED) {
         setTier("low", true);
         stop();
       } else if (now - begin > WATCH_MS) {

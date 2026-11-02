@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { isLowTier, onLowTier } from "@/lib/perf";
 import { prefersReducedMotion } from "@/lib/scroll";
 
 /**
@@ -18,30 +19,50 @@ import { prefersReducedMotion } from "@/lib/scroll";
  * from the viewport. The site's global rule then pauses that block's endless
  * loops (rings, packet, floating pills), the same mechanism the other bands use.
  *
- * With reduced motion nothing here runs and every block keeps `--sy: 0`.
+ * Performance: all rects are read first and all writes happen after (no
+ * layout thrash), the depth effect is skipped entirely on the "low" tier and
+ * with reduced motion, and `data-scrolling` is held on #work while the page
+ * moves so the one main-thread loop (the rings) can rest until it stops.
  */
 export default function WorkScroll() {
   useEffect(() => {
     const root = document.getElementById("work");
     if (!root || typeof IntersectionObserver !== "function") return;
 
-    const reduced = prefersReducedMotion();
+    let depth = !prefersReducedMotion() && !isLowTier();
     const near = new Set<HTMLElement>();
     let frame = 0;
+    let idle = 0;
+
+    const clearDepth = () => {
+      near.forEach((el) => el.style.removeProperty("--sy"));
+      near.clear();
+    };
 
     const update = () => {
       frame = 0;
+      if (!depth) return;
       const viewport = window.innerHeight;
-      near.forEach((el) => {
+      const els = Array.from(near);
+      // Read everything, then write everything.
+      const values = els.map((el) => {
         const rect = el.getBoundingClientRect();
         const centre = rect.top + rect.height / 2;
         const raw = (centre - viewport / 2) / (viewport / 2 + rect.height / 2);
-        el.style.setProperty("--sy", Math.max(-1, Math.min(1, raw)).toFixed(3));
+        return Math.max(-1, Math.min(1, raw)).toFixed(3);
       });
+      els.forEach((el, i) => el.style.setProperty("--sy", values[i]));
     };
 
     const schedule = () => {
       if (!frame) frame = requestAnimationFrame(update);
+    };
+
+    const onScroll = () => {
+      if (!root.hasAttribute("data-scrolling")) root.setAttribute("data-scrolling", "");
+      window.clearTimeout(idle);
+      idle = window.setTimeout(() => root.removeAttribute("data-scrolling"), 140);
+      schedule();
     };
 
     const observer = new IntersectionObserver(
@@ -49,7 +70,7 @@ export default function WorkScroll() {
         for (const entry of entries) {
           const el = entry.target as HTMLElement;
           el.dataset.offscreen = entry.isIntersecting ? "false" : "true";
-          if (!reduced && el.hasAttribute("data-px")) {
+          if (depth && el.hasAttribute("data-px")) {
             if (entry.isIntersecting) near.add(el);
             else near.delete(el);
           }
@@ -61,17 +82,25 @@ export default function WorkScroll() {
 
     root.querySelectorAll<HTMLElement>("[data-pause]").forEach((el) => observer.observe(el));
 
-    if (!reduced) {
-      window.addEventListener("scroll", schedule, { passive: true });
-      window.addEventListener("resize", schedule);
-    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    if (depth) window.addEventListener("resize", schedule);
+
+    // A device that turns out to be slow loses the depth effect at once.
+    const offLow = onLowTier(() => {
+      depth = false;
+      window.removeEventListener("resize", schedule);
+      clearDepth();
+    });
 
     return () => {
+      offLow();
       observer.disconnect();
-      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", schedule);
+      window.clearTimeout(idle);
+      root.removeAttribute("data-scrolling");
       if (frame) cancelAnimationFrame(frame);
-      near.forEach((el) => el.style.removeProperty("--sy"));
+      clearDepth();
       root.querySelectorAll<HTMLElement>("[data-pause]").forEach((el) => {
         el.removeAttribute("data-offscreen");
       });

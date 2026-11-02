@@ -1214,7 +1214,9 @@ html[lang="ar"] #work .sm-tag {
   content: "";
   position: absolute;
   border-radius: 50%;
-  filter: blur(46px);
+  /* No filter: the radial gradient already fades to transparent, and a 46px
+     blur on two animated, screen-sized layers cost far more than it added. */
+  will-change: translate, scale;
 }
 
 #work .feat-aurora::before {
@@ -1460,14 +1462,14 @@ html[lang="ar"] #work .sm-tag {
   width: 100%;
   transform-style: preserve-3d;
   transform: rotateY(calc(-7deg + var(--px) * 5deg))
-    rotateX(calc(3deg - var(--py) * 4deg + var(--sy, 0) * 2.5deg));
+    rotateX(calc(3deg - var(--py) * 4deg));
   transition: transform 0.7s var(--w-ease);
   animation: float 9s ease-in-out infinite;
 }
 
 [dir="rtl"] #work .art-window {
   transform: rotateY(calc(7deg + var(--px) * 5deg))
-    rotateX(calc(3deg - var(--py) * 4deg + var(--sy, 0) * 2.5deg));
+    rotateX(calc(3deg - var(--py) * 4deg));
 }
 
 @keyframes float {
@@ -2106,5 +2108,121 @@ html[lang="ar"] #work .sm-tag {
 
   [dir="rtl"] #work .art-window {
     transform: rotateY(4deg);
+  }
+}
+
+/* ---------- performance: keep the scroll at frame rate ----------------------
+   Costs, worst first: the rings animate a registered custom property, which
+   repaints a masked full-section gradient on the main thread every frame; the
+   trace card backdrop-blurs a moving 3D layer; the grain is a blended layer
+   over everything. So:
+   - the rings stand still while the page is scrolling (WorkScroll sets
+     data-scrolling) and everywhere on weak or touch devices;
+   - on the "low" tier (PerfGovernor), and on touch / small screens, the
+     backdrop blurs, blend, 3D and endless floats are replaced by flat,
+     slightly more opaque fills. Content and layout are untouched. */
+#work[data-scrolling] .feat-rings {
+  animation-play-state: paused;
+}
+
+#work .feat-rings {
+  contain: paint;
+}
+
+html[data-perf="low"] #work .feat-rings,
+html[data-perf="low"] #work .feat-aurora::before,
+html[data-perf="low"] #work .feat-aurora::after,
+html[data-perf="low"] #work .art-window,
+html[data-perf="low"] #work .art-trace .trace {
+  animation: none;
+}
+
+html[data-perf="low"] #work .feat-grain {
+  display: none;
+}
+
+html[data-perf="low"] #work .art-window {
+  transform: rotateY(-4deg);
+  transition: none;
+}
+
+html[data-perf="low"] #work .scrim,
+html[data-perf="low"] #work .trace,
+html[data-perf="low"] #work .mods li,
+html[data-perf="low"] #work .sysmap,
+html[data-perf="low"] #work .art-trace .trace {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+html[data-perf="low"] #work .art-trace .trace {
+  background: rgba(10, 17, 44, 0.94);
+}
+
+html[data-perf="low"] #work .card-wrap[data-revealed="true"] {
+  animation-name: card-in-lite;
+}
+
+@media (hover: none), (width < 768px) {
+  #work .feat-rings {
+    animation: none;
+  }
+
+  #work .feat-grain {
+    display: none;
+  }
+
+  #work .art-window {
+    animation: none;
+    transform-style: flat;
+  }
+
+  #work .art-trace .trace {
+    animation: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(10, 17, 44, 0.92);
+  }
+
+  #work .scrim,
+  #work .trace,
+  #work .mods li,
+  #work .sysmap {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  #work .card-wrap[data-revealed="true"] {
+    animation-name: card-in-lite;
+  }
+}
+
+/* Same entrance without the filter: animating blur() on a whole card (with
+   glass children inside it) re-rasters it every frame. */
+@keyframes card-in-lite {
+  from {
+    opacity: 0;
+    translate: 0 28px;
+  }
+}
+
+/* The project cards' stages run the same --o ring animation as the featured
+   rings: two masked, repainted gradients per card, several cards on screen.
+   Same treatment: they rest while the page scrolls, and stand still on the
+   low tier and on touch / small screens. */
+#work[data-scrolling] .stage::before,
+#work[data-scrolling] .stage::after {
+  animation-play-state: paused;
+}
+
+html[data-perf="low"] #work .stage::before,
+html[data-perf="low"] #work .stage::after {
+  animation: none;
+}
+
+@media (hover: none), (width < 768px) {
+  #work .stage::before,
+  #work .stage::after {
+    animation: none;
   }
 }

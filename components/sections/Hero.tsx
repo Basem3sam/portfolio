@@ -140,6 +140,13 @@ export default function Hero({ dict }: HeroProps) {
     // toward its target every frame, so it has weight and springs back.
     let cx = 0;
     let cy = 0;
+    // The tilt is a damped spring (a touch under critical), not a plain ease:
+    // it accelerates toward the pointer, settles with a tiny overshoot, and
+    // swings back when the pointer leaves, which is what gives it weight.
+    let vx = 0;
+    let vy = 0;
+    const STIFFNESS = 190;
+    const DAMPING = 2 * Math.sqrt(STIFFNESS) * 0.74;
     let cl = 0;
     let cp = 0;
     let pressTarget = 0;
@@ -163,21 +170,35 @@ export default function Hero({ dict }: HeroProps) {
       }
       // Ease by elapsed time, not by frame count, so a 60, 120 or 144Hz screen
       // feels the same (same approach as CardFx on /links).
-      const steps = lastPaint ? Math.min(now - lastPaint, 64) / (1000 / 60) : 1;
+      const dtMs = lastPaint ? Math.min(now - lastPaint, 64) : 1000 / 60;
+      const steps = dtMs / (1000 / 60);
       lastPaint = now;
       const ease = (rate: number) => 1 - Math.pow(1 - rate, steps);
-      cx += (nx - cx) * ease(0.14);
-      cy += (ny - cy) * ease(0.14);
+      // Fixed 4ms sub-steps keep the spring stable and identical at 60, 120
+      // or 144Hz.
+      const total = dtMs / 1000;
+      const sub = Math.max(1, Math.ceil(total / 0.004));
+      const h = total / sub;
+      for (let i = 0; i < sub; i += 1) {
+        vx += (STIFFNESS * (nx - cx) - DAMPING * vx) * h;
+        vy += (STIFFNESS * (ny - cy) - DAMPING * vy) * h;
+        cx += vx * h;
+        cy += vy * h;
+      }
       cl += ((near ? 1 : 0) - cl) * ease(0.16);
       cp += (pressTarget - cp) * ease(0.24);
       const settled =
         Math.abs(nx - cx) < 0.002 &&
         Math.abs(ny - cy) < 0.002 &&
+        Math.abs(vx) < 0.01 &&
+        Math.abs(vy) < 0.01 &&
         Math.abs((near ? 1 : 0) - cl) < 0.004 &&
         Math.abs(pressTarget - cp) < 0.004;
       if (settled) {
         cx = nx;
         cy = ny;
+        vx = 0;
+        vy = 0;
         cl = near ? 1 : 0;
         cp = pressTarget;
         lastPaint = 0;

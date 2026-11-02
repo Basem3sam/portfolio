@@ -603,6 +603,20 @@ html[data-story-on] #stack .xl-s i b {
   transition-duration: 0.12s;
 }
 
+/* No scroll story running (low performance tier, reduced motion, or before the
+   engine starts): --sp falls back to 1, which made the Ship plate "current" for
+   good, so it sat there glowing honey for no reason. With nothing to follow,
+   no plate is current: all five rest in the cool "passed" tint, and only
+   hovering one lights it (the hover rule below still wins). */
+html:not([data-story-on]) #stack .xl-s i {
+  --f: 0;
+  --done: 1;
+}
+
+html:not([data-story-on]) #stack .xl-p {
+  box-shadow: 0 0 0 calc(6 * var(--u, 1px)) color-mix(in srgb, var(--c-honey) 18%, transparent);
+}
+
 /* Hover works both ways: pointing at a column lights its plate, pointing at a
    plate sets --hot on its column (node swells, slab lifts). */
 @media (hover: hover) {
@@ -799,4 +813,9 @@ html[data-story-on] #stack .xl-s i b {
   #stack .sflow::before {
     display: none;
   }
+}
+
+/* Low performance tier: the slabs' periodic glow sweep is decoration. */
+html[data-perf="low"] #stack .stx-slab::after {
+  animation: none;
 }

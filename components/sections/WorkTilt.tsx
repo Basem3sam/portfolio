@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
+import { isLowTier } from "@/lib/perf";
 import { prefersReducedMotion } from "@/lib/scroll";
 
 type WorkTiltProps = {
@@ -19,7 +20,7 @@ export default function WorkTilt({ className, children }: WorkTiltProps) {
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || prefersReducedMotion()) return;
+    if (!el || prefersReducedMotion() || isLowTier()) return;
     if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
 
     let raf = 0;
