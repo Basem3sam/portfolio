@@ -18,6 +18,9 @@ export default function LanguageSwitcher({
     <Link
       href={href}
       hrefLang={hrefLang}
+      // Switching language is rare, but this link is on every page (twice), and
+      // prefetching it fetched the whole other-language page during load.
+      prefetch={false}
       className={`inline-flex min-h-11 items-center justify-center gap-1.5 rounded-md px-3 text-sm font-medium no-underline ${className || "lang-ctl"}`}
     >
       <Icon name="globe" className="size-4" />

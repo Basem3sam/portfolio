@@ -22,6 +22,7 @@ import { getLenis, setLenis } from "@/lib/lenis";
  *   panes scroll natively instead of being captured by the page.
  * - Reduced motion: Lenis does not run at all (plain native scrolling, instant
  *   jumps). It starts and stops live if the system setting changes.
+ * - Touch-only devices: created lazily, on the first wheel event (see below).
  */
 /**
  * The two numbers that decide how the scroll feels. `LERP` is how much of the
@@ -60,12 +61,50 @@ export default function SmoothScroll() {
       lenis = null;
     };
 
-    const sync = () => (reduced.matches ? stop() : start());
+    // Lenis only smooths the mouse wheel (touch stays native: `syncTouch` is
+    // off), yet once created it runs a frame loop and resize observers for the
+    // whole visit. On a phone or tablet that is cost with nothing in return, and
+    // it landed right in the window where the portrait is still painting. So a
+    // device whose main pointer is a finger does not create it until a real
+    // wheel event shows that a mouse or trackpad is in use. Until then (and
+    // always, on such a device, if no wheel ever comes) the page scrolls
+    // natively, which every consumer already supports (see lib/scroll.ts).
+    const touchOnly = window.matchMedia("(hover: none) and (pointer: coarse)");
+    let waiting = false;
+
+    const onWheel = () => {
+      waiting = false;
+      start();
+    };
+    const arm = () => {
+      if (lenis || waiting) return;
+      waiting = true;
+      window.addEventListener("wheel", onWheel, { passive: true, once: true });
+    };
+    const disarm = () => {
+      if (!waiting) return;
+      waiting = false;
+      window.removeEventListener("wheel", onWheel);
+    };
+
+    const sync = () => {
+      if (reduced.matches) {
+        disarm();
+        stop();
+      } else if (touchOnly.matches) {
+        arm();
+      } else {
+        start();
+      }
+    };
     sync();
     reduced.addEventListener("change", sync);
+    touchOnly.addEventListener("change", sync);
 
     return () => {
       reduced.removeEventListener("change", sync);
+      touchOnly.removeEventListener("change", sync);
+      disarm();
       stop();
     };
   }, []);

@@ -652,7 +652,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                     className="menu-tiles"
                     style={{ animationDelay: `${80 + (sections.length + rowOffset) * 50}ms` }}
                   >
-                    <Link href={linksHref} className="menu-tile menu-tile-links">
+                    <Link href={linksHref} prefetch={false} className="menu-tile menu-tile-links">
                       <span className="mn" dir="ltr">
                         /links
                       </span>
@@ -758,7 +758,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                   {/* /links joins the bar at xl only; below that the utility
                       group carries it as an icon. */}
                   <li className="hidden xl:block">
-                    <Link href={linksHref} className={sectionLink(false)} data-nav-ind>
+                    <Link href={linksHref} prefetch={false} className={sectionLink(false)} data-nav-ind>
                       <span className="nn" dir="ltr" aria-hidden="true">
                         ↗
                       </span>
@@ -788,7 +788,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                           {modKey} K
                         </span>
                       </button>
-                      <Link href={linksHref} className={`${auxLinkBar} xl:hidden`}>
+                      <Link href={linksHref} prefetch={false} className={`${auxLinkBar} xl:hidden`}>
                         <Icon name="externalLink" className="size-4" />
                         <span className={auxLabel}>{labels.allLinks}</span>
                       </Link>

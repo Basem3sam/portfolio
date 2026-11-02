@@ -69,7 +69,7 @@ export default function Footer({ locale = "en" }: FooterProps) {
                 {nav[key]}
               </SectionLink>
             ))}
-            <Link href={linksHref}>{nav.allLinks}</Link>
+            <Link href={linksHref} prefetch={false}>{nav.allLinks}</Link>
           </nav>
 
           <div className="ft-col ft-rc">
