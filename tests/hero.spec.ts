@@ -210,14 +210,27 @@ test("from 992px the copy and the portrait sit side by side", async ({ page }) =
   expect(gap).toBeGreaterThan(0);
 });
 
-test("the side-by-side portrait holds one size from 992px to 1199px", async ({ page }) => {
-  const sizes: number[] = [];
-  for (const width of [992, 1045, 1100, 1199]) {
+test("from 992px the copy box and the portrait box are an equal, level pair", async ({ page }) => {
+  // The portrait no longer holds a fixed size while the copy shrinks: both
+  // boxes are the same width, start on the same line ("$ whoami") and end on
+  // the same line, at every desktop width.
+  for (const width of [992, 1045, 1100, 1199, 1280, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");
-    sizes.push(
-      await page.evaluate(() => (document.querySelector("#pf") as HTMLElement).offsetWidth),
-    );
+    const m = await page.evaluate(() => {
+      const rect = (selector: string) =>
+        (document.querySelector(selector) as HTMLElement).getBoundingClientRect();
+      const pf = rect("#pf");
+      const top = rect("#hero .hero-top");
+      const body = rect("#hero .hero-body");
+      return {
+        widthDiff: Math.abs(pf.width - top.width),
+        topDiff: Math.abs(pf.top - top.top),
+        bottomDiff: Math.abs(pf.bottom - body.bottom),
+      };
+    });
+    expect(m.widthDiff, `equal widths at ${width}px`).toBeLessThanOrEqual(1);
+    expect(m.topDiff, `same top edge at ${width}px`).toBeLessThanOrEqual(1);
+    expect(m.bottomDiff, `same bottom edge at ${width}px`).toBeLessThanOrEqual(1);
   }
-  expect(Math.max(...sizes) - Math.min(...sizes)).toBeLessThanOrEqual(1);
 });
