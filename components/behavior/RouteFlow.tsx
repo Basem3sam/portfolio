@@ -135,5 +135,5 @@ export default function RouteFlow() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
 
-  return <div ref={barRef} className="nav-progress" aria-hidden="true" />;
+  return <div ref={barRef} className="route-progress" aria-hidden="true" />;
 }

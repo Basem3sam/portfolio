@@ -5,7 +5,7 @@
    ============================================================================ */
 
 /* --- progress bar: appears the moment a link to another page is pressed ----- */
-.nav-progress {
+.route-progress {
   position: fixed;
   inset: 0 0 auto 0;
   z-index: 100000;
@@ -18,12 +18,12 @@
   box-shadow: 0 0 10px color-mix(in srgb, var(--c-honey) 55%, transparent);
 }
 
-html[dir="rtl"] .nav-progress {
+html[dir="rtl"] .route-progress {
   transform-origin: 100% 50%;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nav-progress {
+  .route-progress {
     display: none;
   }
 }
