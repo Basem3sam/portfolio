@@ -11,6 +11,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type CSSProperties,
   type KeyboardEvent,
   type MouseEvent,
   type ReactNode,
@@ -22,6 +23,7 @@ import { isHomePath, switchLocalePath, type Locale } from "@/lib/i18n";
 import { homeAnchorHref } from "@/lib/scroll";
 import { lockScroll, unlockScroll } from "@/lib/scrollLock";
 import { toggleTheme } from "@/lib/theme";
+import "./CommandPalette.css";
 
 type PaletteLabels = Dictionary["palette"];
 type NavLabels = Dictionary["nav"];
@@ -155,6 +157,7 @@ function PaletteDialog({
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const optionRefs = useRef<(HTMLElement | null)[]>([]);
   const restoreFocus = useRef<HTMLElement | null>(null);
@@ -166,11 +169,11 @@ function PaletteDialog({
     return items.filter((item) => `${item.label} ${item.keywords ?? ""}`.toLowerCase().includes(q));
   }, [items, query]);
 
-  const handleClose = () => {
-    setQuery("");
-    setActive(0);
-    onClose();
-  };
+  // The search text is cleared after the panel has finished leaving (see the
+  // effect below), not here. Clearing it at the start of the exit swapped the
+  // filtered list for the full one while the panel was still on screen, so the
+  // panel visibly jumped in height as it faded.
+  const handleClose = () => onClose();
 
   useEffect(() => {
     if (open) {
@@ -187,9 +190,49 @@ function PaletteDialog({
     }
 
     unlockScroll();
-    restoreFocus.current?.focus?.();
+    // preventScroll: giving focus back must not scroll the page to the button.
+    restoreFocus.current?.focus?.({ preventScroll: true });
     restoreFocus.current = null;
-    return undefined;
+
+    // Reset once the exit animation (180ms) is done. Opening again before then
+    // runs this cleanup and keeps what was typed.
+    const reset = window.setTimeout(() => {
+      setQuery("");
+      setActive(0);
+    }, 260);
+    return () => window.clearTimeout(reset);
+  }, [open]);
+
+  // Keep the panel inside the part of the screen that is actually visible. An
+  // on-screen keyboard shrinks the visual viewport without resizing the layout
+  // viewport, so a fixed panel kept its full-height list and the bottom of it
+  // sat behind the keyboard (iOS also scrolls the viewport to the focused
+  // field). The values feed --cp-top / --cp-vh in the stylesheet.
+  useEffect(() => {
+    const root = rootRef.current;
+    const viewport = window.visualViewport;
+    if (!open || !root || !viewport) return;
+
+    let frame = 0;
+    const sync = () => {
+      frame = 0;
+      root.style.setProperty("--cp-top", `${viewport.offsetTop}px`);
+      root.style.setProperty("--cp-vh", `${viewport.height}px`);
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(sync);
+    };
+
+    sync();
+    viewport.addEventListener("resize", schedule);
+    viewport.addEventListener("scroll", schedule);
+    return () => {
+      viewport.removeEventListener("resize", schedule);
+      viewport.removeEventListener("scroll", schedule);
+      if (frame) cancelAnimationFrame(frame);
+      root.style.removeProperty("--cp-top");
+      root.style.removeProperty("--cp-vh");
+    };
   }, [open]);
 
   useEffect(() => {
@@ -198,8 +241,6 @@ function PaletteDialog({
     const handleDocumentKeyDown = (event: globalThis.KeyboardEvent) => {
       if (event.key !== "Escape") return;
       event.preventDefault();
-      setQuery("");
-      setActive(0);
       onClose();
     };
 
@@ -291,11 +332,13 @@ function PaletteDialog({
 
   return (
     <div
-      className={`fixed inset-0 z-[1080] flex items-start justify-center p-4 pt-[10vh] print:hidden ${open ? "" : "pointer-events-none"}`}
+      ref={rootRef}
+      className={`cp-root fixed inset-0 z-[1080] flex items-start justify-center print:hidden ${open ? "" : "pointer-events-none"}`}
+      data-open={open ? "" : undefined}
       inert={!open}
     >
       <div
-        className={`absolute inset-0 bg-black/40 transition-opacity duration-200 motion-reduce:transition-none ${open ? "opacity-100" : "opacity-0"}`}
+        className="cp-backdrop absolute inset-0 bg-black/40"
         onClick={handleClose}
         aria-hidden="true"
       ></div>
@@ -305,11 +348,7 @@ function PaletteDialog({
         aria-modal="true"
         aria-label={labels.ariaLabel}
         onKeyDown={handleDialogKeyDown}
-        className={`relative mx-auto flex w-full max-w-lg flex-col overflow-hidden rounded-xl border border-hairline bg-surface shadow-xl transition-[opacity,transform] duration-200 motion-reduce:transition-none ${
-          open
-            ? "visible translate-y-0 scale-100 opacity-100"
-            : "invisible -translate-y-2 scale-[0.98] opacity-0 [transition:opacity_200ms,transform_200ms,visibility_0s_linear_200ms]"
-        }`}
+        className="cp-panel relative mx-auto flex w-full max-w-lg flex-col overflow-hidden rounded-xl border border-hairline bg-surface shadow-xl"
       >
         <div className="flex items-center gap-2 border-b border-hairline px-4">
           <Icon name="search" className="size-4 shrink-0 text-muted-text" />
@@ -346,7 +385,7 @@ function PaletteDialog({
           </button>
         </div>
 
-        <div className="max-h-[min(50vh,400px)] overflow-y-auto p-2">
+        <div className="cp-list overflow-y-auto p-2">
           {filtered.length === 0 ? (
             <p className="px-3 py-8 text-center text-sm text-light-text">{labels.empty}</p>
           ) : (
@@ -371,7 +410,12 @@ function PaletteDialog({
                         {labels.groups[item.group]}
                       </li>
                     )}
-                    <li role="presentation" onMouseEnter={() => setActive(index)}>
+                    <li
+                      role="presentation"
+                      className="cp-item"
+                      style={{ "--i": index } as CSSProperties}
+                      onMouseEnter={() => setActive(index)}
+                    >
                       {item.href ? (
                         item.href.startsWith("#") ||
                         item.download ||
