@@ -34,97 +34,270 @@ function spawn(
   return element;
 }
 
-function spawnSequence(count: number, interval: number, create: (index: number) => void) {
-  for (let index = 0; index < count; index++) {
-    window.setTimeout(() => create(index), index * interval);
-  }
+/* ================================================================
+   One canvas for every celebration.
+
+   The celebrations used to create one <div> per piece (a big finale is ~250 of
+   them), each with its own Web Animation, its own compositor layer, a timer to
+   remove it, and, for the fireworks, an animated `filter: hue-rotate` plus a
+   text-shadow that repainted every frame. That is what made the page stutter.
+
+   Now every piece is just an object in a list, drawn each frame onto a single
+   fixed canvas by one requestAnimationFrame loop: no DOM churn, no extra
+   layers, no timers, and nothing left behind. Glyphs (arrows, emoji) are
+   rasterised once into small cached sprites and then only blitted. The canvas
+   exists only while something is on screen.
+   ================================================================ */
+
+type Particle = {
+  /** performance.now() timestamp the piece starts at (may be in the future). */
+  start: number;
+  dur: number;
+  render: (c: CanvasRenderingContext2D, t: number) => void;
+};
+
+/** Sprites are drawn at this multiple of their on-screen size so they stay sharp when scaled up. */
+const SPRITE_SCALE = 3;
+
+let canvas: HTMLCanvasElement | null = null;
+let ctx: CanvasRenderingContext2D | null = null;
+let particles: Particle[] = [];
+let frame = 0;
+let dpr = 1;
+let viewW = 0;
+let viewH = 0;
+
+const easeOut = (t: number) => 1 - (1 - t) * (1 - t);
+const easeIn = (t: number) => t * t;
+
+function fit() {
+  if (!canvas) return;
+  viewW = window.innerWidth;
+  viewH = window.innerHeight;
+  // Capped: a 3x phone screen would otherwise fill 9 device pixels per CSS pixel
+  // for a few confetti flakes nobody can tell apart.
+  dpr = isLowEndDevice() ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
+  canvas.width = Math.round(viewW * dpr);
+  canvas.height = Math.round(viewH * dpr);
 }
 
+function stop() {
+  cancelAnimationFrame(frame);
+  frame = 0;
+  window.removeEventListener("resize", fit);
+  canvas?.remove();
+  canvas = null;
+  ctx = null;
+  particles = [];
+}
+
+function tick(now: number) {
+  frame = 0;
+  if (!canvas || !ctx) return;
+
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.globalAlpha = 1;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Compact in place so a busy frame does not allocate.
+  let live = 0;
+  for (let index = 0; index < particles.length; index++) {
+    const particle = particles[index];
+    const t = (now - particle.start) / particle.dur;
+    if (t >= 1) continue;
+    particles[live++] = particle;
+    if (t > 0) particle.render(ctx, t);
+  }
+  particles.length = live;
+  ctx.globalAlpha = 1;
+
+  if (live > 0) frame = requestAnimationFrame(tick);
+  else stop();
+}
+
+function queue(list: Particle[]) {
+  if (list.length === 0) return;
+
+  if (!canvas) {
+    const element = document.createElement("canvas");
+    const context = element.getContext("2d");
+    if (!context) return;
+    element.setAttribute("aria-hidden", "true");
+    element.style.cssText =
+      "position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:10007";
+    document.body.appendChild(element);
+    canvas = element;
+    ctx = context;
+    fit();
+    window.addEventListener("resize", fit);
+  }
+
+  particles.push(...list);
+  if (!frame) frame = requestAnimationFrame(tick);
+}
+
+/** Position, uniformly scale and rotate whatever is drawn next, around (x, y). */
+function place(c: CanvasRenderingContext2D, x: number, y: number, scale: number, rotation: number) {
+  const cos = Math.cos(rotation) * scale * dpr;
+  const sin = Math.sin(rotation) * scale * dpr;
+  c.setTransform(cos, sin, -sin, cos, x * dpr, y * dpr);
+}
+
+const sprites = new Map<string, HTMLCanvasElement>();
+
+function glyphSprite(glyph: string, size: number, color: string | null, glow: boolean) {
+  const key = `${glyph}|${size}|${color}|${glow}`;
+  const cached = sprites.get(key);
+  if (cached) return cached;
+
+  const px = size * SPRITE_SCALE;
+  const font = `700 ${px}px system-ui, sans-serif`;
+  const sprite = document.createElement("canvas");
+  const g = sprite.getContext("2d");
+  if (!g) return sprite;
+
+  g.font = font;
+  const pad = glow ? px * 0.5 : px * 0.15;
+  sprite.width = Math.ceil(g.measureText(glyph).width + pad * 2);
+  sprite.height = Math.ceil(px * 1.3 + pad * 2);
+
+  // Resizing resets the context, so the style is set again.
+  g.font = font;
+  g.textAlign = "center";
+  g.textBaseline = "middle";
+  if (color) g.fillStyle = color;
+  if (glow && color) {
+    g.shadowColor = color;
+    g.shadowBlur = px * 0.5;
+  }
+  g.fillText(glyph, sprite.width / 2, sprite.height / 2);
+
+  sprites.set(key, sprite);
+  return sprite;
+}
+
+function drawSprite(c: CanvasRenderingContext2D, sprite: HTMLCanvasElement, scale: number) {
+  const w = (sprite.width / SPRITE_SCALE) * scale;
+  const h = (sprite.height / SPRITE_SCALE) * scale;
+  c.drawImage(sprite, -w / 2, -h / 2, w, h);
+}
+
+/** Opacity along 1 -> 0.8 -> 0 (the old keyframes), for eased progress e. */
+const fadeOutAlpha = (e: number) => (e < 0.5 ? 1 - 0.4 * e : 0.8 - (e - 0.5) * 1.6);
+
+/** A glyph that flies out from (x, y), grows, turns and shrinks away. */
 function flyingParticle(
-  text: string,
-  className: string,
-  styles: Partial<CSSStyleDeclaration>,
+  glyph: string,
+  size: number,
+  color: string | null,
   x: number,
   y: number,
-) {
-  const particle = spawn(className, styles, 2000, text);
-  particle.animate(
-    [
-      { transform: "translate(0px, 0px) scale(0) rotate(0deg)", opacity: 1 },
-      {
-        transform: `translate(${x}px, ${y}px) scale(1) rotate(180deg)`,
-        opacity: 0.8,
-        offset: 0.5,
-      },
-      {
-        transform: `translate(${x * 1.5}px, ${y * 1.5}px) scale(0) rotate(360deg)`,
-        opacity: 0,
-      },
-    ],
-    { duration: 2000, easing: "ease-out", fill: "forwards" },
-  );
+  dx: number,
+  dy: number,
+  start: number,
+): Particle {
+  const sprite = glyphSprite(glyph, size, color, false);
+  return {
+    start,
+    dur: 2000,
+    render(c, t) {
+      const e = easeOut(t);
+      const travel = e < 0.5 ? e * 2 : 1 + (e - 0.5);
+      const scale = e < 0.5 ? e * 2 : 1 - (e - 0.5) * 2;
+      if (scale < 0.02) return;
+      c.globalAlpha = fadeOutAlpha(e);
+      place(c, x + dx * travel, y + dy * travel, scale, e * Math.PI * 2);
+      drawSprite(c, sprite, 1);
+    },
+  };
 }
 
-function fallingConfetti(
-  color: string,
-  left: string,
-  delay: number,
-  duration: number,
-  lifetime: number,
-) {
-  const confetti = spawn(
-    "pointer-events-none fixed top-[-20px] z-[10007] h-5 w-2.5 opacity-0",
-    { background: color, left },
-    lifetime,
-  );
-  confetti.animate(
-    [
-      { transform: "translateY(0) rotate(0deg)", opacity: 1 },
-      { transform: "translateY(100vh) rotate(720deg)", opacity: 0 },
-    ],
-    { duration, delay, easing: "ease-in", fill: "forwards" },
-  );
+/** A glowing glyph that pops open to 3x, turns and fades. */
+function firework(glyph: string, size: number, color: string, x: number, y: number, start: number): Particle {
+  const sprite = glyphSprite(glyph, size, color, true);
+  return {
+    start,
+    dur: 2000,
+    render(c, t) {
+      const e = easeOut(t);
+      const scale = e < 0.5 ? e * 5 : 2.5 + (e - 0.5);
+      if (scale < 0.02) return;
+      c.globalAlpha = Math.max(0, fadeOutAlpha(e));
+      place(c, x, y, scale, e * Math.PI * 2);
+      drawSprite(c, sprite, 1);
+    },
+  };
+}
+
+/** A paper flake that drops the full height of the screen, turning and fading. */
+function fallingConfetti(color: string, x: number, start: number, duration: number): Particle {
+  return {
+    start,
+    dur: duration,
+    render(c, t) {
+      const e = easeIn(t);
+      c.globalAlpha = 1 - e;
+      place(c, x + 5, -20 + 10 + e * viewH, 1, e * Math.PI * 4);
+      c.fillStyle = color;
+      c.fillRect(-5, -10, 10, 20);
+    },
+  };
 }
 
 export function createCelebrationParticles() {
-  spawnSequence(30, 50, () => {
-    flyingParticle(
-      pick(CELEBRATION_EMOJIS),
-      "pointer-events-none fixed z-[10007] text-[20px]",
-      {
-        left: `${window.innerWidth / 2 + (Math.random() - 0.5) * 200}px`,
-        top: `${window.innerHeight / 2 + (Math.random() - 0.5) * 200}px`,
-      },
-      (Math.random() - 0.5) * 300,
-      -Math.random() * 200 - 100,
+  const now = performance.now();
+  const list: Particle[] = [];
+
+  for (let index = 0; index < 30; index++) {
+    list.push(
+      flyingParticle(
+        pick(CELEBRATION_EMOJIS),
+        20,
+        null,
+        window.innerWidth / 2 + (Math.random() - 0.5) * 200,
+        window.innerHeight / 2 + (Math.random() - 0.5) * 200,
+        (Math.random() - 0.5) * 300,
+        -Math.random() * 200 - 100,
+        now + index * 50,
+      ),
     );
-  });
+  }
+
+  queue(list);
 }
 
 export function createConfettiBurst() {
-  spawnSequence(isLowEndDevice() ? 15 : 50, 30, () => {
-    fallingConfetti(
-      pick(BURST_COLORS),
-      `${Math.random() * 100}%`,
-      Math.random() * 500,
-      (Math.random() * 2 + 2) * 1000,
-      5000,
+  const now = performance.now();
+  const list: Particle[] = [];
+  const count = isLowEndDevice() ? 15 : 50;
+
+  for (let index = 0; index < count; index++) {
+    list.push(
+      fallingConfetti(
+        pick(BURST_COLORS),
+        Math.random() * window.innerWidth,
+        now + index * 30 + Math.random() * 500,
+        (Math.random() * 2 + 2) * 1000,
+      ),
     );
-  });
+  }
+
+  queue(list);
 }
 
 /**
  * A gold ring that leaves the point of the press and sweeps off the screen,
  * with a soft warm flash behind it. It is what makes the tenth press land:
  * the whole page answers before anything opens. Skipped for reduced motion.
+ * The flash is one full-screen layer that only changes opacity; the rings are
+ * drawn on the shared canvas.
  */
-function shockwave(origin: { x: number; y: number }) {
+function shockwave(origin: { x: number; y: number }, now: number, list: Particle[]) {
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
   const { x, y } = origin;
   // Radius to the farthest corner, so the ring always leaves the screen.
   const reach = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
-  const size = Math.ceil(reach * 2);
 
   const flash = spawn(
     "pointer-events-none fixed inset-0 z-[10004]",
@@ -138,81 +311,86 @@ function shockwave(origin: { x: number; y: number }) {
   });
 
   [0, 160].forEach((delay, index) => {
-    const ring = spawn(
-      "pointer-events-none fixed z-[10004] rounded-full",
-      {
-        left: `${x - size / 2}px`,
-        top: `${y - size / 2}px`,
-        width: `${size}px`,
-        height: `${size}px`,
-        willChange: "transform, opacity",
-        background:
-          index === 0
-            ? "radial-gradient(circle closest-side, transparent 0 58%, rgba(254, 202, 87, 0.95) 63%, rgba(255, 159, 67, 0.35) 66%, transparent 71%)"
-            : "radial-gradient(circle closest-side, transparent 0 60%, rgba(104, 219, 251, 0.7) 63%, transparent 67%)",
+    list.push({
+      start: now + delay,
+      dur: 1100,
+      render(c, t) {
+        const e = 1 - Math.pow(1 - t, 4);
+        const grown = reach * (0.03 + 0.97 * e);
+        const radius = grown * 0.64;
+        c.setTransform(dpr, 0, 0, dpr, 0, 0);
+        c.globalAlpha = 1 - e;
+        c.beginPath();
+        c.arc(x, y, radius, 0, Math.PI * 2);
+        if (index === 0) {
+          c.strokeStyle = "rgba(255, 159, 67, 0.35)";
+          c.lineWidth = Math.max(2, grown * 0.12);
+          c.stroke();
+          c.strokeStyle = "rgba(254, 202, 87, 0.95)";
+          c.lineWidth = Math.max(1.5, grown * 0.04);
+          c.stroke();
+        } else {
+          c.strokeStyle = "rgba(104, 219, 251, 0.7)";
+          c.lineWidth = Math.max(1.5, grown * 0.05);
+          c.stroke();
+        }
       },
-      delay + 1300,
-    );
-    ring.animate(
-      [
-        { transform: "scale(0.03)", opacity: 1 },
-        { transform: "scale(1)", opacity: 0 },
-      ],
-      { duration: 1100, delay, easing: "cubic-bezier(0.16, 0.8, 0.3, 1)", fill: "both" },
-    );
+    });
   });
 }
 
 export function createEpicCelebration(origin?: { x: number; y: number }) {
-  shockwave(origin ?? { x: window.innerWidth / 2, y: window.innerHeight / 2 });
+  const now = performance.now();
+  const low = isLowEndDevice();
+  const list: Particle[] = [];
 
-  spawnSequence(isLowEndDevice() ? 15 : 50, 24, () => {
-    const color = pick(EPIC_COLORS);
-    const firework = spawn(
-      "pointer-events-none fixed z-[10007] font-bold",
-      {
-        left: `${Math.random() * window.innerWidth}px`,
-        top: `${Math.random() * window.innerHeight}px`,
-        fontSize: `${20 + Math.random() * 20}px`,
-        color,
-        textShadow: "0 0 10px currentColor",
-      },
-      2000,
-      pick(KONAMI_CHARS),
-    );
-    firework.animate(
-      [
-        { transform: "scale(0) rotate(0deg)", opacity: 1, filter: "hue-rotate(0deg)" },
-        {
-          transform: "scale(2.5) rotate(180deg)",
-          opacity: 0.8,
-          filter: "hue-rotate(180deg)",
-          offset: 0.5,
-        },
-        { transform: "scale(3) rotate(360deg)", opacity: 0, filter: "hue-rotate(360deg)" },
-      ],
-      { duration: 2000, easing: "ease-out", fill: "forwards" },
-    );
-  });
+  shockwave(origin ?? { x: window.innerWidth / 2, y: window.innerHeight / 2 }, now, list);
 
-  spawnSequence(30, 100, () => {
-    flyingParticle(
-      pick(KONAMI_CHARS),
-      "pointer-events-none fixed top-1/2 left-1/2 z-[10007] font-bold",
-      { fontSize: `${15 + Math.random() * 15}px`, color: pick(EPIC_COLORS) },
-      (Math.random() - 0.5) * 300,
-      (Math.random() - 0.5) * 300,
+  const fireworkCount = low ? 15 : 50;
+  for (let index = 0; index < fireworkCount; index++) {
+    list.push(
+      firework(
+        pick(KONAMI_CHARS),
+        pick([24, 32, 40]),
+        pick(EPIC_COLORS),
+        Math.random() * window.innerWidth,
+        Math.random() * window.innerHeight,
+        now + index * 24,
+      ),
     );
-  });
+  }
+
+  for (let index = 0; index < 30; index++) {
+    list.push(
+      flyingParticle(
+        pick(KONAMI_CHARS),
+        pick([16, 22, 28]),
+        pick(EPIC_COLORS),
+        window.innerWidth / 2,
+        window.innerHeight / 2,
+        (Math.random() - 0.5) * 300,
+        (Math.random() - 0.5) * 300,
+        now + index * 100,
+      ),
+    );
+  }
 
   // Confetti: a heavy burst in the first second, then a thinner rain that
-  // carries on in front of the master window. Each piece is only removed after
-  // it has finished falling (it used to be cut off part-way down).
-  spawnSequence(isLowEndDevice() ? 40 : 170, 9, (index) => {
+  // carries on in front of the master window.
+  const confettiCount = low ? 40 : 170;
+  for (let index = 0; index < confettiCount; index++) {
     const delay = index < 100 ? Math.random() * 500 : 400 + Math.random() * 1500;
-    const duration = 2400 + Math.random() * 900;
-    fallingConfetti(pick(EPIC_COLORS), `${Math.random() * 100}vw`, delay, duration, delay + duration + 150);
-  });
+    list.push(
+      fallingConfetti(
+        pick(EPIC_COLORS),
+        Math.random() * window.innerWidth,
+        now + index * 9 + delay,
+        2400 + Math.random() * 900,
+      ),
+    );
+  }
+
+  queue(list);
 }
 
 /**
