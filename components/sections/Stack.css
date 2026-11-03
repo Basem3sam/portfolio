@@ -1128,11 +1128,41 @@ html[data-perf="low"] #stack .stx-slab::after {
     gap: 6px;
   }
 
-  /* Chips grow to fill each row: a clean right edge instead of a ragged one. */
+  /* Chips hug their content (no stretched empty space after short names like
+     CORS). Rows read as a tidy, evenly spaced set of pills; the tile, text
+     and padding keep one rhythm so short and long names feel equally weighted. */
+  #stack .stx .chips,
+  #stack .stx-also .chips {
+    justify-content: flex-start;
+    gap: 8px 6px;
+  }
+
   #stack .stx .chip,
   #stack .stx-also .chip {
-    flex: 1 1 auto;
+    flex: 0 0 auto;
     justify-content: flex-start;
+    padding-inline-end: 14px;
+    border-radius: 999px;
+    border-color: color-mix(in srgb, var(--c-dark-text) 14%, transparent);
+    background: color-mix(in srgb, var(--c-dark-text) 6%, transparent);
+    transition:
+      background-color 0.25s ease,
+      border-color 0.25s ease,
+      transform 0.25s ease;
+  }
+
+  #stack .stx .chip b,
+  #stack .stx-also .chip b {
+    border-radius: 50%;
+  }
+
+  @media (hover: hover) {
+    #stack .stx .chip:hover,
+    #stack .stx-also .chip:hover {
+      transform: translateY(-1px);
+      border-color: color-mix(in srgb, var(--c-honey) 55%, transparent);
+      background: color-mix(in srgb, var(--c-honey) 10%, transparent);
+    }
   }
 
   /* The rail runs on through Ship and ends in a hollow ring at the panel. */
