@@ -616,6 +616,16 @@ type TerminalProps = {
   onClose: () => void;
 };
 
+/** Milliseconds since `start`. Module level so the render-purity lint (and the
+    reader) can see it is only ever called from a command, never while rendering. */
+const elapsedSince = (start: number) => Date.now() - start;
+
+/** Opens a link the way the `open` command does: mail client or new tab. */
+function openTarget(url: string) {
+  if (url.startsWith("mailto:")) window.location.href = url;
+  else window.open(url, "_blank", "noopener,noreferrer");
+}
+
 export default function Terminal({ open, onClose }: TerminalProps) {
   const [stored] = useState(loadStored);
   const [shown, setShown] = useState(false);
@@ -687,13 +697,19 @@ export default function Terminal({ open, onClose }: TerminalProps) {
   const crtRef = useRef(stored.crt);
   const cluesRef = useRef(stored.clues);
   const fortuneCalls = useRef(0);
-  const fortuneShift = useRef(Math.floor(Math.random() * 10));
+  const fortuneShift = useRef(0);
   const cupsRef = useRef(0);
   /** history length when the last hint was given: a hint costs one move. */
   const hintGate = useRef(-10);
-  const openedAt = useRef(Date.now());
+  const openedAt = useRef(0);
   const closingRef = useRef(false);
   const closeTimer = useRef(0);
+
+  // Set once on mount: Date.now and Math.random are impure, so not during render.
+  useEffect(() => {
+    fortuneShift.current = Math.floor(Math.random() * 10);
+    openedAt.current = Date.now();
+  }, []);
 
   const count = found.length;
   const rank = rankFor(count);
@@ -1139,7 +1155,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
             rank: user,
             count: foundRef.current.length,
             theme: themeRef.current,
-            uptime: uptimeText(Date.now() - openedAt.current),
+            uptime: uptimeText(elapsedSince(openedAt.current)),
           }),
         );
         discover("neofetch");
@@ -1217,7 +1233,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
       case "whoami":
         emit(
           whoamiOutput(user, rankFor(foundRef.current.length), foundRef.current.length, {
-            uptime: uptimeText(Date.now() - openedAt.current),
+            uptime: uptimeText(elapsedSince(openedAt.current)),
             commands: history.current.length,
             theme: themeRef.current,
           }),
@@ -1290,8 +1306,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
           return;
         }
         append([{ tone: "plain", text: `Opening ${entry.label}...` }]);
-        if (entry.url.startsWith("mailto:")) window.location.href = entry.url;
-        else window.open(entry.url, "_blank", "noopener,noreferrer");
+        openTarget(entry.url);
         discover("open");
         return;
       }

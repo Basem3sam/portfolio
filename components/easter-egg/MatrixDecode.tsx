@@ -27,9 +27,13 @@ export default function MatrixDecode({ text, ms = 1500, style }: Props) {
   }, [ms]);
 
   const resolved = Math.floor((t / ms) * text.length);
+  // Derived from the elapsed tick and the position, so it changes every tick
+  // (the flicker) but is a pure function of what is rendered.
+  const tick = Math.floor(t / TICK);
+  let index = resolved;
   const noise = text
     .slice(resolved)
-    .replace(/\S/g, () => NOISE[Math.floor(Math.random() * NOISE.length)]);
+    .replace(/\S/g, () => NOISE[(tick * 31 + index++ * 17 + ((tick * index) % 7)) % NOISE.length]);
 
   return (
     <div className="ln mxd" style={style} role="img" aria-label={text.trim()}>
