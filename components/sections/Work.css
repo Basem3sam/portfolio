@@ -106,33 +106,77 @@
   text-wrap: pretty;
 }
 
+/* The technology list wraps like running text, but a "/" is only ever drawn
+   BETWEEN two technologies on the same line. It never ends a line
+   ("Mongoose /") and never starts one ("/ Express").
+
+   Each item owns a gutter (--sep: 9px, the slash, 9px) on the side the lines
+   are aligned to. The slash is drawn inside that gutter, and the list is pulled
+   out by one gutter and clipped back by the same amount, so the gutter that
+   falls on the aligned edge of a line (before its first item, or after its
+   last) is cut away and only the in-between slashes remain. No script, no
+   measuring, and no spacing that has to be tuned per breakpoint.
+
+   LTR lines start at the left edge: the gutter sits before each item.
+   Arabic pages keep the list right-aligned (below): the gutter sits after. */
 #work .stk {
+  --sep-gap: 9px;
+  --sep: calc(1ch + var(--sep-gap) * 2);
   display: flex;
   flex-wrap: wrap;
   gap: 4px 0;
+  width: calc(100% + var(--sep));
   margin: 0;
+  margin-left: calc(var(--sep) * -1);
   padding: 0;
   list-style: none;
   direction: ltr;
+  clip-path: inset(0 0 0 var(--sep));
   font: 500 0.78125rem/1.5 var(--font-mono-body);
   color: var(--c-light-text);
 }
 
-[dir="rtl"] #work .stk {
-  justify-content: flex-end;
+#work .stk li {
+  position: relative;
+  padding-left: var(--sep);
 }
 
-#work .stk li:not(:last-child)::after {
+#work .stk li:not(:first-child)::before {
   content: "/";
-  margin-inline: 9px;
+  position: absolute;
+  left: var(--sep-gap);
+  color: var(--c-rule-strong);
+}
+
+[dir="rtl"] #work .stk {
+  justify-content: flex-end;
+  margin-left: 0;
+  margin-right: calc(var(--sep) * -1);
+  clip-path: inset(0 var(--sep) 0 0);
+}
+
+[dir="rtl"] #work .stk li {
+  padding-left: 0;
+  padding-right: var(--sep);
+}
+
+[dir="rtl"] #work .stk li:not(:first-child)::before {
+  content: none;
+}
+
+[dir="rtl"] #work .stk li:not(:last-child)::after {
+  content: "/";
+  position: absolute;
+  right: var(--sep-gap);
   color: var(--c-rule-strong);
 }
 
 #work .actions {
+  --act-gap: 8px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: var(--act-gap);
 }
 
 #work .actions:empty {
@@ -1351,7 +1395,8 @@ html[lang="ar"] #work .sm-tag {
   color: #cfd7f7;
 }
 
-#work .feat .stk li:not(:last-child)::after {
+#work .feat .stk li::before,
+#work .feat .stk li::after {
   color: rgba(255, 255, 255, 0.25);
 }
 
@@ -1648,8 +1693,20 @@ html[lang="ar"] #work .sm-tag {
     transform: rotateY(4deg) rotateX(2deg);
   }
 
+  /* Stacked buttons: Case study spans the row; Repository and Live site share
+     the next row equally, and a lone one spans it. Buttons that cannot fit two
+     to a row (very narrow phones) each take their own full-width row instead,
+     because the label never wraps. */
+  #work .feat-copy .actions .btn {
+    min-height: 44px;
+  }
+
   #work .feat-copy .actions .btn-primary {
-    flex-basis: 100%;
+    flex: 1 1 100%;
+  }
+
+  #work .feat-copy .actions .btn-ghost {
+    flex: 1 1 calc((100% - var(--act-gap)) / 2);
   }
 }
 
@@ -1986,10 +2043,18 @@ html[lang="ar"] #work .sm-tag {
   }
 }
 
-/* On a phone the buttons share the line. */
-@media (max-width: 479.98px) {
+/* Wherever the card is stacked (stage above copy, up to the 640px switch to a
+   row) its buttons fill the copy column: each action takes an equal share of
+   the row, one spanning it when alone, and Details sits on the row below.
+   This used to stop at 480px, so 480-639px had content-sized buttons beside a
+   Details link while narrower screens had full-width ones. */
+@media (max-width: 639.98px) {
+  #work .card .actions {
+    flex: 1 1 100%;
+  }
+
   #work .card .actions .btn {
-    flex: 1 1 40%;
+    flex: 1 1 calc((100% - var(--act-gap)) / 2);
     min-height: 44px;
   }
 
