@@ -23,8 +23,14 @@ export default function MarqueeScrollDrive() {
     let lastY = window.scrollY;
     let lastT = performance.now();
     let visible = false;
+    let applied = 1;
 
-    const apply = (value: number) => {
+    // Changing playbackRate re-times the animation on the main thread, so doing
+    // it every frame during a fling costs real time for a change nobody can
+    // tell from its neighbour. Only act when the rate has moved a visible step.
+    const apply = (value: number, force = false) => {
+      if (!force && Math.abs(value - applied) < 0.2) return;
+      applied = value;
       row.getAnimations().forEach((animation) => {
         animation.playbackRate = value;
       });
@@ -43,7 +49,7 @@ export default function MarqueeScrollDrive() {
       rate += (target - rate) * (1 - Math.pow(1 - follow, steps));
       if (Math.abs(rate - 1) < 0.01 && target === 1) {
         rate = 1;
-        apply(1);
+        apply(1, true);
         frame = 0;
         return; // idle: stop looping until the next scroll
       }
@@ -64,7 +70,7 @@ export default function MarqueeScrollDrive() {
         cancelAnimationFrame(frame);
         frame = 0;
         rate = 1;
-        apply(1);
+        apply(1, true);
       }
     });
     observer.observe(view);
@@ -74,7 +80,7 @@ export default function MarqueeScrollDrive() {
       observer.disconnect();
       window.removeEventListener("scroll", wake);
       if (frame) cancelAnimationFrame(frame);
-      apply(1);
+      apply(1, true);
     };
     const offLow = onLowTier(teardown);
 

@@ -19,6 +19,7 @@ import { CV_PATH, GITHUB_URL, LINKEDIN_URL, MAILTO, PHONE_DISPLAY, PHONE_TEL } f
 import type { Dictionary } from "@/lib/dictionaries/en";
 import { isHomePath, switchLocalePath, type Locale } from "@/lib/i18n";
 import { getNavbarHeight, homeAnchorHref } from "@/lib/scroll";
+import { fastScroll } from "@/lib/scroll-speed";
 import "./Navbar.css";
 
 type NavbarProps = {
@@ -229,12 +230,15 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
   // crossed above the detection line (32px below the navbar).
   useEffect(() => {
     let frame = 0;
+    let trailing = 0;
+    let lastRun = 0;
 
     // Closed-bar height, so the open mobile menu never shifts the line.
     const detectionLine = () => getNavbarHeight() + 32;
 
     const update = () => {
       frame = 0;
+      lastRun = performance.now();
       const line = detectionLine();
       let current: string | null = null;
 
@@ -250,7 +254,19 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
     };
 
     const schedule = () => {
-      if (!frame) frame = requestAnimationFrame(update);
+      if (frame) return;
+      // Each run measures sections, so during a fling on a touch screen it runs
+      // ~8 times a second and once more when the page slows down.
+      if (fastScroll() && performance.now() - lastRun < 120) {
+        if (!trailing) {
+          trailing = window.setTimeout(() => {
+            trailing = 0;
+            schedule();
+          }, 130);
+        }
+        return;
+      }
+      frame = requestAnimationFrame(update);
     };
 
     update();
@@ -263,6 +279,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
       window.removeEventListener("resize", schedule);
       window.removeEventListener(NAV_SYNC_EVENT, update);
       if (frame) cancelAnimationFrame(frame);
+      if (trailing) window.clearTimeout(trailing);
     };
   }, []);
 

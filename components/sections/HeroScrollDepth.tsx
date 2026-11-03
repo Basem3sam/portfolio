@@ -22,10 +22,23 @@ export default function HeroScrollDepth() {
     let frame = 0;
     let visible = true;
 
+    // The variable goes straight onto the two canvases that use it. Set on the
+    // hero it was inherited by every element inside it, so each scroll frame
+    // asked the browser to re-check the whole hero (headline, buttons, portrait,
+    // chips) for something only two elements read.
+    const skies = Array.from(hero.querySelectorAll<HTMLElement>(".hero-cv, .nb-cv"));
+    // Read once: offsetHeight forces layout, which a scroll frame should not.
+    let heroHeight = hero.offsetHeight;
+    const measure = () => {
+      heroHeight = hero.offsetHeight;
+    };
+    window.addEventListener("resize", measure, { passive: true });
+
     const write = () => {
       frame = 0;
-      const y = Math.min(Math.max(window.scrollY, 0), hero.offsetHeight);
-      hero.style.setProperty("--hero-drift", `${(y * 0.28).toFixed(1)}px`);
+      const y = Math.min(Math.max(window.scrollY, 0), heroHeight);
+      const value = `${(y * 0.28).toFixed(1)}px`;
+      for (const sky of skies) sky.style.setProperty("--hero-drift", value);
     };
     const onScroll = () => {
       if (visible && !frame) frame = requestAnimationFrame(write);
@@ -42,8 +55,9 @@ export default function HeroScrollDepth() {
     const teardown = () => {
       observer.disconnect();
       window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", measure);
       if (frame) cancelAnimationFrame(frame);
-      hero.style.removeProperty("--hero-drift");
+      for (const sky of skies) sky.style.removeProperty("--hero-drift");
     };
     const offLow = onLowTier(teardown);
 

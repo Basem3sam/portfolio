@@ -32,6 +32,8 @@
  * defaults (`var(--sp, 1)`) leave every element in its finished state.
  */
 
+import { fastScroll } from "@/lib/scroll-speed";
+
 export type StoryKind = "enter" | "pass" | "read" | "trace" | "exit" | "line";
 
 const KINDS: readonly StoryKind[] = ["enter", "pass", "read", "trace", "exit", "line"];
@@ -80,6 +82,8 @@ export function createStory() {
   let observer: ResizeObserver | null = null;
   let measureFrame = 0;
   let live = false;
+  let lastApply = 0;
+  let trailing = 0;
 
   const measure = () => {
     measureFrame = 0;
@@ -128,6 +132,22 @@ export function createStory() {
 
     update(nextScroll: number) {
       scroll = nextScroll;
+      const now = performance.now();
+      // While a finger is flinging the page, the in-between states cannot be
+      // seen, but writing them (each one restyles the section it is on) is what
+      // costs the fling its smoothness. Apply at most ~8 times a second, and
+      // once more when the page slows down so it lands on the right state.
+      if (fastScroll() && now - lastApply < 120) {
+        if (!trailing) {
+          trailing = window.setTimeout(() => {
+            trailing = 0;
+            lastApply = performance.now();
+            apply();
+          }, 130);
+        }
+        return;
+      }
+      lastApply = now;
       apply();
     },
 
@@ -136,6 +156,7 @@ export function createStory() {
 
     destroy() {
       live = false;
+      if (trailing) window.clearTimeout(trailing);
       window.removeEventListener("resize", scheduleMeasure);
       window.removeEventListener("load", scheduleMeasure);
       observer?.disconnect();

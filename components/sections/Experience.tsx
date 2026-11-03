@@ -10,6 +10,7 @@ import SectionHeader from "@/components/ui/SectionHeader";
 import type { Dictionary } from "@/lib/dictionaries/en";
 import type { Locale } from "@/lib/i18n";
 import { prefersReducedMotion } from "@/lib/scroll";
+import { fastScroll } from "@/lib/scroll-speed";
 
 type ExperienceProps = {
   dict: Dictionary["experience"];
@@ -65,36 +66,49 @@ export default function Experience({ dict, locale }: ExperienceProps) {
     if (!wrap || prefersReducedMotion()) return;
 
     const items = Array.from(wrap.querySelectorAll<HTMLElement>(".xp2"));
+    const dots = items.map((item) => item.querySelector<HTMLElement>(".tl-dot"));
     const timeline = wrap.querySelector<HTMLElement>(".tl");
     let frame = 0;
+    let trailing = 0;
+    let lastStep = 0;
 
     const step = () => {
       frame = 0;
+      lastStep = performance.now();
       const viewport = window.innerHeight;
+
+      // Read every rect first, then write every style. The old loop wrote an
+      // entry's --f and then measured the next entry, so each measurement
+      // forced the browser to recalculate style and layout in the middle of the
+      // scroll frame, once per entry.
+      const rects = items.map((item) => item.getBoundingClientRect());
+      const dotMids = items.map((_, index) => {
+        const dot = dots[index];
+        const rect = dot ? dot.getBoundingClientRect() : rects[index];
+        return rect.top + rect.height / 2;
+      });
+      const timelineRect = timeline ? timeline.getBoundingClientRect() : null;
+
       let best = 0;
       let bestDistance = Infinity;
-
-      items.forEach((item, index) => {
-        const rect = item.getBoundingClientRect();
-        const middle = rect.top + rect.height / 2;
-        const distance = Math.abs(middle - viewport / 2);
-        // Focus factor: 1 at the viewport centre, 0 a half-screen away.
-        item.style.setProperty("--f", clamp(1 - distance / (viewport * 0.55), 0, 1).toFixed(3));
-        const dot = item.querySelector<HTMLElement>(".tl-dot");
-        const dotRect = dot ? dot.getBoundingClientRect() : rect;
-        item.classList.toggle("passed", dotRect.top + dotRect.height / 2 <= viewport / 2 + 1);
+      const focus = rects.map((rect, index) => {
+        const distance = Math.abs(rect.top + rect.height / 2 - viewport / 2);
         if (distance < bestDistance) {
           bestDistance = distance;
           best = index;
         }
+        return clamp(1 - distance / (viewport * 0.55), 0, 1).toFixed(3);
       });
 
-      items.forEach((item, index) => item.classList.toggle("act", index === best));
+      items.forEach((item, index) => {
+        item.style.setProperty("--f", focus[index]);
+        item.classList.toggle("passed", dotMids[index] <= viewport / 2 + 1);
+        item.classList.toggle("act", index === best);
+      });
 
-      if (timeline) {
-        const rect = timeline.getBoundingClientRect();
+      if (timeline && timelineRect) {
         const progress = clamp(
-          (viewport / 2 - rect.top - 26) / Math.max(rect.height - 52, 1),
+          (viewport / 2 - timelineRect.top - 26) / Math.max(timelineRect.height - 52, 1),
           0,
           1,
         );
@@ -105,7 +119,19 @@ export default function Experience({ dict, locale }: ExperienceProps) {
     };
 
     const request = () => {
-      if (!frame) frame = window.requestAnimationFrame(step);
+      if (frame) return;
+      // While a finger is flinging the page this section only needs to be right
+      // when it stops: update ~8 times a second, then once more on arrival.
+      if (fastScroll() && performance.now() - lastStep < 120) {
+        if (!trailing) {
+          trailing = window.setTimeout(() => {
+            trailing = 0;
+            request();
+          }, 130);
+        }
+        return;
+      }
+      frame = window.requestAnimationFrame(step);
     };
 
     window.addEventListener("scroll", request, { passive: true });
@@ -116,6 +142,7 @@ export default function Experience({ dict, locale }: ExperienceProps) {
       window.removeEventListener("scroll", request);
       window.removeEventListener("resize", request);
       if (frame) window.cancelAnimationFrame(frame);
+      if (trailing) window.clearTimeout(trailing);
     };
   }, []);
 
