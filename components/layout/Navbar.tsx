@@ -607,7 +607,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
 
           <button
             type="button"
-            className="nav-mobile-btn nav-ctl ms-0 flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md lg:hidden"
+            className="nav-mobile-btn nav-ctl flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md lg:hidden"
             aria-controls="navbarNav"
             aria-expanded={menuOpen}
             aria-label={labels.toggleNavigation}

@@ -816,3 +816,15 @@ nav[data-tide="true"] .nav-mobile-btn:active {
   border-color: color-mix(in srgb, var(--c-secondary) 65%, transparent);
   transform: scale(0.92);
 }
+
+/* Search + menu pair on the phone bar. While their outlines are visible the
+   two boxes need a gap so the borders do not touch; as the outlines fade into
+   the capsule the gap closes, so the pair reads as one tight group. Driven by
+   the same --edge / --hi values as the outlines, so it moves with the scroll. */
+.nav-mobile-btn + .nav-mobile-btn {
+  margin-inline-start: calc(var(--edge, 1) * 0.5rem);
+}
+
+nav[data-tide="true"] .nav-mobile-btn + .nav-mobile-btn {
+  margin-inline-start: calc(var(--hi, 1) * 0.5rem);
+}
