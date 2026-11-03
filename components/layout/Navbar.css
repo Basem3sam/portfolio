@@ -468,13 +468,10 @@ nav:not([data-tide])[data-scrolled="false"] .nav-links a:is([aria-current="page"
 /* The case-study hero is the deep-blue tide band, so the bare bar keeps a
    light ink over it until the glass capsule takes over. `--np` is the
    capsule progress: 0 at the top of the page, 1 after the ramp. */
-/* Resting-outline and search-fill progress, derived from the capsule progress.
-   The outline is gone by np 0.2 (before the glass has formed enough to meet
-   it); the search chip's soft fill arrives right after, so the two hand off
-   instead of overlapping. */
+/* Resting-outline progress, derived from the capsule progress: gone by np 0.2,
+   before the glass has formed enough to meet it. */
 nav {
   --edge: min(1, max(0, (0.2 - var(--np, 0)) * 5));
-  --fill: min(1, max(0, (var(--np, 0) - 0.12) * 6));
 }
 
 nav[data-tide="true"] {
@@ -583,23 +580,28 @@ nav[data-tide="true"] #darkModeToggle {
 
 .nav-ctl:focus-visible,
 .lang-ctl:focus-visible {
-  background-color: color-mix(in srgb, var(--c-secondary) 11%, transparent);
-  border-color: color-mix(in srgb, var(--c-secondary) 50%, transparent);
+  background-color: color-mix(in srgb, var(--c-secondary) 16%, transparent);
+  border-color: color-mix(in srgb, var(--c-secondary) 55%, transparent);
   color: var(--c-secondary);
 }
 
 @media (hover: hover) {
   .nav-ctl:hover,
   .lang-ctl:hover {
-    background-color: color-mix(in srgb, var(--c-secondary) 11%, transparent);
-    border-color: color-mix(in srgb, var(--c-secondary) 50%, transparent);
+    background-color: color-mix(in srgb, var(--c-secondary) 16%, transparent);
+    border-color: color-mix(in srgb, var(--c-secondary) 55%, transparent);
     color: var(--c-secondary);
   }
 }
 
+/* Press: a deeper tint and a small squeeze, so every icon button answers a
+   click or tap even with no resting outline. */
 .nav-ctl:active,
 .lang-ctl:active {
-  background-color: color-mix(in srgb, var(--c-secondary) 18%, transparent);
+  background-color: color-mix(in srgb, var(--c-secondary) 28%, transparent);
+  border-color: color-mix(in srgb, var(--c-secondary) 65%, transparent);
+  color: var(--c-secondary);
+  transform: scale(0.92);
 }
 
 /* ---------- "Let's talk": dark pill, honey arrow disc ---------- */
@@ -719,16 +721,16 @@ nav:not([data-tide])[data-scrolled="false"] .nav-links a.nav-cta .nav-cta-ic {
 nav[data-tide="true"] .nav-util .nav-ctl:focus-visible,
 nav[data-tide="true"] .nav-util .lang-ctl:focus-visible,
 nav[data-tide="true"] .nav-mobile-btn:focus-visible {
-  background: color-mix(in srgb, white calc(var(--hi) * 14%), color-mix(in srgb, var(--c-secondary) 11%, transparent));
-  border-color: color-mix(in srgb, var(--tide-ink-2) calc(var(--hi) * 70%), color-mix(in srgb, var(--c-secondary) 50%, transparent));
+  background: color-mix(in srgb, white calc(var(--hi) * 14%), color-mix(in srgb, var(--c-secondary) 16%, transparent));
+  border-color: color-mix(in srgb, var(--tide-ink-2) calc(var(--hi) * 70%), color-mix(in srgb, var(--c-secondary) 55%, transparent));
 }
 
 @media (hover: hover) {
   nav[data-tide="true"] .nav-util .nav-ctl:hover,
   nav[data-tide="true"] .nav-util .lang-ctl:hover,
   nav[data-tide="true"] .nav-mobile-btn:hover {
-    background: color-mix(in srgb, white calc(var(--hi) * 14%), color-mix(in srgb, var(--c-secondary) 11%, transparent));
-    border-color: color-mix(in srgb, var(--tide-ink-2) calc(var(--hi) * 70%), color-mix(in srgb, var(--c-secondary) 50%, transparent));
+    background: color-mix(in srgb, white calc(var(--hi) * 14%), color-mix(in srgb, var(--c-secondary) 16%, transparent));
+    border-color: color-mix(in srgb, var(--tide-ink-2) calc(var(--hi) * 70%), color-mix(in srgb, var(--c-secondary) 55%, transparent));
   }
 }
 
@@ -805,29 +807,12 @@ nav[data-menu-open="true"] .nav-capsule::before {
   background: color-mix(in srgb, var(--c-page) 97%, transparent);
 }
 
-
-/* ---------- search keeps its affordance on the capsule ---------- */
-
-/* An icon alone does not say "search" or "click me" once the outline is gone,
-   so the search control swaps its outline for a soft pill (the same tone as
-   the sliding link indicator) that fades in as the capsule forms. Hover and
-   focus still win with the action-colour tint. */
-.nav-search {
-  background-color: color-mix(in srgb, var(--c-light-bg) calc(var(--fill, 0) * 100%), transparent);
-  color: color-mix(in srgb, var(--c-dark-text) calc(var(--fill, 0) * 70%), var(--c-light-text));
-}
-
-nav[data-tide="true"] .nav-search:not(:hover):not(:focus-visible) {
-  background-color: color-mix(in srgb, var(--c-light-bg) calc(var(--fill, 0) * 100%), transparent);
-  color: color-mix(
-    in srgb,
-    var(--tide-ink-2) calc(var(--hi) * 100%),
-    color-mix(in srgb, var(--c-dark-text) calc(var(--fill, 0) * 70%), var(--c-light-text))
-  );
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .nav-search {
-    transition: none;
-  }
+/* Press state on the tide bar, last so it beats the tide hover restatements
+   above while the pointer is still over the button. */
+nav[data-tide="true"] .nav-util .nav-ctl:active,
+nav[data-tide="true"] .nav-util .lang-ctl:active,
+nav[data-tide="true"] .nav-mobile-btn:active {
+  background: color-mix(in srgb, var(--c-secondary) 28%, transparent);
+  border-color: color-mix(in srgb, var(--c-secondary) 65%, transparent);
+  transform: scale(0.92);
 }
