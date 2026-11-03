@@ -14,15 +14,39 @@ export const SCAN_DIRS = ["app", "components", "lib", "data"] as const;
  * easier".
  */
 export const EXEMPT: ReadonlyArray<{ prefix: string; reason: string }> = [
-  { prefix: "app/[lang]/opengraph-image.tsx", reason: "draws pixels for the share image; no CSS variables exist there" },
-  { prefix: "app/[lang]/layout.tsx", reason: "viewport themeColor reaches browser chrome before any CSS loads" },
+  {
+    prefix: "app/[lang]/opengraph-image.tsx",
+    reason: "draws pixels for the share image; no CSS variables exist there",
+  },
+  {
+    prefix: "app/[lang]/layout.tsx",
+    reason: "viewport themeColor reaches browser chrome before any CSS loads",
+  },
   { prefix: "lib/effects.ts", reason: "canvas particle colours" },
-  { prefix: "lib/terminalCommands.ts", reason: "easter-egg terminal output; restyled in the motion and overlay phase" },
-  { prefix: "components/github/GitHubRepoCard.tsx", reason: "GitHub's own language colours; third-party brand data, not theme colours" },
-  { prefix: "components/links/LinksBackdrop.tsx", reason: "canvas drawing; fillStyle needs resolved colours" },
-  { prefix: "lib/theme.ts", reason: "viewport themeColor reaches browser chrome before any CSS loads" },
-  { prefix: "components/behavior/ScrollbarTone.tsx", reason: "scrollbar tint set from JS; values pending mapping to tokens" },
-  { prefix: "components/easter-egg/", reason: "a deliberate simulation of a shell; restyled in the motion and overlay phase" },
+  {
+    prefix: "lib/terminalCommands.ts",
+    reason: "easter-egg terminal output; restyled in the motion and overlay phase",
+  },
+  {
+    prefix: "components/github/GitHubRepoCard.tsx",
+    reason: "GitHub's own language colours; third-party brand data, not theme colours",
+  },
+  {
+    prefix: "components/links/LinksBackdrop.tsx",
+    reason: "canvas drawing; fillStyle needs resolved colours",
+  },
+  {
+    prefix: "lib/theme.ts",
+    reason: "viewport themeColor reaches browser chrome before any CSS loads",
+  },
+  {
+    prefix: "components/behavior/ScrollbarTone.tsx",
+    reason: "scrollbar tint set from JS; values pending mapping to tokens",
+  },
+  {
+    prefix: "components/easter-egg/",
+    reason: "a deliberate simulation of a shell; restyled in the motion and overlay phase",
+  },
 ];
 
 const HEX = /#[0-9a-fA-F]{3,8}\b/g;
@@ -67,7 +91,8 @@ export function scanSources(root: string): Violation[] {
         ];
         for (const [kind, re] of checks) {
           re.lastIndex = 0;
-          if (re.test(text)) found.push({ file: rel, line: i + 1, kind, text: text.trim().slice(0, 140) });
+          if (re.test(text))
+            found.push({ file: rel, line: i + 1, kind, text: text.trim().slice(0, 140) });
         }
       });
     }
@@ -95,7 +120,8 @@ export function parseTokens(css: string): Record<Theme, Tokens> {
     }
     const body = css.slice(start, i - 1);
     const tokens: Tokens = {};
-    for (const d of body.matchAll(/--c-([a-z-]+):\s*(#[0-9a-fA-F]{6})\s*;/g)) tokens[d[1]] = d[2].toLowerCase();
+    for (const d of body.matchAll(/--c-([a-z-]+):\s*(#[0-9a-fA-F]{6})\s*;/g))
+      tokens[d[1]] = d[2].toLowerCase();
     return tokens;
   };
   return { light: grab(/^:root\s*\{/m), dark: grab(/^\.dark-mode\s*\{/m) };
