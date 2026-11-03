@@ -311,6 +311,37 @@ export function mountHeroFx(
     cleanups.push(() => target.removeEventListener(type, handler as never, options));
   };
 
+  /**
+   * A press on the sky. A mouse or pen counts on pointerdown; a finger only
+   * counts as a tap (up within 10px and half a second). On a phone every scroll
+   * starts with a pointerdown, so reacting to that started the ripple and the
+   * spark at the very moment the page began to scroll, and added their cost to
+   * the scroll. The browser cancels the pointer once it takes over for
+   * scrolling, which is what drops the candidate here.
+   */
+  const onPress = (handler: (x: number, y: number, el: HTMLElement | null) => void) => {
+    let touch: { id: number; x: number; y: number; at: number } | null = null;
+    listen(host, "pointerdown", (event: PointerEvent) => {
+      const el = event.target as HTMLElement | null;
+      if (event.pointerType !== "touch") {
+        handler(event.clientX, event.clientY, el);
+        return;
+      }
+      touch = { id: event.pointerId, x: event.clientX, y: event.clientY, at: performance.now() };
+    });
+    listen(host, "pointerup", (event: PointerEvent) => {
+      if (!touch || touch.id !== event.pointerId) return;
+      const start = touch;
+      touch = null;
+      if (Math.hypot(event.clientX - start.x, event.clientY - start.y) > 10) return;
+      if (performance.now() - start.at > 500) return;
+      handler(event.clientX, event.clientY, event.target as HTMLElement | null);
+    });
+    listen(host, "pointercancel", () => {
+      touch = null;
+    });
+  };
+
   const dirOf = () => (host.closest("[dir]")?.getAttribute("dir") === "rtl" ? 1 : 0);
   const pf = host.querySelector<HTMLElement>("#pf");
 
@@ -411,11 +442,11 @@ export function mountHeroFx(
     f.ptr.on = false;
     pointerDirty = false;
   });
-  listen(host, "pointerdown", (event: PointerEvent) => {
-    const el = event.target as HTMLElement | null;
-    if (reduce || isControl(el)) return;
+  onPress((x, y, el) => {
+    // Once the nebula has taken over the halftone is hidden and stopped.
+    if (reduce || isControl(el) || host.hasAttribute("data-nb")) return;
     const r = host.getBoundingClientRect();
-    f.rip.push({ x: event.clientX - r.left, y: event.clientY - r.top, t: performance.now() });
+    f.rip.push({ x: x - r.left, y: y - r.top, t: performance.now() });
     if (f.rip.length > 4) f.rip.shift();
     f.dirty = true;
   });
@@ -433,6 +464,8 @@ export function mountHeroFx(
   /* ----------------------------------------------- nebula (WebGL2) ------ */
   const MS = 12;
   const MR = 4;
+  /** Seconds a spark made by a press lasts. */
+  const SPARK_LIFE = 8;
   let glCtx: WebGL2RenderingContext | null = null;
   let disposed = false;
   let halftoneRaf = 0;
@@ -685,16 +718,29 @@ export function mountHeroFx(
           const wantOn = reduce ? 0 : idle ? 0.55 : 1;
           lamp.on += (wantOn - lamp.on) * (reduce ? 1 : 1 - Math.exp(-dt * 3));
 
+          // A spark made by a press used to stay for good, and every spark is a
+          // loop iteration for every pixel (twice), so a few presses made the
+          // sky permanently heavier. Now it lives about 8 seconds: it shrinks
+          // away over the last 3 and is removed, back to the resting cost.
+          if (!reduce && sparks.some((s) => s.user && t - s.born > SPARK_LIFE)) {
+            sparks = sparks.filter((s) => !(s.user && t - s.born > SPARK_LIFE));
+          }
+
           const ms = Math.min(W, H);
           const n = Math.min(sparks.length, MS);
           for (let i = 0; i < n; i++) {
             const s = sparks[i];
-            const reach = s.reach * ms;
+            let fade = 1;
+            if (s.user && !reduce) {
+              const k = Math.min(1, Math.max(0, (t - s.born - (SPARK_LIFE - 3)) / 3));
+              fade = 1 - k * k * (3 - 2 * k);
+            }
+            const reach = s.reach * ms * fade;
             const d = Math.hypot(s.x * W - lamp.x * W, s.y * H - lamp.y * H);
             const want = reduce ? 0 : Math.exp(-(d * d) / Math.max(reach * reach * 0.6, 400));
             flare[i] += (want - flare[i]) * (reduce ? 1 : 1 - Math.exp(-dt * 6));
             sA.set([s.x * W, s.y * H, reach, s.born], i * 4);
-            sB.set([s.tint, s.phase, flare[i], Math.max(s.core * ms, 1.5)], i * 4);
+            sB.set([s.tint, s.phase, flare[i], Math.max(s.core * ms * fade, 1.5)], i * 4);
           }
 
           const fx = hasFocus ? focusX : W * 0.7;
@@ -826,10 +872,9 @@ export function mountHeroFx(
           inside = false;
         });
 
-        listen(host, "pointerdown", (event: PointerEvent) => {
-          const el = event.target as HTMLElement | null;
+        onPress((x, y, el) => {
           if (isControl(el)) return;
-          const uv = toUv(event.clientX, event.clientY);
+          const uv = toUv(x, y);
           addSpark(uv[0], uv[1], false);
           if (reduce) paint();
         });
@@ -859,6 +904,30 @@ export function mountHeroFx(
 
         sizeNb();
         paint();
+
+        // Warm-up. The first press switches on branches the resting sky never
+        // runs (a live ripple, one more spark), and some mobile GPU drivers
+        // finish compiling a path the first time it executes, which showed up
+        // as a hitch on the first press. One frame with everything live, drawn
+        // before the nebula is visible, pays that cost here instead.
+        if (!reduce && W >= 2) {
+          const warmAt = clock();
+          sparks.push({
+            x: 0.5,
+            y: 0.5,
+            reach: 0.05,
+            core: 0.006,
+            tint: 0,
+            phase: 0,
+            born: warmAt,
+            user: true,
+          });
+          ripples.set([W * 0.5, H * 0.5, warmAt, 1], 0);
+          paint();
+          sparks.pop();
+          ripples.fill(0);
+          paint();
+        }
         wake();
         cleanups.push(() => {
           if (raf) cancelAnimationFrame(raf);
