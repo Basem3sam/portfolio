@@ -998,3 +998,179 @@ html[data-perf="low"] #stack .stx-slab::after {
     opacity: 1;
   }
 }
+
+/* ================================================================
+   Compact single-column layouts (≤991px) — rev: tighter, more composed.
+
+   Problem: below 992px the five stages were one long stack of tall,
+   near-identical cards, chips left a ragged right edge, "Also writes"
+   floated loose, and the section ended on dead space.
+
+   • 640–991px  → a two-column board of cards (Ship spans the full row),
+                  no rail: each card carries its own node, so the section
+                  is about half as tall and uses the width.
+   • ≤639px     → keeps the rail, but cards are tighter, chips grow to fill
+                  each row (no ragged edge) and "Also writes" becomes the
+                  final panel the rail runs into.
+   ================================================================ */
+@media (max-width: 991px) {
+  /* "Also writes" as a panel that belongs to the system. */
+  #stack .stx-also {
+    gap: 10px 16px;
+    margin-top: 4px;
+    padding: 16px var(--tcp, 22px) 18px;
+    border: 1px dashed var(--c-rule-strong);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--c-dark-text) 3%, transparent);
+  }
+
+  #stack .stx-also .chips {
+    gap: 6px;
+  }
+
+  #stack .stx-also .chip {
+    min-height: 34px;
+    gap: 8px;
+    padding: 4px 10px 4px 4px;
+    font-size: 0.8125rem;
+  }
+
+  #stack .stx-also .chip b {
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    font-size: 0.625rem;
+  }
+
+  /* Less dead air at the end of the section. */
+  #stack.sec {
+    padding-block-end: clamp(48px, 8vw, 72px);
+  }
+}
+
+/* ---- Tablet: two-column board ---- */
+@media (min-width: 640px) and (max-width: 991px) {
+  #stack .fl-stages {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  #stack .stx {
+    padding: 20px 22px 22px;
+  }
+
+  #stack .stx:last-child {
+    grid-column: 1 / -1;
+  }
+
+  /* The card is the unit now: slab fills it, no vertical rail. */
+  #stack .stx-slab {
+    inset: 0;
+  }
+
+  #stack .stx-seg {
+    display: none;
+  }
+
+  #stack .stx-node {
+    top: 24px;
+    inset-inline-start: 22px;
+  }
+
+  #stack .stx-k {
+    padding-inline-start: 22px;
+  }
+
+  #stack .stx-c {
+    min-height: 3.1em;
+  }
+
+  /* Ship is wide: caption and chips sit side by side. */
+  #stack .stx:last-child .chips {
+    margin-top: 16px;
+  }
+
+  #stack .stx-also {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    margin-top: 16px;
+  }
+}
+
+/* ---- Phone: rail kept, everything tighter ---- */
+@media (max-width: 639px) {
+  #stack .sflow {
+    margin-top: 22px;
+  }
+
+  #stack .stx {
+    padding-block: 18px 26px;
+  }
+
+  #stack .stx-slab {
+    bottom: 12px;
+  }
+
+  #stack .stx h3 {
+    margin-top: 6px;
+    font-size: 1.125rem;
+  }
+
+  #stack .stx-c {
+    margin-top: 4px;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+  }
+
+  #stack .stx .chips {
+    margin-top: 12px;
+    gap: 6px;
+  }
+
+  /* Chips grow to fill each row: a clean right edge instead of a ragged one. */
+  #stack .stx .chip,
+  #stack .stx-also .chip {
+    flex: 1 1 auto;
+    justify-content: flex-start;
+  }
+
+  /* The rail runs on through Ship and ends in a hollow ring at the panel. */
+  #stack .stx:last-child .stx-seg {
+    display: block;
+  }
+
+  #stack .stx-also {
+    position: relative;
+    flex-direction: column;
+    align-items: stretch;
+    margin-inline-start: var(--tlp, 26px);
+    margin-top: 0;
+    padding: 16px var(--tcp, 18px) 16px;
+  }
+
+  #stack .stx-also::before {
+    content: "";
+    position: absolute;
+    top: 19px;
+    inset-inline-start: calc(-1 * var(--tlp, 26px) + 8px);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--c-honey);
+    background: var(--c-page);
+    box-sizing: border-box;
+  }
+}
+
+@media (min-width: 561px) and (max-width: 639px) {
+  #stack .stx-also::before {
+    inset-inline-start: calc(-1 * var(--tlp, 26px) + 13px);
+  }
+}
+
+@media print {
+  #stack .stx-also::before {
+    display: none;
+  }
+}
