@@ -237,3 +237,24 @@ html[lang="ar"] #about .ed-deg h3 {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Rail centre matches Experience and Stack: 18px from the content edge, 13px on phones. */
+@media (max-width: 991px) {
+  #about .ab-rail li::before {
+    inset-inline-start: -18px;
+  }
+
+  #about .ab-rail li:not(:last-child)::after {
+    inset-inline-start: -13px;
+  }
+}
+
+@media (max-width: 560px) {
+  #about .ab-rail li::before {
+    inset-inline-start: -23px;
+  }
+
+  #about .ab-rail li:not(:last-child)::after {
+    inset-inline-start: -18px;
+  }
+}

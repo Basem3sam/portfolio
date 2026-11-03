@@ -19,6 +19,11 @@
  *          as the same flow stacked on a phone, stretch to cover their height.
  *   exit   0 while its top is at the top of the page, 1 once it has
  *          scrolled out. For the hero.
+ *   line   Written to `--lp`, not `--sp` (so it can sit inside a `trace`
+ *          element). 0 when the element's top reaches the reading line (58%
+ *          of the viewport), 1 when its bottom does: a fill that is exactly
+ *          as far along as the reader's eye. For each step of the vertical
+ *          Stack timeline on phones.
  *
  * Positions are cached (from layout offsets, which ignore the transforms the
  * story itself applies, so there is no feedback loop) and only re-measured when
@@ -27,9 +32,9 @@
  * defaults (`var(--sp, 1)`) leave every element in its finished state.
  */
 
-export type StoryKind = "enter" | "pass" | "read" | "trace" | "exit";
+export type StoryKind = "enter" | "pass" | "read" | "trace" | "exit" | "line";
 
-const KINDS: readonly StoryKind[] = ["enter", "pass", "read", "trace", "exit"];
+const KINDS: readonly StoryKind[] = ["enter", "pass", "read", "trace", "exit", "line"];
 
 type Item = {
   el: HTMLElement;
@@ -63,6 +68,8 @@ export function storyProgress(kind: StoryKind, top: number, height: number, scro
       return (vh * 0.9 - t) / (vh * 0.44 + Math.max(0, height - vh * 0.6));
     case "exit":
       return -t / Math.max(1, height);
+    case "line":
+      return (vh * 0.58 - t) / Math.max(1, height);
   }
 }
 
@@ -93,7 +100,7 @@ export function createStory() {
       const next = Math.round(clamp01(storyProgress(item.kind, item.top, item.height, scroll, viewport)) * 1000) / 1000;
       if (next !== item.value) {
         item.value = next;
-        item.el.style.setProperty("--sp", String(next));
+        item.el.style.setProperty(item.kind === "line" ? "--lp" : "--sp", String(next));
       }
     }
   };
@@ -134,7 +141,7 @@ export function createStory() {
       observer?.disconnect();
       if (measureFrame) cancelAnimationFrame(measureFrame);
       document.documentElement.removeAttribute("data-story-on");
-      for (const item of items) item.el.style.removeProperty("--sp");
+      for (const item of items) item.el.style.removeProperty(item.kind === "line" ? "--lp" : "--sp");
       items = [];
     },
   };

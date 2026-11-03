@@ -17,7 +17,9 @@ import { classifyGitHubFailure, type GitHubRepo } from "@/lib/github";
 export const dynamic = "force-dynamic";
 
 const GITHUB_USER = "basem3sam";
-const REPOS_PER_PAGE = 9;
+// Fetch a wider pool than the UI shows: forks, archived repos and the profile
+// README repo are filtered out client-side, and the best 6 are kept after that.
+const REPOS_PER_PAGE = 30;
 const UPSTREAM_TIMEOUT_MS = 8_000;
 const CACHE_SECONDS = 15 * 60;
 

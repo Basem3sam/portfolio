@@ -690,7 +690,7 @@ html:not([data-story-on]) #stack .xl-p {
   }
 
   #stack .stx {
-    padding-block: 0 38px;
+    padding-block: 0 30px;
     padding-inline: 36px 0;
   }
 
@@ -723,12 +723,29 @@ html:not([data-story-on]) #stack .xl-p {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px 4px;
-    margin-top: 16px;
+    gap: 6px;
+    margin-top: 14px;
   }
 
+  /* Compact tiles: the desktop 46px chips made every step a tall block and the
+     whole timeline about 1700px of near-identical boxes. */
   #stack .stx .chip {
     display: inline-flex;
+    gap: 8px;
+    min-height: 36px;
+    padding: 4px 10px 4px 4px;
+    font-size: 0.8125rem;
+  }
+
+  html[dir="rtl"] #stack .stx .chip {
+    justify-content: flex-start;
+  }
+
+  #stack .stx .chip b {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    font-size: 0.625rem;
   }
 
   #stack .stx-pkt {
@@ -748,12 +765,26 @@ html:not([data-story-on]) #stack .xl-p {
     border-radius: 14px;
     border-inline-start: 0;
     border-inline-end: 0;
+    /* --cur is how much this is the step being read (0 to 1, from the scroll:
+       see ScrollStory.css). The slab is a faint outline at rest and warms up
+       only while its step is under the reading line, so the eye has one place
+       to go. Without the story (low tier, reduced motion) every step rests at
+       the same mid value: no step is stuck lit. */
+    --cur: 0.35;
     background: linear-gradient(
       to right,
-      color-mix(in srgb, var(--slab) 15%, transparent),
-      color-mix(in srgb, var(--slab) 3%, transparent)
+      color-mix(in srgb, var(--slab) calc(3% + var(--cur) * 15%), transparent),
+      color-mix(in srgb, var(--slab) calc(var(--cur) * 4%), transparent)
     );
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--slab) 22%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--slab) calc(8% + var(--cur) * 22%), transparent);
+  }
+
+  #stack .stx {
+    --cur: 0.35;
+  }
+
+  #stack .stx-slab {
+    --cur: inherit;
   }
 
   #stack .stx[data-revealed="false"] .stx-slab {
@@ -818,4 +849,152 @@ html:not([data-story-on]) #stack .xl-p {
 /* Low performance tier: the slabs' periodic glow sweep is decoration. */
 html[data-perf="low"] #stack .stx-slab::after {
   animation: none;
+}
+
+/* Single-column widths: put the Stack rail on the same line as the Experience
+   and About rails so the three timelines read as one system. Centre is 18px
+   from the content edge, 13px on phones (Experience's --tlp / 2). */
+@media (max-width: 991px) {
+  #stack .stx-seg {
+    inset-inline: 17px auto;
+  }
+
+  #stack .stx-node {
+    inset-inline-start: 12px;
+  }
+}
+
+@media (max-width: 560px) {
+  #stack .stx-seg {
+    inset-inline: 12px auto;
+  }
+
+  #stack .stx-node {
+    inset-inline-start: 7px;
+  }
+}
+
+/* ================================================================
+   Single-column alignment with Experience / About.
+   The card (slab) starts at the same --tlp offset as an Experience card, its
+   inner padding matches (22px, 18px on phones), and the node sits at the same
+   height inside the card, so the rails AND the boxes line up between sections.
+   ================================================================ */
+@media (max-width: 991px) {
+  #stack {
+    --tlp: 36px;
+    --tcp: 22px; /* card inner padding, = Experience .xp2 */
+  }
+
+  #stack .stx {
+    padding-block: 18px 30px;
+    padding-inline: calc(var(--tlp) + var(--tcp)) var(--tcp);
+  }
+
+  #stack .stx-slab {
+    top: 0;
+    bottom: 14px;
+    inset-inline: var(--tlp) 0;
+  }
+
+  /* node centre 24px below the card top, rail runs node-to-node */
+  #stack .stx-node {
+    top: 18px;
+  }
+
+  #stack .stx-seg {
+    top: 24px;
+    bottom: -24px;
+  }
+}
+
+@media (max-width: 560px) {
+  #stack {
+    --tlp: 26px;
+    --tcp: 18px;
+  }
+}
+
+/* ================================================================
+   Single-column reveal (≤991px): a soft entrance instead of a wipe.
+   The desktop reveal wipes each slab downward with a clip-path, staggered by
+   stage index (up to 2.6s late). In a one-column timeline each step arrives on
+   its own as you scroll, so the index delay made later cards pop in long after
+   they were on screen, and the hard clip cut through the rounded corners.
+   Here each card fades and settles into place at once, then its text follows
+   in a short cascade. With JS off or reduced motion data-revealed is never set,
+   so everything simply shows.
+   ================================================================ */
+@media (max-width: 991px) {
+  #stack .stx-slab {
+    clip-path: none;
+    transform-origin: 50% 0;
+    transition:
+      opacity 0.7s ease,
+      transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: 0s;
+    will-change: opacity, transform;
+  }
+
+  #stack .stx[data-revealed="false"] .stx-slab {
+    clip-path: none;
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+    transition: none;
+  }
+
+  #stack .stx-seg::after {
+    transition-delay: 0s;
+  }
+
+  /* text cascade inside the card */
+  #stack .stx .stx-k,
+  #stack .stx h3,
+  #stack .stx .stx-c,
+  #stack .stx .chips {
+    transition:
+      opacity 0.6s ease,
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  #stack .stx[data-revealed="true"] .stx-k {
+    transition-delay: 0.1s;
+  }
+
+  #stack .stx[data-revealed="true"] h3 {
+    transition-delay: 0.16s;
+  }
+
+  #stack .stx[data-revealed="true"] .stx-c {
+    transition-delay: 0.22s;
+  }
+
+  #stack .stx[data-revealed="true"] .chips {
+    transition-delay: 0.28s;
+  }
+
+  #stack .stx[data-revealed="false"] :is(.stx-k, h3, .stx-c, .chips) {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: none;
+  }
+
+  /* the node pops in with the card */
+  #stack .stx-node {
+    transition:
+      background-color 0.5s ease,
+      border-color 0.5s ease,
+      transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  #stack .stx[data-revealed="false"] .stx-node {
+    transform: scale(0.6);
+  }
+}
+
+/* A tap leaves :hover stuck on touch screens, which dimmed every other step. */
+@media (hover: none) {
+  #stack .sflow:has(.stx:hover) .stx:not(:hover, [data-revealed="false"]) :is(h3, .chips) {
+    opacity: 1;
+  }
 }

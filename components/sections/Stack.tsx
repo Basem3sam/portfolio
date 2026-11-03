@@ -28,8 +28,8 @@ export default function Stack({ dict }: StackProps) {
   const { stages } = dict;
 
   return (
-    <section id="stack" className="py-16 md:py-24">
-      <div className="container">
+    <section id="stack" className="sec">
+      <div>
         <SectionHeader number="03" title={dict.title} lead={dict.lead} />
 
         <div className="sflow" data-story="trace">
@@ -59,6 +59,7 @@ export default function Stack({ dict }: StackProps) {
                 style={{ "--i": index } as CSSProperties}
                 aria-labelledby={`st-${stage.key}`}
                 data-reveal
+                data-story="line"
               >
                 {/* Connector line + node: the request path through this layer. */}
                 <span className="stx-slab" aria-hidden="true"></span>

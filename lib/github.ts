@@ -160,9 +160,10 @@ const USERNAME = "basem3sam";
 // Same-origin proxy. The GitHub token lives on the server only, so the client
 // must never talk to api.github.com directly.
 const API_ENDPOINT = "/api/github/repos";
-const REPOS_PER_PAGE = 9;
+/** How many cards the section shows. 6 fills 1, 2, 3 and 6 columns with no orphan row. */
+const MAX_REPOS = 6;
 const CACHE_KEY = "github_repos_enhanced_cache";
-const CACHE_VERSION = "2.0";
+const CACHE_VERSION = "2.1";
 const CACHE_DURATION = 15 * 60 * 1000;
 const RETRY_ATTEMPTS = 3;
 const RETRY_DELAY = 1000;
@@ -254,12 +255,19 @@ async function fetchRepositories(signal: AbortSignal): Promise<GitHubRepo[]> {
     }
 
     return repos
-      .filter((repo) => !repo.fork && !repo.archived)
+      .filter(
+        (repo) =>
+          !repo.fork &&
+          !repo.archived &&
+          // The profile README repo (named after the account) is not a project.
+          repo.name.toLowerCase() !== USERNAME.toLowerCase(),
+      )
       .sort(
         (a, b) =>
           b.stargazers_count - a.stargazers_count ||
           new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
-      );
+      )
+      .slice(0, MAX_REPOS);
   } catch (error) {
     if (timedOut) throw new GitHubApiError("timeout", 408);
     throw error;

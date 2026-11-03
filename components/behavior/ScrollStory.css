@@ -66,8 +66,47 @@ html[data-story-on] #stack .stx-slab::after {
 }
 
 @media (max-width: 991px) {
+  /* The vertical timeline follows the reader's eye, not the bottom edge of the
+     screen: every step has its own 0 to 1 (--lp, kind "line"), which is how far
+     its top-to-bottom span has passed the reading line at 58% of the viewport.
+     The line fills exactly to that point, the node lights as the step arrives,
+     a comet rides the fill's head, and only the step being read glows (--cur). */
+  html[data-story-on] #stack .fl-stages .stx {
+    --head: var(--lp, 1);
+    --cur: clamp(0, min(var(--lp, 1) * 7, (1 - var(--lp, 1)) * 7), 1);
+  }
+
+  html[data-story-on] #stack .fl-stages .stx:last-child {
+    --cur: clamp(0, var(--lp, 1) * 7, 1);
+  }
+
   html[data-story-on] #stack .stx[data-revealed] .stx-seg::after {
     transform: scaleY(clamp(0, var(--head), 1));
+  }
+
+  html[data-story-on] #stack .stx[data-revealed] .stx-seg::before {
+    content: "";
+    position: absolute;
+    z-index: 2;
+    inset-inline-start: 50%;
+    top: calc(var(--lp, 0) * 100%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--c-honey);
+    box-shadow: 0 0 12px 3px color-mix(in srgb, var(--c-honey) 65%, transparent);
+    translate: -50% -50%;
+    opacity: clamp(0, min(var(--lp, 0) * 30, (1 - var(--lp, 0)) * 30), 1);
+    pointer-events: none;
+  }
+
+  html[dir="rtl"][data-story-on] #stack .stx[data-revealed] .stx-seg::before {
+    translate: 50% -50%;
+  }
+
+  /* The node of the step being read swells a little. */
+  html[data-story-on] #stack .stx[data-revealed] .stx-node {
+    box-shadow: 0 0 0 calc(var(--cur, 0) * 6px) color-mix(in srgb, var(--c-honey) calc(var(--cur, 0) * 28%), transparent);
   }
 }
 

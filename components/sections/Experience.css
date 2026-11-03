@@ -147,8 +147,9 @@
 #experience .tl-dot {
   position: absolute;
   inset-block-start: 32px;
-  /* -7px keeps the 14px dot's centre exactly on the 2px rail in LTR and RTL */
-  inset-inline-start: calc(var(--tlp) / -2 - 7px);
+  /* -7px centres the 14px dot on the 2px rail; the extra -1px is the card's
+     own 1px border, because an absolute child measures from the padding box */
+  inset-inline-start: calc(var(--tlp) / -2 - 8px);
   width: 14px;
   height: 14px;
   border: 2px solid var(--c-muted-text);
