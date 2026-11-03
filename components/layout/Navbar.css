@@ -88,6 +88,9 @@
   transition:
     translate 0.38s cubic-bezier(0.22, 1, 0.36, 1),
     width 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    top 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    bottom 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    border-radius 0.38s cubic-bezier(0.22, 1, 0.36, 1),
     opacity 0.25s ease,
     background-color 0.3s ease,
     border-color 0.3s ease,
@@ -108,13 +111,14 @@
 /* At the top of the page the capsule has not formed, so the indicator is a
    thin honey rule under the link instead of a pill. */
 nav[data-scrolled="false"] .nav-ind {
-  top: auto;
+  /* Numeric top/bottom (not `auto`) so the pill and the rule are the same box
+     in two shapes and the switch between them animates. */
+  top: calc(100% - 5px);
   bottom: 3px;
-  height: 2px;
-  border: 0;
+  border-color: transparent;
   border-radius: 2px;
   background: var(--c-note);
-  box-shadow: none;
+  box-shadow: 0 0 0 transparent;
   translate: calc(var(--ix, 0px) + 14px) 0;
   width: calc(var(--iw, 0px) - 28px);
 }
@@ -468,10 +472,16 @@ nav:not([data-tide])[data-scrolled="false"] .nav-links a:is([aria-current="page"
 /* The case-study hero is the deep-blue tide band, so the bare bar keeps a
    light ink over it until the glass capsule takes over. `--np` is the
    capsule progress: 0 at the top of the page, 1 after the ramp. */
-/* Resting-outline progress, derived from the capsule progress: gone by np 0.2,
-   before the glass has formed enough to meet it. */
-nav {
-  --edge: min(1, max(0, (0.2 - var(--np, 0)) * 5));
+/* Choreography, all derived from the capsule progress --np (smoothed in JS):
+     0.00 - 0.25  the resting outlines on the icon buttons fade out (--edge),
+                  finished before the glass is visible enough to meet them;
+     0.10 - 0.65  the search / menu pair glides together (--close), after the
+                  outlines are gone, so no two borders ever touch;
+     0.00 - 1.00  the capsule itself eases in (--ne, globals.css). */
+.nav-shell {
+  --edge: min(1, max(0, (0.25 - var(--np, 0)) * 4));
+  --close-lin: min(1, max(0, (0.65 - var(--np, 0)) / 0.55));
+  --close: calc(var(--close-lin) * var(--close-lin) * (3 - 2 * var(--close-lin)));
 }
 
 nav[data-tide="true"] {
@@ -518,7 +528,7 @@ nav[data-tide="true"] .nav-util button::before,
 nav[data-tide="true"] .nav-mobile-btn::before {
   display: block;
   border-color: var(--tide-rule);
-  opacity: var(--hi);
+  opacity: var(--edge, 1);
 }
 
 /* The utility controls sit on the tide as bare outlines, not filled chips. */
@@ -819,12 +829,12 @@ nav[data-tide="true"] .nav-mobile-btn:active {
 
 /* Search + menu pair on the phone bar. While their outlines are visible the
    two boxes need a gap so the borders do not touch; as the outlines fade into
-   the capsule the gap closes, so the pair reads as one tight group. Driven by
-   the same --edge / --hi values as the outlines, so it moves with the scroll. */
+   the capsule the gap glides shut (--close, after the outlines are gone), so the
+   pair reads as one tight group. */
 .nav-mobile-btn + .nav-mobile-btn {
-  margin-inline-start: calc(var(--edge, 1) * 0.5rem);
+  margin-inline-start: calc(var(--close, 1) * 0.5rem);
 }
 
 nav[data-tide="true"] .nav-mobile-btn + .nav-mobile-btn {
-  margin-inline-start: calc(var(--hi, 1) * 0.5rem);
+  margin-inline-start: calc(var(--close, 1) * 0.5rem);
 }

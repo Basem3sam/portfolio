@@ -66,7 +66,11 @@ const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
  *  the menu panel's own 300ms `ease-in-out` so the two move as one. */
 const NAV_MENU_MS = 300;
 
-const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+/** Time constant (ms) of the critically-damped chase that smooths the capsule
+ *  progress. A mouse-wheel notch or a flick jumps scrollY by far more than the
+ *  80px ramp in one frame; chasing the target instead of copying it lets the
+ *  capsule glide in rather than snap. */
+const NAV_CHASE_MS = 95;
 
 /**
  * Desktop section link. The mockup's final state has no per-link underline:
@@ -391,15 +395,43 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
       nav.style.setProperty("--np", np.toFixed(3));
     };
 
+    const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // Scroll-driven progress chases its target with exponential smoothing, so
+    // the capsule glides whatever the scroll speed (a wheel notch is far larger
+    // than the ramp). The CSS then eases the value again (--ne in globals.css).
+    let chase = 0;
+    let chaseLast = 0;
+    const chaseStep = (now: number) => {
+      const dt = Math.min(64, now - chaseLast);
+      chaseLast = now;
+      const goal = target();
+      const next = npRef.current + (goal - npRef.current) * (1 - Math.exp(-dt / NAV_CHASE_MS));
+      if (Math.abs(goal - next) < 0.002) {
+        applyNp(goal);
+        chase = 0;
+        return;
+      }
+      applyNp(next);
+      chase = requestAnimationFrame(chaseStep);
+    };
+    const startChase = () => {
+      if (chase || tween) return;
+      chaseLast = performance.now();
+      chase = requestAnimationFrame(chaseStep);
+    };
+
     // While the menu opens or closes the capsule fades between its current and
     // target state instead of snapping. Without this, opening the menu at the
     // very top of the page made the glass capsule and the bar's padding appear
-    // in a single frame while the panel was still sliding down.
+    // in a single frame while the panel was still sliding down. The ramp is
+    // linear because --ne already applies the ease-in-out curve.
     let tween = 0;
     const tweenToTarget = () => {
       const from = npRef.current;
-      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (reduce || Math.abs(target() - from) < 0.01) {
+      if (chase) cancelAnimationFrame(chase);
+      chase = 0;
+      if (prefersReducedMotion() || Math.abs(target() - from) < 0.01) {
         applyNp(target());
         return;
       }
@@ -407,7 +439,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
       const step = (now: number) => {
         const t = clamp01((now - start) / NAV_MENU_MS);
         // The target is read live, so a scroll during the fade is not lost.
-        applyNp(from + (target() - from) * easeInOut(t));
+        applyNp(from + (target() - from) * t);
         tween = t < 1 ? requestAnimationFrame(step) : 0;
       };
       tween = requestAnimationFrame(step);
@@ -415,7 +447,10 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
 
     const update = () => {
       frame = 0;
-      if (!tween) applyNp(target());
+      if (!tween) {
+        if (prefersReducedMotion()) applyNp(target());
+        else startChase();
+      }
       paintProgress();
     };
 
@@ -429,7 +464,8 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
     } else {
       // First paint: no animation, so a reload mid-page shows the right state.
       npReadyRef.current = true;
-      update();
+      applyNp(target());
+      paintProgress();
     }
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule);
@@ -441,6 +477,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
       window.removeEventListener(NAV_SYNC_EVENT, schedule);
       if (frame) cancelAnimationFrame(frame);
       if (tween) cancelAnimationFrame(tween);
+      if (chase) cancelAnimationFrame(chase);
     };
   }, [menuOpen]);
 
