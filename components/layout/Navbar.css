@@ -504,7 +504,7 @@ nav[data-tide="true"] .nav-util a:not(.nav-cta),
 nav[data-tide="true"] .nav-util button,
 nav[data-tide="true"] .nav-mobile-btn {
   color: color-mix(in srgb, var(--tide-ink-2) calc(var(--hi) * 100%), var(--c-light-text));
-  border-color: color-mix(in srgb, var(--tide-rule) calc(var(--hi) * 100%), var(--c-hairline));
+  border-color: color-mix(in srgb, var(--tide-rule) calc(var(--hi) * 100%), transparent);
 }
 
 /* The utility controls sit on the tide as bare outlines, not filled chips. */
@@ -524,10 +524,13 @@ nav[data-tide="true"] #darkModeToggle {
 /* Search, language, theme and the mobile buttons never carry an opaque fill,
    so on the glass capsule (or over the hero sky) they stay see-through and
    only pick up a faint tint of the action colour on hover/focus. The quiet
-   variant has no resting outline at all (mockup: language + theme). */
+   variant has no resting outline at all (mockup: language + theme).
+   The resting outline only exists on the bare bar: it fades out with --np as
+   the glass capsule forms, since the capsule is already the container and a
+   box inside a box reads as noise. Hover/focus outlines are untouched. */
 .nav-ctl,
 .lang-ctl {
-  border: 1px solid color-mix(in srgb, var(--c-rule-strong) 55%, transparent);
+  border: 1px solid color-mix(in srgb, var(--c-rule-strong) calc((1 - var(--np, 0)) * 55%), transparent);
   background-color: transparent;
   color: var(--c-light-text);
   transition:
