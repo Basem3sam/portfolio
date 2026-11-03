@@ -468,6 +468,15 @@ nav:not([data-tide])[data-scrolled="false"] .nav-links a:is([aria-current="page"
 /* The case-study hero is the deep-blue tide band, so the bare bar keeps a
    light ink over it until the glass capsule takes over. `--np` is the
    capsule progress: 0 at the top of the page, 1 after the ramp. */
+/* Resting-outline and search-fill progress, derived from the capsule progress.
+   The outline is gone by np 0.2 (before the glass has formed enough to meet
+   it); the search chip's soft fill arrives right after, so the two hand off
+   instead of overlapping. */
+nav {
+  --edge: min(1, max(0, (0.2 - var(--np, 0)) * 5));
+  --fill: min(1, max(0, (var(--np, 0) - 0.12) * 6));
+}
+
 nav[data-tide="true"] {
   --tide-ink: #f4f8ff;
   --tide-ink-2: #e4ecff;
@@ -504,7 +513,15 @@ nav[data-tide="true"] .nav-util a:not(.nav-cta),
 nav[data-tide="true"] .nav-util button,
 nav[data-tide="true"] .nav-mobile-btn {
   color: color-mix(in srgb, var(--tide-ink-2) calc(var(--hi) * 100%), var(--c-light-text));
-  border-color: color-mix(in srgb, var(--tide-rule) calc(var(--hi) * 100%), transparent);
+  border-color: transparent;
+}
+
+nav[data-tide="true"] .nav-util a:not(.nav-cta)::before,
+nav[data-tide="true"] .nav-util button::before,
+nav[data-tide="true"] .nav-mobile-btn::before {
+  display: block;
+  border-color: var(--tide-rule);
+  opacity: var(--hi);
 }
 
 /* The utility controls sit on the tide as bare outlines, not filled chips. */
@@ -530,7 +547,8 @@ nav[data-tide="true"] #darkModeToggle {
    box inside a box reads as noise. Hover/focus outlines are untouched. */
 .nav-ctl,
 .lang-ctl {
-  border: 1px solid color-mix(in srgb, var(--c-rule-strong) calc((1 - var(--np, 0)) * 55%), transparent);
+  position: relative;
+  border: 1px solid transparent;
   background-color: transparent;
   color: var(--c-light-text);
   transition:
@@ -540,8 +558,27 @@ nav[data-tide="true"] #darkModeToggle {
     transform 0.15s ease;
 }
 
+/* The resting outline is a pseudo-element, not the border: its opacity is
+   written straight from --edge every frame (no transition), so it can never
+   lag behind the capsule forming and overlap it. The real border is kept only
+   for the hover/focus ring. */
+.nav-ctl::before,
+.lang-ctl::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border: 1px solid color-mix(in srgb, var(--c-rule-strong) 55%, transparent);
+  border-radius: inherit;
+  opacity: var(--edge, 1);
+  pointer-events: none;
+}
+
 .nav-ctl-quiet {
   border-color: transparent;
+}
+
+.nav-ctl-quiet::before {
+  display: none;
 }
 
 .nav-ctl:focus-visible,
@@ -766,4 +803,31 @@ nav[data-tide="true"] .nav-home:focus-visible {
 
 nav[data-menu-open="true"] .nav-capsule::before {
   background: color-mix(in srgb, var(--c-page) 97%, transparent);
+}
+
+
+/* ---------- search keeps its affordance on the capsule ---------- */
+
+/* An icon alone does not say "search" or "click me" once the outline is gone,
+   so the search control swaps its outline for a soft pill (the same tone as
+   the sliding link indicator) that fades in as the capsule forms. Hover and
+   focus still win with the action-colour tint. */
+.nav-search {
+  background-color: color-mix(in srgb, var(--c-light-bg) calc(var(--fill, 0) * 100%), transparent);
+  color: color-mix(in srgb, var(--c-dark-text) calc(var(--fill, 0) * 70%), var(--c-light-text));
+}
+
+nav[data-tide="true"] .nav-search:not(:hover):not(:focus-visible) {
+  background-color: color-mix(in srgb, var(--c-light-bg) calc(var(--fill, 0) * 100%), transparent);
+  color: color-mix(
+    in srgb,
+    var(--tide-ink-2) calc(var(--hi) * 100%),
+    color-mix(in srgb, var(--c-dark-text) calc(var(--fill, 0) * 70%), var(--c-light-text))
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-search {
+    transition: none;
+  }
 }

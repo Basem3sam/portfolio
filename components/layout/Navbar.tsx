@@ -93,11 +93,11 @@ const themeButton =
   "nav-ctl nav-ctl-quiet flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md max-lg:w-full";
 
 const paletteButton =
-  "nav-ctl hidden min-h-11 cursor-pointer items-center gap-2 rounded-md px-3 text-sm font-medium lg:inline-flex max-xl:min-w-11 max-xl:justify-center max-xl:px-0";
+  "nav-ctl nav-search hidden min-h-11 cursor-pointer items-center gap-2 rounded-md px-3 text-sm font-medium lg:inline-flex max-xl:min-w-11 max-xl:justify-center max-xl:px-0";
 
 /** The phone bar carries the search control too (reference mobile nav). */
 const mobilePaletteButton =
-  "nav-mobile-btn nav-ctl ms-auto flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md";
+  "nav-mobile-btn nav-ctl nav-search ms-auto flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md";
 
 const menuRow = "menu-row relative w-full no-underline";
 
