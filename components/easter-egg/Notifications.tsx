@@ -85,7 +85,7 @@ function ToastShell({
 
   return (
     <div
-      className={`tst${variant ? ` ${variant}` : ""}${shown ? " in" : ""}${cracked ? " cracked" : ""}`}
+      className={`tst${variant ? ` ${variant}` : ""}${shown ? "in" : ""}${cracked ? "cracked" : ""}`}
     >
       <span className="tic">
         <Icon name={icon} className="i" />

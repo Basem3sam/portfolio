@@ -101,7 +101,7 @@ export default function OverlayShell({
   return (
     <div dir="ltr" className="egg">
       <div
-        className={`eov${tide ? " tide" : " dim"}${quick ? " quick" : ""}${ghost ? " ghost" : ""}${visible || ghost ? " show" : ""}`}
+        className={`eov${tide ? "tide" : "dim"}${quick ? "quick" : ""}${ghost ? "ghost" : ""}${visible || ghost ? "show" : ""}`}
         {...(ghost ? { inert: true, "aria-hidden": true } : {})}
         onClick={(event) => {
           if (event.target === event.currentTarget) onClose();

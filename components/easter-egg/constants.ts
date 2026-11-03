@@ -74,7 +74,12 @@ type HintLevel = {
     SEE the portrait do, in the order it does it. None names the code: the
     terminal asks for the same habit (read what is on screen, then act). */
 export const HINT_LEVELS: HintLevel[] = [
-  { tooltip: { en: "...", ar: "..." }, notification: { en: "", ar: "" }, icon: "helpCircle", showNotification: false },
+  {
+    tooltip: { en: "...", ar: "..." },
+    notification: { en: "", ar: "" },
+    icon: "helpCircle",
+    showNotification: false,
+  },
   {
     tooltip: { en: "It reacts. Watch which way it moves.", ar: "إنه يتفاعل. راقب اتجاه حركته." },
     notification: {
@@ -94,7 +99,10 @@ export const HINT_LEVELS: HintLevel[] = [
     showNotification: true,
   },
   {
-    tooltip: { en: "Now it slides: left, right, left, right.", ar: "الآن تنزلق: يسار، يمين، يسار، يمين." },
+    tooltip: {
+      en: "Now it slides: left, right, left, right.",
+      ar: "الآن تنزلق: يسار، يمين، يسار، يمين.",
+    },
     notification: {
       en: "Now it slides sideways, one way and back, twice.",
       ar: "الآن تنزلق جانبيًا، ذهابًا وإيابًا، مرتين.",
@@ -103,7 +111,10 @@ export const HINT_LEVELS: HintLevel[] = [
     showNotification: true,
   },
   {
-    tooltip: { en: "Eight moves, then a flash. One more flash.", ar: "ثماني حركات ثم وميض. بقي وميض واحد." },
+    tooltip: {
+      en: "Eight moves, then a flash. One more flash.",
+      ar: "ثماني حركات ثم وميض. بقي وميض واحد.",
+    },
     notification: {
       en: "That was a flash, not a move. One more is coming.",
       ar: "كان ذلك وميضًا وليس حركة. بقي وميض آخر.",
@@ -140,9 +151,15 @@ export const FAIL_HINTS: Localised[] = [
 export const REMINDERS: Localised[] = [
   { en: "Watch which way the portrait moves.", ar: "راقب اتجاه حركة الصورة." },
   { en: "Ten clicks, ten moves, in order.", ar: "عشر نقرات، عشر حركات، بالترتيب." },
-  { en: "The keypad has the same buttons you saw.", ar: "لوحة المفاتيح فيها الأزرار نفسها التي رأيتها." },
+  {
+    en: "The keypad has the same buttons you saw.",
+    ar: "لوحة المفاتيح فيها الأزرار نفسها التي رأيتها.",
+  },
   { en: "Eight moves, then two flashes.", ar: "ثماني حركات ثم وميضان." },
-  { en: "No keyboard? Ctrl + Shift + B opens the keypad.", ar: "بلا لوحة مفاتيح؟ Ctrl + Shift + B يفتح لوحة المفاتيح." },
+  {
+    en: "No keyboard? Ctrl + Shift + B opens the keypad.",
+    ar: "بلا لوحة مفاتيح؟ Ctrl + Shift + B يفتح لوحة المفاتيح.",
+  },
 ];
 
 /**

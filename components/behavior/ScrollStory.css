@@ -106,7 +106,8 @@ html[data-story-on] #stack .stx-slab::after {
 
   /* The node of the step being read swells a little. */
   html[data-story-on] #stack .stx[data-revealed] .stx-node {
-    box-shadow: 0 0 0 calc(var(--cur, 0) * 6px) color-mix(in srgb, var(--c-honey) calc(var(--cur, 0) * 28%), transparent);
+    box-shadow: 0 0 0 calc(var(--cur, 0) * 6px)
+      color-mix(in srgb, var(--c-honey) calc(var(--cur, 0) * 28%), transparent);
   }
 }
 

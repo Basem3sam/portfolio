@@ -85,34 +85,218 @@ export type Discovery = {
     orient (read the profile), explore (learn the shell), investigate (read the
     config and the log), replay (run what the log shows), escalate (ask). */
 export const DISCOVERIES: readonly Discovery[] = [
-  { id: "about", chapter: "orient", label: "Met the developer", hint: "Find out who built this", typed: "about", clues: ["The first command under 'about basem' in help.", "Type: about"] },
-  { id: "skills", chapter: "orient", label: "Checked the toolkit", hint: "See what is in the toolbox", typed: "skills", clues: ["Second under 'about basem' in help.", "Type: skills"] },
-  { id: "projects", chapter: "orient", label: "Browsed the projects", hint: "See what has been shipped", typed: "projects", clues: ["Third under 'about basem' in help.", "Type: projects"] },
-  { id: "contact", chapter: "orient", label: "Found the contact details", hint: "Find a way to reach Basem", typed: "contact", clues: ["Fourth under 'about basem' in help.", "Type: contact"] },
-  { id: "neofetch", chapter: "orient", label: "Ran a system check", hint: "Get the one-screen summary", typed: "neofetch", clues: ["Last under 'about basem' in help: 'quick system summary'.", "Type: neofetch"] },
-  { id: "ls", chapter: "explore", label: "Looked around", hint: "List the files in the folder", typed: "ls", clues: ["Under 'files and links' in help.", "Type: ls"] },
-  { id: "cat", chapter: "explore", label: "Opened a file", hint: "Read one file from the list", typed: "cat about.md", clues: ["help shows the form: cat, a space, a file name from ls.", "Type: cat about.md"] },
-  { id: "open", chapter: "explore", label: "Followed a link", hint: "Open a real page outside the terminal", typed: "open github", clues: ["help lists the targets after 'open NAME'.", "Type: open github"] },
-  { id: "theme", chapter: "explore", label: "Picked a colour", hint: "Change the accent colour", typed: "theme ice", clues: ["help lists the colour names after 'theme NAME'.", "Type: theme ice"] },
-  { id: "fortune", chapter: "explore", label: "Took a fortune", hint: "Ask for a line of wisdom", typed: "fortune", clues: ["Under 'fun' in help. Every second one is a clue.", "Type: fortune"] },
-  { id: "whoami", chapter: "explore", label: "Checked who you are", hint: "Ask the terminal who you are", typed: "whoami", clues: ["Under 'your session' in help.", "Type: whoami"] },
-  { id: "date", chapter: "explore", label: "Checked the time in Cairo", hint: "Ask what time it is in Cairo", typed: "date", clues: ["Under 'fun' in help: the time in Cairo.", "Type: date"] },
-  { id: "env", chapter: "investigate", label: "Read the .env file", hint: "Read a file that ls does not show", typed: "cat .env", clues: ["ls counts what it hides, and help says which flag shows it.", "Type: ls -a, then cat .env"] },
-  { id: "history", chapter: "investigate", label: "Read the shell history", hint: "Read the log that .env points to", typed: "cat .bash_history", clues: [".env has a HISTFILE line. That is a file name.", "Type: cat .bash_history"] },
-  { id: "secret", chapter: "investigate", label: "Found the secret", hint: "Open the file that refuses to open", typed: "secret", clues: ["cat secret.txt is refused and says what the lock wants: a 6-letter word from the file's own name.", "Type: secret"] },
-  { id: "coffee", chapter: "replay", label: "Brewed a coffee", hint: "Run line 3 of the shell history", typed: "coffee", clues: ["The history numbers its lines and says how to run one again.", "Type: coffee, or replay 3"] },
-  { id: "vim", chapter: "replay", label: "Got stuck in vim", hint: "Run line 4 of the shell history", typed: "vim todo.md", clues: ["Line 4 opens todo.md in an editor. Leaving it is part of the joke.", "Type: vim todo.md, then :q to leave"] },
-  { id: "rm", chapter: "replay", label: "Tried to delete everything", hint: "Run line 5 of the shell history", typed: "rm -rf ./cache", clues: ["Line 5 removes files. It is safe here.", "Type: rm -rf ./cache, or replay 5"] },
-  { id: "matrix", chapter: "replay", label: "Took the red pill", hint: "Run line 6 of the shell history", typed: "matrix", clues: ["Line 6 is one word. You do not need to know what it does.", "Type: matrix, or replay 6"] },
-  { id: "hack", chapter: "replay", label: "Tried to hack in", hint: "Run line 7 of the shell history", typed: "hack", clues: ["Line 7 is one word, four letters.", "Type: hack, or replay 7"] },
-  { id: "sudo", chapter: "escalate", label: "Asked for more power", hint: "Use the word that line 8 of the history starts with", typed: "sudo", clues: ["whoami says you are not in the sudoers file. Run sudo on its own to see how it works.", "Type: sudo"] },
-  { id: "hire", chapter: "escalate", label: "Hired the developer", hint: "Ask for the one thing a guest may ask", typed: "sudo hire basem", clues: ["sudo -l gives a definition and a letter count for each word, and says where each is printed. History line 8 has the same counts.", "Type: sudo hire basem"] },
+  {
+    id: "about",
+    chapter: "orient",
+    label: "Met the developer",
+    hint: "Find out who built this",
+    typed: "about",
+    clues: ["The first command under 'about basem' in help.", "Type: about"],
+  },
+  {
+    id: "skills",
+    chapter: "orient",
+    label: "Checked the toolkit",
+    hint: "See what is in the toolbox",
+    typed: "skills",
+    clues: ["Second under 'about basem' in help.", "Type: skills"],
+  },
+  {
+    id: "projects",
+    chapter: "orient",
+    label: "Browsed the projects",
+    hint: "See what has been shipped",
+    typed: "projects",
+    clues: ["Third under 'about basem' in help.", "Type: projects"],
+  },
+  {
+    id: "contact",
+    chapter: "orient",
+    label: "Found the contact details",
+    hint: "Find a way to reach Basem",
+    typed: "contact",
+    clues: ["Fourth under 'about basem' in help.", "Type: contact"],
+  },
+  {
+    id: "neofetch",
+    chapter: "orient",
+    label: "Ran a system check",
+    hint: "Get the one-screen summary",
+    typed: "neofetch",
+    clues: ["Last under 'about basem' in help: 'quick system summary'.", "Type: neofetch"],
+  },
+  {
+    id: "ls",
+    chapter: "explore",
+    label: "Looked around",
+    hint: "List the files in the folder",
+    typed: "ls",
+    clues: ["Under 'files and links' in help.", "Type: ls"],
+  },
+  {
+    id: "cat",
+    chapter: "explore",
+    label: "Opened a file",
+    hint: "Read one file from the list",
+    typed: "cat about.md",
+    clues: ["help shows the form: cat, a space, a file name from ls.", "Type: cat about.md"],
+  },
+  {
+    id: "open",
+    chapter: "explore",
+    label: "Followed a link",
+    hint: "Open a real page outside the terminal",
+    typed: "open github",
+    clues: ["help lists the targets after 'open NAME'.", "Type: open github"],
+  },
+  {
+    id: "theme",
+    chapter: "explore",
+    label: "Picked a colour",
+    hint: "Change the accent colour",
+    typed: "theme ice",
+    clues: ["help lists the colour names after 'theme NAME'.", "Type: theme ice"],
+  },
+  {
+    id: "fortune",
+    chapter: "explore",
+    label: "Took a fortune",
+    hint: "Ask for a line of wisdom",
+    typed: "fortune",
+    clues: ["Under 'fun' in help. Every second one is a clue.", "Type: fortune"],
+  },
+  {
+    id: "whoami",
+    chapter: "explore",
+    label: "Checked who you are",
+    hint: "Ask the terminal who you are",
+    typed: "whoami",
+    clues: ["Under 'your session' in help.", "Type: whoami"],
+  },
+  {
+    id: "date",
+    chapter: "explore",
+    label: "Checked the time in Cairo",
+    hint: "Ask what time it is in Cairo",
+    typed: "date",
+    clues: ["Under 'fun' in help: the time in Cairo.", "Type: date"],
+  },
+  {
+    id: "env",
+    chapter: "investigate",
+    label: "Read the .env file",
+    hint: "Read a file that ls does not show",
+    typed: "cat .env",
+    clues: [
+      "ls counts what it hides, and help says which flag shows it.",
+      "Type: ls -a, then cat .env",
+    ],
+  },
+  {
+    id: "history",
+    chapter: "investigate",
+    label: "Read the shell history",
+    hint: "Read the log that .env points to",
+    typed: "cat .bash_history",
+    clues: [".env has a HISTFILE line. That is a file name.", "Type: cat .bash_history"],
+  },
+  {
+    id: "secret",
+    chapter: "investigate",
+    label: "Found the secret",
+    hint: "Open the file that refuses to open",
+    typed: "secret",
+    clues: [
+      "cat secret.txt is refused and says what the lock wants: a 6-letter word from the file's own name.",
+      "Type: secret",
+    ],
+  },
+  {
+    id: "coffee",
+    chapter: "replay",
+    label: "Brewed a coffee",
+    hint: "Run line 3 of the shell history",
+    typed: "coffee",
+    clues: [
+      "The history numbers its lines and says how to run one again.",
+      "Type: coffee, or replay 3",
+    ],
+  },
+  {
+    id: "vim",
+    chapter: "replay",
+    label: "Got stuck in vim",
+    hint: "Run line 4 of the shell history",
+    typed: "vim todo.md",
+    clues: [
+      "Line 4 opens todo.md in an editor. Leaving it is part of the joke.",
+      "Type: vim todo.md, then :q to leave",
+    ],
+  },
+  {
+    id: "rm",
+    chapter: "replay",
+    label: "Tried to delete everything",
+    hint: "Run line 5 of the shell history",
+    typed: "rm -rf ./cache",
+    clues: ["Line 5 removes files. It is safe here.", "Type: rm -rf ./cache, or replay 5"],
+  },
+  {
+    id: "matrix",
+    chapter: "replay",
+    label: "Took the red pill",
+    hint: "Run line 6 of the shell history",
+    typed: "matrix",
+    clues: [
+      "Line 6 is one word. You do not need to know what it does.",
+      "Type: matrix, or replay 6",
+    ],
+  },
+  {
+    id: "hack",
+    chapter: "replay",
+    label: "Tried to hack in",
+    hint: "Run line 7 of the shell history",
+    typed: "hack",
+    clues: ["Line 7 is one word, four letters.", "Type: hack, or replay 7"],
+  },
+  {
+    id: "sudo",
+    chapter: "escalate",
+    label: "Asked for more power",
+    hint: "Use the word that line 8 of the history starts with",
+    typed: "sudo",
+    clues: [
+      "whoami says you are not in the sudoers file. Run sudo on its own to see how it works.",
+      "Type: sudo",
+    ],
+  },
+  {
+    id: "hire",
+    chapter: "escalate",
+    label: "Hired the developer",
+    hint: "Ask for the one thing a guest may ask",
+    typed: "sudo hire basem",
+    clues: [
+      "sudo -l gives a definition and a letter count for each word, and says where each is printed. History line 8 has the same counts.",
+      "Type: sudo hire basem",
+    ],
+  },
 ];
 
 export const TOTAL_DISCOVERIES = DISCOVERIES.length;
 
 /** Commands that are not in `help`. They are found by following clues. */
-export const UNLISTED_NAMES = ["secret", "matrix", "hack", "coffee", "vim", "sudo", "hire", "replay"] as const;
+export const UNLISTED_NAMES = [
+  "secret",
+  "matrix",
+  "hack",
+  "coffee",
+  "vim",
+  "sudo",
+  "hire",
+  "replay",
+] as const;
 const UNLISTED_TROPHIES = ["secret", "matrix", "hack", "coffee", "vim", "rm", "sudo", "hire"];
 
 export type Clue = { id: string; target: string; text: string };
@@ -121,16 +305,44 @@ export type Clue = { id: string; target: string; text: string };
     leaves. They never say what to type. `notes` lists them; a clue shows as
     solved once its trophy is found. */
 export const CLUES: readonly Clue[] = [
-  { id: "c_hidden", target: "env", text: "ls says some items are hidden. help says which flag shows them." },
-  { id: "c_histfile", target: "history", text: ".env has a HISTFILE line. That is a file name, and it starts with a dot." },
-  { id: "c_pill", target: "matrix", text: "History line 6 is one word. It is a command, and you can run it." },
+  {
+    id: "c_hidden",
+    target: "env",
+    text: "ls says some items are hidden. help says which flag shows them.",
+  },
+  {
+    id: "c_histfile",
+    target: "history",
+    text: ".env has a HISTFILE line. That is a file name, and it starts with a dot.",
+  },
+  {
+    id: "c_pill",
+    target: "matrix",
+    text: "History line 6 is one word. It is a command, and you can run it.",
+  },
   { id: "c_hack", target: "hack", text: "History line 7 is one word, four letters. Run it." },
   { id: "c_editor", target: "vim", text: "History line 4 opens todo.md in an editor." },
   { id: "c_delete", target: "rm", text: "History line 5 removes files. The terminal is safe." },
-  { id: "c_fuel", target: "coffee", text: "History line 3 is one word. neofetch shows a line named fuel." },
-  { id: "c_locked", target: "secret", text: "cat secret.txt is refused. The lock wants a 6-letter word from the file name." },
-  { id: "c_sudoers", target: "sudo", text: "whoami: not in the sudoers file. History line 8 starts with sudo." },
-  { id: "c_shape", target: "hire", text: "History line 8 is scrubbed: a verb (4 letters) and a name (5 letters). todo.md has the same gap." },
+  {
+    id: "c_fuel",
+    target: "coffee",
+    text: "History line 3 is one word. neofetch shows a line named fuel.",
+  },
+  {
+    id: "c_locked",
+    target: "secret",
+    text: "cat secret.txt is refused. The lock wants a 6-letter word from the file name.",
+  },
+  {
+    id: "c_sudoers",
+    target: "sudo",
+    text: "whoami: not in the sudoers file. History line 8 starts with sudo.",
+  },
+  {
+    id: "c_shape",
+    target: "hire",
+    text: "History line 8 is scrubbed: a verb (4 letters) and a name (5 letters). todo.md has the same gap.",
+  },
 ];
 
 export const RANKS = [
@@ -174,7 +386,11 @@ export function trophiesOutput(found: readonly string[]) {
     `  ${key("found")}${count} of ${TOTAL_DISCOVERIES}`,
     `  ${meter(count)}`,
     `  ${RANKS.map((step) =>
-      step.id === rank ? `<span class="hl">${step.id}</span>` : step.at < count ? bright(step.id) : dim(step.id),
+      step.id === rank
+        ? `<span class="hl">${step.id}</span>`
+        : step.at < count
+          ? bright(step.id)
+          : dim(step.id),
     ).join(dim(" › "))}`,
     next
       ? `  ${dim(`${next.at - count} more to reach ${next.id}`)}`
@@ -252,8 +468,7 @@ export const FILE_COMMAND: Record<string, string> = {
 };
 
 export function lsOutput(all: boolean) {
-  const cell = (name: string, cls: string) =>
-    `<span class="${cls}">${name.padEnd(12)}</span>`;
+  const cell = (name: string, cls: string) => `<span class="${cls}">${name.padEnd(12)}</span>`;
   const rows = [
     cell("about.md", "info") + cell("skills.txt", "info") + cell("projects.md", "info"),
     cell("contact.md", "info") + cell("secret.txt", "info") + cell("cv.pdf", "warn"),
@@ -300,7 +515,15 @@ export const REPLAY_LINES: Record<number, { run?: string; say?: string }> = {
 };
 
 /** Clues the history gives away just by being read. */
-export const HISTORY_CLUES = ["c_fuel", "c_pill", "c_hack", "c_editor", "c_delete", "c_sudoers", "c_shape"];
+export const HISTORY_CLUES = [
+  "c_fuel",
+  "c_pill",
+  "c_hack",
+  "c_editor",
+  "c_delete",
+  "c_sudoers",
+  "c_shape",
+];
 
 export const ENV_OUTPUT = [
   `${key("HIRE_ME", 12)}true`,
@@ -509,10 +732,15 @@ export function sudoReply(args: readonly string[], shown: readonly string[] = ar
 
   if (verb === "hire") {
     const name = args[1];
-    if (!name) return { kind: "hire-help", error: "hire: who? A verb needs a name.", info: NAME_NUDGE };
+    if (!name)
+      return { kind: "hire-help", error: "hire: who? A verb needs a name.", info: NAME_NUDGE };
     // "me" is what the .env key says (HIRE_ME), so it is a fair thing to try.
     if (name === "basem" || name === "me") return { kind: "hire" };
-    return { kind: "hire-help", error: `hire: no candidate named "${shown[1]}" here`, info: NAME_NUDGE };
+    return {
+      kind: "hire-help",
+      error: `hire: no candidate named "${shown[1]}" here`,
+      info: NAME_NUDGE,
+    };
   }
 
   const info: string[] = [];
@@ -609,9 +837,7 @@ export function certificateOutput({ hints, answers, since, now }: CertificateSta
     field("date", date),
     field(
       "honour",
-      answers === 0
-        ? `<span class="ok">no answers shown</span>`
-        : dim(`${answers} answers shown`),
+      answers === 0 ? `<span class="ok">no answers shown</span>` : dim(`${answers} answers shown`),
     ),
     row(),
     field("signed", bright("Basem Esam")),
@@ -849,7 +1075,6 @@ export const COMMAND_OUTPUT: Record<string, string> = {
     `  ${hint("Whisper:")} some files are hidden on purpose.`,
     `  ${dim("Try")} ${hint("ls -a")} ${dim("and read what you find.")}`,
   ].join("\n"),
-
 };
 
 /** Commands offered as quick chips and tab completion. Hidden ones
@@ -881,14 +1106,24 @@ export const COMMAND_NAMES = [
 
 /** Commands that take an argument, with the values Tab can complete. */
 /** The staged build-up before the secret message is revealed. */
-export const SECRET_SEQUENCE: { at: number; html: string; tone?: "error" | "info" | "success" }[] = [
-  { at: 0, html: "ACCESS RESTRICTED", tone: "error" },
-  { at: 700, html: `  <span class="dim">scanning for credentials...</span>` },
-  { at: 1400, html: `  <span class="dim">no credentials found</span>` },
-  { at: 2100, html: `  <span class="wl">intrusion detected. you are not supposed to be here.</span>` },
-  { at: 3000, html: `  <span class="dim">bypassing lock</span> <span class="ok">████████████</span> <span class="dim">100%</span>` },
-  { at: 3800, html: `  <span class="dim">decrypting</span> <span class="key">basem.secret</span><span class="dim">...</span>` },
-];
+export const SECRET_SEQUENCE: { at: number; html: string; tone?: "error" | "info" | "success" }[] =
+  [
+    { at: 0, html: "ACCESS RESTRICTED", tone: "error" },
+    { at: 700, html: `  <span class="dim">scanning for credentials...</span>` },
+    { at: 1400, html: `  <span class="dim">no credentials found</span>` },
+    {
+      at: 2100,
+      html: `  <span class="wl">intrusion detected. you are not supposed to be here.</span>`,
+    },
+    {
+      at: 3000,
+      html: `  <span class="dim">bypassing lock</span> <span class="ok">████████████</span> <span class="dim">100%</span>`,
+    },
+    {
+      at: 3800,
+      html: `  <span class="dim">decrypting</span> <span class="key">basem.secret</span><span class="dim">...</span>`,
+    },
+  ];
 
 export const COMMAND_ARGS: Record<string, readonly string[]> = {
   open: OPEN_NAMES,
@@ -925,7 +1160,6 @@ export const COMMAND_ALIASES: Record<string, string> = {
   "?": "help",
 };
 
-
 const COFFEE_QUOTES: string[][] = [
   ["Developers run on coffee and", "semicolons."],
   ["while (!coffee) { sleep(); }"],
@@ -949,7 +1183,6 @@ export function coffeeOutput(index: number, cups: number) {
       : `  ${dim("Error 418: I am a teapot. Just kidding.")}`,
   ].join("\n");
 }
-
 
 export type MatrixStep = { at: number; html?: string; decode?: string };
 
@@ -976,7 +1209,6 @@ export const matrixOutput = () =>
     "  Red pill or blue pill? Just kidding,",
     "  you are still in Basem's portfolio.",
   ].join("\n");
-
 
 export type HackStep = {
   at: number;
@@ -1015,7 +1247,6 @@ export const hackOutput = () =>
     "  breaking. Want to build something",
     `  together? ${link(GITHUB_URL, "github.com/basem3sam")}`,
   ].join("\n");
-
 
 export type NeofetchInfo = { rank: RankId; count: number; theme: string; uptime: string };
 
@@ -1056,7 +1287,6 @@ export function neofetchOutput({ rank, count, theme, uptime }: NeofetchInfo) {
   );
 }
 
-
 /** The clue board: what the person has collected, and what it solved. */
 export function notesOutput(collected: readonly string[], found: readonly string[]) {
   const have = CLUES.filter((clue) => collected.includes(clue.id));
@@ -1065,7 +1295,8 @@ export function notesOutput(collected: readonly string[], found: readonly string
     const done = found.includes(clue.target);
     return wrapText(clue.text, COLS - 8).map((row, index) => {
       const text = done ? dim(row.trim()) : row.trim();
-      const mark = index === 0 ? (done ? `<span class="ok">✓</span>` : `<span class="hl">?</span>`) : " ";
+      const mark =
+        index === 0 ? (done ? `<span class="ok">✓</span>` : `<span class="hl">?</span>`) : " ";
       return `  ${mark} ${text}`;
     });
   });
@@ -1090,7 +1321,11 @@ export const INTENTS: Intent[] = [
   {
     words: ["delete", "remove", "del", "erase", "wipe", "destroy", "format", "kill", "shred"],
     clue: "c_delete",
-    lines: ["Not a command here. The shell history", "has a line that removes files.", "replay it once you have read it."],
+    lines: [
+      "Not a command here. The shell history",
+      "has a line that removes files.",
+      "replay it once you have read it.",
+    ],
   },
   {
     words: ["edit", "editor", "code", "notepad", "write", "ed", "text", "micro"],
@@ -1098,7 +1333,20 @@ export const INTENTS: Intent[] = [
     lines: ["Not here. The shell history has a", "line that opens a file in an editor."],
   },
   {
-    words: ["neo", "pill", "redpill", "red pill", "bluepill", "blue pill", "morpheus", "trinity", "rabbit", "white rabbit", "wake up", "wakeup"],
+    words: [
+      "neo",
+      "pill",
+      "redpill",
+      "red pill",
+      "bluepill",
+      "blue pill",
+      "morpheus",
+      "trinity",
+      "rabbit",
+      "white rabbit",
+      "wake up",
+      "wakeup",
+    ],
     clue: "c_pill",
     lines: ["Not a command here. The shell history", "has a six-letter word on line 6."],
   },
@@ -1113,25 +1361,73 @@ export const INTENTS: Intent[] = [
     lines: ["Not that drink. Line 3 of the shell", "history is what Basem runs on."],
   },
   {
-    words: ["unlock", "reveal", "classified", "confidential", "mystery", "easteregg", "easter egg", "egg"],
+    words: [
+      "unlock",
+      "reveal",
+      "classified",
+      "confidential",
+      "mystery",
+      "easteregg",
+      "easter egg",
+      "egg",
+    ],
     clue: "c_locked",
     lines: ["One file in the folder will not open.", "cat it, and read what the lock wants."],
   },
   {
-    words: ["admin", "root", "su", "superuser", "permission", "permissions", "privilege", "privileges", "access", "password", "login", "authorize"],
+    words: [
+      "admin",
+      "root",
+      "su",
+      "superuser",
+      "permission",
+      "permissions",
+      "privilege",
+      "privileges",
+      "access",
+      "password",
+      "login",
+      "authorize",
+    ],
     clue: "c_sudoers",
-    lines: ["Guests have no keys. whoami shows your", "rank. Line 8 of the shell history", "starts with the word that borrows power."],
+    lines: [
+      "Guests have no keys. whoami shows your",
+      "rank. Line 8 of the shell history",
+      "starts with the word that borrows power.",
+    ],
   },
   {
-    words: ["job", "work", "recruit", "employ", "interview", "freelance", "hire me", "hireme", "candidate", "hiring", "employer", "offer", "onboard", "career", "vacancy"],
+    words: [
+      "job",
+      "work",
+      "recruit",
+      "employ",
+      "interview",
+      "freelance",
+      "hire me",
+      "hireme",
+      "candidate",
+      "hiring",
+      "employer",
+      "offer",
+      "onboard",
+      "career",
+      "vacancy",
+    ],
     clue: "c_shape",
-    lines: ["Good instinct. Guests may ask one thing,", "and sudo explains how. Run it on its", "own and read the usage line."],
+    lines: [
+      "Good instinct. Guests may ask one thing,",
+      "and sudo explains how. Run it on its",
+      "own and read the usage line.",
+    ],
   },
   { words: ["dir", "list", "files", "folder", "tree"], lines: ["Try ls to see the folder."] },
-  { words: ["read", "view", "less", "more", "show"], lines: ["To read a file, name it: cat FILE."] },
+  {
+    words: ["read", "view", "less", "more", "show"],
+    lines: ["To read a file, name it: cat FILE."],
+  },
   { words: ["bye", "goodbye", "leave", "close"], lines: ["Try exit to close the terminal."] },
 ];
-
 
 /* -------------------------------------------------------- fair-play map */
 
@@ -1147,7 +1443,10 @@ export const SOURCES: { typed: string; text: () => string }[] = [
   { typed: "skills", text: () => COMMAND_OUTPUT.skills },
   { typed: "projects", text: () => COMMAND_OUTPUT.projects },
   { typed: "contact", text: () => COMMAND_OUTPUT.contact },
-  { typed: "neofetch", text: () => neofetchOutput({ rank: "guest", count: 0, theme: "amber", uptime: "1s" }) },
+  {
+    typed: "neofetch",
+    text: () => neofetchOutput({ rank: "guest", count: 0, theme: "amber", uptime: "1s" }),
+  },
   { typed: "ls", text: () => lsOutput(false) },
   { typed: "ls -a", text: () => lsOutput(true) },
   { typed: "cat todo.md", text: () => COMMAND_OUTPUT.todo },

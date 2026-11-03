@@ -586,7 +586,11 @@ html[lang="ar"] #work .m-tag {
   height: 13px;
   margin-top: -6.5px;
   border-radius: 50%;
-  background: radial-gradient(circle, #fff 0 22%, color-mix(in srgb, var(--c-secondary) 80%, #fff) 55%);
+  background: radial-gradient(
+    circle,
+    #fff 0 22%,
+    color-mix(in srgb, var(--c-secondary) 80%, #fff) 55%
+  );
   box-shadow:
     0 0 14px 3px color-mix(in srgb, var(--c-secondary) 70%, transparent),
     0 0 0 1px rgba(255, 255, 255, 0.5);
@@ -729,9 +733,7 @@ html[lang="ar"] #work .m-tag {
 
 #work .trace .t-dot {
   animation: stop-glow var(--t-cycle) linear infinite;
-  animation-delay: calc(
-    var(--t-cycle) * (0.04 + 0.68 * var(--i, 0) / (var(--n, 5) - 1)) + 1.2s
-  );
+  animation-delay: calc(var(--t-cycle) * (0.04 + 0.68 * var(--i, 0) / (var(--n, 5) - 1)) + 1.2s);
 }
 
 #work .trace .packet {
@@ -1036,7 +1038,8 @@ html[lang="ar"] #work .sm-tag {
 #work .sm-stem i {
   width: 1px;
   background:
-    repeating-linear-gradient(to bottom, var(--c-secondary) 0 3px, transparent 3px 8px) 0 0 / 1px 8px,
+    repeating-linear-gradient(to bottom, var(--c-secondary) 0 3px, transparent 3px 8px) 0 0 / 1px
+      8px,
     linear-gradient(var(--sm-line), var(--sm-line));
   animation: sm-flow-v 1.6s linear infinite;
 }
@@ -1099,13 +1102,17 @@ html[lang="ar"] #work .sm-tag {
 
 @keyframes sm-flow-v {
   to {
-    background-position: 0 8px, 0 0;
+    background-position:
+      0 8px,
+      0 0;
   }
 }
 
 @keyframes sm-flow-h {
   to {
-    background-position: 8px 0, 0 0;
+    background-position:
+      8px 0,
+      0 0;
   }
 }
 
@@ -1506,15 +1513,13 @@ html[lang="ar"] #work .sm-tag {
 #work .art-window {
   width: 100%;
   transform-style: preserve-3d;
-  transform: rotateY(calc(-7deg + var(--px) * 5deg))
-    rotateX(calc(3deg - var(--py) * 4deg));
+  transform: rotateY(calc(-7deg + var(--px) * 5deg)) rotateX(calc(3deg - var(--py) * 4deg));
   transition: transform 0.7s var(--w-ease);
   animation: float 9s ease-in-out infinite;
 }
 
 [dir="rtl"] #work .art-window {
-  transform: rotateY(calc(7deg + var(--px) * 5deg))
-    rotateX(calc(3deg - var(--py) * 4deg));
+  transform: rotateY(calc(7deg + var(--px) * 5deg)) rotateX(calc(3deg - var(--py) * 4deg));
 }
 
 @keyframes float {
@@ -1796,7 +1801,11 @@ html[lang="ar"] #work .sm-tag {
   /* Paper: grain over a faint wash of the project's colour, fading to plain. */
   background:
     var(--grain-d),
-    linear-gradient(165deg, color-mix(in srgb, var(--a1) 7%, var(--c-surface)), var(--c-surface) 46%),
+    linear-gradient(
+      165deg,
+      color-mix(in srgb, var(--a1) 7%, var(--c-surface)),
+      var(--c-surface) 46%
+    ),
     var(--c-surface);
   box-shadow: var(--sh-sm);
   transition:
@@ -1821,8 +1830,16 @@ html[lang="ar"] #work .sm-tag {
   border-bottom: 1px solid var(--c-hairline);
   background:
     var(--grain-d),
-    radial-gradient(90% 120% at 0% 0%, color-mix(in srgb, var(--a1) 26%, transparent), transparent 62%),
-    radial-gradient(80% 110% at 100% 100%, color-mix(in srgb, var(--a2) 20%, transparent), transparent 62%),
+    radial-gradient(
+      90% 120% at 0% 0%,
+      color-mix(in srgb, var(--a1) 26%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      80% 110% at 100% 100%,
+      color-mix(in srgb, var(--a2) 20%, transparent),
+      transparent 62%
+    ),
     var(--c-light-bg);
 }
 

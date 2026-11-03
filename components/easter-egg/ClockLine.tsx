@@ -11,7 +11,12 @@ const part = (now: Date, options: Intl.DateTimeFormatOptions) =>
 
 /** Seconds since midnight in Cairo, for the "day" meter. */
 const secondsIntoDay = (now: Date) => {
-  const [h, m, s] = part(now, { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false })
+  const [h, m, s] = part(now, {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  })
     .split(":")
     .map(Number);
   return (h % 24) * 3600 + m * 60 + s;
@@ -42,11 +47,15 @@ export default function ClockLine({ style }: { style?: CSSProperties }) {
     <div className="ln clk" style={style}>
       <div>
         <span className="key">{"cairo   "}</span>
-        <span className="wl">{part(now, { weekday: "short", day: "numeric", month: "short", year: "numeric" })}</span>
+        <span className="wl">
+          {part(now, { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
+        </span>
       </div>
       <div>
         <span className="key">{"time    "}</span>
-        <span className="wl">{part(now, { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false })}</span>
+        <span className="wl">
+          {part(now, { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false })}
+        </span>
       </div>
       <div>
         <span className="key">{"day     "}</span>

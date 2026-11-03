@@ -30,7 +30,12 @@ export default function Stack({ dict }: StackProps) {
 
   /* Chips are packed into full 12-column rows: once for phones (--p / --po)
      and once for the narrower two-column tablet cards (--t / --to). */
-  const chipVars = (names: string[], i: number, p: ReturnType<typeof packChips>, t: ReturnType<typeof packChips>) =>
+  const chipVars = (
+    names: string[],
+    i: number,
+    p: ReturnType<typeof packChips>,
+    t: ReturnType<typeof packChips>,
+  ) =>
     ({
       "--p": p[i].span,
       "--po": p[i].order,
@@ -93,10 +98,15 @@ export default function Stack({ dict }: StackProps) {
                     const p = packChips(names, 270);
                     const t = packChips(names, 230);
                     return stage.techs.map((tech, k) => (
-                    <li key={tech.name} className="chip" dir="ltr" style={chipVars(names, k, p, t)}>
-                      <b aria-hidden="true">{tech.abbr}</b>
-                      {tech.name}
-                    </li>
+                      <li
+                        key={tech.name}
+                        className="chip"
+                        dir="ltr"
+                        style={chipVars(names, k, p, t)}
+                      >
+                        <b aria-hidden="true">{tech.abbr}</b>
+                        {tech.name}
+                      </li>
                     ));
                   })()}
                 </ul>
@@ -111,10 +121,10 @@ export default function Stack({ dict }: StackProps) {
                 const names = dict.also.map((x) => x.name);
                 const p = packChips(names, 270);
                 return dict.also.map((tech, k) => (
-                <li key={tech.name} className="chip" dir="ltr" style={chipVars(names, k, p, p)}>
-                  <b aria-hidden="true">{tech.abbr}</b>
-                  {tech.name}
-                </li>
+                  <li key={tech.name} className="chip" dir="ltr" style={chipVars(names, k, p, p)}>
+                    <b aria-hidden="true">{tech.abbr}</b>
+                    {tech.name}
+                  </li>
                 ));
               })()}
             </ul>

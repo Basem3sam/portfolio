@@ -139,7 +139,9 @@ nav:not([data-tide])[data-scrolled="false"] .nav-links a {
   color: color-mix(in srgb, var(--c-dark-text) 88%, var(--c-page));
 }
 
-nav:not([data-tide])[data-scrolled="false"] .nav-links a:is([aria-current="page"], [aria-current="true"]) {
+nav:not([data-tide])[data-scrolled="false"]
+  .nav-links
+  a:is([aria-current="page"], [aria-current="true"]) {
   color: var(--c-dark-text);
 }
 
@@ -154,7 +156,10 @@ nav:not([data-tide])[data-scrolled="false"] .text-muted-text {
   color: var(--c-light-text);
 }
 
-nav:not([data-tide])[data-scrolled="false"] .nav-links a:is([aria-current="page"], [aria-current="true"]) .nn {
+nav:not([data-tide])[data-scrolled="false"]
+  .nav-links
+  a:is([aria-current="page"], [aria-current="true"])
+  .nn {
   color: var(--c-note);
 }
 
@@ -542,7 +547,6 @@ nav[data-tide="true"] #darkModeToggle {
   background: color-mix(in srgb, white 6%, transparent);
 }
 
-
 /* ---------- utility controls: transparent, tint-on-hover ---------- */
 
 /* Search, language, theme and the mobile buttons never carry an opaque fill,
@@ -731,19 +735,34 @@ nav:not([data-tide])[data-scrolled="false"] .nav-links a.nav-cta .nav-cta-ic {
 nav[data-tide="true"] .nav-util .nav-ctl:focus-visible,
 nav[data-tide="true"] .nav-util .lang-ctl:focus-visible,
 nav[data-tide="true"] .nav-mobile-btn:focus-visible {
-  background: color-mix(in srgb, white calc(var(--hi) * 14%), color-mix(in srgb, var(--c-secondary) 16%, transparent));
-  border-color: color-mix(in srgb, var(--tide-ink-2) calc(var(--hi) * 70%), color-mix(in srgb, var(--c-secondary) 55%, transparent));
+  background: color-mix(
+    in srgb,
+    white calc(var(--hi) * 14%),
+    color-mix(in srgb, var(--c-secondary) 16%, transparent)
+  );
+  border-color: color-mix(
+    in srgb,
+    var(--tide-ink-2) calc(var(--hi) * 70%),
+    color-mix(in srgb, var(--c-secondary) 55%, transparent)
+  );
 }
 
 @media (hover: hover) {
   nav[data-tide="true"] .nav-util .nav-ctl:hover,
   nav[data-tide="true"] .nav-util .lang-ctl:hover,
   nav[data-tide="true"] .nav-mobile-btn:hover {
-    background: color-mix(in srgb, white calc(var(--hi) * 14%), color-mix(in srgb, var(--c-secondary) 16%, transparent));
-    border-color: color-mix(in srgb, var(--tide-ink-2) calc(var(--hi) * 70%), color-mix(in srgb, var(--c-secondary) 55%, transparent));
+    background: color-mix(
+      in srgb,
+      white calc(var(--hi) * 14%),
+      color-mix(in srgb, var(--c-secondary) 16%, transparent)
+    );
+    border-color: color-mix(
+      in srgb,
+      var(--tide-ink-2) calc(var(--hi) * 70%),
+      color-mix(in srgb, var(--c-secondary) 55%, transparent)
+    );
   }
 }
-
 
 /* ---------- Home link beside the logo (off-home routes, lg and up) ----------
    Off home (the case study) the logo was the only way back to the top of the
@@ -806,7 +825,6 @@ nav[data-tide="true"] .nav-home:hover,
 nav[data-tide="true"] .nav-home:focus-visible {
   color: color-mix(in srgb, #ffffff calc(var(--hi) * 100%), var(--c-dark-text));
 }
-
 
 /* ---------- open phone menu: firmer glass ----------
    The capsule's glass is ~80% opaque, which lets a text-heavy page (the case

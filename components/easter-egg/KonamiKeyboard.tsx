@@ -199,7 +199,7 @@ export default function KonamiKeyboard({
         </p>
 
         <p
-          className={`egfb${status === "success" ? " ok" : status === "wrong" ? " err" : ""}`}
+          className={`egfb${status === "success" ? "ok" : status === "wrong" ? "err" : ""}`}
           role="status"
         >
           {status === "success"
@@ -216,7 +216,7 @@ export default function KonamiKeyboard({
             <button
               key={key}
               type="button"
-              className={`k ${className}${pressed === key ? " press" : ""}`}
+              className={`k ${className}${pressed === key ? "press" : ""}`}
               aria-label={KEY_NAME[key]}
               onClick={() => press(key)}
             >
@@ -227,7 +227,7 @@ export default function KonamiKeyboard({
             <button
               key={key}
               type="button"
-              className={`k let ${key}${pressed === key ? " press" : ""}`}
+              className={`k let ${key}${pressed === key ? "press" : ""}`}
               aria-label={KEY_NAME[key]}
               onClick={() => press(key)}
             >
@@ -237,12 +237,7 @@ export default function KonamiKeyboard({
         </div>
 
         <div className="egrow">
-          <button
-            type="button"
-            className="egbtn ghost sm"
-            disabled={empty}
-            onClick={undo}
-          >
+          <button type="button" className="egbtn ghost sm" disabled={empty} onClick={undo}>
             <Icon name="backspace" className="i" />
             <span>{c.undo}</span>
           </button>

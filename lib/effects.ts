@@ -321,7 +321,9 @@ function shockwave(origin: { x: number; y: number }, now: number, list: Particle
 
   const flash = spawn(
     "pointer-events-none fixed inset-0 z-[10004]",
-    { background: `radial-gradient(circle at ${x}px ${y}px, rgba(255, 233, 170, 0.5), rgba(254, 202, 87, 0.12) 38%, transparent 62%)` },
+    {
+      background: `radial-gradient(circle at ${x}px ${y}px, rgba(255, 233, 170, 0.5), rgba(254, 202, 87, 0.12) 38%, transparent 62%)`,
+    },
     900,
   );
   flash.animate([{ opacity: 0 }, { opacity: 1, offset: 0.16 }, { opacity: 0 }], {
@@ -595,11 +597,7 @@ function clickGlow(rect: DOMRect, rgb: string, point?: ClickPoint) {
 
 const CLICK_ANIMATION_ORDER = [0, 0, 1, 1, 2, 3, 2, 3, 4, 5];
 
-export function animateProfileClick(
-  element: HTMLElement,
-  clickCount: number,
-  point?: ClickPoint,
-) {
+export function animateProfileClick(element: HTMLElement, clickCount: number, point?: ClickPoint) {
   const animationIndex = CLICK_ANIMATION_ORDER[(clickCount - 1) % 10];
   const keyframes = CLICK_ANIMATIONS[animationIndex];
   const glowRgb = CLICK_GLOWS[animationIndex];

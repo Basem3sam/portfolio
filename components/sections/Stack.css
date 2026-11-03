@@ -776,7 +776,8 @@ html:not([data-story-on]) #stack .xl-p {
       color-mix(in srgb, var(--slab) calc(3% + var(--cur) * 15%), transparent),
       color-mix(in srgb, var(--slab) calc(var(--cur) * 4%), transparent)
     );
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--slab) calc(8% + var(--cur) * 22%), transparent);
+    box-shadow: inset 0 0 0 1px
+      color-mix(in srgb, var(--slab) calc(8% + var(--cur) * 22%), transparent);
   }
 
   #stack .stx {

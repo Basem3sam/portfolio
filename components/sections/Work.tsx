@@ -78,8 +78,8 @@ function Status({ project, dict }: { project: Project; dict: Dictionary["work"] 
 
 /** Who it was for and when, or how it came about: short facts, one per line. */
 function Meta({ project }: { project: Project }) {
-  const parts = [project.org, project.period, project.provenance].filter(
-    (part): part is string => Boolean(part),
+  const parts = [project.org, project.period, project.provenance].filter((part): part is string =>
+    Boolean(part),
   );
   if (parts.length === 0) return null;
   return (
@@ -207,7 +207,7 @@ function SystemMap({ project }: { project: Project }) {
   const node = (part: Stop, index: number, base: number) => (
     <li
       key={part.label}
-      className={`sm-node${part.hot ? " hot" : ""}`}
+      className={`sm-node${part.hot ? "hot" : ""}`}
       style={{ "--i": index + base } as CSSProperties}
     >
       <span className="sm-row">
@@ -467,7 +467,7 @@ function Card({
       data-project={project.id}
       style={{ "--c": index } as CSSProperties}
     >
-      <Spotlight className={`card spotlight${href ? " is-link" : ""}`}>
+      <Spotlight className={`card spotlight${href ? "is-link" : ""}`}>
         <div className="stage">
           <Visual project={project} dict={dict} />
         </div>

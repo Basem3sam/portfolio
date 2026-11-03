@@ -59,7 +59,15 @@ test.describe("colour discipline", () => {
       const t = tokens[theme];
       const surfaces = ["page", "light-bg", "dark-bg", "surface"];
       // secondary is a fill (on-secondary sits on it), so it is checked as a fill below.
-      const textTokens = ["dark-text", "light-text", "muted-text", "note", "signal", "status", "accent"];
+      const textTokens = [
+        "dark-text",
+        "light-text",
+        "muted-text",
+        "note",
+        "signal",
+        "status",
+        "accent",
+      ];
       const failures: string[] = [];
       for (const text of textTokens) {
         for (const surface of surfaces) {
@@ -80,7 +88,8 @@ test.describe("colour discipline", () => {
     );
     expect(missing).toEqual([]);
     for (const { token } of aliases) {
-      if (token in tokens.light) expect(tokens.dark, `${token} missing in dark`).toHaveProperty(token);
+      if (token in tokens.light)
+        expect(tokens.dark, `${token} missing in dark`).toHaveProperty(token);
     }
   });
 });

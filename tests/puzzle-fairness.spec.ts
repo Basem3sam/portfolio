@@ -150,12 +150,16 @@ test.describe("the finale is pointed to, not spelled out", () => {
       "contact names the word sudo": /sudo/.test(plain(COMMAND_OUTPUT.contact)),
       "whoami says a guest may still ask": /may still ask/i.test(whoami),
       "neofetch says the machine is open to work": /open to work/i.test(neofetch),
-      "todo.md says someone else has to run the last item": /someone else/i.test(plain(COMMAND_OUTPUT.todo)),
+      "todo.md says someone else has to run the last item": /someone else/i.test(
+        plain(COMMAND_OUTPUT.todo),
+      ),
       "the history points at todo.md": /todo\.md/.test(plain(BASH_HISTORY_OUTPUT)),
       "sudo -l says where the verb is printed": /\.env/.test(sudoList),
       "sudo -l says where the name is printed": /neofetch/.test(sudoList),
     };
-    const missing = Object.entries(pointers).filter(([, ok]) => !ok).map(([name]) => name);
+    const missing = Object.entries(pointers)
+      .filter(([, ok]) => !ok)
+      .map(([name]) => name);
     expect(missing, `missing pointers:\n${missing.join("\n")}`).toEqual([]);
   });
 
@@ -205,7 +209,8 @@ test.describe("the finale is pointed to, not spelled out", () => {
     ];
     for (const reply of replies) {
       expect(reply.kind).not.toBe("hire");
-      const said = "error" in reply ? [reply.error, ...reply.info] : "info" in reply ? reply.info : [];
+      const said =
+        "error" in reply ? [reply.error, ...reply.info] : "info" in reply ? reply.info : [];
       for (const line of said) {
         expect(line).not.toMatch(SPELLED_OUT);
         expect(line.length, line).toBeLessThanOrEqual(38);

@@ -21,12 +21,17 @@ test("only the production project carries the status colour", async ({ page }) =
   const trosc = page.locator("#work article").filter({ hasText: "trosc-backend" }).first();
   await expect(trosc.locator("span.text-status")).toContainText("production");
   for (const name of ["store-advisor", "zabthalahak", "laravel-ecommerce-app", "neuroscan-ai"]) {
-    const row = page.locator("#work article").filter({ has: page.locator("h3", { hasText: name }) });
+    const row = page
+      .locator("#work article")
+      .filter({ has: page.locator("h3", { hasText: name }) });
     await expect(row.locator("span.text-status")).toHaveCount(0);
   }
 });
 
-test("spotlight follows the pointer, including while the page scrolls under it", async ({ page, browserName }) => {
+test("spotlight follows the pointer, including while the page scrolls under it", async ({
+  page,
+  browserName,
+}) => {
   test.skip(browserName !== "chromium", "pointer emulation is only asserted in Chromium");
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/");

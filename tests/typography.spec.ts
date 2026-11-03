@@ -27,7 +27,11 @@ test.describe("typography wiring", () => {
   });
 
   test("every next/font variable the stylesheet reads is declared in the layout", () => {
-    const used = new Set([...css.matchAll(/var\((--font-(?:instrument|jakarta|readex|jetbrains))\b/g)].map((m) => m[1]));
+    const used = new Set(
+      [...css.matchAll(/var\((--font-(?:instrument|jakarta|readex|jetbrains))\b/g)].map(
+        (m) => m[1],
+      ),
+    );
     expect(used.size).toBeGreaterThan(0);
     for (const v of used) expect(layout, v).toContain(`variable: "${v}"`);
   });

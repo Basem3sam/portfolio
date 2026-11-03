@@ -71,11 +71,7 @@ export default function MasterCode({ locale, onClose, onEnter, quick, ghost }: M
               style={{ "--i": index } as CSSProperties}
               aria-hidden="true"
             >
-              {key.startsWith("Arrow") ? (
-                <Icon name="arrowRight" className="i" />
-              ) : (
-                KEY_LABEL[key]
-              )}
+              {key.startsWith("Arrow") ? <Icon name="arrowRight" className="i" /> : KEY_LABEL[key]}
             </b>
           ))}
         </div>

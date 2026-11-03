@@ -162,7 +162,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
           openTerminal();
         } else {
           setQuick(false);
-      setOverlay((current) => (current === "none" ? "prompt" : current));
+          setOverlay((current) => (current === "none" ? "prompt" : current));
         }
       }
     };
@@ -265,7 +265,9 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       // Whatever hint is still on screen (the 9/10 one) glitches out as the
       // master code window arrives, as if the answer had cracked it.
       setToasts((current) =>
-        current.map((toast) => (toast.kind === "hint" ? { ...toast, cracked: true, clicks: CLICKS_NEEDED } : toast)),
+        current.map((toast) =>
+          toast.kind === "hint" ? { ...toast, cracked: true, clicks: CLICKS_NEEDED } : toast,
+        ),
       );
 
       state.revealed = true;
@@ -339,8 +341,7 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
 
       // Pointer clicks react where they landed; keyboard activation reports
       // no position (detail 0), so it falls back to the middle of the photo.
-      const point =
-        event.detail > 0 ? { x: event.clientX, y: event.clientY } : undefined;
+      const point = event.detail > 0 ? { x: event.clientX, y: event.clientY } : undefined;
       animateProfileClick(image, state.clicks, point);
       if (point) createClickRipple(point, state.clicks);
       if (state.clicks >= 2) createDirectionalParticles(image, state.clicks, point);

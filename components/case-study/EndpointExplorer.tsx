@@ -60,10 +60,7 @@ function breakable(path: string): ReactNode {
   ));
 }
 
-type RunState =
-  | { phase: "idle" }
-  | { phase: "running" }
-  | { phase: "done"; ms: number };
+type RunState = { phase: "idle" } | { phase: "running" } | { phase: "done"; ms: number };
 
 /** Syntax colours are scoped to the code pane (see CaseStudy.css). */
 const jsonClass = {

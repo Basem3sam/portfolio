@@ -21,7 +21,13 @@ type SecretTerminalAccessProps = {
  * tide. It asks for a ten-key sequence and never names the code itself —
  * only the Master Code window reveals the answer.
  */
-export default function SecretTerminalAccess({ locale, onClose, onTry, quick, ghost }: SecretTerminalAccessProps) {
+export default function SecretTerminalAccess({
+  locale,
+  onClose,
+  onTry,
+  quick,
+  ghost,
+}: SecretTerminalAccessProps) {
   const { visible, containerVisible, leave } = useOverlay();
   const c = eggCopy(locale);
 

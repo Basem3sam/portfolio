@@ -634,9 +634,7 @@ html[lang="ar"] {
      minus container, halved, minus 1rem of slack for a classic scrollbar). */
   @media (width >= 992px) {
     &::before {
-      inset-inline: calc(
-        var(--ne, 0) * -1 * min(1.25rem, max(0px, (100vw - 100%) / 2 - 1rem))
-      );
+      inset-inline: calc(var(--ne, 0) * -1 * min(1.25rem, max(0px, (100vw - 100%) / 2 - 1rem)));
     }
   }
 }

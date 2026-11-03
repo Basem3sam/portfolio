@@ -49,11 +49,7 @@ export default function About({ dict }: AboutProps) {
 
       <div className="ab3">
         <div className="ab-main" data-reveal>
-          <p
-            className="ab-lead"
-            data-story="read"
-            style={{ "--n": leadWords } as CSSProperties}
-          >
+          <p className="ab-lead" data-story="read" style={{ "--n": leadWords } as CSSProperties}>
             <Words text={dict.lead} />
           </p>
           <p className="ab-body">{dict.body}</p>

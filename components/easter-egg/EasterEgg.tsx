@@ -118,9 +118,7 @@ export default function EasterEgg({ locale }: { locale: Locale }) {
           return;
         }
         void import("@/components/easter-egg/Terminal").catch(() => {});
-        void import("@/lib/effects")
-          .then((effects) => effects.prewarmEffects())
-          .catch(() => {});
+        void import("@/lib/effects").then((effects) => effects.prewarmEffects()).catch(() => {});
       };
       idle(run, 6000);
     };
@@ -199,17 +197,14 @@ export default function EasterEgg({ locale }: { locale: Locale }) {
         // The first press is answered right away, with the same feedback as
         // the rest of the run, instead of waiting for the game to mount (which
         // happens next, off the press's frame).
-        const point =
-          event.detail > 0 ? { x: event.clientX, y: event.clientY } : undefined;
+        const point = event.detail > 0 ? { x: event.clientX, y: event.clientY } : undefined;
         void import("@/lib/effects")
           .then((effects) => {
             effects.animateProfileClick(image, 1, point);
             if (point) effects.createClickRipple(point, 1);
           })
           .catch(() => {});
-        void import("@/lib/sounds")
-          .then((sounds) => sounds.playKonamiSound(1))
-          .catch(() => {});
+        void import("@/lib/sounds").then((sounds) => sounds.playKonamiSound(1)).catch(() => {});
         arm(null);
       }
     };

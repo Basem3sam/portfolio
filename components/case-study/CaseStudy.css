@@ -856,8 +856,6 @@ body.dark-mode [data-page="case"] {
   overflow-wrap: break-word;
 }
 
-
-
 [data-page="case"] .verb {
   flex: none;
   min-width: 3.4em;

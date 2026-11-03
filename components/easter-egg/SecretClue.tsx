@@ -93,9 +93,7 @@ export default function SecretClue({
     firstItemRef.current?.focus();
 
     const items = () =>
-      Array.from(
-        containerRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? [],
-      );
+      Array.from(containerRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? []);
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -145,9 +143,7 @@ export default function SecretClue({
     }
     if (!wasOpen.current) return;
     wasOpen.current = false;
-    containerRef.current
-      ?.querySelector<HTMLButtonElement>(".clue")
-      ?.focus({ preventScroll: true });
+    containerRef.current?.querySelector<HTMLButtonElement>(".clue")?.focus({ preventScroll: true });
   }, [open]);
 
   const trigger = (action: () => void) => {
@@ -169,18 +165,13 @@ export default function SecretClue({
         scheduleClose();
         setHovered(false);
       }}
-      className={`clue-wrap print:hidden${open && revealed ? " clue-open" : ""}`}
+      className={`clue-wrap print:hidden${open && revealed ? "clue-open" : ""}`}
       data-open={open && revealed ? "true" : "false"}
     >
       {open && revealed && (
         <div role="menu" aria-label={t.title} className="cmenu">
           <p className="cmenu-label">{t.title}</p>
-          <button
-            ref={firstItemRef}
-            type="button"
-            role="menuitem"
-            onClick={() => trigger(onHint)}
-          >
+          <button ref={firstItemRef} type="button" role="menuitem" onClick={() => trigger(onHint)}>
             <Icon name="helpCircle" className="i" />
             {t.hint}
           </button>
@@ -189,11 +180,7 @@ export default function SecretClue({
             {t.enter}
           </button>
           {unlocked && (
-            <button
-              type="button"
-              role="menuitem"
-              onClick={() => trigger(onOpen)}
-            >
+            <button type="button" role="menuitem" onClick={() => trigger(onOpen)}>
               <Icon name="terminal" className="i" />
               {t.open}
             </button>
@@ -208,7 +195,7 @@ export default function SecretClue({
         aria-expanded={open}
         aria-label={t.title}
         data-state={state}
-        className={`clue${revealed ? " ping" : ""}`}
+        className={`clue${revealed ? "ping" : ""}`}
         onClick={() => {
           cancelClose();
           setOpen((value) => !value);

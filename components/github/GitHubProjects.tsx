@@ -40,7 +40,7 @@ const FADE_MS = 420;
 function Skeleton({ leaving = false }: { leaving?: boolean }) {
   return (
     <ul
-      className={`gh-grid gh-skel-grid${leaving ? " gh-skel-layer" : ""}`}
+      className={`gh-grid gh-skel-grid${leaving ? "gh-skel-layer" : ""}`}
       aria-hidden="true"
       data-leaving={leaving ? "" : undefined}
     >

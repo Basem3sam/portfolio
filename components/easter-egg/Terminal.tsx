@@ -288,7 +288,14 @@ type Stored = {
 };
 
 function loadStored(): Stored {
-  const fallback: Stored = { found: [], theme: "amber", hints: {}, since: null, crt: true, clues: [] };
+  const fallback: Stored = {
+    found: [],
+    theme: "amber",
+    hints: {},
+    since: null,
+    crt: true,
+    clues: [],
+  };
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return fallback;
@@ -337,7 +344,12 @@ function completionFor(value: string): Completion | null {
     if (!list) return null;
     const partial = withArg[2];
     const options = list.filter((item) => item.startsWith(partial.toLowerCase()));
-    return { head: value.slice(0, value.length - partial.length), partial, options, takesArgs: false };
+    return {
+      head: value.slice(0, value.length - partial.length),
+      partial,
+      options,
+      takesArgs: false,
+    };
   }
 
   if (value && /^\S+$/.test(value)) {
@@ -514,7 +526,10 @@ function ScreenFx({ rain, burst }: { rain: { run: number; ms: number }; burst: n
     };
     frame = requestAnimationFrame(draw);
 
-    const fade = window.setTimeout(() => canvas.classList.remove("on"), Math.max(rain.ms - 1200, 1000));
+    const fade = window.setTimeout(
+      () => canvas.classList.remove("on"),
+      Math.max(rain.ms - 1200, 1000),
+    );
     const stop = window.setTimeout(() => {
       cancelAnimationFrame(frame);
       ctx.clearRect(0, 0, width, height);
@@ -540,7 +555,18 @@ function ScreenFx({ rain, burst }: { rain: { run: number; ms: number }; burst: n
     canvas.height = Math.round(height * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    type Piece = { x: number; y: number; vx: number; vy: number; w: number; h: number; r: number; vr: number; c: string; life: number };
+    type Piece = {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      w: number;
+      h: number;
+      r: number;
+      vr: number;
+      c: string;
+      life: number;
+    };
     const launch = (count: number, at: number): Piece[] =>
       Array.from({ length: count }, () => {
         const angle = -Math.PI / 2 + (Math.random() - 0.5) * 1.5;
@@ -862,7 +888,9 @@ export default function Terminal({ open, onClose }: TerminalProps) {
     at(5200, () => emit(certificateOutput(stats)));
     at(6600, () => {
       emit(FINALE_REWARDS.join("\n"));
-      setAnnounce("All trophies found. You have root. A certificate and the gold theme are unlocked.");
+      setAnnounce(
+        "All trophies found. You have root. A certificate and the gold theme are unlocked.",
+      );
     });
   };
 
@@ -1027,7 +1055,8 @@ export default function Terminal({ open, onClose }: TerminalProps) {
   const runRm = (after?: () => void) => {
     RM_SEQUENCE.forEach((step) =>
       later(step.at, () => {
-        if (step.bar) append([{ tone: "plain", kind: "bar", text: step.bar.label, ms: step.bar.ms }]);
+        if (step.bar)
+          append([{ tone: "plain", kind: "bar", text: step.bar.label, ms: step.bar.ms }]);
         else if (step.html) {
           append([
             step.tone === "error"
@@ -1064,14 +1093,26 @@ export default function Terminal({ open, onClose }: TerminalProps) {
           { tone: "info", text: "Read a log first. Hidden files start with a dot." },
         ]);
       } else if (!Number.isInteger(n) || !REPLAY_LINES[n]) {
-        append([{ tone: "info", text: "Usage: replay N, with N a line number from the history (1 to 9)." }]);
+        append([
+          {
+            tone: "info",
+            text: "Usage: replay N, with N a line number from the history (1 to 9).",
+          },
+        ]);
       } else {
         const line = REPLAY_LINES[n];
         if (line.run) {
-          emit(`  <span class="dim">replaying line ${n}:</span> <span class="cmd">${escapeHtml(line.run)}</span>`);
+          emit(
+            `  <span class="dim">replaying line ${n}:</span> <span class="cmd">${escapeHtml(line.run)}</span>`,
+          );
           run(line.run);
         } else if (line.say) {
-          emit(line.say.split("\n").map((row) => `  <span class="dim">${escapeHtml(row)}</span>`).join("\n"));
+          emit(
+            line.say
+              .split("\n")
+              .map((row) => `  <span class="dim">${escapeHtml(row)}</span>`)
+              .join("\n"),
+          );
         }
       }
       return;
@@ -1171,7 +1212,9 @@ export default function Terminal({ open, onClose }: TerminalProps) {
               if (step.bar) {
                 append([{ tone: "plain", kind: "bar", text: step.bar.label, ms: step.bar.ms }]);
               } else if (step.decode) {
-                append([{ tone: "plain", kind: "decode", text: step.decode.text, ms: step.decode.ms }]);
+                append([
+                  { tone: "plain", kind: "decode", text: step.decode.text, ms: step.decode.ms },
+                ]);
               } else if (step.html) {
                 append([
                   step.tone === "error"
@@ -1417,7 +1460,9 @@ export default function Terminal({ open, onClose }: TerminalProps) {
       case "hint": {
         const target = DISCOVERIES.find((item) => !foundRef.current.includes(item.id));
         if (!target) {
-          emit(`  <span class="wl">No trophies left.</span> <span class="dim">You have everything.</span>`);
+          emit(
+            `  <span class="wl">No trophies left.</span> <span class="dim">You have everything.</span>`,
+          );
           return;
         }
         // A hint costs a move: run something else between two hints, so the
@@ -1480,7 +1525,9 @@ export default function Terminal({ open, onClose }: TerminalProps) {
           // gate: whoever works out the command has earned the answer.
           const [, ...rest] = hireOutput(user).split("\n");
           emit(passwordLine);
-          later(800, () => append([{ tone: "plain", kind: "bar", text: "authenticating", ms: 900 }]));
+          later(800, () =>
+            append([{ tone: "plain", kind: "bar", text: "authenticating", ms: 900 }]),
+          );
           later(1900, () => {
             emit(rest.join("\n"));
             discover("hire");
@@ -1549,7 +1596,9 @@ export default function Terminal({ open, onClose }: TerminalProps) {
       { tone: "error", text: `Command not found: ${tokens[0]}` },
       {
         tone: "info",
-        text: guess ? `Did you mean "${guess}"? Type "help" for the list.` : 'Type "help" to see available commands.',
+        text: guess
+          ? `Did you mean "${guess}"? Type "help" for the list.`
+          : 'Type "help" to see available commands.',
       },
     ]);
   };
@@ -1594,7 +1643,10 @@ export default function Terminal({ open, onClose }: TerminalProps) {
       put(head + prefix + (options.length === 1 && takesArgs ? " " : ""));
     } else if (options.length > 1) {
       append([
-        { tone: "prompt", html: `${promptHtml(rank, symbol)} <span class="cmd">${escapeHtml(draft)}</span>` },
+        {
+          tone: "prompt",
+          html: `${promptHtml(rank, symbol)} <span class="cmd">${escapeHtml(draft)}</span>`,
+        },
         { tone: "plain", html: `<span class="dim">${options.join("  ")}</span>` },
       ]);
     }
@@ -1672,8 +1724,10 @@ export default function Terminal({ open, onClose }: TerminalProps) {
   return (
     <div className="egg">
       <div
-        className={`eov dim${open && shown && !closing ? " show" : ""}${closing ? " closing" : ""}`}
-        style={closing ? ({ "--out": `${crt ? CLOSE_MS_CRT : CLOSE_MS}ms` } as CSSProperties) : undefined}
+        className={`eov dim${open && shown && !closing ? "show" : ""}${closing ? "closing" : ""}`}
+        style={
+          closing ? ({ "--out": `${crt ? CLOSE_MS_CRT : CLOSE_MS}ms` } as CSSProperties) : undefined
+        }
         onClick={(event) => {
           if (event.target === event.currentTarget) close();
         }}
@@ -1682,7 +1736,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
           ref={dialogRef}
           id="secret-terminal"
           dir="ltr"
-          className={`eterm${closing ? " closing" : ""}`}
+          className={`eterm${closing ? "closing" : ""}`}
           data-theme={theme}
           data-rank={rank}
           data-crt={crt ? "on" : "off"}
@@ -1715,7 +1769,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
               </button>
               <button
                 type="button"
-                className={`egx esn${muted ? " off" : ""}`}
+                className={`egx esn${muted ? "off" : ""}`}
                 aria-label={muted ? "Turn sound on" : "Turn sound off"}
                 aria-pressed={!muted}
                 onClick={() => {
@@ -1743,7 +1797,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
                   inputRef.current?.focus();
                 }
               }}
-              className={`etb${glitch ? " gl" : ""}`}
+              className={`etb${glitch ? "gl" : ""}`}
               id="terminal-output"
               tabIndex={0}
               aria-label="Terminal output"
@@ -1752,7 +1806,10 @@ export default function Terminal({ open, onClose }: TerminalProps) {
                 const style = line.delay ? { animationDelay: `${line.delay}ms` } : undefined;
 
                 if (line.kind === "ascii") {
-                  const sized = { ...style, ...(line.cols ? { "--cols": line.cols } : {}) } as CSSProperties;
+                  const sized = {
+                    ...style,
+                    ...(line.cols ? { "--cols": line.cols } : {}),
+                  } as CSSProperties;
                   return (
                     <pre
                       key={line.id}
@@ -1771,11 +1828,25 @@ export default function Terminal({ open, onClose }: TerminalProps) {
                 }
 
                 if (line.kind === "bar") {
-                  return <HackBar key={line.id} label={line.text ?? ""} ms={line.ms ?? 1000} style={style} />;
+                  return (
+                    <HackBar
+                      key={line.id}
+                      label={line.text ?? ""}
+                      ms={line.ms ?? 1000}
+                      style={style}
+                    />
+                  );
                 }
 
                 if (line.kind === "decode") {
-                  return <MatrixDecode key={line.id} text={line.text ?? ""} ms={line.ms ?? MATRIX_DECODE_MS} style={style} />;
+                  return (
+                    <MatrixDecode
+                      key={line.id}
+                      text={line.text ?? ""}
+                      ms={line.ms ?? MATRIX_DECODE_MS}
+                      style={style}
+                    />
+                  );
                 }
 
                 if (line.kind === "coffee") {

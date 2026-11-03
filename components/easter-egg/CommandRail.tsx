@@ -1,6 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type PointerEvent as ReactPointerEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import { prefersReducedMotion } from "@/lib/scroll";
 
 type CommandRailProps = {
@@ -23,7 +31,13 @@ const DRAG_THRESHOLD = 5;
  * appear only on the side that has more to show. While a command is being
  * typed, matching chips brighten and the first match scrolls into view.
  */
-export default function CommandRail({ commands, needsArg, query, onRun, onFill }: CommandRailProps) {
+export default function CommandRail({
+  commands,
+  needsArg,
+  query,
+  onRun,
+  onFill,
+}: CommandRailProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [edge, setEdge] = useState({ start: false, end: false });
   const [focusIndex, setFocusIndex] = useState(0);
@@ -63,7 +77,10 @@ export default function CommandRail({ commands, needsArg, query, onRun, onFill }
     const right = button.offsetLeft + button.offsetWidth + pad - track.clientWidth;
     const target = left < track.scrollLeft ? left : right > track.scrollLeft ? right : null;
     if (target !== null) {
-      track.scrollTo({ left: Math.max(0, target), behavior: prefersReducedMotion() ? "auto" : "smooth" });
+      track.scrollTo({
+        left: Math.max(0, target),
+        behavior: prefersReducedMotion() ? "auto" : "smooth",
+      });
     }
   }, []);
 
@@ -77,7 +94,11 @@ export default function CommandRail({ commands, needsArg, query, onRun, onFill }
       const max = track.scrollWidth - track.clientWidth;
       if (max <= 0) return;
       const next = track.scrollLeft + event.deltaY;
-      if ((event.deltaY < 0 && track.scrollLeft <= 0) || (event.deltaY > 0 && track.scrollLeft >= max)) return;
+      if (
+        (event.deltaY < 0 && track.scrollLeft <= 0) ||
+        (event.deltaY > 0 && track.scrollLeft >= max)
+      )
+        return;
       event.preventDefault();
       track.scrollLeft = Math.min(max, Math.max(0, next));
     };

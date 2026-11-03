@@ -43,7 +43,7 @@ function airRow(phase: Phase, row: number, frame: number, level: number): string
   }
   if (phase === "heat") {
     const dots = "°  ˚  °  ˚  °";
-    return pad + dots.slice((frame + row) % 3, (frame + row) % 3 + INNER);
+    return pad + dots.slice((frame + row) % 3, ((frame + row) % 3) + INNER);
   }
   if (phase === "pour") {
     return pad + " ".repeat(5) + ((frame + row) % 2 ? "¦" : "│");
@@ -75,7 +75,11 @@ function renderCup(phase: Phase, frame: number, level: number): ReactNode[] {
     const filled = index >= 4 - level;
     if (!filled) return " ".repeat(INNER);
     // The top filled row is the surface: a pale, shifting crema.
-    return index === 4 - level ? <span className="ct">{waves}</span> : <span className="cl">{body}</span>;
+    return index === 4 - level ? (
+      <span className="ct">{waves}</span>
+    ) : (
+      <span className="cl">{body}</span>
+    );
   };
 
   const ready = phase === "ready";
@@ -101,7 +105,7 @@ function renderCup(phase: Phase, frame: number, level: number): ReactNode[] {
   line("t2", <span className="cc">{"    '"}</span>, taper2, <span className="cc">{"'"}</span>);
   line(
     "saucer",
-    <span className={`cc${phase === "heat" ? " cheat" : ""}`}>{"  ==============="}</span>,
+    <span className={`cc${phase === "heat" ? "cheat" : ""}`}>{"  ==============="}</span>,
   );
   return out;
 }
@@ -138,7 +142,10 @@ export default function CoffeeBrew({ style }: Props) {
 
   const phase = phaseAt(t);
   const frame = Math.floor(t / (TICK * 2));
-  const level = phase === "grind" || phase === "heat" ? 0 : clamp(Math.floor((t - HEAT_END) / POUR_STEP) + 1, 0, 4);
+  const level =
+    phase === "grind" || phase === "heat"
+      ? 0
+      : clamp(Math.floor((t - HEAT_END) / POUR_STEP) + 1, 0, 4);
   const pct = Math.round(clamp(t / READY_AT) * 100);
   const filled = Math.round((pct / 100) * BAR);
 

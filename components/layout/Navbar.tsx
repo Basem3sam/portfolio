@@ -383,7 +383,9 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
         segment.style.flexGrow = String(Math.max(1, Math.round(rect.height)));
         const fill = segment.firstElementChild as HTMLElement | null;
         if (fill) {
-          fill.style.width = atBottom ? "100%" : `${clamp01((line - rect.top) / rect.height) * 100}%`;
+          fill.style.width = atBottom
+            ? "100%"
+            : `${clamp01((line - rect.top) / rect.height) * 100}%`;
         }
       });
     };
@@ -395,7 +397,8 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
       nav.style.setProperty("--np", np.toFixed(3));
     };
 
-    const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const prefersReducedMotion = () =>
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     // Scroll-driven progress chases its target with exponential smoothing, so
     // the capsule glides whatever the scroll speed (a wheel notch is far larger
@@ -622,11 +625,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                 top of the site and nothing said so. An explicit Home link sits
                 beside it from lg up; on phones the menu carries a Home row. */}
             {!isHome && (
-              <Link
-                href={homeHref}
-                className="nav-home hidden lg:inline-flex"
-                data-nav-section
-              >
+              <Link href={homeHref} className="nav-home hidden lg:inline-flex" data-nav-section>
                 <Icon name="arrowLeft" className="size-3.5 rtl:rotate-180" />
                 <span>{labels.homeLabel}</span>
               </Link>
@@ -812,7 +811,12 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                   {/* /links joins the bar at xl only; below that the utility
                       group carries it as an icon. */}
                   <li className="hidden xl:block">
-                    <Link href={linksHref} prefetch={false} className={sectionLink(false)} data-nav-ind>
+                    <Link
+                      href={linksHref}
+                      prefetch={false}
+                      className={sectionLink(false)}
+                      data-nav-ind
+                    >
                       <span className="nn" dir="ltr" aria-hidden="true">
                         ↗
                       </span>
@@ -835,10 +839,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                         <span className="palette-word" aria-hidden="true">
                           {labels.search}
                         </span>
-                        <span
-                          className="font-mono text-xs max-xl:sr-only"
-                          suppressHydrationWarning
-                        >
+                        <span className="font-mono text-xs max-xl:sr-only" suppressHydrationWarning>
                           {modKey} K
                         </span>
                       </button>

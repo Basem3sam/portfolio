@@ -57,7 +57,13 @@ function documentTop(el: HTMLElement) {
   return y;
 }
 
-export function storyProgress(kind: StoryKind, top: number, height: number, scroll: number, vh: number) {
+export function storyProgress(
+  kind: StoryKind,
+  top: number,
+  height: number,
+  scroll: number,
+  vh: number,
+) {
   const t = top - scroll;
   switch (kind) {
     case "enter":
@@ -101,7 +107,10 @@ export function createStory() {
 
   const apply = () => {
     for (const item of items) {
-      const next = Math.round(clamp01(storyProgress(item.kind, item.top, item.height, scroll, viewport)) * 1000) / 1000;
+      const next =
+        Math.round(
+          clamp01(storyProgress(item.kind, item.top, item.height, scroll, viewport)) * 1000,
+        ) / 1000;
       if (next !== item.value) {
         item.value = next;
         item.el.style.setProperty(item.kind === "line" ? "--lp" : "--sp", String(next));
@@ -162,7 +171,8 @@ export function createStory() {
       observer?.disconnect();
       if (measureFrame) cancelAnimationFrame(measureFrame);
       document.documentElement.removeAttribute("data-story-on");
-      for (const item of items) item.el.style.removeProperty(item.kind === "line" ? "--lp" : "--sp");
+      for (const item of items)
+        item.el.style.removeProperty(item.kind === "line" ? "--lp" : "--sp");
       items = [];
     },
   };
