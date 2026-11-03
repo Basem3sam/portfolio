@@ -261,11 +261,11 @@ html[dir="rtl"] #stack .stx-seg::after {
 /* Node on the line: lit (honey) by default; unlit until revealed. */
 #stack .stx-node {
   position: absolute;
-  top: 0;
-  inset-inline-start: 0;
+  top: -1px;
+  inset-inline-start: -1px;
   z-index: 1;
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: var(--c-honey);
   border: 2px solid var(--c-honey);
@@ -668,7 +668,7 @@ html:not([data-story-on]) #stack .xl-p {
 /* The seam (slab edge) runs through the node, so centre the node on it. */
 @media (min-width: 992px) {
   #stack .stx-node {
-    inset-inline-start: -6px;
+    inset-inline-start: -7px;
   }
 }
 
@@ -762,7 +762,7 @@ html:not([data-story-on]) #stack .xl-p {
     top: -12px;
     bottom: 26px;
     inset-inline: 22px 0;
-    border-radius: 14px;
+    border-radius: 20px;
     border-inline-start: 0;
     border-inline-end: 0;
     /* --cur is how much this is the step being read (0 to 1, from the scroll:
@@ -860,7 +860,7 @@ html[data-perf="low"] #stack .stx-slab::after {
   }
 
   #stack .stx-node {
-    inset-inline-start: 12px;
+    inset-inline-start: 11px;
   }
 }
 
@@ -870,7 +870,7 @@ html[data-perf="low"] #stack .stx-slab::after {
   }
 
   #stack .stx-node {
-    inset-inline-start: 7px;
+    inset-inline-start: 6px;
   }
 }
 
@@ -899,7 +899,7 @@ html[data-perf="low"] #stack .stx-slab::after {
 
   /* node centre 24px below the card top, rail runs node-to-node */
   #stack .stx-node {
-    top: 18px;
+    top: 17px;
   }
 
   #stack .stx-seg {
@@ -1020,7 +1020,7 @@ html[data-perf="low"] #stack .stx-slab::after {
     margin-top: 4px;
     padding: 16px var(--tcp, 22px) 18px;
     border: 1px dashed var(--c-rule-strong);
-    border-radius: 14px;
+    border-radius: 20px;
     background: color-mix(in srgb, var(--c-dark-text) 3%, transparent);
   }
 
@@ -1077,8 +1077,8 @@ html[data-perf="low"] #stack .stx-slab::after {
   }
 
   #stack .stx-node {
-    top: 24px;
-    inset-inline-start: 22px;
+    top: 23px;
+    inset-inline-start: 21px;
   }
 
   #stack .stx-k {
@@ -1124,7 +1124,7 @@ html[data-perf="low"] #stack .stx-slab::after {
   }
 
   #stack .stx-slab {
-    bottom: 12px;
+    bottom: 16px;
   }
 
   /* Ship is the last card: no trailing space after it. */
@@ -1138,7 +1138,7 @@ html[data-perf="low"] #stack .stx-slab::after {
 
   #stack .stx h3 {
     margin-top: 6px;
-    font-size: 1.125rem;
+    font-size: 1.25rem;
   }
 
   #stack .stx-c {
@@ -1196,10 +1196,10 @@ html[data-perf="low"] #stack .stx-slab::after {
   #stack .stx-also::before {
     content: "";
     position: absolute;
-    top: 19px;
-    inset-inline-start: calc(-1 * var(--tlp, 26px) + 8px);
-    width: 10px;
-    height: 10px;
+    top: 17px;
+    inset-inline-start: calc(-1 * var(--tlp, 26px) + 6px);
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
     border: 2px solid var(--c-honey);
     background: var(--c-page);
@@ -1209,12 +1209,48 @@ html[data-perf="low"] #stack .stx-slab::after {
 
 @media (min-width: 561px) and (max-width: 639px) {
   #stack .stx-also::before {
-    inset-inline-start: calc(-1 * var(--tlp, 26px) + 13px);
+    inset-inline-start: calc(-1 * var(--tlp, 26px) + 11px);
   }
 }
 
 @media print {
   #stack .stx-also::before {
     display: none;
+  }
+}
+
+/* ================================================================
+   Rail family — shared vocabulary with Experience and About.
+   All three timelines now speak the same language while keeping their
+   own character (Stack: cool fill + comet, Experience: honey scrub,
+   About: quiet trail):
+   • 2px line with rounded ends and a soft glow on the lit part
+   • 14px node on the line; reached = honey fill + 5px honey halo
+   • 20px cards, 16px between them, same 1.25rem step titles
+   ================================================================ */
+#stack .stx-seg,
+#stack .stx-seg::after {
+  border-radius: 2px;
+}
+
+#stack .stx-seg::after {
+  box-shadow: 0 0 10px color-mix(in srgb, var(--c-secondary) 55%, transparent);
+}
+
+/* The halo Experience puts on its current role, here on every reached node. */
+#stack .stx-node {
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--c-honey) 22%, transparent);
+}
+
+#stack .stx[data-revealed="false"] .stx-node {
+  box-shadow: none;
+}
+
+@media (max-width: 991px) {
+  /* The step being read keeps its swelling halo (ScrollStory.css drives it);
+     steps at rest show the calm 5px one, like Experience's. */
+  html[data-story-on] #stack .stx[data-revealed] .stx-node {
+    box-shadow: 0 0 0 calc(5px + var(--cur, 0) * 3px)
+      color-mix(in srgb, var(--c-honey) calc(18% + var(--cur, 0) * 14%), transparent);
   }
 }

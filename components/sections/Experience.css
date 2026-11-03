@@ -129,6 +129,14 @@
   }
 }
 
+/* the dot of the card in focus takes the same honey halo as Stack's lit
+   nodes and About's reached dots, so the three rails share one "you are
+   here" mark */
+#experience .xp2.act .tl-dot {
+  border-color: var(--c-honey);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--c-honey) 22%, transparent);
+}
+
 /* the card currently in focus (set by the scroll effect) */
 #experience .xp2.act {
   border-color: color-mix(in srgb, var(--c-honey) 60%, var(--c-rule-strong));

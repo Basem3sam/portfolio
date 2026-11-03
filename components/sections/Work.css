@@ -2291,3 +2291,107 @@ html[data-perf="low"] #work .stage::after {
     animation: none;
   }
 }
+
+/* ================================================================
+   Flagship backdrop on narrow cards (container < 960px).
+
+   The desktop design is: a cobalt light behind the live window, rings
+   flowing outward from that window, a warm light low on the left, and a fine
+   grain over the ink. On a phone the card is ~1400px tall and ~340px wide, and
+   the lights and rings were placed in percentages of the card's HEIGHT, so they
+   fell outside the card and left flat ink. Here the same four ingredients are
+   re-anchored so they hold the same composition at any width:
+
+   • cobalt light + rings are drawn from the ARTWORK (.feat-art), centred on
+     the live window, so the signal always radiates from the window;
+   • the card-level aurora is kept, in px / cqi, so the cobalt light still
+     rises behind the headline and the warm light still pools under the stats;
+   • the card-level rings are retired here (the artwork's rings replace them,
+     so no hairlines run behind the headline);
+   • the grain returns without its blend mode (the blend was the expensive
+     part), as one static layer.
+   ================================================================ */
+@container feat (max-width: 959.98px) {
+  #work .feat-aurora::before {
+    top: -120px;
+    inset-inline-end: -34%;
+    width: min(112cqi, 460px);
+    opacity: 0.62;
+  }
+
+  #work .feat-aurora::after {
+    top: auto;
+    bottom: -90px;
+    inset-inline-start: -30%;
+    width: min(104cqi, 440px);
+    opacity: 1;
+  }
+
+  #work .feat-rings {
+    display: none;
+  }
+
+  #work .feat-grain {
+    display: block;
+    opacity: 0.4;
+    mix-blend-mode: normal;
+  }
+
+  /* Cobalt light behind the live window, and the rings leaving it. */
+  #work .feat-art::before,
+  #work .feat-art::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset-inline-start: 50%;
+    top: 24%;
+    translate: -50% -50%;
+    aspect-ratio: 1;
+    pointer-events: none;
+  }
+
+  [dir="rtl"] #work .feat-art::before,
+  [dir="rtl"] #work .feat-art::after {
+    translate: 50% -50%;
+  }
+
+  #work .feat-art::before {
+    width: min(150cqi, 620px);
+    background: radial-gradient(closest-side, rgba(59, 91, 245, 0.62), transparent);
+  }
+
+  #work .feat-art::after {
+    width: min(250cqi, 980px);
+    background: repeating-radial-gradient(
+      circle,
+      transparent 0 34px,
+      rgba(176, 196, 255, 0.22) 34px 35px
+    );
+    mask-image: radial-gradient(closest-side, #000 18%, transparent 100%);
+  }
+
+  #work .depth-b {
+    translate: 0 calc(var(--sy, 0) * -26px);
+  }
+}
+
+@container feat (max-width: 559.98px) {
+  #work .depth-a,
+  #work .depth-b {
+    translate: none;
+  }
+
+  #work .feat-aurora {
+    translate: none;
+  }
+}
+
+html[data-perf="low"] #work .feat-grain {
+  display: none;
+}
+
+@media print {
+  #work .feat-grain {
+    display: none;
+  }
+}

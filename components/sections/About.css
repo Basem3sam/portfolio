@@ -86,19 +86,21 @@ html[lang="ar"] #about .ab-lead {
 #about .ab-rail li::before {
   content: "";
   position: absolute;
-  inset-inline-start: -30px;
-  top: 6px;
-  width: 12px;
-  height: 12px;
+  inset-inline-start: -31px;
+  top: 5px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: var(--c-honey);
-  box-shadow: 0 0 0 5px var(--c-light-bg);
+  /* same honey halo as Experience's current role and Stack's reached nodes */
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--c-honey) 22%, transparent);
 }
 
 /* the "next" entry is hollow: on the rail, not yet reached */
 #about .ab-rail li.next::before {
   background: var(--c-light-bg);
   border: 2px solid var(--c-honey);
+  box-shadow: none;
 }
 
 /* rail segment below each dot; the first starts amber, fades to a rule */
@@ -106,14 +108,19 @@ html[lang="ar"] #about .ab-lead {
   content: "";
   position: absolute;
   inset-inline-start: -25px;
-  top: 22px;
-  bottom: -6px;
+  top: 26px;
+  bottom: 4px;
   width: 2px;
-  background: var(--c-rule-strong);
+  border-radius: 2px;
+  /* every segment is a short lit trail: honey fading into the rule */
+  background: linear-gradient(
+    color-mix(in srgb, var(--c-honey) 55%, var(--c-rule-strong)),
+    var(--c-rule-strong) 70%
+  );
 }
 
 #about .ab-rail li:first-child:not(:last-child)::after {
-  background: linear-gradient(var(--c-honey), var(--c-rule-strong));
+  background: linear-gradient(var(--c-honey), var(--c-rule-strong) 75%);
 }
 
 #about .ab-rail .yr {
@@ -241,7 +248,7 @@ html[lang="ar"] #about .ed-deg h3 {
 /* Rail centre matches Experience and Stack: 18px from the content edge, 13px on phones. */
 @media (max-width: 991px) {
   #about .ab-rail li::before {
-    inset-inline-start: -18px;
+    inset-inline-start: -19px;
   }
 
   #about .ab-rail li:not(:last-child)::after {
@@ -251,7 +258,7 @@ html[lang="ar"] #about .ed-deg h3 {
 
 @media (max-width: 560px) {
   #about .ab-rail li::before {
-    inset-inline-start: -23px;
+    inset-inline-start: -24px;
   }
 
   #about .ab-rail li:not(:last-child)::after {
