@@ -56,9 +56,7 @@ export default function SitePreview({ url, label }: SitePreviewProps) {
         </span>
       </span>
       <span className="sp-frame" aria-hidden="true">
-        <span className="sp-ph" dir="ltr">
-          {host}
-        </span>
+        <span className="sp-ph" aria-hidden="true" data-host={host} />
         {state !== "failed" && (
           <img
             ref={image}

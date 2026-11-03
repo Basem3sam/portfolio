@@ -88,6 +88,13 @@
   transition: opacity 0.4s ease;
 }
 
+/* Drawn by CSS so the host is not a second text node inside the link; two
+   copies made the visible text fail axe's label-in-name rule (WCAG 2.5.3). */
+.sp-ph::before {
+  content: attr(data-host);
+  direction: ltr;
+}
+
 .sp[data-state="loading"] .sp-ph {
   animation: sp-breathe 1.8s ease-in-out infinite;
 }
