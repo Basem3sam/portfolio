@@ -198,7 +198,7 @@ function drawHalftone(
 const NEBULA_VERT = `#version 300 es
 void main(){vec2 p=vec2(float((gl_VertexID<<1)&2),float(gl_VertexID&2));gl_Position=vec4(p*2.0-1.0,0.0,1.0);}`;
 
-const NEBULA_FRAG = (ms: number, mr: number) => `#version 300 es
+const NEBULA_FRAG = (ms: number, mr: number, oct: number) => `#version 300 es
 precision highp float;
 uniform vec2 uRes;uniform float uDpr;uniform float uTime;uniform vec2 uPointer;uniform float uPointerOn;uniform vec2 uLook;
 uniform int uSparkCount;uniform vec4 uSpark[${ms}];uniform vec4 uSparkB[${ms}];uniform vec4 uRipple[${mr}];
@@ -207,7 +207,7 @@ uniform vec3 uVoid,uHaze,uDusk,uWine,uCrimson,uHot,uStar;
 out vec4 frag;
 float hash12(vec2 p){vec3 p3=fract(vec3(p.xyx)*0.1031);p3+=dot(p3,p3.yzx+33.33);return fract((p3.x+p3.y)*p3.z);}
 float vnoise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);float a=hash12(i),b=hash12(i+vec2(1.0,0.0)),c=hash12(i+vec2(0.0,1.0)),d=hash12(i+vec2(1.0,1.0));return mix(mix(a,b,f.x),mix(c,d,f.x),f.y);}
-float fbm(vec2 p){float s=0.0,a=0.5;mat2 r=mat2(0.8,-0.6,0.6,0.8);for(int i=0;i<4;i++){s+=a*vnoise(p);p=r*p*2.03+17.1;a*=0.5;}return s/0.9375;}
+float fbm(vec2 p){float s=0.0,a=0.5;mat2 r=mat2(0.8,-0.6,0.6,0.8);for(int i=0;i<${oct};i++){s+=a*vnoise(p);p=r*p*2.03+17.1;a*=0.5;}return s/${(1 - 0.5 ** oct).toFixed(4)};}
 float bayer4(vec2 c){vec2 m=mod(c,4.0);int i=int(m.x)+int(m.y)*4;int b[16]=int[16](0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5);return (float(b[i])+0.5)/16.0;}
 vec3 ramp(float d,vec3 haze){vec3 c=mix(uVoid,haze,smoothstep(0.0,0.22,d));c=mix(c,uWine,smoothstep(0.18,0.44,d));c=mix(c,uCrimson,smoothstep(0.42,0.72,d));return mix(c,uHot,smoothstep(0.7,0.96,d));}
 vec2 shift(float depth){return floor(uLook*depth*22.0);}
@@ -472,8 +472,12 @@ export function mountHeroFx(
         }
         return shader;
       };
+      // Phones get one octave less in the cloud noise (3 instead of 4): the sky
+      // is built from 5px cells, so the finest octave is not visible there, and
+      // the noise is most of what each pixel costs.
+      const lean = host.clientWidth < 600;
       const vs = compile(gl.VERTEX_SHADER, NEBULA_VERT);
-      const fs = compile(gl.FRAGMENT_SHADER, NEBULA_FRAG(MS, MR));
+      const fs = compile(gl.FRAGMENT_SHADER, NEBULA_FRAG(MS, MR, lean ? 3 : 4));
       const program = gl.createProgram();
       let uniforms: Partial<Record<(typeof NEBULA_UNIFORMS)[number], WebGLUniformLocation | null>> =
         {};
@@ -566,7 +570,13 @@ export function mountHeroFx(
         const compact = host.clientWidth < 600;
         let quality = compact ? 0.8 : 1;
         const minQuality = 0.5;
-        const frameGap = compact ? 40 : 33;
+        // The sky drifts slowly and touch has no pointer light, so 20fps is
+        // indistinguishable from 25 on a phone. While the page is being
+        // scrolled it drops to ~10fps: the GPU is better spent keeping the
+        // scroll itself smooth than redrawing a sky that is moving past.
+        const frameGap = compact ? 50 : 33;
+        const scrollGap = compact ? 100 : 33;
+        let lastScroll = -1e9;
         let slowFrames = 0;
 
         // Layout reads are the expensive part of a frame here: three
@@ -720,7 +730,7 @@ export function mountHeroFx(
 
         const frame = (now: number) => {
           raf = 0;
-          if (now - lastDraw >= frameGap) {
+          if (now - lastDraw >= (now - lastScroll < 140 ? scrollGap : frameGap)) {
             if (lastDraw > 0 && now - lastDraw > 66) {
               if (++slowFrames >= 8 && quality > minQuality) {
                 quality = Math.max(minQuality, quality * 0.8);
@@ -806,6 +816,7 @@ export function mountHeroFx(
           window,
           "scroll",
           () => {
+            lastScroll = performance.now();
             if (lastPointer.seen) aimDirty = true;
           },
           { passive: true },

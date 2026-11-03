@@ -1514,6 +1514,14 @@ html[lang="ar"] .pf-note {
   opacity: 1;
 }
 
+/* Touch has no hover, so the rim light never shows there. Its blend mode would
+   still make the browser composite the portrait through an extra group. */
+@media (hover: none) {
+  .pf > picture::after {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .pf > picture {
     transform: none;
