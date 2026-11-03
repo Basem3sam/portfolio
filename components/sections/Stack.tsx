@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import SectionHeader from "@/components/ui/SectionHeader";
 import type { Dictionary } from "@/lib/dictionaries/en";
+import { packChips } from "@/lib/pack-chips";
 import "./Stack.css";
 
 type StackProps = {
@@ -26,6 +27,17 @@ type StackProps = {
  */
 export default function Stack({ dict }: StackProps) {
   const { stages } = dict;
+
+  /* Chips are packed into full 12-column rows: once for phones (--p / --po)
+     and once for the narrower two-column tablet cards (--t / --to). */
+  const chipVars = (names: string[], i: number, p: ReturnType<typeof packChips>, t: ReturnType<typeof packChips>) =>
+    ({
+      "--p": p[i].span,
+      "--po": p[i].order,
+      "--t": t[i].span,
+      "--to": t[i].order,
+      "--name": names[i].length,
+    }) as CSSProperties;
 
   return (
     <section id="stack" className="sec">
@@ -76,12 +88,17 @@ export default function Stack({ dict }: StackProps) {
                 <p className="stx-c">{stage.cap}</p>
 
                 <ul className="chips">
-                  {stage.techs.map((tech) => (
-                    <li key={tech.name} className="chip" dir="ltr">
+                  {(() => {
+                    const names = stage.techs.map((x) => x.name);
+                    const p = packChips(names, 270);
+                    const t = packChips(names, 230);
+                    return stage.techs.map((tech, k) => (
+                    <li key={tech.name} className="chip" dir="ltr" style={chipVars(names, k, p, t)}>
                       <b aria-hidden="true">{tech.abbr}</b>
                       {tech.name}
                     </li>
-                  ))}
+                    ));
+                  })()}
                 </ul>
               </li>
             ))}
@@ -90,12 +107,16 @@ export default function Stack({ dict }: StackProps) {
           <div className="stx-also" data-reveal>
             <span className="lbl">{dict.alsoLabel}</span>
             <ul className="chips">
-              {dict.also.map((tech) => (
-                <li key={tech.name} className="chip" dir="ltr">
+              {(() => {
+                const names = dict.also.map((x) => x.name);
+                const p = packChips(names, 270);
+                return dict.also.map((tech, k) => (
+                <li key={tech.name} className="chip" dir="ltr" style={chipVars(names, k, p, p)}>
                   <b aria-hidden="true">{tech.abbr}</b>
                   {tech.name}
                 </li>
-              ))}
+                ));
+              })()}
             </ul>
           </div>
         </div>
