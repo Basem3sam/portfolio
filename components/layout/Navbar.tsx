@@ -602,12 +602,12 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
             aria-label={palette.trigger}
             className={`${mobilePaletteButton} lg:hidden`}
           >
-            <Icon name="search" className="size-4" />
+            <Icon name="search" className="size-[18px]" />
           </button>
 
           <button
             type="button"
-            className="nav-mobile-btn nav-ctl ms-2 flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md lg:hidden"
+            className="nav-mobile-btn nav-ctl ms-0 flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md lg:hidden"
             aria-controls="navbarNav"
             aria-expanded={menuOpen}
             aria-label={labels.toggleNavigation}
