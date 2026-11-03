@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { startTransition, useCallback, useEffect, useRef, useState } from "react";
 import {
   CLICKS_NEEDED,
   CLUE_LINGER_MS,
@@ -277,7 +277,10 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
       // in a beat later (MASTER_REVEAL_DELAY_MS) instead of covering them, and
       // the confetti keeps falling in front of it.
       const rect = image.getBoundingClientRect();
-      createEpicCelebration(origin ?? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+      const burstAt = origin ?? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+      // One frame later, so building ~250 pieces does not share the frame of
+      // the press itself (which is already animating the portrait).
+      window.requestAnimationFrame(() => createEpicCelebration(burstAt));
       resumeAudio().then(() => playSuccessSound());
 
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -286,7 +289,11 @@ export default function EasterEggCore({ mode, initialClicks, locale }: EasterEgg
         () => {
           state.revealTimer = 0;
           setQuick(false);
-          setOverlay((current) => (current === "none" ? "master" : current));
+          // The window is a big tree. As a transition its render yields to the
+          // celebration's frames instead of stalling them.
+          startTransition(() => {
+            setOverlay((current) => (current === "none" ? "master" : current));
+          });
         },
         reduceMotion ? 0 : MASTER_REVEAL_DELAY_MS,
       );

@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { startTransition, useCallback, useEffect, useRef, useState } from "react";
 import { KONAMI_CODE, type TerminalMode } from "@/components/easter-egg/constants";
 import type { Locale } from "@/lib/i18n";
 import { bindPortraitCursor, isOnPortrait } from "@/lib/portrait-hit";
@@ -27,7 +27,10 @@ export default function EasterEgg({ locale }: { locale: Locale }) {
   const arm = useCallback((mode: TerminalMode) => {
     if (armed.current) return;
     armed.current = true;
-    setLoad({ mode, clicks: clicks.current });
+    // Mounting the whole game is a big render. As a transition it is split into
+    // small slices and yields to input and painting, instead of holding the
+    // frame that the first press is in.
+    startTransition(() => setLoad({ mode, clicks: clicks.current }));
   }, []);
 
   useEffect(() => {
@@ -192,7 +195,23 @@ export default function EasterEgg({ locale }: { locale: Locale }) {
       if (now - lastClick.current < MIN_CLICK_INTERVAL) return;
       lastClick.current = now;
       clicks.current++;
-      if (clicks.current === 1) arm(null);
+      if (clicks.current === 1) {
+        // The first press is answered right away, with the same feedback as
+        // the rest of the run, instead of waiting for the game to mount (which
+        // happens next, off the press's frame).
+        const point =
+          event.detail > 0 ? { x: event.clientX, y: event.clientY } : undefined;
+        void import("@/lib/effects")
+          .then((effects) => {
+            effects.animateProfileClick(image, 1, point);
+            if (point) effects.createClickRipple(point, 1);
+          })
+          .catch(() => {});
+        void import("@/lib/sounds")
+          .then((sounds) => sounds.playKonamiSound(1))
+          .catch(() => {});
+        arm(null);
+      }
     };
 
     const unbindCursor =

@@ -182,6 +182,16 @@ function drawSprite(c: CanvasRenderingContext2D, sprite: HTMLCanvasElement, scal
   c.drawImage(sprite, -w / 2, -h / 2, w, h);
 }
 
+/**
+ * Every firework and flying glyph is drawn from ONE cached sprite per glyph and
+ * colour and scaled when drawn, so the whole set is small (about 150 sprites)
+ * and can be built ahead of time, while the browser is idle (see
+ * `prewarmEffects`). Building them inside the tenth click used to cost a frame
+ * or two right when the finale starts.
+ */
+const FIREWORK_SIZE = 32;
+const FLY_SIZE = 22;
+
 /** Opacity along 1 -> 0.8 -> 0 (the old keyframes), for eased progress e. */
 const fadeOutAlpha = (e: number) => (e < 0.5 ? 1 - 0.4 * e : 0.8 - (e - 0.5) * 1.6);
 
@@ -195,6 +205,8 @@ function flyingParticle(
   dx: number,
   dy: number,
   start: number,
+  /** Size variation, applied when drawing so the cached sprite is shared. */
+  k = 1,
 ): Particle {
   const sprite = glyphSprite(glyph, size, color, false);
   return {
@@ -206,14 +218,22 @@ function flyingParticle(
       const scale = e < 0.5 ? e * 2 : 1 - (e - 0.5) * 2;
       if (scale < 0.02) return;
       c.globalAlpha = fadeOutAlpha(e);
-      place(c, x + dx * travel, y + dy * travel, scale, e * Math.PI * 2);
+      place(c, x + dx * travel, y + dy * travel, scale * k, e * Math.PI * 2);
       drawSprite(c, sprite, 1);
     },
   };
 }
 
 /** A glowing glyph that pops open to 3x, turns and fades. */
-function firework(glyph: string, size: number, color: string, x: number, y: number, start: number): Particle {
+function firework(
+  glyph: string,
+  size: number,
+  color: string,
+  x: number,
+  y: number,
+  start: number,
+  k = 1,
+): Particle {
   const sprite = glyphSprite(glyph, size, color, true);
   return {
     start,
@@ -223,7 +243,7 @@ function firework(glyph: string, size: number, color: string, x: number, y: numb
       const scale = e < 0.5 ? e * 5 : 2.5 + (e - 0.5);
       if (scale < 0.02) return;
       c.globalAlpha = Math.max(0, fadeOutAlpha(e));
-      place(c, x, y, scale, e * Math.PI * 2);
+      place(c, x, y, scale * k, e * Math.PI * 2);
       drawSprite(c, sprite, 1);
     },
   };
@@ -351,11 +371,12 @@ export function createEpicCelebration(origin?: { x: number; y: number }) {
     list.push(
       firework(
         pick(KONAMI_CHARS),
-        pick([24, 32, 40]),
+        FIREWORK_SIZE,
         pick(EPIC_COLORS),
         Math.random() * window.innerWidth,
         Math.random() * window.innerHeight,
         now + index * 24,
+        0.625 + Math.random() * 0.625,
       ),
     );
   }
@@ -364,13 +385,14 @@ export function createEpicCelebration(origin?: { x: number; y: number }) {
     list.push(
       flyingParticle(
         pick(KONAMI_CHARS),
-        pick([16, 22, 28]),
+        FLY_SIZE,
         pick(EPIC_COLORS),
         window.innerWidth / 2,
         window.innerHeight / 2,
         (Math.random() - 0.5) * 300,
         (Math.random() - 0.5) * 300,
         now + index * 100,
+        0.7 + Math.random() * 0.65,
       ),
     );
   }
@@ -415,6 +437,41 @@ export function prewarmEffects() {
   // Reading a layout property forces the glyphs to be shaped now.
   void probe.offsetWidth;
   window.setTimeout(() => probe.remove(), 250);
+  prewarmSprites();
+}
+
+/**
+ * Builds the celebration sprites in small slices while the browser is idle, so
+ * the finale only has to copy them. Each slice stops as soon as the browser has
+ * something else to do, and anything not built yet is simply built on demand.
+ */
+function prewarmSprites() {
+  const jobs: Array<() => void> = [];
+  for (const glyph of KONAMI_CHARS) {
+    for (const color of EPIC_COLORS) {
+      jobs.push(() => glyphSprite(glyph, FIREWORK_SIZE, color, true));
+      jobs.push(() => glyphSprite(glyph, FLY_SIZE, color, false));
+    }
+  }
+  for (const emoji of CELEBRATION_EMOJIS) jobs.push(() => glyphSprite(emoji, 20, null, false));
+
+  const run = (deadline?: IdleDeadline) => {
+    const begun = performance.now();
+    while (jobs.length) {
+      const room = deadline ? deadline.timeRemaining() > 2 : performance.now() - begun < 4;
+      if (!room) break;
+      jobs.shift()?.();
+    }
+    if (jobs.length) schedule();
+  };
+  const schedule = () => {
+    if (typeof window.requestIdleCallback === "function") {
+      window.requestIdleCallback(run, { timeout: 3000 });
+    } else {
+      window.setTimeout(() => run(), 80);
+    }
+  };
+  schedule();
 }
 
 export type ClickPoint = { x: number; y: number };
@@ -472,8 +529,10 @@ export function createDirectionalParticles(
   }
 }
 
-// The glow uses filter: drop-shadow, which follows the portrait's cut-out
-// silhouette. box-shadow lit up the photo's whole (transparent) square box.
+// Only transform is animated on the photo. The two "glow" clicks used to animate
+// filter: drop-shadow (a 20-25px blur re-rasterised every frame over a 2500px
+// image), which is what made those clicks stutter. The glow is now a separate
+// soft light that only changes opacity and scale, so it runs on the compositor.
 const CLICK_ANIMATIONS: Keyframe[][] = [
   [
     { transform: "translateY(0)" },
@@ -495,17 +554,44 @@ const CLICK_ANIMATIONS: Keyframe[][] = [
     { transform: "translateX(8px)" },
     { transform: "translateX(0)" },
   ],
+  [{ transform: "scale(1)" }, { transform: "scale(1.1)" }, { transform: "scale(1)" }],
   [
-    { transform: "scale(1)", filter: "drop-shadow(0 0 0 rgba(255, 107, 107, 0.4))" },
-    { transform: "scale(1.1)", filter: "drop-shadow(0 0 20px rgba(255, 107, 107, 0.8))" },
-    { transform: "scale(1)", filter: "drop-shadow(0 0 0 rgba(255, 107, 107, 0.4))" },
-  ],
-  [
-    { transform: "scale(1) rotate(0deg)", filter: "drop-shadow(0 0 0 rgba(78, 205, 196, 0.4))" },
-    { transform: "scale(1.15) rotate(5deg)", filter: "drop-shadow(0 0 25px rgba(78, 205, 196, 0.9))" },
-    { transform: "scale(1) rotate(0deg)", filter: "drop-shadow(0 0 0 rgba(78, 205, 196, 0.4))" },
+    { transform: "scale(1) rotate(0deg)" },
+    { transform: "scale(1.15) rotate(5deg)" },
+    { transform: "scale(1) rotate(0deg)" },
   ],
 ];
+
+/** Glow colour per animation index (only the last two clicks of the run glow). */
+const CLICK_GLOWS: Record<number, string> = {
+  4: "255, 107, 107",
+  5: "78, 205, 196",
+};
+
+function clickGlow(rect: DOMRect, rgb: string, point?: ClickPoint) {
+  const size = Math.min(rect.width, rect.height) * 0.7;
+  const x = point ? point.x : rect.left + rect.width / 2;
+  const y = point ? point.y : rect.top + rect.height / 2;
+  const glow = spawn(
+    "pointer-events-none fixed z-[10001] rounded-full",
+    {
+      left: `${x - size / 2}px`,
+      top: `${y - size / 2}px`,
+      width: `${size}px`,
+      height: `${size}px`,
+      background: `radial-gradient(circle closest-side, rgba(${rgb}, 0.55), rgba(${rgb}, 0.18) 55%, transparent 100%)`,
+    },
+    700,
+  );
+  glow.animate(
+    [
+      { transform: "scale(0.6)", opacity: 0 },
+      { transform: "scale(1.1)", opacity: 1, offset: 0.35 },
+      { transform: "scale(1.5)", opacity: 0 },
+    ],
+    { duration: 620, easing: "ease-out", fill: "forwards" },
+  );
+}
 
 const CLICK_ANIMATION_ORDER = [0, 0, 1, 1, 2, 3, 2, 3, 4, 5];
 
@@ -514,7 +600,10 @@ export function animateProfileClick(
   clickCount: number,
   point?: ClickPoint,
 ) {
-  const keyframes = CLICK_ANIMATIONS[CLICK_ANIMATION_ORDER[(clickCount - 1) % 10]];
+  const animationIndex = CLICK_ANIMATION_ORDER[(clickCount - 1) % 10];
+  const keyframes = CLICK_ANIMATIONS[animationIndex];
+  const glowRgb = CLICK_GLOWS[animationIndex];
+  if (glowRgb) clickGlow(element.getBoundingClientRect(), glowRgb, point);
   if (point) {
     // Scale and rotate pivot on the clicked spot, so the photo reacts where it
     // was touched. The origin is cleared again when the animation ends.
@@ -539,8 +628,7 @@ export function createClickRipple(point: ClickPoint, clickCount: number) {
       top: `${point.y - size / 2}px`,
       width: `${size}px`,
       height: `${size}px`,
-      border: `2px solid ${color}`,
-      boxShadow: `0 0 18px ${color}`,
+      border: `3px solid ${color}`,
     },
     700,
   );
