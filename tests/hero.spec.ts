@@ -160,6 +160,8 @@ test("status ticket uses one compact shape from 320px to 991px and stays inside 
 test("below 992px the portrait stays on screen, centred, and lines up with the text column", async ({
   page,
 }) => {
+  // Rects include transforms, so measure with the entrance animations off.
+  await page.emulateMedia({ reducedMotion: "reduce" });
   const sizes: number[] = [];
   for (const width of [320, 360, 390, 430, 500, 528, 600, 768, 991]) {
     await page.setViewportSize({ width, height: 900 });
@@ -219,7 +221,9 @@ test("from 992px the copy and the portrait sit side by side", async ({ page }) =
 test("from 992px the copy box and the portrait box are an equal, level pair", async ({ page }) => {
   // The portrait no longer holds a fixed size while the copy shrinks: both
   // boxes are the same width, start on the same line ("$ whoami") and end on
-  // the same line, at every desktop width.
+  // the same line, at every desktop width. Rects include transforms, so measure
+  // with the entrance animations off.
+  await page.emulateMedia({ reducedMotion: "reduce" });
   for (const width of [992, 1045, 1100, 1199, 1280, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");

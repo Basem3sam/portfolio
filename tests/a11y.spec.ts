@@ -52,17 +52,14 @@ test.describe("accessibility", () => {
   test("open terminal has no axe violations", async ({ page }) => {
     await page.goto("/");
 
-    // The konami listener attaches when the easter egg mounts - the same
-    // effect marks the hero photo as clickable. Wait for that signal so
-    // keys typed during the hydration gap are not lost (retry flake).
-    await page.waitForFunction(() =>
-      Boolean(document.querySelector("#hero picture img")?.classList.contains("cursor-pointer")),
-    );
-
-    for (const key of KONAMI) {
-      await page.keyboard.press(key);
-    }
-    await expect(page.locator("#secret-terminal")).toBeVisible();
+    // The konami listener attaches on hydration and nothing in the DOM marks
+    // that, so keys typed earlier are lost. Type the code until it opens.
+    await expect(async () => {
+      for (const key of KONAMI) {
+        await page.keyboard.press(key);
+      }
+      await expect(page.locator("#secret-terminal")).toBeVisible({ timeout: 4_000 });
+    }).toPass({ timeout: 45_000 });
     const results = await new AxeBuilder({ page }).analyze();
     expect(results.violations).toEqual([]);
   });

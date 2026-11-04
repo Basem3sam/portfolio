@@ -35,11 +35,6 @@ test("spotlight follows the pointer, including while the page scrolls under it",
   test.skip(browserName !== "chromium", "pointer emulation is only asserted in Chromium");
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/");
-  // The pointer listeners attach on hydration (the hero photo gets
-  // cursor-pointer from the same pass); a move sent earlier is lost for good.
-  await page.waitForFunction(() =>
-    Boolean(document.querySelector("#hero picture img")?.classList.contains("cursor-pointer")),
-  );
   const card = page.locator("#work article").nth(1);
   await card.scrollIntoViewIfNeeded();
   const mx = () => card.evaluate((el) => (el as HTMLElement).style.getPropertyValue("--mx"));
