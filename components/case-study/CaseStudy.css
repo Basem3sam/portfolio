@@ -754,6 +754,8 @@
   --m-put: #8a5a00;
   --m-del: #b3261e;
   --ok: #17794f;
+  /* Text-safe green: --ok is 4.26:1 on the pill tint, below the 4.5:1 AA floor. */
+  --ok-text: #0f6a43;
   --tier-fast: #17794f;
   --tier-mid: var(--c-signal);
   --tier-slow: #b45309;
@@ -764,6 +766,7 @@ body.dark-mode [data-page="case"] {
   --m-put: #f4c77d;
   --m-del: #ff8f86;
   --ok: #5be08e;
+  --ok-text: #5be08e;
   --tier-fast: #5be08e;
   --tier-mid: #9fbcff;
   --tier-slow: #ffb066;
@@ -986,7 +989,6 @@ body.dark-mode [data-page="case"] {
 
 [data-page="case"] .ex-pill small {
   font: 500 0.8125rem var(--font-mono-body);
-  opacity: 0.85;
 }
 
 [data-page="case"] .ex-pill i {
@@ -997,7 +999,7 @@ body.dark-mode [data-page="case"] {
 }
 
 [data-page="case"] .ex-stats[data-state="done"] .ex-pill {
-  color: var(--ok);
+  color: var(--ok-text);
   border-color: color-mix(in srgb, var(--ok) 45%, transparent);
   background: color-mix(in srgb, var(--ok) 12%, transparent);
 }
