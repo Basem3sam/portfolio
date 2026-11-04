@@ -6,6 +6,11 @@ import { expect, test } from "@playwright/test";
  */
 const NAVIGATOR = "nav[data-scrolled]";
 
+// The capsule eases toward its target with per-frame smoothing, so how long it
+// takes to settle depends on the frame rate. A CI runner with software WebGL
+// can sit at ~1fps, which is far longer than the default 5s expect timeout.
+const SETTLE = { timeout: 20_000 };
+
 const np = (page: import("@playwright/test").Page) =>
   page
     .locator(NAVIGATOR)
@@ -17,15 +22,15 @@ test("capsule is driven by scroll: flat at the top, fully formed after the ramp"
   await page.goto("/");
   await page.waitForLoadState("networkidle");
 
-  await expect.poll(() => np(page)).toBe(0);
+  await expect.poll(() => np(page), SETTLE).toBe(0);
 
   await page.evaluate(() => window.scrollTo({ top: 400, behavior: "instant" }));
-  await expect.poll(() => np(page)).toBe(1);
+  await expect.poll(() => np(page), SETTLE).toBe(1);
 
   // Halfway through the ramp is an in-between state, not a jump.
   await page.evaluate(() => window.scrollTo({ top: 40, behavior: "instant" }));
-  await expect.poll(() => np(page)).toBeGreaterThan(0.3);
-  await expect.poll(() => np(page)).toBeLessThan(0.7);
+  await expect.poll(() => np(page), SETTLE).toBeGreaterThan(0.3);
+  await expect.poll(() => np(page), SETTLE).toBeLessThan(0.7);
 });
 
 test("progress rail fills with scroll and clears the controls above it", async ({ page }) => {
