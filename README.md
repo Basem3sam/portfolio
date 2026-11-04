@@ -226,13 +226,16 @@ Test counts, accessibility results, and Lighthouse scores can change as the code
 
 ## Continuous integration
 
-The GitHub Actions workflow runs three independent jobs on every push and pull
-request — `verify` (typecheck, lint, format check), `e2e` (Playwright + axe),
-and `lighthouse` (Lighthouse CI). They are deliberately not linked with
-`needs:`, so an E2E result is never skipped or masked by a Lighthouse failure,
-or vice versa. Each gate reports its own verdict on every run. See
-`.github/workflows/ci.yml` and `lighthouserc.js` for the exact jobs and
-enforced thresholds.
+`.github/workflows/ci.yml` runs two independent jobs on every push and pull
+request — `verify` (typecheck, lint, format check) and `e2e` (Playwright +
+axe). Lighthouse CI runs separately in `.github/workflows/lighthouse.yml`
+against the **Vercel preview deployment** of each push (5 runs per route,
+asserted on the median), so its scores reflect the real edge rather than a
+local build. The gates are deliberately not linked with `needs:`, so one
+result never masks another. This needs Vercel Deployment Protection turned off
+for Preview Deployments (see the note at the top of the workflow). See
+`lighthouserc.js` for the enforced thresholds; `npm run build && npm run
+lighthouse` still runs the same checks locally against `npm start`.
 
 ## Configuration and customization
 

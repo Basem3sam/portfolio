@@ -1,0 +1,101 @@
+name: Lighthouse (Vercel preview)
+
+# Runs Lighthouse CI against the Vercel PREVIEW deployment of each push, so the
+# scores reflect the real edge (brotli, HTTP/2, CDN) instead of a local
+# `npm start`. Vercel's GitHub integration reports every deployment as a
+# `deployment_status` event; this workflow reacts to the successful ones.
+#
+# This job is independent of ci.yml (verify, e2e): a Lighthouse result never
+# masks, or is masked by, the other gates.
+#
+# No build or `npm ci` happens here: the site is already deployed, and the
+# pinned @lhci/cli is fetched by npx. Thresholds live in lighthouserc.js,
+# which reads the target from LHCI_BASE_URL.
+#
+# SETUP (once): the preview must be reachable without a login. In Vercel:
+# Project -> Settings -> Deployment Protection -> turn off protection for
+# Preview Deployments (this site is public anyway). If it is left on, the
+# "Check preview is reachable" step fails with an explanation instead of
+# scoring a login page.
+#
+# GITHUB_TOKEN stays read-only, and no deployment secret is used here.
+
+on:
+  deployment_status:
+
+permissions:
+  contents: read
+
+jobs:
+  lighthouse:
+    name: Lighthouse CI (preview)
+    # Only successful Preview deployments. Production deploys and the
+    # pending / in_progress / failure states are skipped.
+    if: >-
+      github.event.deployment_status.state == 'success' &&
+      startsWith(github.event.deployment.environment, 'Preview')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # A newer push supersedes the run for an older deployment of the same ref.
+    concurrency:
+      group: lighthouse-${{ github.event.deployment.ref }}
+      cancel-in-progress: true
+
+    env:
+      # Passed through env (never interpolated into the script) so a crafted
+      # URL cannot inject shell.
+      DEPLOYMENT_URL: ${{ github.event.deployment_status.environment_url || github.event.deployment_status.target_url }}
+
+    steps:
+      - name: Checkout the deployed commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.deployment.sha }}
+          persist-credentials: false
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check preview is reachable
+        run: |
+          if ! printf '%s' "$DEPLOYMENT_URL" | grep -Eq '^https://[A-Za-z0-9.-]+/?$'; then
+            echo "::error::Unexpected deployment URL: $DEPLOYMENT_URL"
+            exit 1
+          fi
+          url="${DEPLOYMENT_URL%/}"
+          echo "LHCI_BASE_URL=$url" >> "$GITHUB_ENV"
+
+          for attempt in 1 2 3 4 5 6; do
+            code="$(curl -s -o /dev/null -w '%{http_code}' -L --max-time 20 "$url/")"
+            case "$code" in
+              200) echo "Preview OK: $url"; exit 0 ;;
+              401|403)
+                echo "::error::$url answered $code. Vercel Deployment Protection is on for previews; turn it off for Preview Deployments (see the SETUP note in this workflow)."
+                exit 1 ;;
+            esac
+            echo "Attempt $attempt: HTTP $code, retrying in 10s"
+            sleep 10
+          done
+          echo "::error::$url never returned 200 (last: $code)"
+          exit 1
+
+      # Pinned (Lighthouse 12.6.1) so a new Lighthouse release cannot move the
+      # scores between two runs of the same commit.
+      - name: Lighthouse CI
+        run: npx --yes @lhci/cli@0.15.1 autorun
+
+      - name: Job summary
+        if: always()
+        run: node scripts/lhci-summary.mjs >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci
+          retention-days: 7
+          if-no-files-found: ignore

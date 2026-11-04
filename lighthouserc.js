@@ -40,80 +40,75 @@
  *     - Only after the Stage 1/2 targets are measured. Per owner decision:
  *       never at the cost of essential design or function.
  *
- * Note: measured against local `npm start`. Vercel serves brotli at the edge,
- * so the local `uses-text-compression` finding is expected to be smaller in
- * production; re-measure before moving any floor.
+ * WHERE IT RUNS (changed 2026-11-04):
+ *   - CI: against the Vercel PREVIEW deployment (`.github/workflows/lighthouse.yml`
+ *     sets LHCI_BASE_URL). That is the real edge: brotli, HTTP/2, CDN caching,
+ *     so scores are closer to what visitors get and less dependent on one
+ *     local server. No build runs in CI for this job.
+ *   - Local: `npm run build && npm run lighthouse` (no LHCI_BASE_URL) serves
+ *     the build with `npm start`, as before.
+ *   - 5 runs per route, asserted on the MEDIAN score. The default (optimistic)
+ *     passes on the single best run, which hides regressions.
+ *   - The floors below were measured locally / on a GitHub runner against
+ *     `npm start`, NOT against a preview. The first preview run is a
+ *     calibration run: re-base each floor on its median (the job summary
+ *     prints it), then ratchet as planned above.
  */
+
+const BASE_URL = (process.env.LHCI_BASE_URL || "").replace(/\/+$/, "");
+const REMOTE = BASE_URL !== "";
+const ORIGIN = REMOTE ? BASE_URL : "http://localhost:3000";
+
+/** Same four routes either way; `ORIGIN` is the only thing that changes. */
+const ROUTES = ["/", "/ar", "/work/trosc", "/links"];
+
+/**
+ * One assertion set per route. Accessibility, best-practices and SEO are 1.0
+ * everywhere; only the performance floor differs. Every collected URL must
+ * match exactly one pattern, so each is anchored to `scheme://host` + path.
+ */
+function route(path, perfFloor) {
+  const escaped = path.replace(/[/]/g, "\\/");
+  return {
+    matchingUrlPattern: `^https?:\\/\\/[^/]+${escaped}$`,
+    // "median" = the median of the 5 category scores. ("median-run" is ignored
+    // by LHCI for `categories:*` assertions, which would silently fall back to
+    // the best run.)
+    aggregationMethod: "median",
+    assertions: {
+      "categories:performance": ["error", { minScore: perfFloor }],
+      "categories:accessibility": ["error", { minScore: 1 }],
+      "categories:best-practices": ["error", { minScore: 1 }],
+      "categories:seo": ["error", { minScore: 1 }],
+    },
+  };
+}
+
 module.exports = {
   ci: {
     collect: {
-      // Requires a build first (`npm run build`); CI does that as a step,
-      // locally run it before `npm run lighthouse`.
-      startServerCommand: "npm start",
-      url: [
-        "http://localhost:3000/",
-        "http://localhost:3000/ar",
-        "http://localhost:3000/work/trosc",
-        "http://localhost:3000/links",
-      ],
-      numberOfRuns: 3,
+      // Local runs only: needs a build first (`npm run build`). In CI the
+      // site is already deployed, so there is no server to start.
+      ...(REMOTE ? {} : { startServerCommand: "npm start" }),
+      url: ROUTES.map((path) => `${ORIGIN}${path}`),
+      numberOfRuns: 5,
       settings: {
         onlyCategories: ["performance", "accessibility", "best-practices", "seo"],
-        // Not meaningful against a single local server on one HTTP/1.1
-        // connection; the production CDN negotiates HTTP/2. Removing it
-        // would weaken nothing real - but it was already skipped, so this
-        // is unchanged behaviour, not a new exemption.
-        skipAudits: ["uses-http2"],
+        // A single local server speaks HTTP/1.1, so the audit is meaningless
+        // there. A Vercel deployment negotiates HTTP/2, so it stays on.
+        skipAudits: REMOTE ? [] : ["uses-http2"],
       },
     },
     assert: {
-      // One entry per route. Every collected URL must match exactly one
-      // pattern; a URL matching no entry would be asserted on nothing.
       assertMatrix: [
-        {
-          matchingUrlPattern: "^http://localhost:3000/$",
-          assertions: {
-            // Local median was 0.83 (floor 0.82), but the GitHub-hosted
-            // runner is slower: CI run 2026-11-04 measured 0.62 / 0.77 / 0.67
-            // for this route (best 0.77). Floor re-based to the CI runner so
-            // the gate fails on regressions, not on runner speed. Ratchet
-            // back up via Stage 1/2 of the plan in the header, measured in CI.
-            "categories:performance": ["error", { minScore: 0.65 }],
-            "categories:accessibility": ["error", { minScore: 1 }],
-            "categories:best-practices": ["error", { minScore: 1 }],
-            "categories:seo": ["error", { minScore: 1 }],
-          },
-        },
-        {
-          matchingUrlPattern: "^http://localhost:3000/ar$",
-          assertions: {
-            // Measured median 0.72 - floor set just under it (see header).
-            "categories:performance": ["error", { minScore: 0.71 }],
-            "categories:accessibility": ["error", { minScore: 1 }],
-            "categories:best-practices": ["error", { minScore: 1 }],
-            "categories:seo": ["error", { minScore: 1 }],
-          },
-        },
-        {
-          matchingUrlPattern: "^http://localhost:3000/work/trosc$",
-          assertions: {
-            // Measured median 0.87 - meets the 0.85 floor.
-            "categories:performance": ["error", { minScore: 0.85 }],
-            "categories:accessibility": ["error", { minScore: 1 }],
-            "categories:best-practices": ["error", { minScore: 1 }],
-            "categories:seo": ["error", { minScore: 1 }],
-          },
-        },
-        {
-          matchingUrlPattern: "^http://localhost:3000/links$",
-          assertions: {
-            // Measured median 0.91 - meets the 0.85 floor.
-            "categories:performance": ["error", { minScore: 0.85 }],
-            "categories:accessibility": ["error", { minScore: 1 }],
-            "categories:best-practices": ["error", { minScore: 1 }],
-            "categories:seo": ["error", { minScore: 1 }],
-          },
-        },
+        // Re-based 2026-11-04: a GitHub runner measured 0.62 / 0.77 / 0.67
+        // here against `npm start` (local median was 0.83).
+        route("/", 0.65),
+        // Local median 0.72; floor just under it (see header).
+        route("/ar", 0.71),
+        // Local median 0.87 / 0.91; both meet the 0.85 floor.
+        route("/work/trosc", 0.85),
+        route("/links", 0.85),
       ],
     },
   },

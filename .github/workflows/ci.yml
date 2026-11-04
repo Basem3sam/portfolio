@@ -4,20 +4,17 @@ name: CI
 # Public repository: free, unlimited minutes. Private: 2,000 free
 # minutes per month - three parallel jobs use more minutes than one.
 #
-# STRUCTURE (restructured 2026-10-13, owner decision):
+# STRUCTURE:
 #   verify      - typecheck + lint + format
 #   e2e         - Playwright + axe, builds its own app (webServer)
-#   lighthouse  - Lighthouse CI against a fresh build
+#   Lighthouse  - moved 2026-11-04 to lighthouse.yml, where it runs against
+#                 the Vercel preview deployment instead of a local build.
 #
-# The three jobs are deliberately independent (no `needs:`): E2E must not
-# be skipped or masked by a Lighthouse result, or vice versa. Each gate
-# reports its own verdict on every run.
+# The jobs are deliberately independent (no `needs:`): E2E must not be
+# skipped or masked by a Lighthouse result, or vice versa. Each gate reports
+# its own verdict on every run.
 #
-# THRESHOLDS: see lighthouserc.js. Accessibility, best-practices and SEO
-# are asserted at 1.0 on every route; performance uses per-route floors
-# with a documented ratchet plan. No threshold was weakened in this
-# restructure - the Lighthouse job runs the exact same assertions as
-# before, and E2E runs the same suite.
+# THRESHOLDS: see lighthouserc.js (read by lighthouse.yml).
 #
 # GITHUB_TOKEN: the deployment token lives only in Vercel. It is never
 # passed to these jobs, their build steps, or their logs, and no job here
@@ -103,43 +100,5 @@ jobs:
         with:
           name: playwright-results
           path: test-results/
-          retention-days: 7
-          if-no-files-found: ignore
-
-  lighthouse:
-    name: Lighthouse CI
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - name: Setup Node 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      # One build for this job; `npx lhci autorun` serves it via the
-      # startServerCommand in lighthouserc.js and asserts 3 runs per route
-      # on the median.
-      - name: Build
-        run: npm run build
-
-      - name: Lighthouse CI
-        run: npx lhci autorun
-
-      - name: Upload Lighthouse reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: lighthouse-reports
-          path: .lighthouseci
           retention-days: 7
           if-no-files-found: ignore
