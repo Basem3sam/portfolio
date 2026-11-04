@@ -83,10 +83,12 @@ function ToastShell({
     if (cracked) dismiss(CRACK_MS);
   }, [cracked, dismiss]);
 
+  // Build the class list from an array so a space can never go missing
+  // between tokens (and Prettier has no long template literal to rewrap).
+  const className = ["tst", variant, shown && "in", cracked && "cracked"].filter(Boolean).join(" ");
+
   return (
-    <div
-      className={`tst${variant ? ` ${variant}` : ""}${shown ? "in" : ""}${cracked ? "cracked" : ""}`}
-    >
+    <div className={className}>
       <span className="tic">
         <Icon name={icon} className="i" />
       </span>
