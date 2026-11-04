@@ -176,9 +176,11 @@ test.describe("client / proxy contract", () => {
   };
 
   const renderWork = async (page: Page) => {
-    // <GitHubProjects/> mounts inside the Work section of the home page.
+    // <GitHubProjects/> mounts at the bottom of the Work section and only
+    // starts its request once it is within 800px of the viewport. Scrolling to
+    // the top of #work leaves it far out of range, so scroll to the feed itself.
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    await page.evaluate(() => document.querySelector("#work")?.scrollIntoView());
+    await page.locator("#work .live-block").scrollIntoViewIfNeeded();
   };
 
   test("renders repositories from the proxy payload", async ({ page }) => {
