@@ -104,12 +104,19 @@ export default function LinksBackdrop() {
 
     const resize = () => {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
-      width = window.innerWidth;
-      height = window.innerHeight;
+      // Size from the canvas itself: CSS makes it the *large* viewport tall, so
+      // it stays put while a phone's address bar slides away (window.innerHeight
+      // changes mid-scroll and left a gap until the debounced resize caught up).
+      const nextW = canvas.clientWidth || window.innerWidth;
+      const nextH = canvas.clientHeight || window.innerHeight;
+      if (nextW === width && nextH === height && canvas.width) return false;
+      width = nextW;
+      height = nextH;
       gap = width < 600 ? 15 : 18;
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return true;
     };
 
     const drawStar = (x: number, y: number, r: number) => {
@@ -232,8 +239,7 @@ export default function LinksBackdrop() {
     const onResize = () => {
       window.clearTimeout(resizeTimer);
       resizeTimer = window.setTimeout(() => {
-        resize();
-        if (reduced) draw(performance.now());
+        if (resize() && reduced) draw(performance.now());
       }, 120);
     };
 
