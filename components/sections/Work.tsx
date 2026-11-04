@@ -348,6 +348,10 @@ function Featured({
         <div className="feat-aurora" aria-hidden="true" />
         <div className="feat-rings" aria-hidden="true" />
         <div className="feat-grain" aria-hidden="true" />
+        <div className="feat-dots" aria-hidden="true" />
+        <div className="feat-rail" aria-hidden="true">
+          <i />
+        </div>
 
         <div className="feat-copy">
           <Status project={project} dict={dict} />
