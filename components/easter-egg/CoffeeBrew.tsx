@@ -1,5 +1,6 @@
 "use client";
 
+import { cx } from "@/lib/cx";
 import { createElement, useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { prefersReducedMotion } from "@/lib/scroll";
 
@@ -105,7 +106,7 @@ function renderCup(phase: Phase, frame: number, level: number): ReactNode[] {
   line("t2", <span className="cc">{"    '"}</span>, taper2, <span className="cc">{"'"}</span>);
   line(
     "saucer",
-    <span className={`cc${phase === "heat" ? "cheat" : ""}`}>{"  ==============="}</span>,
+    <span className={cx("cc", phase === "heat" && "cheat")}>{"  ==============="}</span>,
   );
   return out;
 }

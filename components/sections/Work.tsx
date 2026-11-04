@@ -1,3 +1,4 @@
+import { cx } from "@/lib/cx";
 import type { CSSProperties } from "react";
 import GitHubProjects from "@/components/github/GitHubProjects";
 import Icon, { type IconName } from "@/components/ui/Icon";
@@ -207,7 +208,7 @@ function SystemMap({ project }: { project: Project }) {
   const node = (part: Stop, index: number, base: number) => (
     <li
       key={part.label}
-      className={`sm-node${part.hot ? "hot" : ""}`}
+      className={cx("sm-node", part.hot && "hot")}
       style={{ "--i": index + base } as CSSProperties}
     >
       <span className="sm-row">
@@ -467,7 +468,7 @@ function Card({
       data-project={project.id}
       style={{ "--c": index } as CSSProperties}
     >
-      <Spotlight className={`card spotlight${href ? "is-link" : ""}`}>
+      <Spotlight className={cx("card spotlight", href && "is-link")}>
         <div className="stage">
           <Visual project={project} dict={dict} />
         </div>

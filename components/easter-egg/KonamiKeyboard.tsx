@@ -1,5 +1,6 @@
 "use client";
 
+import { cx } from "@/lib/cx";
 import { useEffect, useRef, useState } from "react";
 import {
   CLICKS_NEEDED,
@@ -199,7 +200,7 @@ export default function KonamiKeyboard({
         </p>
 
         <p
-          className={`egfb${status === "success" ? "ok" : status === "wrong" ? "err" : ""}`}
+          className={cx("egfb", status === "success" ? "ok" : status === "wrong" && "err")}
           role="status"
         >
           {status === "success"

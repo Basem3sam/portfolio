@@ -1,5 +1,6 @@
 "use client";
 
+import { cx } from "@/lib/cx";
 import { useEffect, useRef, type ReactNode } from "react";
 import Icon from "@/components/ui/Icon";
 import TideCanvas from "@/components/sections/TideCanvas";
@@ -101,7 +102,13 @@ export default function OverlayShell({
   return (
     <div dir="ltr" className="egg">
       <div
-        className={`eov${tide ? "tide" : "dim"}${quick ? "quick" : ""}${ghost ? "ghost" : ""}${visible || ghost ? "show" : ""}`}
+        className={cx(
+          "eov",
+          tide ? "tide" : "dim",
+          quick && "quick",
+          ghost && "ghost",
+          (visible || ghost) && "show",
+        )}
         {...(ghost ? { inert: true, "aria-hidden": true } : {})}
         onClick={(event) => {
           if (event.target === event.currentTarget) onClose();

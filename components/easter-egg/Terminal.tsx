@@ -1,5 +1,6 @@
 "use client";
 
+import { cx } from "@/lib/cx";
 import {
   useEffect,
   useRef,
@@ -1724,7 +1725,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
   return (
     <div className="egg">
       <div
-        className={`eov dim${open && shown && !closing ? "show" : ""}${closing ? "closing" : ""}`}
+        className={cx("eov dim", open && shown && !closing && "show", closing && "closing")}
         style={
           closing ? ({ "--out": `${crt ? CLOSE_MS_CRT : CLOSE_MS}ms` } as CSSProperties) : undefined
         }
@@ -1736,7 +1737,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
           ref={dialogRef}
           id="secret-terminal"
           dir="ltr"
-          className={`eterm${closing ? "closing" : ""}`}
+          className={cx("eterm", closing && "closing")}
           data-theme={theme}
           data-rank={rank}
           data-crt={crt ? "on" : "off"}
@@ -1769,7 +1770,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
               </button>
               <button
                 type="button"
-                className={`egx esn${muted ? "off" : ""}`}
+                className={cx("egx esn", muted && "off")}
                 aria-label={muted ? "Turn sound on" : "Turn sound off"}
                 aria-pressed={!muted}
                 onClick={() => {
@@ -1797,7 +1798,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
                   inputRef.current?.focus();
                 }
               }}
-              className={`etb${glitch ? "gl" : ""}`}
+              className={cx("etb", glitch && "gl")}
               id="terminal-output"
               tabIndex={0}
               aria-label="Terminal output"

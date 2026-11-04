@@ -1,5 +1,6 @@
 "use client";
 
+import { cx } from "@/lib/cx";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import GitHubRepoCard from "@/components/github/GitHubRepoCard";
 import "@/components/github/GitHub.css";
@@ -40,7 +41,7 @@ const FADE_MS = 420;
 function Skeleton({ leaving = false }: { leaving?: boolean }) {
   return (
     <ul
-      className={`gh-grid gh-skel-grid${leaving ? "gh-skel-layer" : ""}`}
+      className={cx("gh-grid gh-skel-grid", leaving && "gh-skel-layer")}
       aria-hidden="true"
       data-leaving={leaving ? "" : undefined}
     >

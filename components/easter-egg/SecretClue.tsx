@@ -1,5 +1,6 @@
 "use client";
 
+import { cx } from "@/lib/cx";
 import { useEffect, useRef, useState, type Ref } from "react";
 import Icon from "@/components/ui/Icon";
 import type { Locale } from "@/lib/i18n";
@@ -165,7 +166,7 @@ export default function SecretClue({
         scheduleClose();
         setHovered(false);
       }}
-      className={`clue-wrap print:hidden${open && revealed ? "clue-open" : ""}`}
+      className={cx("clue-wrap print:hidden", open && revealed && "clue-open")}
       data-open={open && revealed ? "true" : "false"}
     >
       {open && revealed && (
@@ -195,7 +196,7 @@ export default function SecretClue({
         aria-expanded={open}
         aria-label={t.title}
         data-state={state}
-        className={`clue${revealed ? "ping" : ""}`}
+        className={cx("clue", revealed && "ping")}
         onClick={() => {
           cancelClose();
           setOpen((value) => !value);
