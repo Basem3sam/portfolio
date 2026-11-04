@@ -620,6 +620,10 @@ export function mountHeroFx(
         const scrollGap = compact ? 100 : 33;
         let lastScroll = -1e9;
         let slowFrames = 0;
+        // The gap the previous draw was throttled to. The slow-frame check below
+        // is relative to it, so the deliberate ~10fps scroll throttle on phones
+        // is not mistaken for a struggling GPU.
+        let lastTarget = frameGap;
 
         // Layout reads are the expensive part of a frame here: three
         // getBoundingClientRect() calls at 30fps forced a layout every frame.
@@ -798,8 +802,11 @@ export function mountHeroFx(
 
         const frame = (now: number) => {
           raf = 0;
-          if (now - lastDraw >= (now - lastScroll < 140 ? scrollGap : frameGap)) {
-            if (lastDraw > 0 && now - lastDraw > 66) {
+          const target = now - lastScroll < 140 ? scrollGap : frameGap;
+          if (now - lastDraw >= target) {
+            // Slow means slower than the gap we asked for (plus headroom), not
+            // slower than a fixed 66ms: the phone scroll gap alone is 100ms.
+            if (lastDraw > 0 && now - lastDraw > Math.max(lastTarget, target) + 40) {
               // A frame over 200ms is a stall, not a slow frame: count it triple.
               slowFrames += now - lastDraw > 200 ? 3 : 1;
               if (slowFrames >= 8) {
@@ -817,6 +824,7 @@ export function mountHeroFx(
               slowFrames--;
             }
             lastDraw = now;
+            lastTarget = target;
             paint();
           }
           if (visible && !document.hidden && !reduce && !fellBack)
