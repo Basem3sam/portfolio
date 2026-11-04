@@ -1,0 +1,1257 @@
+/* ================================================================
+   Stack (section 03) — ALWAYS DARK in both themes.
+
+   Mockup source of truth: `Portfolio Design Mockup.html`
+   - token overrides + dark surface ......... #sec-stack 1710
+   - five-layer gradient background ......... 1990–1992 (grid + glows),
+                                              2005–2007 (final colours)
+   - soft inset feather edges ................ 2357
+   - request flow (stages/lines/nodes) ....... 1510–1562, 1711–1714
+   - 3D plate stack `.xl` .................... 2135–2145
+   - packet comet keyframes .................. 1529–1531
+   - scrub/hover polish ...................... 2229–2231, 1557–1562
+
+   Because the section is dark in both themes, every `--c-*` token is
+   re-declared on `#stack` (brief: always-dark sections). `@theme inline`
+   maps `--color-x: var(--c-x)`, so all Tailwind token utilities used by
+   Stack.tsx (`text-dark-text`, `border-hairline`, `bg-surface`, …)
+   invert automatically — no colour literals may appear in the .tsx.
+   ================================================================ */
+
+#stack {
+  position: relative;
+  isolation: isolate; /* keeps the z-index:-1 mist inside the section */
+  overflow: clip; /* the 3D plates may bleed past the 320×250 xl box */
+  color: var(--c-dark-text);
+
+  /* One unit for the 3D plates, so they shrink on short screens instead of
+     running under the navbar (1px at a 900px-tall viewport). */
+  --u: clamp(0.74px, 0.111svh, 1.1px);
+
+  /* ---- token inversion (mockup 1710) ---- */
+  --c-dark-text: #f4f8ff;
+  --c-light-text: rgba(236, 243, 255, 0.86);
+  --c-muted-text: rgba(236, 243, 255, 0.66);
+  --c-hairline: rgba(255, 255, 255, 0.16);
+  --c-rule-strong: rgba(255, 255, 255, 0.36);
+  --c-page: #071538;
+  --c-dark-bg: #050b2c;
+  --c-surface: rgba(255, 255, 255, 0.09);
+  --c-light-bg: rgba(255, 255, 255, 0.07);
+  --c-note: #f4c77d;
+  --c-honey: #f4c77d;
+  --c-honey-hi: #f4c77d;
+  --c-mark: #f4c77d;
+  --c-secondary: #9fbcff;
+  --c-signal: #c9d9ff;
+  --c-on-secondary: #071538;
+
+  /* Abbreviation-tile ink (mockup 1714: `#sec-stack .tech i` → #9fe3f1). */
+  --sc-abbr: #9fe3f1;
+
+  /* ---- the floor ----
+     No glows. The request moves left to right, so the ink does too: a cold,
+     cobalt-leaning navy at the Edge easing into a warmer ink at Ship (the same
+     honey the comet and the lit nodes use). A film grain keeps it from reading
+     as a flat fill. The real structure is drawn by the slabs below. */
+  --sc-floor: linear-gradient(100deg, #0a1436 0%, #0a1230 36%, #0c1029 62%, #140f23 100%);
+  --sc-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .8  0 0 0 0 .86  0 0 0 0 1  0 0 0 .1 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-image: var(--sc-grain), var(--sc-floor);
+  background-repeat: repeat, no-repeat;
+  /* Soft feather into the neighbouring light sections (mockup 2357). */
+  box-shadow:
+    inset 0 190px 120px -120px var(--c-light-bg),
+    inset 0 -190px 120px -120px var(--c-page);
+}
+
+/* Dark theme: the same floor, a little deeper. */
+.dark-mode #stack {
+  --sc-floor: linear-gradient(100deg, #081030 0%, #080e29 36%, #0a0d24 62%, #110d1e 100%);
+}
+
+/* ---- section header + lead (mockup 1993/1994, 1510) ---- */
+#stack .sh {
+  margin-bottom: 0;
+}
+
+#stack .sh p {
+  margin-top: 10px;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  max-width: 46ch;
+}
+
+/* ================================================================
+   Five-stage request flow
+   ================================================================ */
+#stack .sflow {
+  position: relative;
+  margin-top: 40px;
+}
+
+#stack .fl-stages {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#stack .stx {
+  position: relative;
+  min-width: 0;
+  padding-block: 36px 6px;
+  /* Content sits inside its slab; the seam (slab edge) runs through the node. */
+  padding-inline: 20px 12px;
+}
+
+/* ---- the cross-section: one slab per layer ----
+   Each stage owns a tall translucent slab running from its node down through
+   its chips. The tint walks from the cool accent at the Edge to honey at Ship
+   (--slab, from the stage index --i). On reveal the slab fills downward, stage
+   after stage, in step with the connector line; afterwards it brightens at its
+   top for a moment as the comet passes (delays below are when the comet's
+   eased path reaches each node). */
+#stack .stx-slab {
+  --slab: color-mix(in srgb, var(--c-secondary) calc((4 - var(--i, 0)) * 25%), var(--c-honey));
+  position: absolute;
+  z-index: -1;
+  top: 5px;
+  bottom: 0;
+  /* Slabs are exactly the column: neighbours meet on a seam that runs through
+     the node, and the first and last slabs end where the line does. */
+  inset-inline: 0;
+  pointer-events: none;
+  border-inline-start: 1px solid color-mix(in srgb, var(--slab) 38%, transparent);
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--slab) 17%, transparent),
+    color-mix(in srgb, var(--slab) 5%, transparent) 55%,
+    transparent 100%
+  );
+  clip-path: inset(0 0 0 0);
+  transition: clip-path 1.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition-delay: calc(var(--i, 0) * 0.5s + 0.6s);
+}
+
+#stack .stx[data-revealed="false"] .stx-slab {
+  clip-path: inset(0 0 100% 0);
+  transition: none;
+}
+
+#stack .stx:last-child .stx-slab {
+  border-inline-end: 1px solid color-mix(in srgb, var(--slab) 38%, transparent);
+}
+
+/* The comet's passing: a brief lift at the head of the slab. */
+#stack .stx-slab::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--slab) 42%, transparent),
+    transparent 46%
+  );
+  opacity: 0;
+  animation: stx-pass 12s linear infinite;
+  animation-delay: var(--pass, 3.7s);
+}
+
+#stack .stx:nth-child(1) .stx-slab {
+  --pass: 3.7s;
+}
+
+#stack .stx:nth-child(2) .stx-slab {
+  --pass: 7s;
+}
+
+#stack .stx:nth-child(3) .stx-slab {
+  --pass: 8.3s;
+}
+
+#stack .stx:nth-child(4) .stx-slab {
+  --pass: 9.5s;
+}
+
+#stack .stx:nth-child(5) .stx-slab {
+  --pass: 11s;
+}
+
+@keyframes stx-pass {
+  0% {
+    opacity: 0;
+  }
+  3% {
+    opacity: 1;
+  }
+  15%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* A ruler under the connector line. Each stage is ten ticks wide: a long tick
+   on every seam (right under a node), a medium one halfway. It reads as the
+   request's timeline and its marks line up with the nodes and slabs. */
+#stack .sflow::before {
+  --tick: color-mix(in srgb, var(--c-dark-text) 30%, transparent);
+  --tick-hi: color-mix(in srgb, var(--c-dark-text) 52%, transparent);
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 13px;
+  height: 9px;
+  pointer-events: none;
+  background-image:
+    repeating-linear-gradient(to right, var(--tick) 0 1px, transparent 1px 10%),
+    linear-gradient(
+      to right,
+      transparent 50%,
+      var(--tick) 50%,
+      var(--tick) calc(50% + 1px),
+      transparent calc(50% + 1px)
+    ),
+    linear-gradient(to right, var(--tick-hi) 0 1px, transparent 1px),
+    linear-gradient(var(--tick-hi), var(--tick-hi));
+  background-size:
+    20% 4px,
+    20% 6px,
+    20% 9px,
+    1px 9px;
+  background-position:
+    0 0,
+    0 0,
+    0 0,
+    100% 0;
+  background-repeat: repeat-x, repeat-x, repeat-x, no-repeat;
+}
+
+/* Connector line behind the stage. It defaults to DRAWN: with JS off or
+   reduced motion on, data-revealed is never set and the final state shows.
+   RevealOnScroll snaps it back only after it has booted. */
+#stack .stx-seg {
+  position: absolute;
+  top: 5px;
+  inset-inline: 0;
+  height: 2px;
+  background: var(--c-rule-strong);
+}
+
+#stack .stx-seg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--c-secondary);
+  transform: scaleX(1);
+  transform-origin: left center;
+  transition: transform 1.8s linear;
+  transition-delay: calc(var(--i, 0) * 0.5s + 0.4s);
+}
+
+html[dir="rtl"] #stack .stx-seg::after {
+  transform-origin: right center;
+}
+
+#stack .stx[data-revealed="false"] .stx-seg::after {
+  transform: scaleX(0);
+  transition: none;
+}
+
+/* Node on the line: lit (honey) by default; unlit until revealed. */
+#stack .stx-node {
+  position: absolute;
+  top: -1px;
+  inset-inline-start: -1px;
+  z-index: 1;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--c-honey);
+  border: 2px solid var(--c-honey);
+  transform: scale(calc(1 + var(--hot, 0) * 0.45));
+  transition:
+    background-color 0.6s ease,
+    border-color 0.6s ease,
+    transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+#stack .stx[data-revealed="false"] .stx-node {
+  background: var(--c-page);
+  border-color: var(--c-secondary);
+  transition: none;
+}
+
+@media (hover: hover) {
+  #stack .stx:hover .stx-node {
+    transform: scale(1.35);
+  }
+}
+
+/* Mono key row: index (note-coloured) + stage key (mockup 1520–1522). */
+#stack .stx-k {
+  display: flex;
+  gap: 10px;
+  font-family: var(--font-mono-body);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c-muted-text);
+}
+
+#stack .stx-n {
+  color: var(--c-note);
+}
+
+html[lang="ar"] #stack .stx-k {
+  font-family: var(--font-body);
+  text-transform: none;
+}
+
+#stack .stx h3 {
+  margin-top: 10px;
+  font-size: 1.3125rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+#stack .stx-c {
+  margin-top: 8px;
+  min-height: 3.1em;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--c-muted-text);
+}
+
+/* Tech chips: one column per stage on wide screens (mockup 1526–1528),
+   wrapping rows below. Tokens make the stack override (1713) automatic. */
+#stack .stx .chips {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+#stack .chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  min-height: 46px;
+  padding: 7px 12px 7px 7px;
+  overflow-wrap: anywhere;
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  border-color: var(--c-hairline); /* rgba(255,255,255,.16), mockup 1713 */
+  background: var(--c-light-bg); /* rgba(255,255,255,.07), mockup 1713 */
+}
+
+html[dir="rtl"] #stack .chip {
+  justify-content: flex-end; /* mockup 273 */
+}
+
+/* Abbreviation shown in place of an icon (mockup 1250 + 1714). */
+#stack .chip b {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--sc-abbr);
+  font-family: var(--font-mono-body);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0;
+  direction: ltr;
+}
+
+/* Focus dims the other stages so the hovered one leads (mockup 1561–1562). */
+#stack .stx h3,
+#stack .stx .chips {
+  transition: opacity 0.6s ease;
+}
+
+#stack .sflow:has(.stx:hover) .stx:not(:hover) :is(h3, .chips) {
+  opacity: 0.62;
+}
+
+/* ---- packet comet riding the connector line (mockup 1529–1531) ---- */
+#stack .stx-pkt {
+  position: absolute;
+  z-index: 2;
+  top: 2px;
+  inset-inline-start: 0;
+  width: 30px;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, transparent, var(--c-honey));
+  box-shadow: 0 0 16px var(--c-honey);
+  opacity: 0;
+  animation: stx-pkt 12s cubic-bezier(0.45, 0.05, 0.4, 1) 4s infinite;
+  pointer-events: none;
+}
+
+html[dir="rtl"] #stack .stx-pkt {
+  background: linear-gradient(270deg, transparent, var(--c-honey));
+}
+
+@keyframes stx-pkt {
+  0% {
+    inset-inline-start: 0;
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    inset-inline-start: calc(100% - 30px);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #stack .stx-pkt {
+    display: none;
+  }
+
+  #stack .stx-slab::after {
+    animation: none;
+  }
+
+  #stack .stx-slab {
+    transition: none;
+  }
+}
+
+/* ---- "Also writes" row (mockup 1532–1535) ---- */
+#stack .stx-also {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 22px;
+  margin-top: 48px;
+  padding-top: 26px;
+  border-top: 1px dashed var(--c-rule-strong);
+}
+
+#stack .stx-also .chips {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+#stack .stx-also .chip {
+  display: inline-flex;
+  min-height: 40px;
+  padding: 6px 12px 6px 6px;
+  font-size: 0.875rem;
+}
+
+#stack .stx-also .chip b {
+  width: 26px;
+  height: 26px;
+}
+
+/* ================================================================
+   3D plate stack `.xl` — decorative, aria-hidden.
+
+   It lives inside `.sflow`, so it reads the very same scroll progress
+   (`--sp`, the "trace" story kind) as the connector line, the packet and the
+   nodes: one request, five layers, one clock. It sits right above the line
+   so it is on screen for the whole trace.
+
+   Progress -> plates:  pk = which plate the packet is on (0 Edge .. 4 Ship),
+   shifted by half a stage so each plate owns the same fifth of the scroll as
+   its column. Per plate: --f is how current it is (lifts, honey edge and
+   glow), --done is how far behind the packet it is (cool tint). The stack
+   also fans open (--gap) and turns a little as the packet moves down it.
+   With no JS, reduced motion or before the engine starts, --sp defaults to 1:
+   every layer passed, Ship current — the finished picture.
+   ================================================================ */
+#stack .xl {
+  display: none;
+  position: absolute;
+  z-index: 1;
+  inset-inline-end: 0;
+  bottom: calc(100% + 10px);
+  width: var(--xw, 480px);
+  height: var(--xh, 340px);
+  pointer-events: none;
+  --gap: calc((11 + var(--sp, 1) * 5) * var(--u, 1px));
+  --pk: clamp(0, var(--sp, 1) * 5 - 0.5, 4);
+}
+
+#stack .xl-s {
+  position: absolute;
+  inset: 0 0 calc(26 * var(--u, 1px)) 0;
+  transform-style: preserve-3d;
+  transform: perspective(calc(1300 * var(--u, 1px))) rotateX(60deg)
+    rotateZ(calc(-42deg + var(--sp, 1) * 14deg));
+}
+
+#stack .xl-s i {
+  --pkd: calc(var(--pk) - var(--n));
+  /* current: 1 on the plate the packet is on, gone one plate away */
+  --f: clamp(0, 1 - max(var(--pkd), calc(0 - var(--pkd))) * 1.4, 1);
+  /* passed: 0 while the packet is still arriving, 1 once it has moved on */
+  --done: clamp(0, var(--pkd) * 1.667 - 0.5, 1);
+  /* plates the packet has passed ride up, ones still to come sink: the stack
+     opens around the current plate instead of lifting it onto its neighbours' labels */
+  --open: clamp(-1, var(--pkd) * 1.5, 1);
+  --edge: color-mix(in srgb, var(--c-secondary) calc(var(--done) * 78%), var(--c-muted-text));
+  pointer-events: auto;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(224 * var(--u, 1px));
+  height: calc(224 * var(--u, 1px));
+  margin: calc(-112 * var(--u, 1px)) 0 0 calc(-112 * var(--u, 1px));
+  border: 1.5px solid color-mix(in srgb, var(--c-honey) calc(var(--f) * 100%), var(--edge));
+  border-radius: calc(14 * var(--u, 1px));
+  background:
+    linear-gradient(
+      color-mix(in srgb, var(--c-honey) calc(var(--f) * 26%), transparent),
+      color-mix(in srgb, var(--c-honey) calc(var(--f) * 26%), transparent)
+    ),
+    linear-gradient(
+      color-mix(in srgb, var(--c-secondary) calc(var(--done) * 15%), transparent),
+      color-mix(in srgb, var(--c-secondary) calc(var(--done) * 15%), transparent)
+    ),
+    color-mix(in srgb, var(--c-page) 34%, transparent);
+  box-shadow: 0 0 calc(34 * var(--u, 1px))
+    color-mix(in srgb, var(--c-honey) calc(var(--f) * 34%), transparent);
+  transform: translateZ(calc((2 - var(--n)) * var(--gap) * 2 + var(--open) * 11 * var(--u, 1px)));
+  transition:
+    border-color 0.4s,
+    background 0.4s,
+    box-shadow 0.4s;
+}
+
+#stack .xl-s i b {
+  position: absolute;
+  inset-inline-start: calc(14 * var(--u, 1px));
+  bottom: calc(11 * var(--u, 1px));
+  font-family: var(--font-mono-body);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(
+    in srgb,
+    var(--c-honey) calc(var(--f) * 100%),
+    color-mix(in srgb, var(--c-signal) calc(var(--done) * 100%), var(--c-light-text))
+  );
+  transition: color 0.4s;
+}
+
+html[lang="ar"] #stack .xl-s i b {
+  font-family: var(--font-body);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* The packet itself, riding down through the layers with the scroll. */
+#stack .xl-p {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(18 * var(--u, 1px));
+  height: calc(18 * var(--u, 1px));
+  margin: calc(-9 * var(--u, 1px)) 0 0 calc(-9 * var(--u, 1px));
+  border-radius: 50%;
+  background: var(--c-honey);
+  box-shadow:
+    0 0 0 calc(6 * var(--u, 1px)) color-mix(in srgb, var(--c-honey) 24%, transparent),
+    0 0 calc(22 * var(--u, 1px)) var(--c-honey);
+  transform: translateZ(calc((2 - var(--pk)) * var(--gap) * 2 + 12 * var(--u, 1px)));
+}
+
+#stack .xl-c {
+  position: absolute;
+  inset-inline-end: 0;
+  bottom: 0;
+  margin: 0;
+  font-family: var(--font-mono-body);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-muted-text);
+}
+
+html[lang="ar"] #stack .xl-c {
+  font-family: var(--font-body);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* The scrub is driven every frame, so keep the colours from lagging behind it. */
+html[data-story-on] #stack .xl-s i,
+html[data-story-on] #stack .xl-s i b {
+  transition-duration: 0.12s;
+}
+
+/* No scroll story running (low performance tier, reduced motion, or before the
+   engine starts): --sp falls back to 1, which made the Ship plate "current" for
+   good, so it sat there glowing honey for no reason. With nothing to follow,
+   no plate is current: all five rest in the cool "passed" tint, and only
+   hovering one lights it (the hover rule below still wins). */
+html:not([data-story-on]) #stack .xl-s i {
+  --f: 0;
+  --done: 1;
+}
+
+html:not([data-story-on]) #stack .xl-p {
+  box-shadow: 0 0 0 calc(6 * var(--u, 1px)) color-mix(in srgb, var(--c-honey) 18%, transparent);
+}
+
+/* Hover works both ways: pointing at a column lights its plate, pointing at a
+   plate sets --hot on its column (node swells, slab lifts). */
+@media (hover: hover) {
+  #stack:has(.stx:nth-child(1):hover) .xl-s i:nth-child(1),
+  #stack:has(.stx:nth-child(2):hover) .xl-s i:nth-child(2),
+  #stack:has(.stx:nth-child(3):hover) .xl-s i:nth-child(3),
+  #stack:has(.stx:nth-child(4):hover) .xl-s i:nth-child(4),
+  #stack:has(.stx:nth-child(5):hover) .xl-s i:nth-child(5) {
+    --f: 1;
+  }
+
+  #stack:has(.xl-s i:nth-child(1):hover) .stx:nth-child(1),
+  #stack:has(.xl-s i:nth-child(2):hover) .stx:nth-child(2),
+  #stack:has(.xl-s i:nth-child(3):hover) .stx:nth-child(3),
+  #stack:has(.xl-s i:nth-child(4):hover) .stx:nth-child(4),
+  #stack:has(.xl-s i:nth-child(5):hover) .stx:nth-child(5) {
+    --hot: 1;
+  }
+}
+
+/* ================================================================
+   Responsive (mockup container queries → viewport media queries).
+   Content column: 1116px inner at ≥1200vw, 936px at 992–1199,
+   696px below — so the mockup's 1100/1000/900/560 container
+   thresholds map to 1200 / 1199 / 991 / 767 viewport.
+   ================================================================ */
+
+/* Wide screens: the plates sit above the flow on the right, the header keeps
+   the left, and the flow drops far enough to leave them room. */
+@media (min-width: 1200px) {
+  #stack {
+    --xw: calc(480 * var(--u));
+    --xh: calc(340 * var(--u));
+  }
+
+  #stack .xl {
+    display: block;
+  }
+
+  #stack .sh {
+    max-width: calc(100% - var(--xw) - 32px);
+  }
+
+  #stack .sflow {
+    margin-top: max(72px, calc(var(--xh) - 150px));
+  }
+}
+
+/* The seam (slab edge) runs through the node, so centre the node on it. */
+@media (min-width: 992px) {
+  #stack .stx-node {
+    inset-inline-start: -7px;
+  }
+}
+
+/* Mockup 1536: slightly tighter columns. */
+@media (max-width: 1199px) {
+  #stack .stx {
+    padding-inline: 14px 10px;
+  }
+
+  #stack .stx h3 {
+    font-size: 1.1875rem;
+  }
+}
+
+/* Mockup 1537–1549: one vertical timeline instead of five columns. */
+@media (max-width: 991px) {
+  #stack .fl-stages {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #stack .stx {
+    padding-block: 0 30px;
+    padding-inline: 36px 0;
+  }
+
+  #stack .stx-seg {
+    top: 12px;
+    bottom: -12px;
+    height: auto;
+    width: 2px;
+    inset-inline: 5px auto;
+  }
+
+  #stack .stx-seg::after {
+    transform: scaleY(1);
+    transform-origin: top center;
+  }
+
+  #stack .stx[data-revealed="false"] .stx-seg::after {
+    transform: scaleY(0);
+  }
+
+  #stack .stx:last-child .stx-seg {
+    display: none;
+  }
+
+  #stack .stx-c {
+    min-height: 0;
+  }
+
+  #stack .stx .chips {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-top: 14px;
+  }
+
+  /* Compact tiles: the desktop 46px chips made every step a tall block and the
+     whole timeline about 1700px of near-identical boxes. */
+  #stack .stx .chip {
+    display: inline-flex;
+    gap: 8px;
+    min-height: 36px;
+    padding: 4px 10px 4px 4px;
+    font-size: 0.8125rem;
+  }
+
+  html[dir="rtl"] #stack .stx .chip {
+    justify-content: flex-start;
+  }
+
+  #stack .stx .chip b {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    font-size: 0.625rem;
+  }
+
+  #stack .stx-pkt {
+    display: none;
+  }
+
+  /* The ruler belongs to the horizontal line. */
+  #stack .sflow::before {
+    display: none;
+  }
+
+  /* Each step is a slab beside the vertical line. */
+  #stack .stx-slab {
+    top: -12px;
+    bottom: 26px;
+    inset-inline: 22px 0;
+    border-radius: 20px;
+    border-inline-start: 0;
+    border-inline-end: 0;
+    /* --cur is how much this is the step being read (0 to 1, from the scroll:
+       see ScrollStory.css). The slab is a faint outline at rest and warms up
+       only while its step is under the reading line, so the eye has one place
+       to go. Without the story (low tier, reduced motion) every step rests at
+       the same mid value: no step is stuck lit. */
+    --cur: 0.35;
+    background: linear-gradient(
+      to right,
+      color-mix(in srgb, var(--slab) calc(3% + var(--cur) * 15%), transparent),
+      color-mix(in srgb, var(--slab) calc(var(--cur) * 4%), transparent)
+    );
+    box-shadow: inset 0 0 0 1px
+      color-mix(in srgb, var(--slab) calc(8% + var(--cur) * 22%), transparent);
+  }
+
+  #stack .stx {
+    --cur: 0.35;
+  }
+
+  #stack .stx-slab {
+    --cur: inherit;
+  }
+
+  #stack .stx[data-revealed="false"] .stx-slab {
+    clip-path: inset(0 0 100% 0);
+  }
+
+  #stack .stx-slab::after {
+    display: none;
+  }
+}
+
+/* Mockup 1551: breathing room back on phones. */
+@media (max-width: 767px) {
+  #stack .sflow {
+    margin-top: 28px;
+  }
+
+  #stack .stx-also {
+    margin-top: 12px;
+  }
+}
+
+/* ================================================================
+   Print: globals.css forces light tokens on :root/.dark-mode, but the
+   #stack re-declaration would still win inside the section. Restore
+   the same print palette and drop the dark surface (globals 933–960).
+   ================================================================ */
+@media print {
+  #stack {
+    --c-dark-text: #1a1d21;
+    --c-light-text: #3f3f46;
+    --c-muted-text: #52525b;
+    --c-hairline: #d4d4d0;
+    --c-rule-strong: #a1a1aa;
+    --c-page: #ffffff;
+    --c-dark-bg: #ffffff;
+    --c-surface: #ffffff;
+    --c-light-bg: #f3f3f0;
+    --c-note: #7a4a00;
+    --c-honey: #7a4a00;
+    --c-honey-hi: #7a4a00;
+    --c-mark: #ffffff;
+    --c-secondary: #1f35b8;
+    --c-signal: #1f35b8;
+    --c-on-secondary: #ffffff;
+    --sc-abbr: #7a4a00;
+    background-image: none;
+    box-shadow: none;
+  }
+
+  #stack .xl,
+  #stack .stx-slab,
+  #stack .stx-pkt {
+    display: none;
+  }
+
+  #stack .sflow::before {
+    display: none;
+  }
+}
+
+/* Low performance tier: the slabs' periodic glow sweep is decoration. */
+html[data-perf="low"] #stack .stx-slab::after {
+  animation: none;
+}
+
+/* Single-column widths: put the Stack rail on the same line as the Experience
+   and About rails so the three timelines read as one system. Centre is 18px
+   from the content edge, 13px on phones (Experience's --tlp / 2). */
+@media (max-width: 991px) {
+  #stack .stx-seg {
+    inset-inline: 17px auto;
+  }
+
+  #stack .stx-node {
+    inset-inline-start: 11px;
+  }
+}
+
+@media (max-width: 560px) {
+  #stack .stx-seg {
+    inset-inline: 12px auto;
+  }
+
+  #stack .stx-node {
+    inset-inline-start: 6px;
+  }
+}
+
+/* ================================================================
+   Single-column alignment with Experience / About.
+   The card (slab) starts at the same --tlp offset as an Experience card, its
+   inner padding matches (22px, 18px on phones), and the node sits at the same
+   height inside the card, so the rails AND the boxes line up between sections.
+   ================================================================ */
+@media (max-width: 991px) {
+  #stack {
+    --tlp: 36px;
+    --tcp: 22px; /* card inner padding, = Experience .xp2 */
+  }
+
+  #stack .stx {
+    padding-block: 18px 30px;
+    padding-inline: calc(var(--tlp) + var(--tcp)) var(--tcp);
+  }
+
+  #stack .stx-slab {
+    top: 0;
+    bottom: 14px;
+    inset-inline: var(--tlp) 0;
+  }
+
+  /* node centre 24px below the card top, rail runs node-to-node */
+  #stack .stx-node {
+    top: 17px;
+  }
+
+  #stack .stx-seg {
+    top: 24px;
+    bottom: -24px;
+  }
+}
+
+@media (max-width: 560px) {
+  #stack {
+    --tlp: 26px;
+    --tcp: 18px;
+  }
+}
+
+/* ================================================================
+   Single-column reveal (≤991px): a soft entrance instead of a wipe.
+   The desktop reveal wipes each slab downward with a clip-path, staggered by
+   stage index (up to 2.6s late). In a one-column timeline each step arrives on
+   its own as you scroll, so the index delay made later cards pop in long after
+   they were on screen, and the hard clip cut through the rounded corners.
+   Here each card fades and settles into place at once, then its text follows
+   in a short cascade. With JS off or reduced motion data-revealed is never set,
+   so everything simply shows.
+   ================================================================ */
+@media (max-width: 991px) {
+  #stack .stx-slab {
+    clip-path: none;
+    transform-origin: 50% 0;
+    transition:
+      opacity 0.7s ease,
+      transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: 0s;
+    will-change: opacity, transform;
+  }
+
+  #stack .stx[data-revealed="false"] .stx-slab {
+    clip-path: none;
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+    transition: none;
+  }
+
+  #stack .stx-seg::after {
+    transition-delay: 0s;
+  }
+
+  /* text cascade inside the card */
+  #stack .stx .stx-k,
+  #stack .stx h3,
+  #stack .stx .stx-c,
+  #stack .stx .chips {
+    transition:
+      opacity 0.6s ease,
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  #stack .stx[data-revealed="true"] .stx-k {
+    transition-delay: 0.1s;
+  }
+
+  #stack .stx[data-revealed="true"] h3 {
+    transition-delay: 0.16s;
+  }
+
+  #stack .stx[data-revealed="true"] .stx-c {
+    transition-delay: 0.22s;
+  }
+
+  #stack .stx[data-revealed="true"] .chips {
+    transition-delay: 0.28s;
+  }
+
+  #stack .stx[data-revealed="false"] :is(.stx-k, h3, .stx-c, .chips) {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: none;
+  }
+
+  /* the node pops in with the card */
+  #stack .stx-node {
+    transition:
+      background-color 0.5s ease,
+      border-color 0.5s ease,
+      transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  #stack .stx[data-revealed="false"] .stx-node {
+    transform: scale(0.6);
+  }
+}
+
+/* A tap leaves :hover stuck on touch screens, which dimmed every other step. */
+@media (hover: none) {
+  #stack .sflow:has(.stx:hover) .stx:not(:hover, [data-revealed="false"]) :is(h3, .chips) {
+    opacity: 1;
+  }
+}
+
+/* ================================================================
+   Compact single-column layouts (≤991px) — rev: tighter, more composed.
+
+   Problem: below 992px the five stages were one long stack of tall,
+   near-identical cards, chips left a ragged right edge, "Also writes"
+   floated loose, and the section ended on dead space.
+
+   • 640–991px  → a two-column board of cards (Ship spans the full row),
+                  no rail: each card carries its own node, so the section
+                  is about half as tall and uses the width.
+   • ≤639px     → keeps the rail, but cards are tighter, chips grow to fill
+                  each row (no ragged edge) and "Also writes" becomes the
+                  final panel the rail runs into.
+   ================================================================ */
+@media (max-width: 991px) {
+  /* "Also writes" as a panel that belongs to the system. */
+  #stack .stx-also {
+    gap: 10px 16px;
+    margin-top: 4px;
+    padding: 16px var(--tcp, 22px) 18px;
+    border: 1px dashed var(--c-rule-strong);
+    border-radius: 20px;
+    background: color-mix(in srgb, var(--c-dark-text) 3%, transparent);
+  }
+
+  #stack .stx-also .chips {
+    gap: 6px;
+  }
+
+  #stack .stx-also .chip {
+    min-height: 34px;
+    gap: 8px;
+    padding: 4px 10px 4px 4px;
+    font-size: 0.8125rem;
+  }
+
+  #stack .stx-also .chip b {
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    font-size: 0.625rem;
+  }
+
+  /* Less dead air at the end of the section: smaller bottom padding and a
+     much shorter dark feather (the 190px one read as an empty band). */
+  #stack.sec {
+    padding-block-end: 40px;
+    box-shadow:
+      inset 0 90px 80px -70px var(--c-light-bg),
+      inset 0 -60px 60px -50px var(--c-page);
+  }
+}
+
+/* ---- Tablet: two-column board ---- */
+@media (min-width: 640px) and (max-width: 991px) {
+  #stack .fl-stages {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  #stack .stx {
+    padding: 20px 22px 22px;
+  }
+
+  #stack .stx:last-child {
+    grid-column: 1 / -1;
+  }
+
+  /* The card is the unit now: slab fills it, no vertical rail. */
+  #stack .stx-slab {
+    inset: 0;
+  }
+
+  #stack .stx-seg {
+    display: none;
+  }
+
+  #stack .stx-node {
+    top: 23px;
+    inset-inline-start: 21px;
+  }
+
+  #stack .stx-k {
+    padding-inline-start: 22px;
+  }
+
+  #stack .stx-c {
+    min-height: 3.1em;
+  }
+
+  #stack .stx .chip {
+    grid-column: span var(--t, 12);
+    order: var(--to, 0);
+  }
+
+  /* Ship spans the whole row: its chips just sit in one natural line. */
+  #stack .stx:last-child .chips {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  #stack .stx:last-child .chip {
+    flex: 0 0 auto;
+    order: 0;
+  }
+
+  #stack .stx-also {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    margin-top: 16px;
+  }
+}
+
+/* ---- Phone: rail kept, everything tighter ---- */
+@media (max-width: 639px) {
+  #stack .sflow {
+    margin-top: 22px;
+  }
+
+  #stack .stx {
+    padding-block: 18px 26px;
+  }
+
+  #stack .stx-slab {
+    bottom: 16px;
+  }
+
+  /* Ship is the last card: no trailing space after it. */
+  #stack .stx:last-child {
+    padding-block-end: 14px;
+  }
+
+  #stack .stx:last-child .stx-slab {
+    bottom: 0;
+  }
+
+  #stack .stx h3 {
+    margin-top: 6px;
+    font-size: 1.25rem;
+  }
+
+  #stack .stx-c {
+    margin-top: 4px;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+  }
+
+  #stack .stx .chips {
+    margin-top: 12px;
+    gap: 6px;
+  }
+
+  /* Chips are packed into full 12-column rows (lib/pack-chips.ts, spans set
+     inline as --p / --po). Every chip is as wide as its name needs, short
+     names share a row, and leftover columns are shared out inside the row, so
+     no row has a ragged edge and no chip has a big empty bar after its text. */
+  #stack .stx .chips,
+  #stack .stx-also .chips {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  #stack .stx .chip,
+  #stack .stx-also .chip {
+    display: flex;
+    min-width: 0;
+    grid-column: span var(--p, 12);
+    order: var(--po, 0);
+    justify-content: flex-start;
+    gap: 8px;
+    padding-inline-end: 6px;
+    overflow-wrap: break-word;
+    line-height: 1.2;
+  }
+
+  /* The rail runs on through Ship and ends in a hollow ring at the panel. */
+  /* 16px gap above the panel + 24px to the ring's centre */
+  #stack .stx:last-child .stx-seg {
+    display: block;
+    bottom: -40px;
+  }
+
+  #stack .stx-also {
+    position: relative;
+    flex-direction: column;
+    align-items: stretch;
+    margin-inline-start: var(--tlp, 26px);
+    margin-top: 16px;
+    padding: 16px var(--tcp, 18px) 16px;
+  }
+
+  #stack .stx-also::before {
+    content: "";
+    position: absolute;
+    top: 17px;
+    inset-inline-start: calc(-1 * var(--tlp, 26px) + 6px);
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid var(--c-honey);
+    background: var(--c-page);
+    box-sizing: border-box;
+  }
+}
+
+@media (min-width: 561px) and (max-width: 639px) {
+  #stack .stx-also::before {
+    inset-inline-start: calc(-1 * var(--tlp, 26px) + 11px);
+  }
+}
+
+@media print {
+  #stack .stx-also::before {
+    display: none;
+  }
+}
+
+/* ================================================================
+   Rail family — shared vocabulary with Experience and About.
+   All three timelines now speak the same language while keeping their
+   own character (Stack: cool fill + comet, Experience: honey scrub,
+   About: quiet trail):
+   • 2px line with rounded ends and a soft glow on the lit part
+   • 14px node on the line; reached = honey fill + 5px honey halo
+   • 20px cards, 16px between them, same 1.25rem step titles
+   ================================================================ */
+#stack .stx-seg,
+#stack .stx-seg::after {
+  border-radius: 2px;
+}
+
+#stack .stx-seg::after {
+  box-shadow: 0 0 10px color-mix(in srgb, var(--c-secondary) 55%, transparent);
+}
+
+/* The halo Experience puts on its current role, here on every reached node. */
+#stack .stx-node {
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--c-honey) 22%, transparent);
+}
+
+#stack .stx[data-revealed="false"] .stx-node {
+  box-shadow: none;
+}
+
+@media (max-width: 991px) {
+  /* The step being read keeps its swelling halo (ScrollStory.css drives it);
+     steps at rest show the calm 5px one, like Experience's. */
+  html[data-story-on] #stack .stx[data-revealed] .stx-node {
+    box-shadow: 0 0 0 calc(5px + var(--cur, 0) * 3px)
+      color-mix(in srgb, var(--c-honey) calc(18% + var(--cur, 0) * 14%), transparent);
+  }
+}

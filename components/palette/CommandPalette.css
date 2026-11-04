@@ -1,0 +1,116 @@
+/* ==========================================================================
+   Search palette: open / close motion.
+
+   One stylesheet for every screen. Everything that moves is opacity or
+   transform, so it runs on the compositor and stays smooth on phones.
+
+   Opening is slower and eases out (the panel settles into place); closing is
+   shorter and eases in (it gets out of the way). Both are driven by [data-open]
+   on the root, and the panel stays `visibility: hidden` while closed so it is
+   never focusable or read by assistive tech.
+   ========================================================================== */
+
+.cp-root {
+  --cp-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --cp-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --cp-gap: clamp(12px, 10vh, 96px);
+
+  /* The visible part of the screen. Set from script while open so the panel
+     follows the on-screen keyboard instead of ending up behind it; the plain
+     viewport units are the fallback when that is not available. */
+  --cp-top: 0px;
+  --cp-vh: 100vh;
+
+  padding: calc(var(--cp-top) + var(--cp-gap)) 12px 12px;
+}
+
+@supports (height: 100dvh) {
+  .cp-root {
+    --cp-gap: clamp(12px, 10dvh, 96px);
+    --cp-vh: 100dvh;
+  }
+}
+
+/* ---- backdrop ---------------------------------------------------------- */
+
+.cp-backdrop {
+  opacity: 0;
+  transition: opacity 170ms var(--cp-ease-in);
+}
+
+.cp-root[data-open] .cp-backdrop {
+  opacity: 1;
+  transition: opacity 260ms ease-out;
+}
+
+/* ---- panel ------------------------------------------------------------- */
+
+.cp-panel {
+  visibility: hidden;
+  opacity: 0;
+  transform: translate3d(0, -14px, 0) scale(0.97);
+  transform-origin: 50% 0;
+  transition:
+    opacity 140ms ease-in,
+    transform 180ms var(--cp-ease-in),
+    visibility 0s linear 180ms;
+}
+
+.cp-root[data-open] .cp-panel {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 200ms ease-out,
+    transform 340ms var(--cp-ease-out),
+    visibility 0s;
+}
+
+/* Phones: it drops in from the top edge, a little further, like a sheet. */
+@media (max-width: 639px) {
+  .cp-panel {
+    transform: translate3d(0, -22px, 0) scale(0.985);
+  }
+}
+
+/* ---- list -------------------------------------------------------------- */
+
+/* Never taller than what is left above the keyboard. */
+.cp-list {
+  max-height: max(120px, min(400px, 50vh, calc(var(--cp-vh) - var(--cp-gap) - 150px)));
+  overscroll-behavior: contain;
+}
+
+/* Rows arrive one after another, only the first few so it never drags. Played
+   when the palette opens (and for rows that appear as the search narrows or
+   widens), not on every keystroke for rows that stay. */
+.cp-root[data-open] .cp-item {
+  animation: cp-item-in 280ms var(--cp-ease-out) both;
+  animation-delay: calc(min(var(--i, 0), 7) * 22ms + 60ms);
+}
+
+@keyframes cp-item-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+}
+
+/* ---- reduced motion ---------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .cp-backdrop,
+  .cp-panel,
+  .cp-root[data-open] .cp-backdrop,
+  .cp-root[data-open] .cp-panel {
+    transition: none;
+  }
+
+  .cp-panel {
+    transform: none;
+  }
+
+  .cp-root[data-open] .cp-item {
+    animation: none;
+  }
+}

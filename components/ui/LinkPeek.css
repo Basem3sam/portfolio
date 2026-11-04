@@ -1,0 +1,123 @@
+/* Sneak peek: a small browser-window card that follows a hovered live link. */
+
+.peek {
+  position: fixed;
+  z-index: 70;
+  overflow: hidden;
+  border: 1px solid var(--c-rule-strong);
+  border-radius: var(--radius-ui-3);
+  background: var(--c-surface);
+  box-shadow: var(--sh-xl);
+  pointer-events: none;
+  transform-origin: 50% 0;
+  animation: peek-in 0.22s var(--ease-out) both;
+}
+
+.peek[data-above="true"] {
+  transform-origin: 50% 100%;
+}
+
+.peek-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--c-hairline);
+  background: var(--c-light-bg);
+}
+
+.peek-dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--c-status);
+}
+
+.peek-host {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 500 0.75rem/1 var(--font-mono-body);
+  color: var(--c-light-text);
+}
+
+.peek-frame {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: linear-gradient(
+    90deg,
+    var(--c-hairline) 0%,
+    color-mix(in srgb, var(--c-hairline) 45%, var(--c-surface)) 50%,
+    var(--c-hairline) 100%
+  );
+  background-size: 220% 100%;
+  animation: peek-shimmer 1.4s ease-in-out infinite;
+}
+
+.peek[data-state="ready"] .peek-frame {
+  animation: none;
+  background: var(--c-light-bg);
+}
+
+.peek-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+}
+
+.peek[data-state="ready"] .peek-frame img {
+  opacity: 1;
+}
+
+.peek-fail {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font: 500 0.875rem var(--font-mono-body);
+  color: var(--c-muted-text);
+}
+
+.peek[data-state="failed"] .peek-frame {
+  animation: none;
+  background: var(--c-light-bg);
+}
+
+@keyframes peek-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
+  }
+}
+
+@keyframes peek-shimmer {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -120% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .peek,
+  .peek-frame {
+    animation: none;
+  }
+
+  .peek-frame img {
+    transition: none;
+  }
+}
+
+@media print {
+  .peek {
+    display: none;
+  }
+}

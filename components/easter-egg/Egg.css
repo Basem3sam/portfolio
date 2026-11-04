@@ -1,0 +1,2490 @@
+/* ================================================================
+   Easter egg overlays — calm glass over the tide.
+
+   Ported from `Portfolio Design Mockup.html` (`.egr` scope, lines
+   1336–1477). The overlays deliberately live outside the light/dark
+   theme like the terminal itself: deep ink glass, an ochre accent from
+   the site's prompt mark, blue for keys and green/red for results. No
+   matrix rain, no neon glow, no scanlines.
+
+   All colour lives here: tests/color-discipline.spec.ts scans .ts/.tsx
+   but not .css.
+   ================================================================ */
+
+@layer components {
+  /* ---- tokens (mockup line 1337) ---- */
+  .egg {
+    --e-card: rgba(12, 18, 31, 0.74);
+    --e-rule: rgba(160, 180, 220, 0.2);
+    --e-rule2: rgba(160, 180, 220, 0.38);
+    --e-ink: #eef2fb;
+    --e-ink2: #bcc7dc;
+    --e-dim: #93a1bb;
+    --e-note: #e0a458;
+    --e-hi: #f4c77d;
+    --e-sig: #7ba6ff;
+    --e-live: #4ade80;
+    --e-red: #ff8f8f;
+    --e-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+    color: var(--e-ink);
+  }
+
+  .egg *,
+  .egg *::before,
+  .egg *::after {
+    box-sizing: border-box;
+  }
+
+  .egg button {
+    font-family: inherit;
+  }
+
+  .egg :focus-visible {
+    outline: 2px solid var(--e-hi);
+    outline-offset: 3px;
+  }
+
+  /* ---- backdrop: the tide, dimmed (mockup lines 1340–1346) ---- */
+  .egg .eov {
+    position: fixed;
+    inset: 0;
+    z-index: 10005;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow-y: auto;
+    background: #050a15;
+    opacity: 0;
+    visibility: hidden;
+    /* Leaving is quick and matches the unmount delay (useOverlay), so the
+       fade finishes instead of being cut off a third of the way through. */
+    transition:
+      opacity 0.3s var(--e-ease),
+      visibility 0s 0.3s;
+  }
+
+  .egg .eov.show {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.9s var(--e-ease);
+  }
+
+  /* Hand-off between overlays (master -> keypad, keypad -> gate): the new
+     card dissolves in over a frozen copy of the old one, with no slide and
+     no trip back to the page in between. */
+  .egg .eov.quick.show {
+    transition: opacity 0.45s var(--e-ease);
+  }
+
+  .egg .eov.quick .egc {
+    transform: none;
+  }
+
+  .egg .eov.ghost,
+  .egg .eov.ghost *,
+  .egg .eov.ghost *::before,
+  .egg .eov.ghost *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .egg .eov.dim {
+    background: rgba(4, 8, 16, 0.84);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  /* The tide canvas + its CSS fallback live on the backdrop itself. */
+  .egg .eov.tide {
+    --tide-a: #020721;
+    --tide-b: #0f47c7;
+    --tide-c: #338fe6;
+    --tide-d: #579deb;
+    background-color: #04102d;
+    background-image:
+      radial-gradient(
+        120% 80% at 50% 130%,
+        color-mix(in srgb, var(--tide-c) 50%, transparent) 0%,
+        transparent 58%
+      ),
+      radial-gradient(
+        90% 70% at 12% 120%,
+        color-mix(in srgb, var(--e-sig) 22%, transparent) 0%,
+        transparent 62%
+      ),
+      linear-gradient(180deg, #04102d 0%, var(--tide-a) 100%);
+    background-repeat: no-repeat;
+  }
+
+  .egg .eov.tide .tide-cv {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    display: block;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .egg .eov.tide .tide-cv[data-tide="off"] {
+    display: none;
+  }
+
+  /* Veil over the tide so the card reads as glass on top of it. */
+  .egg .eov.tide::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: radial-gradient(70% 62% at 50% 46%, rgba(4, 9, 20, 0.3), rgba(4, 9, 20, 0.88));
+  }
+
+  /* ---- card (mockup lines 1347–1348, 1357–1365) ---- */
+  .egg .egc {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 440px;
+    margin: auto;
+    border: 1px solid var(--e-rule);
+    border-radius: 26px;
+    background: var(--e-card);
+    backdrop-filter: blur(24px) saturate(1.3);
+    -webkit-backdrop-filter: blur(24px) saturate(1.3);
+    box-shadow:
+      0 44px 110px rgba(0, 0, 0, 0.55),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    transform: translateY(16px) scale(0.985);
+    transition:
+      transform 1.1s var(--e-ease),
+      border-color 0.8s,
+      box-shadow 0.8s;
+  }
+
+  .egg .eov.show .egc {
+    transform: none;
+  }
+
+  .egg .egh {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 18px 14px 0 26px;
+  }
+
+  .egg .egk {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-mono-body);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--e-note);
+  }
+
+  .egg .egk::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--e-note);
+  }
+
+  .egg .egh-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .egg .egx {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--e-dim);
+    cursor: pointer;
+    transition:
+      background-color 0.4s,
+      color 0.4s,
+      opacity 0.4s;
+  }
+
+  .egg .egx:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--e-ink);
+  }
+
+  .egg .egx[aria-pressed="false"] {
+    opacity: 0.45;
+  }
+
+  .egg .egx .i,
+  .egg .i {
+    width: 18px;
+    height: 18px;
+  }
+
+  .egg .egbd {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    padding: 12px 28px 30px;
+    text-align: center;
+  }
+
+  .egg .egring {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 76px;
+    height: 76px;
+    margin-top: 6px;
+    border-radius: 50%;
+    border: 1px solid var(--e-rule2);
+    color: var(--e-hi);
+    background: radial-gradient(circle, rgba(224, 164, 88, 0.16), transparent 70%);
+  }
+
+  .egg .egring .i {
+    width: 30px;
+    height: 30px;
+  }
+
+  .egg .egring::before,
+  .egg .egring::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 1px solid var(--e-note);
+    border-radius: 50%;
+    opacity: 0;
+    animation: egping 6s var(--e-ease) infinite;
+  }
+
+  .egg .egring::after {
+    animation-delay: 3s;
+  }
+
+  @keyframes egping {
+    0% {
+      transform: scale(1);
+      opacity: 0.55;
+    }
+    100% {
+      transform: scale(1.9);
+      opacity: 0;
+    }
+  }
+
+  .egg .egt1 {
+    margin: 0;
+    font-size: clamp(1.5rem, 5vw, 1.875rem);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+    color: #fff;
+    text-wrap: balance;
+  }
+
+  .egg .egt2 {
+    margin: 0;
+    max-width: 32ch;
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: var(--e-ink2);
+    text-wrap: pretty;
+  }
+
+  .egg .egt3 {
+    margin: 0;
+    max-width: 34ch;
+    min-height: 1.6em;
+    font-size: 0.8125rem;
+    font-weight: 400;
+    line-height: 1.6;
+    font-style: italic;
+    color: var(--e-dim);
+  }
+
+  /* ---- ten sequence slots (mockup lines 1366–1373) ---- */
+  .egg .egslots {
+    display: grid;
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    gap: 6px;
+    width: 100%;
+    direction: ltr;
+  }
+
+  .egg .egslots i {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 3 / 4;
+    border: 1px dashed var(--e-rule2);
+    border-radius: 9px;
+    font-family: var(--font-mono-body);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    font-style: normal;
+    color: var(--e-hi);
+    transition:
+      border-color 0.5s,
+      background-color 0.5s,
+      color 0.5s;
+  }
+
+  .egg .egslots i.on {
+    border-style: solid;
+    border-color: var(--e-note);
+    background: rgba(224, 164, 88, 0.1);
+    animation: egpop 0.6s var(--e-ease) both;
+  }
+
+  .egg .egslots i.let.on {
+    border-color: var(--e-sig);
+    color: var(--e-sig);
+    background: rgba(123, 166, 255, 0.1);
+  }
+
+  .egg .egslots i.bad {
+    border-color: var(--e-red);
+    color: var(--e-red);
+    background: rgba(255, 143, 143, 0.1);
+  }
+
+  .egg .egslots i.good {
+    border-color: var(--e-live);
+    color: var(--e-live);
+    background: rgba(74, 222, 128, 0.1);
+  }
+
+  .egg .egslots i .i {
+    width: 14px;
+    height: 14px;
+  }
+
+  @keyframes egpop {
+    from {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* ---- buttons, feedback, counter ---- */
+  .egg .egbtns {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .egg .egbtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 50px;
+    padding: 0 24px;
+    border-radius: 14px;
+    border: 1px solid var(--e-note);
+    background: var(--e-note);
+    color: #1a1204;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      background-color 0.5s,
+      border-color 0.5s,
+      color 0.5s,
+      transform 0.6s var(--e-ease);
+  }
+
+  .egg .egbtn:hover {
+    background: var(--e-hi);
+    border-color: var(--e-hi);
+    transform: translateY(-1px);
+  }
+
+  .egg .egbtn.ghost {
+    background: transparent;
+    color: var(--e-ink2);
+    border-color: var(--e-rule2);
+  }
+
+  .egg .egbtn.ghost:hover {
+    border-color: var(--e-ink2);
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+  }
+
+  .egg .egbtn.sm {
+    min-height: 46px;
+    padding: 0 12px;
+    font-size: 0.8125rem;
+    flex: 1;
+    min-width: 0;
+    gap: 7px;
+  }
+
+  .egg .egbtn .i {
+    width: 16px;
+    height: 16px;
+  }
+
+  .egg .egbtn[disabled] {
+    opacity: 0.4;
+    cursor: default;
+    transform: none;
+  }
+
+  .egg .egbtn[disabled]:hover {
+    background: var(--e-note);
+    border-color: var(--e-note);
+  }
+
+  .egg .egbtn.ghost[disabled]:hover {
+    background: transparent;
+    border-color: var(--e-rule2);
+  }
+
+  .egg .egfb {
+    min-height: 1.4em;
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--e-dim);
+    text-wrap: balance;
+  }
+
+  .egg .egfb.ok {
+    color: var(--e-live);
+  }
+
+  .egg .egfb.err {
+    color: var(--e-red);
+  }
+
+  .egg .egcount {
+    margin: 0;
+    font-family: var(--font-mono-body);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: var(--e-dim);
+  }
+
+  /* ---- keypad (mockup lines 1384–1398) ---- */
+  .egg .egpad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 62px);
+    gap: 10px;
+    width: 100%;
+    max-width: 270px;
+    direction: ltr;
+  }
+
+  .egg .egpad .k {
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--e-rule2);
+    border-bottom-width: 3px;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--e-hi);
+    font-family: var(--font-mono-body);
+    font-size: 1.125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      background-color 0.4s,
+      border-color 0.4s,
+      transform 0.25s var(--e-ease),
+      border-bottom-width 0.25s;
+  }
+
+  .egg .egpad .k:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: var(--e-note);
+  }
+
+  .egg .egpad .k:active,
+  .egg .egpad .k.press {
+    transform: translateY(2px);
+    border-bottom-width: 1px;
+  }
+
+  .egg .egpad .k .i {
+    width: 22px;
+    height: 22px;
+  }
+
+  .egg .egpad .up {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .egg .egpad .lf {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .egg .egpad .rt {
+    grid-column: 3;
+    grid-row: 2;
+  }
+
+  .egg .egpad .dn {
+    grid-column: 2;
+    grid-row: 3;
+  }
+
+  /* The glyph is a right arrow; each key turns it to point the way it says
+     (up is -90deg, down is +90deg). Up had no rule at all and down was
+     turned a half-circle, so the two vertical keys showed right and left. */
+  .egg .egpad .up .i {
+    rotate: -90deg;
+  }
+
+  .egg .egpad .dn .i {
+    rotate: 90deg;
+  }
+
+  .egg .egpad .lf .i {
+    rotate: 180deg;
+  }
+
+  .egg .egpad .rt .i {
+    rotate: 0deg;
+  }
+
+  .egg .egpad .let {
+    grid-row: 3;
+    color: var(--e-sig);
+  }
+
+  .egg .egpad .let:hover {
+    border-color: var(--e-sig);
+  }
+
+  .egg .egpad .b {
+    grid-column: 1;
+  }
+
+  .egg .egpad .a {
+    grid-column: 3;
+  }
+
+  .egg .egrow {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .egg .egc.good {
+    border-color: var(--e-live);
+    box-shadow:
+      0 44px 110px rgba(0, 0, 0, 0.55),
+      0 0 0 1px rgba(74, 222, 128, 0.35),
+      0 0 80px rgba(74, 222, 128, 0.14);
+  }
+
+  .egg .egc.bad {
+    animation: egshake 0.7s 1;
+  }
+
+  @keyframes egshake {
+    20%,
+    60% {
+      transform: translateX(-7px);
+    }
+    40%,
+    80% {
+      transform: translateX(7px);
+    }
+  }
+
+  /* ---- master code window (mockup lines 1400–1410) ---- */
+  .egg .egc.master {
+    max-width: 500px;
+  }
+
+  .egg .egcaps {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    direction: ltr;
+  }
+
+  .egg .egcaps b {
+    display: grid;
+    place-items: center;
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 44px;
+    aspect-ratio: 5 / 6;
+    border: 1px solid var(--e-rule2);
+    border-bottom-width: 3px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--e-hi);
+    font-family: var(--font-mono-body);
+    font-size: 1rem;
+    font-weight: 700;
+    animation: egpop 0.8s var(--e-ease) both;
+    animation-delay: calc(var(--i) * 90ms + 500ms);
+  }
+
+  .egg .egcaps b.l {
+    color: var(--e-sig);
+  }
+
+  .egg .egcaps b .i {
+    width: 18px;
+    height: 18px;
+  }
+
+  .egg .egcaps b.u .i {
+    rotate: -90deg;
+  }
+
+  .egg .egcaps b.d .i {
+    rotate: 90deg;
+  }
+
+  .egg .egcaps b.lf .i {
+    rotate: 180deg;
+  }
+
+  .egg .egshort {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    width: 100%;
+    padding: 14px;
+    border: 1px solid var(--e-rule);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.03);
+    font-size: 0.8125rem;
+    color: var(--e-dim);
+  }
+
+  .egg kbd {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 1px solid var(--e-rule2);
+    border-bottom-width: 2px;
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--e-ink);
+    font-family: var(--font-mono-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .egg .egach {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding-top: 16px;
+    border-top: 1px solid var(--e-rule);
+    font-family: var(--font-mono-body);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--e-hi);
+  }
+
+  .egg .egach .i {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* ---- terminal ----
+     One face for everything: --font-terminal is the full JetBrains Mono
+     (it has the box-drawing and block glyphs). The Latin-subset face used
+     elsewhere does not, so the banner fell back to another font and its
+     columns drifted. Font size is derived from the card width so the
+     40-column layouts in lib/terminalCommands.ts always fit. */
+  .egg .eterm {
+    --e-mono:
+      var(--font-terminal), var(--font-mono-body), ui-monospace, "SF Mono", Menlo, Consolas,
+      monospace;
+    --etp: 22px;
+    --e-note: #e0a458;
+    --e-hi: #f4c77d;
+    --e-live: #e0a458;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    container-type: inline-size;
+    width: 100%;
+    max-width: 920px;
+    height: min(700px, 90vh);
+    height: min(700px, 90dvh);
+    margin: auto;
+    border: 1px solid var(--e-rule);
+    border-radius: 18px;
+    background: #080d18;
+    overflow: hidden;
+    font-family: var(--e-mono);
+    font-variant-ligatures: none;
+    font-feature-settings:
+      "liga" 0,
+      "calt" 0;
+    box-shadow:
+      0 50px 120px rgba(0, 0, 0, 0.6),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    transform: translateY(16px) scale(0.985);
+    transition: transform 1.1s var(--e-ease);
+  }
+
+  .egg .eov.show .eterm {
+    transform: none;
+  }
+
+  /* Accent themes: the terminal only. `theme <name>` sets data-theme. */
+  .egg .eterm[data-theme="ice"] {
+    --e-note: #6fb4ff;
+    --e-live: #6fb4ff;
+    --e-hi: #a7d2ff;
+  }
+  .egg .eterm[data-theme="moss"] {
+    --e-note: #7fcf8a;
+    --e-live: #7fcf8a;
+    --e-hi: #b4eeb9;
+  }
+  .egg .eterm[data-theme="iris"] {
+    --e-note: #a98bff;
+    --e-live: #a98bff;
+    --e-hi: #cdbcff;
+  }
+  .egg .eterm[data-theme="rose"] {
+    --e-note: #ff8fb1;
+    --e-live: #ff8fb1;
+    --e-hi: #ffc0d3;
+  }
+  /* Earned at root: the warmest, brightest accent. */
+  .egg .eterm[data-theme="gold"] {
+    --e-note: #ffd166;
+    --e-live: #ffd166;
+    --e-hi: #fff0b8;
+  }
+
+  .egg .eth {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 8px 8px 20px;
+    border-bottom: 1px solid var(--e-rule);
+    background: #0c1322;
+  }
+
+  .egg .eth b {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--e-ink);
+  }
+
+  .egg .eth b span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .egg .eth b .i {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    color: var(--e-note);
+  }
+
+  .egg .eth b em {
+    font-style: normal;
+    color: var(--e-dim);
+  }
+
+  .egg .eth .r {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--e-dim);
+  }
+
+  .egg .eth .r > .esc {
+    padding-inline-end: 6px;
+  }
+
+  /* Progress chip: a bar that fills as trophies are found. */
+  .egg .erk {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 32px;
+    padding: 0 12px 0 10px;
+    border: 1px solid var(--e-rule);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--e-ink2);
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      border-color 0.4s,
+      color 0.4s,
+      background-color 0.4s;
+  }
+
+  .egg .erk:hover {
+    border-color: var(--e-note);
+    color: #fff;
+    background: color-mix(in srgb, var(--e-note) 10%, transparent);
+  }
+
+  .egg .erk-bar {
+    position: relative;
+    flex: none;
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--e-rule);
+    overflow: hidden;
+  }
+
+  .egg .erk-bar::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--p, 0%);
+    border-radius: inherit;
+    background: var(--e-note);
+    transition: width 0.7s var(--e-ease);
+  }
+
+  .egg .erk-n {
+    animation: egbump 0.9s var(--e-ease) 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .egg .erk-r {
+    color: var(--e-hi);
+  }
+
+  @keyframes egbump {
+    0% {
+      color: #fff;
+      transform: scale(1.35);
+    }
+    100% {
+      transform: none;
+    }
+  }
+
+  .egg .etw {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .egg .etb {
+    flex: 1;
+    min-width: 0;
+    position: relative;
+    overflow: auto;
+    overscroll-behavior: contain;
+    padding: 20px var(--etp) 12px;
+    font-size: 0.875rem;
+    font-size: clamp(11px, calc((100cqi - 2 * var(--etp)) / 24), 15px);
+    line-height: 1.6;
+    color: var(--e-ink2);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(160, 180, 220, 0.3) transparent;
+  }
+
+  .egg .etb .ln {
+    margin: 0 0 4px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    animation: egfade 0.7s var(--e-ease) both;
+  }
+
+  /* A typed command starts a new block. */
+  .egg .etb .ln.cl {
+    margin-top: 14px;
+  }
+
+  .egg .etb .ln.cl:first-child {
+    margin-top: 0;
+  }
+
+  .egg .etb .ln.bx,
+  .egg .etb .ln.hd {
+    color: var(--e-hi);
+  }
+
+  /* The banner is sized to the card: 43 columns x 0.6em = width. Every
+     glyph is one cell in the terminal face, so the rows cannot drift. */
+  .egg .etb .ascii {
+    margin: 2px 0 6px;
+    padding: 0;
+    font-family: var(--e-mono);
+    font-size: 0.6rem;
+    font-size: clamp(7px, calc((100cqi - 2 * var(--etp)) / (var(--cols, 43) * 0.6)), 22px);
+    font-weight: 400;
+    /* 1.2 is the height of the block glyph: rows meet with no seams
+       (a gradient text-clip or 1.32 shows hairlines between cells). */
+    line-height: 1.2;
+    white-space: pre;
+    color: var(--e-hi);
+    animation: egfade 1.2s var(--e-ease) both;
+  }
+
+  /* Two tones: solid blocks bright, the box-drawing shadow dimmer, so the
+     letters look raised off the screen. */
+  .egg .etb .ascii .ebk {
+    color: var(--e-hi);
+  }
+
+  .egg .etb .ascii .esh {
+    color: color-mix(in srgb, var(--e-note) 62%, transparent);
+  }
+
+  .egg .etb .nf {
+    display: block;
+    line-height: 1.2;
+  }
+
+  .egg .etb .tag {
+    margin-bottom: 16px;
+    color: var(--e-dim);
+  }
+
+  .egg .etb .ok {
+    color: var(--e-live);
+    font-weight: 600;
+  }
+
+  .egg .etb .hl,
+  .egg .etb .hd {
+    color: var(--e-hi);
+  }
+
+  .egg .etb .key {
+    color: var(--e-note);
+  }
+
+  .egg .etb .cmd {
+    color: #fff;
+  }
+
+  .egg .etb .dim {
+    color: rgba(224, 164, 88, 0.7);
+  }
+
+  .egg .eterm[data-theme="ice"] .etb .dim {
+    color: rgba(111, 180, 255, 0.72);
+  }
+  .egg .eterm[data-theme="moss"] .etb .dim {
+    color: rgba(127, 207, 138, 0.72);
+  }
+  .egg .eterm[data-theme="iris"] .etb .dim {
+    color: rgba(169, 139, 255, 0.78);
+  }
+  .egg .eterm[data-theme="rose"] .etb .dim {
+    color: rgba(255, 143, 177, 0.74);
+  }
+  .egg .eterm[data-theme="gold"] .etb .dim {
+    color: rgba(255, 209, 102, 0.74);
+  }
+
+  .egg .etb .warn {
+    color: #ffb070;
+  }
+
+  .egg .etb .tr {
+    color: var(--e-hi);
+    font-weight: 600;
+  }
+
+  .egg .etb .badge {
+    display: inline-block;
+    margin: 6px 0;
+    padding: 4px 12px;
+    border: 1px solid var(--e-rule2);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--e-note) 10%, transparent);
+    color: var(--e-hi);
+    font-size: 0.85em;
+    font-weight: 600;
+    line-height: 1.5;
+    white-space: normal;
+  }
+
+  .egg .etb .info {
+    color: var(--e-sig);
+  }
+
+  .egg .etb .err {
+    color: var(--e-red);
+  }
+
+  .egg .etb .wl {
+    color: #fff;
+  }
+
+  .egg .etb .elk {
+    color: var(--e-sig);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--e-sig) 45%, transparent);
+    text-underline-offset: 3px;
+    transition:
+      color 0.3s,
+      text-decoration-color 0.3s;
+  }
+
+  .egg .etb .elk:hover {
+    color: #fff;
+    text-decoration-color: currentColor;
+  }
+
+  .egg .etb .sw-amber {
+    color: #e0a458;
+  }
+  .egg .etb .sw-ice {
+    color: #6fb4ff;
+  }
+  .egg .etb .sw-moss {
+    color: #7fcf8a;
+  }
+  .egg .etb .sw-iris {
+    color: #a98bff;
+  }
+  .egg .etb .sw-gold {
+    color: #ffd166;
+  }
+  .egg .etb .sw-rose {
+    color: #ff8fb1;
+  }
+
+  .egg .etb .pr .u {
+    color: var(--e-live);
+    font-weight: 600;
+  }
+
+  .egg .etb .pr .p {
+    color: var(--e-sig);
+  }
+
+  .egg .etb .pr .cmd {
+    color: #fff;
+  }
+
+  .egg .etb.gl {
+    animation: egglitch 1.2s steps(8) 1;
+  }
+
+  @keyframes egglitch {
+    20% {
+      transform: translateX(-3px);
+      filter: hue-rotate(30deg);
+    }
+    45% {
+      transform: translateX(3px);
+    }
+    70% {
+      transform: translateX(-2px);
+      filter: hue-rotate(-20deg);
+    }
+    100% {
+      transform: none;
+      filter: none;
+    }
+  }
+
+  @keyframes egfade {
+    from {
+      opacity: 0;
+      transform: translateY(3px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Matrix rain: an overlay that never takes clicks. */
+  .egg .etw canvas.rain {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    color: var(--e-live);
+    font-family: var(--e-mono);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1s;
+  }
+
+  .egg .etw canvas.rain.on {
+    opacity: 0.5;
+  }
+
+  /* `matrix` runs the rain brighter and longer than the other uses. */
+  .egg .etw canvas.rain.on.strong {
+    opacity: 0.8;
+  }
+
+  .egg .etw canvas.rain.on.burst {
+    opacity: 1;
+  }
+
+  /* Root: the chip and the card edge catch the light, once you have earned it. */
+  .egg .eterm[data-rank="root"] {
+    border-color: color-mix(in srgb, var(--e-note) 55%, var(--e-rule));
+    box-shadow:
+      0 50px 120px rgba(0, 0, 0, 0.6),
+      0 0 0 1px color-mix(in srgb, var(--e-note) 18%, transparent),
+      0 0 60px color-mix(in srgb, var(--e-note) 14%, transparent),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  .egg .eterm[data-rank="root"] .erk {
+    border-color: var(--e-note);
+    background: color-mix(in srgb, var(--e-note) 14%, transparent);
+    color: #fff;
+  }
+
+  .egg .eterm[data-rank="root"] .erk-bar::after {
+    background: linear-gradient(90deg, var(--e-note), var(--e-hi));
+  }
+
+  .egg .eterm[data-rank="root"] .erk-r::before {
+    content: "\2726  ";
+  }
+
+  /* ---- quick-command rail (CommandRail.tsx) ---- */
+  .egg .etc {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-top: 1px solid var(--e-rule);
+    background: #0a101d;
+    --etc-fade-l: 0px;
+    --etc-fade-r: 0px;
+  }
+
+  .egg .etc[data-start="true"] {
+    --etc-fade-l: 30px;
+  }
+
+  .egg .etc[data-end="true"] {
+    --etc-fade-r: 30px;
+  }
+
+  .egg .etc-track {
+    position: relative; /* offsetParent for scroll-into-view maths */
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    gap: 8px;
+    padding: 2px 4px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    cursor: grab;
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 var(--etc-fade-l),
+      #000 calc(100% - var(--etc-fade-r)),
+      transparent
+    );
+    mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 var(--etc-fade-l),
+      #000 calc(100% - var(--etc-fade-r)),
+      transparent
+    );
+  }
+
+  .egg .etc-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .egg .etc-track[data-drag="true"] {
+    cursor: grabbing;
+    user-select: none;
+  }
+
+  .egg .etc-track[data-drag="true"] button {
+    pointer-events: none;
+  }
+
+  .egg .etc-track button {
+    flex: none;
+    min-height: 36px;
+    padding: 0 14px;
+    border: 1px solid var(--e-rule);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--e-ink2);
+    font-family: var(--e-mono);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      border-color 0.3s,
+      background-color 0.3s,
+      color 0.3s,
+      opacity 0.3s,
+      transform 0.2s var(--e-ease);
+  }
+
+  /* Commands that take an argument end in a faint caret: "theme _". */
+  .egg .etc-track button[data-arg]::after {
+    content: " \2026";
+    color: var(--e-dim);
+  }
+
+  .egg .etc-track button:active {
+    transform: scale(0.96);
+  }
+
+  .egg .etc-track button:focus-visible {
+    outline: 2px solid var(--e-note);
+    outline-offset: 2px;
+  }
+
+  /* While typing: the matching chips glow, the rest step back. */
+  .egg .etc-track button[data-match="yes"] {
+    border-color: var(--e-note);
+    color: #fff;
+    background: color-mix(in srgb, var(--e-note) 14%, transparent);
+  }
+
+  .egg .etc-track button[data-match="no"] {
+    opacity: 0.4;
+  }
+
+  @media (hover: hover) {
+    .egg .etc-track button:hover {
+      border-color: var(--e-note);
+      color: #fff;
+      background: color-mix(in srgb, var(--e-note) 10%, transparent);
+      opacity: 1;
+    }
+  }
+
+  .egg .etc-nav {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid var(--e-rule);
+    border-radius: 50%;
+    background: #0f1728;
+    color: var(--e-ink2);
+    cursor: pointer;
+    transition:
+      opacity 0.25s,
+      border-color 0.3s,
+      color 0.3s;
+  }
+
+  .egg .etc-nav svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .egg .etc-nav:disabled {
+    opacity: 0.25;
+    cursor: default;
+  }
+
+  @media (hover: hover) {
+    .egg .etc-nav:not(:disabled):hover {
+      border-color: var(--e-note);
+      color: #fff;
+    }
+  }
+
+  /* Touch swipes the rail natively: no arrows, no grab cursor. */
+  @media (pointer: coarse) {
+    .egg .etc-nav {
+      display: none;
+    }
+
+    .egg .etc {
+      padding-inline: 8px;
+    }
+
+    .egg .etc-track {
+      cursor: auto;
+    }
+
+    .egg .etc-track button {
+      min-height: 40px;
+    }
+  }
+
+  .egg .eti {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 18px;
+    border-top: 1px solid var(--e-rule);
+    background: #0c1322;
+    font-size: 0.875rem;
+    font-size: clamp(13px, calc((100cqi - 36px) / 24), 15px);
+  }
+
+  .egg .eti label {
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--e-dim);
+  }
+
+  .egg .eti .u {
+    color: var(--e-live);
+  }
+
+  /* Username colour follows rank, like a shell prompt: green for a normal
+     user, red for root. The @host part stays the theme colour. */
+  .egg .etb .pr .eu-guest,
+  .egg .eti .eu-guest,
+  .egg .eu-guest {
+    color: #5af78e;
+  }
+  .egg .etb .pr .eu-explorer,
+  .egg .eti .eu-explorer,
+  .egg .eu-explorer {
+    color: #57c7ff;
+  }
+  .egg .etb .pr .eu-hacker,
+  .egg .eti .eu-hacker,
+  .egg .eu-hacker {
+    color: #ff6ac1;
+  }
+  .egg .etb .pr .eu-root,
+  .egg .eti .eu-root,
+  .egg .eu-root {
+    color: #ff5c57;
+    text-shadow: 0 0 8px rgb(255 92 87 / 0.55);
+  }
+  .egg .eu-guest,
+  .egg .eu-explorer,
+  .egg .eu-hacker,
+  .egg .eu-root {
+    font-weight: 700;
+  }
+
+  .egg .eti .p {
+    color: var(--e-sig);
+  }
+
+  /* The real input is transparent and only receives the typing. The text,
+     the block cursor and the dim completion are drawn in .eg, so they use
+     one set of metrics and the cursor can be a true terminal block. */
+  .egg .eti .efield {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .egg .eti .eg {
+    position: absolute;
+    /* Extra room on the left and vertically so the cursor glow is never
+       clipped; the padding puts the text back exactly where it was. */
+    inset: -8px 0 -8px -14px;
+    padding-left: 14px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    white-space: pre;
+    color: #fff;
+    pointer-events: none;
+  }
+
+  .egg .eti .eg .gh {
+    color: var(--e-dim);
+  }
+
+  .egg .eti .eg .cur {
+    display: inline-block;
+    border-radius: 2px;
+    background: transparent;
+  }
+
+  .egg .eti .eg .cur.gh {
+    color: var(--e-dim);
+  }
+
+  .egg .eti:focus-within .eg .cur {
+    background: var(--e-note);
+    color: #080d18;
+    box-shadow:
+      0 0 6px 1px color-mix(in srgb, var(--e-note) 75%, transparent),
+      0 0 18px 3px color-mix(in srgb, var(--e-note) 40%, transparent);
+    animation: egblink 1.1s ease-in-out infinite;
+  }
+
+  @keyframes egblink {
+    0%,
+    45% {
+      background: var(--e-note);
+      box-shadow:
+        0 0 6px 1px color-mix(in srgb, var(--e-note) 75%, transparent),
+        0 0 18px 3px color-mix(in srgb, var(--e-note) 40%, transparent);
+    }
+    70%,
+    100% {
+      background: color-mix(in srgb, var(--e-note) 12%, transparent);
+      color: #fff;
+      box-shadow: 0 0 0 0 transparent;
+    }
+  }
+
+  .egg .eti input {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: transparent;
+    font: inherit;
+    caret-color: transparent;
+  }
+
+  .egg .eti input::selection {
+    background: transparent;
+  }
+
+  .egg .eti input::placeholder {
+    color: rgba(147, 161, 187, 0.8);
+  }
+
+  .egg .eti:focus-within {
+    box-shadow: inset 0 2px 0 var(--e-note);
+  }
+
+  /* tmux-style status line: a terminal detail that also carries the rank,
+     trophy count and Cairo time. Decorative, so it is hidden from screen
+     readers (the header chip says the same). */
+  .egg .est {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    min-height: 24px;
+    border-top: 1px solid var(--e-rule);
+    background: #0a101d;
+    font-size: 11px;
+    line-height: 24px;
+    color: var(--e-dim);
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .egg .est span {
+    padding: 0 10px;
+  }
+
+  .egg .est-a {
+    background: var(--e-note);
+    color: #080d18;
+    font-weight: 700;
+  }
+
+  .egg .est-b {
+    color: var(--e-hi);
+  }
+
+  .egg .est-c {
+    margin-inline-start: auto;
+    color: var(--e-ink2);
+  }
+
+  .egg .est-d {
+    background: color-mix(in srgb, var(--e-note) 22%, transparent);
+    color: var(--e-hi);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Retro screen: faint scanlines, a soft vignette and a whisper of
+     phosphor glow on the text. `crt off` removes all of it. */
+  .egg .eterm[data-crt="on"] .etw::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(
+        120% 90% at 50% 40%,
+        transparent 55%,
+        color-mix(in srgb, var(--e-live) 10%, rgba(0, 0, 0, 0.38))
+      ),
+      repeating-linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.22) 0,
+        rgba(0, 0, 0, 0.22) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+    opacity: 0.55;
+  }
+
+  .egg .eterm[data-crt="on"] .etb {
+    text-shadow: 0 0 5px color-mix(in srgb, var(--e-ink2) 28%, transparent);
+  }
+
+  .egg .eterm[data-crt="on"] .etb .hl,
+  .egg .eterm[data-crt="on"] .etb .hd,
+  .egg .eterm[data-crt="on"] .etb .tr,
+  .egg .eterm[data-crt="on"] .etb .ascii {
+    text-shadow: 0 0 10px color-mix(in srgb, var(--e-note) 45%, transparent);
+  }
+
+  /* Power-on: the screen opens from a bright line, once, per opening. */
+  .egg .eov.show .eterm[data-crt="on"] {
+    animation: egpower 0.6s var(--e-ease) 1;
+  }
+
+  @keyframes egpower {
+    0% {
+      clip-path: inset(49% 0 49% 0 round 18px);
+      filter: brightness(2.2);
+    }
+    55% {
+      clip-path: inset(0 0 0 0 round 18px);
+      filter: brightness(1.5);
+    }
+    100% {
+      filter: none;
+    }
+  }
+
+  /* Power-off: the mirror of the power-on above. The screen collapses to a
+     bright line, the line shortens to a dot, the dot goes out, and the page
+     behind comes back. The glow is the terminal's own highlight colour, so it
+     follows `theme <name>`. With the retro screen off (`crt off`) there is no
+     tube to shut: the window just settles and fades. Keep the durations in step
+     with CLOSE_MS_CRT / CLOSE_MS in Terminal.tsx. */
+  .egg .eov.closing {
+    transition:
+      opacity var(--out, 0.3s) ease-in,
+      visibility 0s var(--out, 0.3s);
+  }
+
+  .egg .eterm.closing {
+    transition: transform 0.3s var(--e-ease);
+    animation: egoff 0.3s ease-in forwards;
+  }
+
+  .egg .eterm[data-crt="on"].closing {
+    animation: egpoweroff 0.46s cubic-bezier(0.55, 0, 0.75, 0.4) forwards;
+  }
+
+  .egg .eterm[data-crt="on"].closing::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    pointer-events: none;
+    background: color-mix(in srgb, var(--e-hi) 55%, white);
+    opacity: 0;
+    animation: egoffglow 0.46s ease-in forwards;
+  }
+
+  @keyframes egoff {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes egpoweroff {
+    0% {
+      clip-path: inset(0 0 0 0 round 18px);
+      filter: none;
+      opacity: 1;
+    }
+    55% {
+      clip-path: inset(49.7% 0 49.7% 0 round 18px);
+      filter: brightness(1.6);
+      opacity: 1;
+    }
+    85% {
+      clip-path: inset(49.8% 40% 49.8% 40% round 18px);
+      filter: brightness(2.4);
+      opacity: 1;
+    }
+    100% {
+      clip-path: inset(49.85% 49.5% 49.85% 49.5% round 18px);
+      filter: brightness(3);
+      opacity: 0;
+    }
+  }
+
+  /* the bright slice: fades in over the content as the screen collapses */
+  @keyframes egoffglow {
+    0% {
+      opacity: 0;
+    }
+    35% {
+      opacity: 0.18;
+    }
+    55% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  /* ---- toasts (mockup lines 1443–1467) ---- */
+  .egg .tl {
+    position: fixed;
+    z-index: 10006;
+    left: 50%;
+    top: 88px;
+    translate: -50% 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: min(92vw, 390px);
+    pointer-events: none;
+  }
+
+  .egg .tst {
+    pointer-events: auto;
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) 36px;
+    align-items: center;
+    gap: 6px 12px;
+    width: 100%;
+    padding: 14px 8px 14px 16px;
+    border: 1px solid var(--e-rule);
+    border-radius: 18px;
+    background: rgba(9, 14, 26, 0.9);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--e-ink);
+    opacity: 0;
+    transform: translateY(-12px);
+    transition:
+      opacity 0.9s var(--e-ease),
+      transform 0.9s var(--e-ease);
+  }
+
+  .egg .tst.in {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* The last hint "cracks" when the hunt is solved: the meter completes in
+     green with a scan sweep, the text flickers once, then the card lifts
+     away. Deliberate and short, not noisy. */
+  .egg .tst.cracked {
+    position: relative;
+    overflow: hidden;
+    pointer-events: none;
+    animation: tst-crack-card 1s linear forwards;
+  }
+
+  .egg .tst.cracked::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 45%;
+    background: linear-gradient(
+      100deg,
+      transparent,
+      rgba(74, 222, 128, 0.22) 45%,
+      rgba(210, 255, 225, 0.5) 50%,
+      rgba(74, 222, 128, 0.22) 55%,
+      transparent
+    );
+    transform: translateX(-110%);
+    animation: tst-crack-sweep 0.5s 0.28s cubic-bezier(0.5, 0, 0.3, 1) forwards;
+    pointer-events: none;
+  }
+
+  .egg .tst.cracked .tp .bar i {
+    animation: tst-crack-seg 0.3s both;
+  }
+
+  .egg .tst.cracked .tp .bar i:nth-child(1) {
+    animation-delay: 0s;
+  }
+  .egg .tst.cracked .tp .bar i:nth-child(2) {
+    animation-delay: 0.03s;
+  }
+  .egg .tst.cracked .tp .bar i:nth-child(3) {
+    animation-delay: 0.06s;
+  }
+  .egg .tst.cracked .tp .bar i:nth-child(4) {
+    animation-delay: 0.09s;
+  }
+  .egg .tst.cracked .tp .bar i:nth-child(5) {
+    animation-delay: 0.12s;
+  }
+  .egg .tst.cracked .tp .bar i:nth-child(6) {
+    animation-delay: 0.15s;
+  }
+  .egg .tst.cracked .tp .bar i:nth-child(7) {
+    animation-delay: 0.18s;
+  }
+  .egg .tst.cracked .tp .bar i:nth-child(8) {
+    animation-delay: 0.21s;
+  }
+  .egg .tst.cracked .tp .bar i:nth-child(9) {
+    animation-delay: 0.24s;
+  }
+  .egg .tst.cracked .tp .bar i:nth-child(10) {
+    animation-delay: 0.27s;
+  }
+
+  .egg .tst.cracked .tic {
+    animation: tst-crack-icon 1s linear forwards;
+  }
+
+  .egg .tst.cracked .tx > span,
+  .egg .tst.cracked .tp b {
+    animation: tst-crack-text 1s linear forwards;
+  }
+
+  @keyframes tst-crack-seg {
+    0% {
+      background: rgba(160, 180, 220, 0.22);
+      transform: scaleY(1);
+    }
+    55% {
+      background: #c9ffd9;
+      transform: scaleY(2.2);
+    }
+    100% {
+      background: var(--e-live);
+      transform: scaleY(1);
+    }
+  }
+
+  @keyframes tst-crack-sweep {
+    to {
+      transform: translateX(320%);
+    }
+  }
+
+  @keyframes tst-crack-card {
+    0%,
+    26% {
+      opacity: 1;
+      transform: none;
+      border-color: var(--e-rule);
+      filter: none;
+    }
+    34% {
+      border-color: rgba(74, 222, 128, 0.7);
+      box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.4),
+        0 0 38px rgba(74, 222, 128, 0.28);
+    }
+    52% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    56% {
+      transform: translateX(-3px);
+      opacity: 0.85;
+    }
+    60% {
+      transform: translateX(3px);
+      opacity: 1;
+    }
+    64% {
+      transform: translateX(-1px);
+      opacity: 0.6;
+    }
+    68% {
+      transform: none;
+      opacity: 1;
+      border-color: rgba(74, 222, 128, 0.7);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-10px) scale(0.96);
+      border-color: rgba(74, 222, 128, 0.7);
+      box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.2),
+        0 0 60px rgba(74, 222, 128, 0);
+      filter: blur(5px);
+    }
+  }
+
+  @keyframes tst-crack-icon {
+    0%,
+    30% {
+      color: var(--e-hi);
+      background: rgba(224, 164, 88, 0.1);
+    }
+    40%,
+    100% {
+      color: var(--e-live);
+      background: rgba(74, 222, 128, 0.12);
+      border-color: rgba(74, 222, 128, 0.45);
+    }
+  }
+
+  @keyframes tst-crack-text {
+    0%,
+    50% {
+      text-shadow: none;
+      transform: none;
+    }
+    54% {
+      text-shadow:
+        -2px 0 rgba(255, 77, 109, 0.85),
+        2px 0 rgba(77, 225, 255, 0.85);
+      transform: translateX(-2px);
+    }
+    58% {
+      text-shadow:
+        2px 0 rgba(255, 77, 109, 0.85),
+        -2px 0 rgba(77, 225, 255, 0.85);
+      transform: translateX(2px);
+    }
+    62% {
+      text-shadow: none;
+      transform: none;
+    }
+    66% {
+      text-shadow:
+        -1px 0 rgba(255, 77, 109, 0.8),
+        1px 0 rgba(77, 225, 255, 0.8);
+    }
+    72%,
+    100% {
+      text-shadow: none;
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .egg .tst.cracked,
+    .egg .tst.cracked::after,
+    .egg .tst.cracked .tic,
+    .egg .tst.cracked .tx > span,
+    .egg .tst.cracked .tp b,
+    .egg .tst.cracked .tp .bar i {
+      animation: none;
+    }
+
+    .egg .tst.cracked .tp .bar i {
+      background: var(--e-live);
+    }
+  }
+
+  .egg .tst .tic {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--e-rule2);
+    color: var(--e-hi);
+    background: rgba(224, 164, 88, 0.1);
+  }
+
+  .egg .tst .tic .i {
+    width: 17px;
+    height: 17px;
+  }
+
+  .egg .tst .tx {
+    min-width: 0;
+  }
+
+  .egg .tst .tx b {
+    display: block;
+    font-size: 1rem;
+    color: #fff;
+  }
+
+  .egg .tst .tx small {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.8125rem;
+    color: var(--e-ink2);
+    line-height: 1.5;
+  }
+
+  .egg .tst .tcl {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--e-dim);
+    cursor: pointer;
+  }
+
+  .egg .tst .tcl:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+  }
+
+  .egg .tst .tcl .i {
+    width: 15px;
+    height: 15px;
+  }
+
+  .egg .tst .tp {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-inline-end: 8px;
+    font-family: var(--font-mono-body);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--e-dim);
+  }
+
+  .egg .tst .tp .bar {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 3px;
+  }
+
+  .egg .tst .tp .bar i {
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(160, 180, 220, 0.22);
+    transition: background-color 0.6s;
+  }
+
+  .egg .tst .tp .bar i.on {
+    background: var(--e-note);
+  }
+
+  .egg .tst.pill {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    border-radius: 999px;
+    padding: 10px 18px 10px 14px;
+    min-height: 46px;
+  }
+
+  .egg .tst.pill .tic {
+    width: 28px;
+    height: 28px;
+    border: 0;
+  }
+
+  .egg .tst.warn .tic {
+    color: #ffb070;
+    background: rgba(255, 176, 112, 0.12);
+  }
+
+  .egg .tst.grey .tic {
+    color: var(--e-dim);
+    background: rgba(255, 255, 255, 0.07);
+  }
+
+  .egg .tst.access {
+    grid-template-columns: 44px minmax(0, 1fr);
+    padding: 18px 20px;
+    border-color: rgba(74, 222, 128, 0.4);
+    box-shadow:
+      0 24px 60px rgba(0, 0, 0, 0.45),
+      0 0 60px rgba(74, 222, 128, 0.12);
+  }
+
+  .egg .tst.access .tic {
+    width: 44px;
+    height: 44px;
+    color: var(--e-live);
+    background: rgba(74, 222, 128, 0.1);
+    border-color: rgba(74, 222, 128, 0.4);
+  }
+
+  /* Phones: toasts dock to the bottom, above the clue button. */
+  @media (max-width: 700px) {
+    .egg .tl {
+      top: auto;
+      bottom: 96px;
+      flex-direction: column-reverse;
+    }
+
+    .egg .tst {
+      transform: translateY(12px);
+    }
+
+    .egg .tst.in {
+      transform: none;
+    }
+
+    /* Phones: the terminal takes the whole screen, with room for the
+       notch and the keyboard (dvh follows the visible viewport). */
+    .egg .eov:has(> .eterm) {
+      padding: 0;
+    }
+
+    .egg .eterm {
+      --etp: 14px;
+      max-width: none;
+      height: 100vh;
+      height: 100dvh;
+      border: 0;
+      border-radius: 0;
+      padding-top: env(safe-area-inset-top);
+    }
+
+    .egg .eth {
+      padding-left: 14px;
+    }
+
+    .egg .eti {
+      padding: 4px 14px;
+    }
+
+    .egg .eti {
+      font-size: 16px;
+    }
+
+    .egg .eth .r > .esc {
+      display: none;
+    }
+
+    .egg .erk-r {
+      display: none;
+    }
+
+    .egg .est {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .egg .est-b {
+      display: none;
+    }
+  }
+
+  @media (max-height: 460px) {
+    .egg .etc {
+      display: none;
+    }
+  }
+
+  /* ---- extra motion & effects ---- */
+
+  /* Typed commands slide in from the prompt side. */
+  .egg .etb .ln.cl {
+    animation:
+      egfade 0.7s var(--e-ease) both,
+      egslide 0.35s var(--e-ease) both;
+  }
+
+  /* Success lines flash a quick phosphor bloom, then settle. */
+  .egg .etb .ln.ok {
+    animation:
+      egfade 0.7s var(--e-ease) both,
+      egbloom 1.1s ease-out both;
+  }
+
+  /* Errors twitch sideways once, with a red afterglow. */
+  .egg .etb .ln.err {
+    animation:
+      egfade 0.7s var(--e-ease) both,
+      egtwitch 0.45s steps(2, end) 1 both,
+      egredglow 0.9s ease-out both;
+  }
+
+  /* Banner: a bright band sweeps across once when it prints. */
+  .egg .etb .ascii {
+    animation:
+      egfade 1.2s var(--e-ease) both,
+      egsweep 1.6s ease-out 0.4s 1 both;
+  }
+
+  /* CRT: a slow rolling brightness band, like a refresh line. */
+  .egg .eterm[data-crt="on"] .etw::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 22%;
+    pointer-events: none;
+    z-index: 2;
+    background: linear-gradient(
+      180deg,
+      transparent,
+      color-mix(in srgb, var(--e-live) 12%, transparent),
+      transparent
+    );
+    animation: egroll 7s linear infinite;
+  }
+
+  /* Rank chip: a ring ripple when a trophy lands. */
+  .egg .erk-n {
+    display: inline-block;
+  }
+
+  /* The cursor breathes a soft glow while the input is focused. */
+  /* Root: the whole window breathes a faint crimson edge light. */
+  .egg .eterm[data-rank="root"] {
+    animation: egroot 3.6s ease-in-out infinite;
+  }
+
+  /* Input row lights up its prompt when you start typing. */
+  .egg .eti:focus-within .u {
+    text-shadow: 0 0 10px currentColor;
+  }
+
+  /* The input row lights its top edge while you are typing. */
+  .egg .eti {
+    transition:
+      border-color 0.3s,
+      box-shadow 0.3s,
+      background-color 0.3s;
+  }
+  .egg .eti:focus-within {
+    border-top-color: color-mix(in srgb, var(--e-note) 55%, transparent);
+    background: color-mix(in srgb, var(--e-note) 5%, #0c1322);
+    box-shadow: 0 -10px 28px -14px color-mix(in srgb, var(--e-note) 45%, transparent);
+  }
+
+  /* Sound toggle in the header. */
+  .egg .esn {
+    width: 36px;
+    height: 36px;
+    font-size: 1.05rem;
+    color: var(--e-live);
+  }
+  .egg .esn.off {
+    color: var(--e-dim);
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+  }
+
+  /* "+ trophy" lines glow gold as they land. */
+  .egg .etb .tr {
+    color: var(--e-hi);
+    font-weight: 700;
+    animation: egshimmer 1.6s ease-out 0.2s 1 both;
+  }
+  @keyframes egshimmer {
+    0% {
+      text-shadow: 0 0 0 transparent;
+    }
+    30% {
+      text-shadow:
+        0 0 16px var(--e-hi),
+        0 0 4px #fff;
+    }
+    100% {
+      text-shadow: 0 0 0 transparent;
+    }
+  }
+
+  @keyframes egslide {
+    from {
+      transform: translateX(-8px);
+    }
+    to {
+      transform: none;
+    }
+  }
+
+  @keyframes egbloom {
+    0% {
+      text-shadow: 0 0 0 transparent;
+      filter: brightness(1);
+    }
+    25% {
+      text-shadow: 0 0 14px currentColor;
+      filter: brightness(1.5);
+    }
+    100% {
+      text-shadow: 0 0 0 transparent;
+      filter: brightness(1);
+    }
+  }
+
+  @keyframes egtwitch {
+    0% {
+      transform: translateX(0);
+    }
+    20% {
+      transform: translateX(-4px);
+    }
+    40% {
+      transform: translateX(4px);
+    }
+    60% {
+      transform: translateX(-2px);
+    }
+    80% {
+      transform: translateX(2px);
+    }
+    100% {
+      transform: none;
+    }
+  }
+
+  @keyframes egredglow {
+    0% {
+      text-shadow: 0 0 12px rgb(255 92 87 / 0.9);
+    }
+    100% {
+      text-shadow: 0 0 0 transparent;
+    }
+  }
+
+  @keyframes egsweep {
+    0% {
+      filter: brightness(1);
+    }
+    40% {
+      filter: brightness(1.9) drop-shadow(0 0 6px var(--e-live));
+    }
+    100% {
+      filter: brightness(1);
+    }
+  }
+
+  @keyframes egroll {
+    from {
+      transform: translateY(-120%);
+    }
+    to {
+      transform: translateY(560%);
+    }
+  }
+
+  @keyframes egroot {
+    0%,
+    100% {
+      box-shadow:
+        0 0 0 1px rgb(255 92 87 / 0.12),
+        0 0 24px rgb(255 92 87 / 0.06);
+    }
+    50% {
+      box-shadow:
+        0 0 0 1px rgb(255 92 87 / 0.35),
+        0 0 46px rgb(255 92 87 / 0.18);
+    }
+  }
+
+  /* ---- date: a live clock ---- */
+  .egg .etb .clk {
+    white-space: pre;
+  }
+
+  /* Decoding lines may be longer than the grid (fortunes), so they wrap. */
+  .egg .etb .mxd {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  /* ---- hack: progress bars that fill in jerks ---- */
+  .egg .etb .hkb {
+    white-space: pre;
+  }
+
+  .egg .etb .hkb .hkf {
+    color: var(--e-live);
+    text-shadow: 0 0 6px color-mix(in srgb, var(--e-live) 50%, transparent);
+  }
+
+  /* ---- matrix: a line that decodes out of falling code ---- */
+  .egg .etb .mxd .mxr {
+    color: var(--e-hi);
+    text-shadow: 0 0 10px color-mix(in srgb, var(--e-live) 55%, transparent);
+  }
+
+  .egg .etb .mxd .mxn {
+    color: var(--e-live);
+    opacity: 0.85;
+    text-shadow: 0 0 6px var(--e-live);
+  }
+
+  /* ---- coffee: a cup that brews on screen ---- */
+  .egg .etb .cof {
+    margin: 6px 0 10px;
+  }
+
+  .egg .etb .cof-art {
+    margin: 0;
+    padding: 0;
+    font-family: var(--e-mono);
+    font-size: clamp(8px, calc((100cqi - 2 * var(--etp)) / (22 * 0.6)), 20px);
+    line-height: 1.25;
+    white-space: pre;
+    color: var(--e-hi);
+  }
+
+  .egg .etb .cof-art .cs {
+    color: color-mix(in srgb, var(--e-hi) 60%, transparent);
+  }
+
+  .egg .etb .cof-art .cc {
+    color: var(--e-hi);
+  }
+
+  .egg .etb .cof-art .cl {
+    color: #b9763a;
+    text-shadow: 0 0 8px rgb(185 118 58 / 0.45);
+  }
+
+  .egg .etb .cof-art .ct {
+    color: #e6b77a;
+  }
+
+  .egg .etb .cof-art .cheat {
+    animation: cofheat 0.8s ease-in-out infinite alternate;
+  }
+
+  .egg .etb .cof-art .cz {
+    color: var(--e-live);
+    animation: coftwinkle 1s ease-in-out infinite;
+  }
+
+  .egg .etb .cof-art .cz.z2 {
+    animation-delay: 0.45s;
+  }
+
+  .egg .etb .cof-st {
+    margin-top: 4px;
+    color: var(--e-ink2);
+    white-space: pre;
+  }
+
+  .egg .etb .cof-st .cof-bar {
+    color: var(--e-live);
+  }
+
+  /* The last frame: one warm flash when the cup is ready. */
+  .egg .etb .cof.ready .cof-art {
+    animation: cofready 0.9s ease-out 1;
+  }
+
+  @keyframes cofheat {
+    from {
+      color: var(--e-hi);
+    }
+    to {
+      color: #ff8a5c;
+      text-shadow: 0 0 8px rgb(255 138 92 / 0.6);
+    }
+  }
+
+  @keyframes coftwinkle {
+    0%,
+    100% {
+      opacity: 0.2;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes cofready {
+    0% {
+      filter: brightness(1);
+    }
+    35% {
+      filter: brightness(1.7) drop-shadow(0 0 10px var(--e-live));
+    }
+    100% {
+      filter: brightness(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .egg .egring::before,
+    .egg .egring::after {
+      animation: none;
+    }
+
+    .egg .eov,
+    .egg .egc,
+    .egg .eterm,
+    .egg .tst {
+      transition-duration: 0.001ms;
+    }
+
+    .egg .eov.show .eterm[data-crt="on"],
+    .egg .eterm.closing,
+    .egg .eterm.closing::after,
+    .egg .eti:focus-within .eg .cur,
+    .egg .etb .ln,
+    .egg .etb .ln.cl,
+    .egg .etb .ln.ok,
+    .egg .etb .ln.err,
+    .egg .eterm[data-crt="on"] .etw::before,
+    .egg .eterm[data-rank="root"],
+    .egg .etb .tr,
+    .egg .etb .ascii,
+    .egg .etb .cof-art .cheat,
+    .egg .etb .cof-art .cz,
+    .egg .etb .cof.ready .cof-art,
+    .egg .erk-n,
+    .egg .erk-bar::after,
+    .egg .etb.gl,
+    .egg .egc.bad,
+    .egg .egcaps b,
+    .egg .egslots i.on {
+      animation: none;
+    }
+  }
+}

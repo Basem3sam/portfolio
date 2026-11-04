@@ -1,0 +1,144 @@
+/* A live site shown as a framed screenshot (Work: featured panel and cards).
+
+   The frame owns its size: a fixed aspect ratio is reserved before the image
+   exists, so a screenshot loading, or failing, cannot move the layout. The
+   ratio can be changed per placement with --sp-ratio. */
+
+.sp {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border: 1px solid var(--c-hairline);
+  border-radius: var(--radius-ui-3);
+  background: var(--c-surface);
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.35s ease;
+}
+
+.sp:focus-visible {
+  outline: 2px solid var(--c-signal);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .sp:hover {
+    border-color: var(--c-rule-strong);
+    box-shadow: var(--sh-md);
+  }
+}
+
+/* Address line: the host on the left, the open icon on the right. */
+.sp-bar {
+  direction: ltr;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--c-hairline);
+  background: var(--c-surface);
+}
+
+.sp-host {
+  min-width: 0;
+  overflow: hidden;
+  font: 500 0.75rem/1 var(--font-mono-body);
+  color: var(--c-muted-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sp-open {
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--c-muted-text);
+  transition:
+    color 0.25s ease,
+    translate 0.35s var(--ease-out);
+}
+
+@media (hover: hover) {
+  .sp:hover .sp-open {
+    color: var(--c-secondary);
+    translate: 2px -2px;
+  }
+}
+
+.sp-frame {
+  position: relative;
+  display: block;
+  aspect-ratio: var(--sp-ratio, 16 / 10);
+  overflow: hidden;
+  background: var(--c-light-bg);
+}
+
+/* The host stands in for the screenshot until it is there. */
+.sp-ph {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font: 500 0.8125rem var(--font-mono-body);
+  color: var(--c-muted-text);
+  opacity: 0.7;
+  transition: opacity 0.4s ease;
+}
+
+/* Drawn by CSS so the host is not a second text node inside the link; two
+   copies made the visible text fail axe's label-in-name rule (WCAG 2.5.3). */
+.sp-ph::before {
+  content: attr(data-host);
+  direction: ltr;
+}
+
+.sp[data-state="loading"] .sp-ph {
+  animation: sp-breathe 1.8s ease-in-out infinite;
+}
+
+.sp[data-state="ready"] .sp-ph {
+  opacity: 0;
+}
+
+.sp-frame img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  opacity: 0;
+  scale: 1.015;
+  transition:
+    opacity 0.55s ease,
+    scale 0.9s var(--ease-out);
+}
+
+.sp[data-state="ready"] .sp-frame img {
+  opacity: 1;
+  scale: 1;
+}
+
+@keyframes sp-breathe {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sp,
+  .sp-open,
+  .sp-ph,
+  .sp-frame img {
+    animation: none;
+    transition: none;
+  }
+
+  .sp-frame img {
+    scale: 1;
+  }
+}

@@ -1,0 +1,858 @@
+/* Desktop navbar: the link list and its shared sliding indicator, ported from
+   `Portfolio Design Mockup.html` rev 21 (L2101–2113), the top-of-page underline
+   variant (L2154–2158) and the reduced-motion guard (L2150). Shared capsule
+   machinery (--np) lives in app/globals.css as nav-shell/nav-capsule. */
+
+.nav-links {
+  position: relative;
+}
+
+/* Numerals only fit on the bar from xl up; the mobile menu always shows them. */
+.nav-links .nn {
+  display: none;
+  font-family: var(--font-mono-body);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  direction: ltr;
+  color: var(--c-muted-text);
+  transition:
+    color 0.3s ease,
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (min-width: 1200px) {
+  .nav-links .nn {
+    display: inline;
+  }
+}
+
+/* The numeral is its own LTR island, so a margin on it would resolve to the
+   wrong side in Arabic. The gap sits on the link, which follows the page
+   direction, and the Arabic label gets a little more room. */
+.nav-links a:has(> .nn) {
+  gap: 6px;
+}
+
+[dir="rtl"] .nav-links a:has(> .nn) {
+  gap: 9px;
+  padding-inline: 12px;
+}
+
+[dir="rtl"] .nav-links .nn {
+  font-size: 0.75rem;
+  transform: translateY(1px);
+}
+
+[dir="rtl"] .nav-links a:is([aria-current="page"], [aria-current="true"]) .nn {
+  transform: translateY(0);
+}
+
+@media (hover: hover) {
+  [dir="rtl"] .nav-links a:hover .nn {
+    transform: translateY(0);
+  }
+}
+
+.nav-links a:is([aria-current="page"], [aria-current="true"]) .nn {
+  color: var(--c-note);
+  transform: translateY(-1px);
+}
+
+@media (hover: hover) {
+  .nav-links a:hover .nn {
+    color: var(--c-note);
+    transform: translateY(-1px);
+  }
+}
+
+/* One pill for every link: it slides to the hovered link and parks on the
+   active section. Navbar.tsx writes --ix / --iw; the anchor list sits above
+   it (z-index 1 via the sectionLink utility). Physical `left` + pixel offsets
+   keep it correct in RTL, where the list flows right-to-left. */
+.nav-ind {
+  position: absolute;
+  z-index: 0;
+  top: 4px;
+  bottom: 4px;
+  left: 0;
+  width: var(--iw, 0px);
+  translate: var(--ix, 0px) 0;
+  border-radius: 14px;
+  background: var(--c-light-bg);
+  border: 1px solid var(--c-rule-strong);
+  box-shadow: 0 2px 0 var(--c-rule-strong);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    translate 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    width 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    top 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    bottom 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    border-radius 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.25s ease,
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+/* The utility group (search, language, theme, CTA) must always paint above
+   the shared indicator pill. */
+.nav-util {
+  position: relative;
+  z-index: 1;
+}
+
+.nav-ind.on {
+  opacity: 1;
+}
+
+/* At the top of the page the capsule has not formed, so the indicator is a
+   thin honey rule under the link instead of a pill. */
+nav[data-scrolled="false"] .nav-ind {
+  /* Numeric top/bottom (not `auto`) so the pill and the rule are the same box
+     in two shapes and the switch between them animates. */
+  top: calc(100% - 5px);
+  bottom: 3px;
+  border-color: transparent;
+  border-radius: 2px;
+  background: var(--c-note);
+  box-shadow: 0 0 0 transparent;
+  translate: calc(var(--ix, 0px) + 14px) 0;
+  width: calc(var(--iw, 0px) - 28px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-ind,
+  .nav-links .nn {
+    transition: none;
+  }
+}
+
+/* ---------- bare bar over the sky ---------- */
+
+/* Before the capsule forms the links sit directly on the hero sky (eased out
+   by the hero's horizon veil), so they take full ink and the small numerals
+   and shortcut hint step up from the muted tone, which was too faint there. */
+nav:not([data-tide])[data-scrolled="false"] .nav-links a {
+  color: color-mix(in srgb, var(--c-dark-text) 88%, var(--c-page));
+}
+
+nav:not([data-tide])[data-scrolled="false"]
+  .nav-links
+  a:is([aria-current="page"], [aria-current="true"]) {
+  color: var(--c-dark-text);
+}
+
+@media (hover: hover) {
+  nav:not([data-tide])[data-scrolled="false"] .nav-links a:hover {
+    color: var(--c-dark-text);
+  }
+}
+
+nav:not([data-tide])[data-scrolled="false"] .nav-links .nn,
+nav:not([data-tide])[data-scrolled="false"] .text-muted-text {
+  color: var(--c-light-text);
+}
+
+nav:not([data-tide])[data-scrolled="false"]
+  .nav-links
+  a:is([aria-current="page"], [aria-current="true"])
+  .nn {
+  color: var(--c-note);
+}
+
+@media (hover: hover) {
+  nav:not([data-tide])[data-scrolled="false"] .nav-links a:hover .nn {
+    color: var(--c-note);
+  }
+}
+
+/* ---------- the search control's word ---------- */
+
+/* The control is an icon plus the shortcut key by default; the word appears
+   on hover, the way the reference's states sheet shows it. */
+.palette-word {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .palette-word {
+    display: inline-block;
+    max-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    opacity: 0;
+    transition:
+      max-width 0.28s cubic-bezier(0.22, 0.61, 0.36, 1),
+      opacity 0.2s ease;
+  }
+
+  .group\/palette:hover .palette-word,
+  .group\/palette:focus-visible .palette-word {
+    max-width: 7rem;
+    opacity: 1;
+  }
+}
+
+/* ---------- the mobile menu (mockup rev 32/35) ---------- */
+
+/* Rows are display type, separated by a hairline, with the number in honey
+   and the arrow always visible. Hovering pulls the label in and draws the
+   honey rule under the row. */
+.menu-row {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) 28px;
+  align-items: center;
+  gap: 0;
+  min-height: 58px;
+  border-bottom: 1px solid var(--c-hairline);
+  color: var(--c-dark-text);
+  transition: padding-inline-start 0.3s ease;
+}
+
+.menu-row:focus-visible {
+  padding-inline-start: 8px;
+}
+
+@media (hover: hover) {
+  .menu-row:hover {
+    padding-inline-start: 8px;
+  }
+}
+
+.menu-row .mn {
+  font: 500 0.6875rem var(--font-mono-body);
+  font-weight: 600;
+  color: var(--c-note);
+  letter-spacing: 0.06em;
+  direction: ltr;
+}
+
+.menu-row .t {
+  font-size: clamp(1.7rem, 8vw, 2.1rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  transition:
+    color 0.3s ease,
+    translate 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[dir="rtl"] .menu-row .t {
+  letter-spacing: 0;
+  line-height: 1.3;
+}
+
+.menu-row:focus-visible .t,
+.menu-row.is-active .t {
+  color: var(--c-secondary);
+}
+
+@media (hover: hover) {
+  .menu-row:hover .t {
+    color: var(--c-secondary);
+  }
+}
+
+.menu-row:focus-visible .t {
+  translate: 6px 0;
+}
+
+@media (hover: hover) {
+  .menu-row:hover .t {
+    translate: 6px 0;
+  }
+}
+
+[dir="rtl"] .menu-row:focus-visible .t {
+  translate: -6px 0;
+}
+
+@media (hover: hover) {
+  [dir="rtl"] .menu-row:hover .t {
+    translate: -6px 0;
+  }
+}
+
+.menu-row .go {
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  display: grid;
+  place-items: center;
+  color: var(--c-muted-text);
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.menu-row:focus-visible .go {
+  color: var(--c-note);
+  transform: translateX(3px);
+}
+
+@media (hover: hover) {
+  .menu-row:hover .go {
+    color: var(--c-note);
+    transform: translateX(3px);
+  }
+}
+
+[dir="rtl"] .menu-row:focus-visible .go {
+  transform: translateX(-3px);
+}
+
+@media (hover: hover) {
+  [dir="rtl"] .menu-row:hover .go {
+    transform: translateX(-3px);
+  }
+}
+
+.menu-row::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: -1px;
+  height: 1.5px;
+  background: var(--c-note);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[dir="rtl"] .menu-row::after {
+  transform-origin: right;
+}
+
+.menu-row:focus-visible::after {
+  transform: scaleX(1);
+}
+
+@media (hover: hover) {
+  .menu-row:hover::after {
+    transform: scaleX(1);
+  }
+}
+
+/* The two shortcut tiles: a mono mnemonic, a bold label, an icon. */
+.menu-tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.menu-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 12px 14px;
+  min-height: 70px;
+  border: 1px solid var(--c-rule-strong);
+  border-radius: 14px;
+  text-decoration: none;
+  color: var(--c-dark-text);
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+@media (hover: hover) {
+  .menu-tile:hover {
+    border-color: var(--c-muted-text);
+    background: var(--c-light-bg);
+  }
+}
+
+.menu-tile .mn {
+  font: 500 0.6875rem var(--font-mono-body);
+  color: var(--c-note);
+  letter-spacing: 0.06em;
+  direction: ltr;
+}
+
+.menu-tile b {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.menu-tile .i {
+  position: absolute;
+  inset-block-start: 12px;
+  inset-inline-end: 12px;
+  width: 16px;
+  height: 16px;
+  color: var(--c-muted-text);
+}
+
+.menu-tile-links {
+  background: color-mix(in srgb, var(--c-secondary) 9%, var(--c-page));
+  border-color: color-mix(in srgb, var(--c-secondary) 42%, var(--c-rule-strong));
+}
+
+.menu-tile-links .mn,
+.menu-tile-links .i {
+  color: var(--c-secondary);
+}
+
+/* The mnemonics read left to right, so in Arabic they are aligned to the
+   start of the row instead of the start of their own direction. */
+[dir="rtl"] .menu-row .mn,
+[dir="rtl"] .menu-tile .mn {
+  text-align: right;
+}
+
+/* The foot: a filled phone bar, then the language, theme and social row. */
+.menu-foot {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.menu-phone {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 50px;
+  padding-inline: 16px;
+  border-radius: 14px;
+  background: var(--c-secondary);
+  color: var(--c-on-secondary);
+  font: 600 1.0625rem var(--font-mono-body);
+  text-decoration: none;
+  direction: ltr;
+  transition: filter 0.2s ease;
+}
+
+@media (hover: hover) {
+  .menu-phone:hover {
+    filter: brightness(1.08);
+  }
+}
+
+/* Language, theme and social controls share one 44px height and the 6px
+   control radius; the row wraps on the narrowest phones instead of overflowing. */
+.menu-util {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.menu-soc {
+  margin-inline-start: auto;
+  display: flex;
+  gap: 8px;
+}
+
+.menu-soc a {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--c-rule-strong);
+  border-radius: var(--radius-ui-2);
+  color: var(--c-light-text);
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+@media (hover: hover) {
+  .menu-soc a:hover {
+    color: var(--c-dark-text);
+    border-color: var(--c-muted-text);
+    background: var(--c-light-bg);
+  }
+}
+
+/* ---------- the case-study tide bar (mockup rev 35) ---------- */
+
+/* The case-study hero is the deep-blue tide band, so the bare bar keeps a
+   light ink over it until the glass capsule takes over. `--np` is the
+   capsule progress: 0 at the top of the page, 1 after the ramp. */
+/* Choreography, all derived from the capsule progress --np (smoothed in JS):
+     0.00 - 0.25  the resting outlines on the icon buttons fade out (--edge),
+                  finished before the glass is visible enough to meet them;
+     0.10 - 0.65  the search / menu pair glides together (--close), after the
+                  outlines are gone, so no two borders ever touch;
+     0.00 - 1.00  the capsule itself eases in (--ne, globals.css). */
+.nav-shell {
+  --edge: min(1, max(0, (0.25 - var(--np, 0)) * 4));
+  --close-lin: min(1, max(0, (0.65 - var(--np, 0)) / 0.55));
+  --close: calc(var(--close-lin) * var(--close-lin) * (3 - 2 * var(--close-lin)));
+}
+
+nav[data-tide="true"] {
+  --tide-ink: #f4f8ff;
+  --tide-ink-2: #e4ecff;
+  --tide-ink-3: #c6d4ff;
+  --tide-rule: rgba(219, 229, 255, 0.32);
+  --hi: calc(min(1, max(0, (0.27 - var(--np, 0)) * 20)));
+}
+
+nav[data-tide="true"] .nav-capsule::before {
+  background: color-mix(
+    in srgb,
+    var(--c-glass) calc(min(1, max(0, (var(--np, 0) - 0.2) * 5)) * 88%),
+    transparent
+  );
+}
+
+nav[data-tide="true"] [data-nav-logo] {
+  color: color-mix(in srgb, var(--tide-ink) calc(var(--hi) * 100%), var(--c-dark-text));
+}
+
+nav[data-tide="true"] .nav-links a {
+  color: color-mix(in srgb, var(--tide-ink-2) calc(var(--hi) * 100%), var(--c-light-text));
+}
+
+nav[data-tide="true"] .nav-links a:not([aria-current]) .nn {
+  color: color-mix(in srgb, var(--tide-ink-3) calc(var(--hi) * 100%), var(--c-muted-text));
+}
+
+nav[data-tide="true"] .nav-links a[aria-current] {
+  color: color-mix(in srgb, #ffffff calc(var(--hi) * 100%), var(--c-dark-text));
+}
+
+nav[data-tide="true"] .nav-util a:not(.nav-cta),
+nav[data-tide="true"] .nav-util button,
+nav[data-tide="true"] .nav-mobile-btn {
+  color: color-mix(in srgb, var(--tide-ink-2) calc(var(--hi) * 100%), var(--c-light-text));
+  border-color: transparent;
+}
+
+nav[data-tide="true"] .nav-util a:not(.nav-cta)::before,
+nav[data-tide="true"] .nav-util button::before,
+nav[data-tide="true"] .nav-mobile-btn::before {
+  display: block;
+  border-color: var(--tide-rule);
+  opacity: var(--edge, 1);
+}
+
+/* The utility controls sit on the tide as bare outlines, not filled chips. */
+nav[data-tide="true"] .nav-util a:not(.nav-cta),
+nav[data-tide="true"] .nav-util button,
+nav[data-tide="true"] .nav-mobile-btn {
+  background: transparent;
+}
+
+nav[data-tide="true"] #darkModeToggle {
+  background: color-mix(in srgb, white 6%, transparent);
+}
+
+/* ---------- utility controls: transparent, tint-on-hover ---------- */
+
+/* Search, language, theme and the mobile buttons never carry an opaque fill,
+   so on the glass capsule (or over the hero sky) they stay see-through and
+   only pick up a faint tint of the action colour on hover/focus. The quiet
+   variant has no resting outline at all (mockup: language + theme).
+   The resting outline only exists on the bare bar: it fades out with --np as
+   the glass capsule forms, since the capsule is already the container and a
+   box inside a box reads as noise. Hover/focus outlines are untouched. */
+.nav-ctl,
+.lang-ctl {
+  position: relative;
+  border: 1px solid transparent;
+  background-color: transparent;
+  color: var(--c-light-text);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.15s ease;
+}
+
+/* The resting outline is a pseudo-element, not the border: its opacity is
+   written straight from --edge every frame (no transition), so it can never
+   lag behind the capsule forming and overlap it. The real border is kept only
+   for the hover/focus ring. */
+.nav-ctl::before,
+.lang-ctl::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border: 1px solid color-mix(in srgb, var(--c-rule-strong) 55%, transparent);
+  border-radius: inherit;
+  opacity: var(--edge, 1);
+  pointer-events: none;
+}
+
+.nav-ctl-quiet {
+  border-color: transparent;
+}
+
+.nav-ctl-quiet::before {
+  display: none;
+}
+
+.nav-ctl:focus-visible,
+.lang-ctl:focus-visible {
+  background-color: color-mix(in srgb, var(--c-secondary) 16%, transparent);
+  border-color: color-mix(in srgb, var(--c-secondary) 55%, transparent);
+  color: var(--c-secondary);
+}
+
+@media (hover: hover) {
+  .nav-ctl:hover,
+  .lang-ctl:hover {
+    background-color: color-mix(in srgb, var(--c-secondary) 16%, transparent);
+    border-color: color-mix(in srgb, var(--c-secondary) 55%, transparent);
+    color: var(--c-secondary);
+  }
+}
+
+/* Press: a deeper tint and a small squeeze, so every icon button answers a
+   click or tap even with no resting outline. */
+.nav-ctl:active,
+.lang-ctl:active {
+  background-color: color-mix(in srgb, var(--c-secondary) 28%, transparent);
+  border-color: color-mix(in srgb, var(--c-secondary) 65%, transparent);
+  color: var(--c-secondary);
+  transform: scale(0.92);
+}
+
+/* ---------- "Let's talk": dark pill, honey arrow disc ---------- */
+
+.nav-cta {
+  gap: 12px;
+  padding: 0 6px 0 20px;
+  background: var(--c-dark-text);
+  color: var(--c-page);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 16%, transparent);
+  transition:
+    box-shadow 0.25s ease,
+    background-color 0.25s ease;
+}
+
+.nav-cta-ic {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--c-honey-hi);
+  color: var(--c-primary);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nav-cta:focus-visible {
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 16%, transparent),
+    0 0 0 3px color-mix(in srgb, var(--c-secondary) 28%, transparent),
+    0 10px 24px -10px color-mix(in srgb, var(--c-secondary) 60%, transparent);
+}
+
+@media (hover: hover) {
+  .nav-cta:hover {
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, white 16%, transparent),
+      0 0 0 3px color-mix(in srgb, var(--c-secondary) 28%, transparent),
+      0 10px 24px -10px color-mix(in srgb, var(--c-secondary) 60%, transparent);
+  }
+}
+
+.nav-cta:focus-visible .nav-cta-ic {
+  transform: translateX(2px);
+}
+
+@media (hover: hover) {
+  .nav-cta:hover .nav-cta-ic {
+    transform: translateX(2px);
+  }
+}
+
+[dir="rtl"] .nav-cta {
+  padding: 0 20px 0 6px;
+}
+
+[dir="rtl"] .nav-cta:focus-visible .nav-cta-ic {
+  transform: translateX(-2px);
+}
+
+@media (hover: hover) {
+  [dir="rtl"] .nav-cta:hover .nav-cta-ic {
+    transform: translateX(-2px);
+  }
+}
+
+.nav-cta:is([aria-current="page"], [aria-current="true"]) {
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 16%, transparent),
+    0 0 0 2px color-mix(in srgb, var(--c-honey-hi) 70%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-ctl,
+  .lang-ctl,
+  .nav-cta,
+  .nav-cta-ic {
+    transition: none;
+  }
+}
+
+/* ---------- specificity guards ---------- */
+
+/* The CTA keeps its own ink everywhere: the generic nav-link colour rules
+   (including the tide ones) would otherwise wash the label out. */
+.nav-links a.nav-cta,
+.nav-links a.nav-cta[aria-current],
+nav[data-tide="true"] .nav-links a.nav-cta,
+nav[data-tide="true"] .nav-links a.nav-cta[aria-current] {
+  color: var(--c-page);
+}
+
+/* Over the hero (bare bar, before the capsule forms) the rule
+   `nav:not([data-tide])[data-scrolled="false"] .nav-links a` is more specific
+   than the guard above, so it painted the label in the dark ink, which is
+   the pill's own colour: dark text on a dark pill. Restate the CTA's ink at
+   a specificity that wins in every state (rest, hover, current, focus). */
+nav:not([data-tide])[data-scrolled="false"] .nav-links a.nav-cta,
+nav:not([data-tide])[data-scrolled="false"] .nav-links a.nav-cta:focus-visible,
+nav:not([data-tide])[data-scrolled="false"] .nav-links a.nav-cta[aria-current] {
+  color: var(--c-page);
+}
+
+@media (hover: hover) {
+  nav:not([data-tide])[data-scrolled="false"] .nav-links a.nav-cta:hover {
+    color: var(--c-page);
+  }
+}
+
+nav:not([data-tide])[data-scrolled="false"] .nav-links a.nav-cta .nav-cta-ic {
+  color: var(--c-primary);
+}
+
+/* On the tide pages the util controls are forced transparent by rules with
+   higher specificity than .nav-ctl:hover; restate the tint so hover works
+   there too (kept transparent, never an opaque chip). */
+nav[data-tide="true"] .nav-util .nav-ctl:focus-visible,
+nav[data-tide="true"] .nav-util .lang-ctl:focus-visible,
+nav[data-tide="true"] .nav-mobile-btn:focus-visible {
+  background: color-mix(
+    in srgb,
+    white calc(var(--hi) * 14%),
+    color-mix(in srgb, var(--c-secondary) 16%, transparent)
+  );
+  border-color: color-mix(
+    in srgb,
+    var(--tide-ink-2) calc(var(--hi) * 70%),
+    color-mix(in srgb, var(--c-secondary) 55%, transparent)
+  );
+}
+
+@media (hover: hover) {
+  nav[data-tide="true"] .nav-util .nav-ctl:hover,
+  nav[data-tide="true"] .nav-util .lang-ctl:hover,
+  nav[data-tide="true"] .nav-mobile-btn:hover {
+    background: color-mix(
+      in srgb,
+      white calc(var(--hi) * 14%),
+      color-mix(in srgb, var(--c-secondary) 16%, transparent)
+    );
+    border-color: color-mix(
+      in srgb,
+      var(--tide-ink-2) calc(var(--hi) * 70%),
+      color-mix(in srgb, var(--c-secondary) 55%, transparent)
+    );
+  }
+}
+
+/* ---------- Home link beside the logo (off-home routes, lg and up) ----------
+   Off home (the case study) the logo was the only way back to the top of the
+   site and nothing said so. This is an explicit "Home" with a small divider.
+   `display` comes from the `hidden lg:inline-flex` utilities in the markup. */
+
+.nav-home {
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 2.75rem;
+  margin-inline-start: 0.5rem;
+  padding-inline: 0.5rem 0.625rem;
+  border-radius: 0.375rem;
+  color: var(--c-light-text);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.nav-home::before {
+  content: "";
+  width: 1px;
+  height: 1.125rem;
+  margin-inline-end: 0.625rem;
+  background: var(--c-hairline);
+  transition: background-color 0.2s ease;
+}
+
+.nav-home svg {
+  transition: transform 0.25s var(--ease-out);
+}
+
+.nav-home:hover,
+.nav-home:focus-visible {
+  color: var(--c-dark-text);
+}
+
+@media (hover: hover) {
+  .nav-home:hover svg {
+    transform: translateX(-3px);
+  }
+
+  [dir="rtl"] .nav-home:hover svg {
+    transform: translateX(3px) rotate(180deg);
+  }
+}
+
+/* Over the deep-blue tide band it keeps the same light ink as the links,
+   and hands over to the normal colours with the capsule (--hi). */
+nav[data-tide="true"] .nav-home {
+  color: color-mix(in srgb, var(--tide-ink-2) calc(var(--hi) * 100%), var(--c-light-text));
+}
+
+nav[data-tide="true"] .nav-home::before {
+  background: color-mix(in srgb, var(--tide-rule) calc(var(--hi) * 100%), var(--c-hairline));
+}
+
+nav[data-tide="true"] .nav-home:hover,
+nav[data-tide="true"] .nav-home:focus-visible {
+  color: color-mix(in srgb, #ffffff calc(var(--hi) * 100%), var(--c-dark-text));
+}
+
+/* ---------- open phone menu: firmer glass ----------
+   The capsule's glass is ~80% opaque, which lets a text-heavy page (the case
+   study) ghost through the margins of the open menu. While it is open the
+   capsule is nearly solid; the panel inside it is already ~95%. */
+
+nav[data-menu-open="true"] .nav-capsule::before {
+  background: color-mix(in srgb, var(--c-page) 97%, transparent);
+}
+
+/* Press state on the tide bar, last so it beats the tide hover restatements
+   above while the pointer is still over the button. */
+nav[data-tide="true"] .nav-util .nav-ctl:active,
+nav[data-tide="true"] .nav-util .lang-ctl:active,
+nav[data-tide="true"] .nav-mobile-btn:active {
+  background: color-mix(in srgb, var(--c-secondary) 28%, transparent);
+  border-color: color-mix(in srgb, var(--c-secondary) 65%, transparent);
+  transform: scale(0.92);
+}
+
+/* Search + menu pair on the phone bar. While their outlines are visible the
+   two boxes need a gap so the borders do not touch; as the outlines fade into
+   the capsule the gap glides shut (--close, after the outlines are gone), so the
+   pair reads as one tight group. */
+.nav-mobile-btn + .nav-mobile-btn {
+  margin-inline-start: calc(var(--close, 1) * 0.5rem);
+}
+
+nav[data-tide="true"] .nav-mobile-btn + .nav-mobile-btn {
+  margin-inline-start: calc(var(--close, 1) * 0.5rem);
+}

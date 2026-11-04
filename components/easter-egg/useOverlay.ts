@@ -2,17 +2,19 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 export function useOverlay() {
   const [shown, setShown] = useState(false);
-  const [containerShown, setContainerShown] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const timers = useRef<number[]>([]);
 
   useEffect(() => {
     const pending = timers.current;
-    const frame = requestAnimationFrame(() => setShown(true));
-    pending.push(window.setTimeout(() => setContainerShown(true), 100));
+    let inner = 0;
+    const outer = requestAnimationFrame(() => {
+      inner = requestAnimationFrame(() => setShown(true));
+    });
 
     return () => {
-      cancelAnimationFrame(frame);
+      cancelAnimationFrame(outer);
+      cancelAnimationFrame(inner);
       pending.forEach((timer) => window.clearTimeout(timer));
     };
   }, []);
@@ -22,5 +24,5 @@ export function useOverlay() {
     timers.current.push(window.setTimeout(callback, 300));
   }, []);
 
-  return { visible: shown && !leaving, containerVisible: containerShown, leave };
+  return { visible: shown && !leaving, containerVisible: true, leave };
 }

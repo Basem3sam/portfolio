@@ -1,131 +1,152 @@
-import Badge, { type BadgeTone } from "@/components/ui/Badge";
-import {
-  buttonGroupClass,
-  buttonGroupItemClass,
-  buttonStyles,
-} from "@/components/ui/buttonStyles";
+import Icon from "@/components/ui/Icon";
+import Spotlight from "@/components/ui/Spotlight";
 import {
   formatCount,
   formatDate,
   formatRepositoryName,
-  getLanguageTone,
   isWebUrl,
   truncateDescription,
   type GitHubRepo,
 } from "@/lib/github";
+import type { Dictionary } from "@/lib/dictionaries/en";
+import type { Locale } from "@/lib/i18n";
+import type { CSSProperties } from "react";
 
-type StatBadgeProps = {
-  icon: string;
-  count: number;
-  label: string;
-  tone?: BadgeTone;
+type GitHubRepoCardProps = {
+  repo: GitHubRepo;
+  index: number;
+  locale: Locale;
+  dict: Dictionary["github"];
 };
 
-function StatBadge({ icon, count, label, tone = "light" }: StatBadgeProps) {
-  return (
-    <Badge variant="project" tone={tone} title={`${label}: ${count.toLocaleString()}`}>
-      <i className={`fas fa-${icon} mr-1 text-[0.85rem]`} aria-hidden="true"></i>
-      {formatCount(count)}
-    </Badge>
-  );
+/** A familiar colour for the common languages; anything else stays neutral. */
+const languageColors: Record<string, string> = {
+  JavaScript: "#f1e05a",
+  TypeScript: "#3178c6",
+  Python: "#3572a5",
+  PHP: "#8892bf",
+  HTML: "#e34c26",
+  CSS: "#7a52c9",
+  Java: "#d9822b",
+  "C++": "#f34b7d",
+  C: "#8a8a8a",
+  "C#": "#2fa24a",
+  Go: "#00add8",
+  Rust: "#dea584",
+  Shell: "#89e051",
+  Blade: "#f7523f",
+  Vue: "#41b883",
+  Dart: "#00b4ab",
+};
+
+/** A stable hue from the repository's name, kept in the site's blue-to-violet range. */
+function hueOf(name: string) {
+  let hash = 0;
+  for (const char of name) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  return 205 + (hash % 85);
 }
 
-const muted = "text-[rgba(33,37,41,0.75)] dark:text-muted-text";
-
-export default function GitHubRepoCard({ repo, index }: { repo: GitHubRepo; index: number }) {
+export default function GitHubRepoCard({ repo, index, locale, dict }: GitHubRepoCardProps) {
   const name = formatRepositoryName(repo.name);
   const topics = repo.topics?.slice(0, 3) ?? [];
   const demoUrl = repo.homepage && isWebUrl(repo.homepage) ? repo.homepage : null;
-  const single = !demoUrl;
+  const hue = hueOf(repo.name);
+  const languageColor = repo.language ? languageColors[repo.language] : undefined;
 
   return (
-    <div
-      className="mb-6 w-full shrink-0 animate-github-card px-3 md:w-1/2 lg:w-1/3"
-      style={{ animationDelay: `${300 + index * 100}ms` }}
-    >
-      <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-black/5 bg-surface shadow-sm transition-all duration-300 hover:-translate-y-2.5 hover:border-secondary hover:shadow-xl max-md:mb-5 dark:border-[#334155] dark:hover:border-secondary dark:hover:shadow-lg">
-        <div className="relative flex min-h-[200px] flex-1 flex-col p-[25px] max-sm:p-5 dark:text-light-text">
-          <div className="mb-4 flex items-start justify-between">
-            <h5 className="mr-2 mb-0 grow text-[1.25rem] leading-[1.2] font-bold text-dark-text">
-              {name}
-            </h5>
-          </div>
+    <li className="gh-item">
+      <Spotlight
+        className="gh-card spotlight"
+        style={{ "--i": Math.min(index, 8), "--h": hue } as CSSProperties}
+      >
+        <span className="gh-wm" aria-hidden="true">
+          {name.charAt(0)}
+        </span>
 
-          <p className={`mb-5 grow leading-[1.7] ${muted}`}>{truncateDescription(repo.description)}</p>
-
-          <div className="mb-4">
-            <div className="mb-2">
-              {repo.language && (
-                <Badge
-                  variant="project"
-                  tone={getLanguageTone(repo.language)}
-                  title={`Primary language: ${repo.language}`}
-                >
-                  {repo.language}
-                </Badge>
-              )}{" "}
-              {topics.map((topic) => (
-                <Badge key={topic} variant="project" tone="light">
-                  {topic}
-                </Badge>
-              ))}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <StatBadge icon="star" count={repo.stargazers_count} label="Stars" />
-              <StatBadge icon="code-branch" count={repo.forks_count} label="Forks" />
-              {repo.watchers_count > 0 && (
-                <StatBadge icon="eye" count={repo.watchers_count} label="Watchers" />
-              )}
-              {repo.open_issues_count > 0 && (
-                <StatBadge
-                  icon="exclamation-circle"
-                  count={repo.open_issues_count}
-                  label="Issues"
-                  tone="warningWhite"
-                />
-              )}
-            </div>
-          </div>
-
-          <div className="mt-auto">
-            <div className={`mb-2 flex items-center justify-between text-[0.875em] ${muted}`}>
-              <span>
-                <i className="fas fa-calendar mr-1" aria-hidden="true"></i> Created:{" "}
-                {formatDate(repo.created_at)}
-              </span>
-              <span>
-                <i className="fas fa-clock mr-1" aria-hidden="true"></i> Updated:{" "}
-                {formatDate(repo.updated_at)}
-              </span>
-            </div>
-
-            <div className={buttonGroupClass(single)}>
-              <a
-                href={repo.html_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`${buttonStyles("primary", "cardSm")} ${buttonGroupItemClass(single)}`}
-                aria-label={`View ${name} on GitHub`}
-              >
-                <i className="fab fa-github mr-1" aria-hidden="true"></i>
-                View on GitHub
-              </a>
-              {demoUrl && (
-                <a
-                  href={demoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer nofollow"
-                  className={`${buttonStyles("outlinePrimary", "cardSm")} ${buttonGroupItemClass(single)}`}
-                  aria-label={`View live demo of ${name}`}
-                >
-                  <i className="fas fa-external-link-alt mr-1" aria-hidden="true"></i>
-                  Demo
-                </a>
-              )}
-            </div>
-          </div>
+        <div className="gh-top">
+          {repo.language && (
+            <span
+              className="gh-lang"
+              style={languageColor ? ({ "--lc": languageColor } as CSSProperties) : undefined}
+            >
+              {repo.language}
+            </span>
+          )}
+          <span className="gh-go" aria-hidden="true">
+            <Icon name="arrowRight" className="size-4 rtl:rotate-180" />
+          </span>
         </div>
-      </div>
-    </div>
+
+        <h3 className="gh-name">
+          <a
+            className="gh-link"
+            href={repo.html_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`${dict.viewOnGithub}: ${name}`}
+          >
+            {name}
+          </a>
+        </h3>
+
+        <p className="gh-desc">{truncateDescription(repo.description)}</p>
+
+        {topics.length > 0 && (
+          <ul className="gh-topics">
+            {topics.map((topic) => (
+              <li key={topic}>{topic}</li>
+            ))}
+          </ul>
+        )}
+
+        {/* The demo link sits above the footer, not under it, so the divider and
+            the stats stay on the same line across every card in the row whether
+            or not a repository has a demo. */}
+        {demoUrl && (
+          <a
+            href={demoUrl}
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+            className="btn btn-ghost gh-demo"
+            data-peek=""
+            aria-label={`${dict.demo}: ${name}`}
+          >
+            <Icon name="externalLink" className="size-4" />
+            {dict.demo}
+          </a>
+        )}
+
+        <div className="gh-foot">
+          <ul className="gh-stats">
+            <li title={`${dict.stars}: ${repo.stargazers_count.toLocaleString()}`}>
+              <Icon name="star" className="size-3.5" />
+              {formatCount(repo.stargazers_count)}
+            </li>
+            <li title={`${dict.forks}: ${repo.forks_count.toLocaleString()}`}>
+              <Icon name="gitBranch" className="size-3.5" />
+              {formatCount(repo.forks_count)}
+            </li>
+            {repo.watchers_count > 0 && (
+              <li title={`${dict.watchers}: ${repo.watchers_count.toLocaleString()}`}>
+                <Icon name="eye" className="size-3.5" />
+                {formatCount(repo.watchers_count)}
+              </li>
+            )}
+            {repo.open_issues_count > 0 && (
+              <li
+                className="warn"
+                title={`${dict.issues}: ${repo.open_issues_count.toLocaleString()}`}
+              >
+                <Icon name="alertCircle" className="size-3.5" />
+                {formatCount(repo.open_issues_count)}
+              </li>
+            )}
+          </ul>
+          <span className="gh-date">
+            {dict.updated} {formatDate(repo.updated_at, locale)}
+          </span>
+        </div>
+      </Spotlight>
+    </li>
   );
 }

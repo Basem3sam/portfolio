@@ -1,59 +1,126 @@
+import type { CSSProperties, ReactNode } from "react";
 import Link from "next/link";
+import CopyButton from "@/components/links/CopyButton";
+import Icon, { type IconName } from "@/components/ui/Icon";
 
 type LinkCardProps = {
   href: string;
-  iconClass: string;
-  icon: string;
+  icon: IconName;
   title: string;
-  description: string;
+  description?: string;
+  value?: string;
+  trailing: IconName;
   external?: boolean;
   download?: boolean;
+  primary?: boolean;
+  /** A larger, square-ish card for the grid layout instead of a ruled row. */
+  tile?: boolean;
+  /** Where it goes (a host, or a file type), shown as a small mono chip. */
+  host?: string;
+  /** Adds a copy-to-clipboard button beside the row's arrow. */
+  copy?: { value: string; label: string; tip: string; done: string };
+  index?: number;
 };
 
-const card =
-  "group relative flex items-center gap-[15px] overflow-hidden rounded-xl border border-black/5 bg-white p-5 text-dark-text no-underline shadow-sm transition-all duration-300 hover:-translate-y-[5px] hover:border-secondary hover:shadow-xl before:absolute before:top-0 before:left-[-100%] before:h-full before:w-full before:bg-[linear-gradient(90deg,transparent,rgba(52,152,219,0.1),transparent)] before:transition-[left] before:duration-500 before:ease-[ease] before:content-[''] hover:before:left-full dark:border-[rgba(100,116,139,0.3)] dark:bg-[rgba(30,41,59,0.8)] dark:shadow-[0_4px_15px_rgba(0,0,0,0.3)] dark:backdrop-blur-[20px] dark:before:bg-[linear-gradient(90deg,transparent,rgba(59,130,246,0.15),transparent)] dark:hover:bg-[rgba(30,41,59,0.95)] dark:hover:shadow-[0_8px_30px_rgba(59,130,246,0.3)]";
+/**
+ * Lets an email address wrap before the "@" (a clean "name" / "@domain" break)
+ * instead of mid-domain ("...@gmail." / "com") when the column is narrow.
+ */
+function breakable(value: string): ReactNode {
+  const at = value.indexOf("@");
+  if (at < 1) return value;
+  return (
+    <>
+      {value.slice(0, at)}
+      <wbr />
+      {value.slice(at)}
+    </>
+  );
+}
 
 export default function LinkCard({
   href,
-  iconClass,
   icon,
   title,
   description,
+  value,
+  trailing,
   external,
   download,
+  primary,
+  tile,
+  host,
+  copy,
+  index = 0,
 }: LinkCardProps) {
   const content = (
     <>
-      <div
-        className={`flex size-[50px] shrink-0 items-center justify-center rounded-[10px] text-[1.5rem] text-white transition-all duration-300 ease-[ease] group-hover:scale-110 group-hover:rotate-[5deg] ${iconClass}`}
-      >
-        <i className={icon}></i>
-      </div>
-      <div className="flex-1">
-        <div className="mb-[3px] text-[1.1rem] font-semibold">{title}</div>
-        <div className="text-[0.9rem] text-light-text">{description}</div>
-      </div>
-      <i className="fas fa-arrow-right shrink-0 text-[1.2rem] text-secondary transition-transform duration-300 ease-[ease] group-hover:translate-x-[5px]"></i>
+      <span className="ico" aria-hidden="true">
+        <Icon name={icon} className="size-5" />
+      </span>
+      <span className="txt">
+        <b>{title}</b>
+        {value ? (
+          <span className="val">{breakable(value)}</span>
+        ) : (
+          <small className="sub">{description}</small>
+        )}
+      </span>
+      {host && (
+        <span className="host" dir="ltr" aria-hidden="true">
+          {host}
+        </span>
+      )}
+      <span className="go" aria-hidden="true">
+        <Icon
+          name={trailing}
+          className={trailing === "arrowRight" ? "size-4 rtl:-scale-x-100" : "size-4"}
+        />
+      </span>
+      {/* A large, faint copy of the icon in the tile's corner, for depth. */}
+      {tile && <Icon name={icon} className="wm" strokeWidth={1.1} />}
     </>
   );
 
-  if (href.startsWith("/") && !download) {
-    return (
-      <Link href={href} className={card}>
+  const shared = {
+    className: primary ? "lk primary" : tile ? "lk lk--tile" : "lk",
+    "data-trailing": trailing,
+    "data-has-copy": copy ? "true" : undefined,
+  };
+
+  let anchor;
+  if (external) {
+    anchor = (
+      <a href={href} {...shared} target="_blank" rel="noopener noreferrer">
+        {content}
+      </a>
+    );
+  } else if (download || !href.startsWith("/")) {
+    anchor = (
+      <a href={href} {...shared} download={download || undefined}>
+        {content}
+      </a>
+    );
+  } else {
+    anchor = (
+      <Link href={href} {...shared}>
         {content}
       </Link>
     );
   }
 
+  // The wrapper owns the stagger index and the hairline under the row, and is
+  // what the hover state is read from, so the wash stays on while the pointer
+  // is over the copy button.
   return (
-    <a
-      href={href}
-      className={card}
-      target={external ? "_blank" : undefined}
-      rel={external ? "noopener noreferrer" : undefined}
-      download={download}
+    <div
+      className={primary ? "lk-row lk-row--primary" : tile ? "lk-row lk-row--tile" : "lk-row"}
+      style={{ "--stagger-index": index } as CSSProperties}
     >
-      {content}
-    </a>
+      {anchor}
+      {copy && (
+        <CopyButton value={copy.value} label={copy.label} tip={copy.tip} doneLabel={copy.done} />
+      )}
+    </div>
   );
 }

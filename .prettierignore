@@ -1,0 +1,11 @@
+.next
+node_modules
+out
+export
+scripts
+public
+package-lock.json
+next-env.d.ts
+commit-message.txt
+# Audit artifacts are evidence - keep them byte-stable.
+docs

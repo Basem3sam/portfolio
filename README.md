@@ -1,465 +1,390 @@
-# 💼 Basem Esam - Portfolio
-
-[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge)](https://basemesam.vercel.app/)
-[![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
-[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENCE)
-
-> A modern, responsive portfolio showcasing my journey as a Backend Developer specializing in Node.js, Express, and scalable system architecture. Built with Next.js, React, TypeScript, and Tailwind CSS.
-
-## 📑 Table of Contents
-
-- [Features](#-features)
-- [Built With](#-built-with)
-- [Getting Started](#-getting-started)
-- [Project Structure](#-project-structure)
-- [How It Works](#-how-it-works)
-- [Configuration](#-configuration)
-- [Deployment](#-deployment)
-- [Accessibility](#-accessibility)
-- [Troubleshooting](#-troubleshooting)
-- [Skills Showcased](#-skills-showcased)
-- [Experience](#-experience)
-- [Education](#-education)
-- [Key Sections](#-key-sections)
-- [The Hidden Terminal](#-the-hidden-terminal)
-- [Contributing](#-contributing)
-- [License](#-license)
-- [About Me](#-about-me)
-- [Connect With Me](#-connect-with-me)
-
-## ✨ Features
-
-- 🎨 **Dual Theme System** - Light/dark mode with `localStorage` persistence, OS preference fallback, favicon swapping, and no flash of the wrong theme on load
-- 📱 **Fully Responsive** - Mobile-first layout with a collapsible mobile menu
-- ♿ **Accessible** - Skip link, semantic landmarks, ARIA labels, keyboard navigation, focus management, and reduced-motion support
-- 📡 **Live GitHub Integration** - Real-time project showcase via the GitHub API, with caching, retries, and graceful error states
-- ⚡ **Server-Rendered** - Static sections are React Server Components; only interactive pieces ship client JavaScript
-- 🎭 **Smooth Animations** - Hero intro and scroll-in reveals with Intersection Observer, all disabled for users who prefer reduced motion
-- 🧭 **Smart Navigation** - Smooth anchor scrolling with a navbar-aware offset, active section highlighting, and a back-to-top button
-- 🔗 **Links Page** - A link-in-bio style page at `/links`
-- 🕹️ **Hidden Developer Terminal** - A secret easter egg with a Konami code, a mobile keypad, sounds, and celebration effects
-
-## 🧱 Built With
-
-| Area | Technology |
-|------|------------|
-| Framework | [Next.js 16](https://nextjs.org/) (App Router) |
-| UI | [React 19](https://react.dev/) |
-| Language | [TypeScript](https://www.typescriptlang.org/) |
-| Styling | [Tailwind CSS v4](https://tailwindcss.com/) |
-| Icons | [Font Awesome 6](https://fontawesome.com/) (npm package) |
-| Data | [GitHub REST API](https://docs.github.com/en/rest) |
-| Audio and effects | Web Audio API, Web Animations API |
-
-## 🚀 Getting Started
-
-### Requirements
-
-- Node.js 20.9 or newer
-- npm
-
-### Install and run
-
-```bash
-# Clone the repository
-git clone https://github.com/basem3sam/portfolio.git
-cd portfolio
-
-# Install dependencies
-npm install
-
-# Start the development server
-npm run dev
-
-# Open in browser
-http://localhost:3000
-```
-
-### Scripts
-
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start the development server |
-| `npm run build` | Create a production build |
-| `npm start` | Serve the production build |
-| `npm run typecheck` | Run the TypeScript compiler without emitting files |
-
-## 📂 Project Structure
-
-```
-portfolio/
-├── app/
-│   ├── (site)/                 # Portfolio page (/): layout + page
-│   ├── (links)/links/          # Links page (/links): layout + page
-│   └── globals.css             # Tailwind setup, theme tokens, animations
-├── components/
-│   ├── layout/                 # Navbar, footer, back-to-top, skip link, floating shapes
-│   ├── sections/               # Hero, About, Skills, Experience, Projects, Education, Contact
-│   ├── ui/                     # Shared building blocks (buttons, badges, cards, section title)
-│   ├── behavior/               # Theme, scroll, and reveal-on-scroll behavior
-│   ├── github/                 # GitHub projects section
-│   ├── links/                  # Links page components
-│   └── easter-egg/             # Hidden developer terminal and overlays
-├── data/
-│   └── site.ts                 # Shared URLs and constants
-├── lib/
-│   ├── theme.ts                # Theme state, persistence, favicon swapping
-│   ├── scroll.ts               # Scroll helpers
-│   ├── github.ts               # GitHub API client, cache, retries, formatters
-│   ├── sounds.ts               # Web Audio sounds
-│   ├── effects.ts              # Particles, confetti, celebration animations
-│   ├── scrollLock.ts           # Body scroll locking for overlays
-│   └── terminalCommands.ts     # Terminal command output
-├── public/
-│   └── assets/                 # Images, icons, favicons (light/dark), CV
-├── next.config.ts              # Redirects and security headers
-├── postcss.config.mjs          # Tailwind PostCSS plugin
-└── tsconfig.json
-```
-
-## 🔧 How It Works
-
-### Routing and layouts
-
-- `/` is the portfolio and `/links` is the link-in-bio page. Each lives in its own route group with its own root layout, so their styles and scripts never interfere with each other.
-- `next.config.ts` redirects the old URLs `/index.html` and `/links.html` to `/` and `/links`, and adds security headers (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`).
-
-### Styling
-
-- All styling is Tailwind CSS. There are no hand-written component stylesheets.
-- `app/globals.css` holds the theme tokens (colors, shadows, breakpoints, fonts), keyframes, and a small base layer.
-- Colors are CSS variables on `:root` that are overridden under `.dark-mode`, so most components switch themes automatically. The `dark:` variant is wired to the same class.
-
-### Server and client components
-
-- Static content (sections, footer, cards) renders on the server.
-- Client components handle only what needs the browser: theme toggle, navbar state, scroll behavior, reveal animations, the GitHub fetch, and the hidden terminal.
-
-### Theme
-
-- The theme is stored under the `theme` key in `localStorage` and applied as a `dark-mode` class on `<body>`. A tiny inline script applies it before first paint.
-- Toggle it from the navbar, from `/links`, or with `Ctrl/Cmd + Shift + D`.
-
-### GitHub integration
-
-- Fetches public repositories for the configured user, hides forks and archived repos, and sorts by stars, then by last update.
-- Results are cached in `localStorage` for 15 minutes under `github_repos_enhanced_cache`.
-- Requests time out after 10 seconds and are retried up to 3 times. Errors (user not found, rate limit, timeout) show friendly messages with a **Try Again** button where it helps.
-
-### Motion
-
-- The hero fades in on load and cards animate into view as you scroll.
-- Everything respects `prefers-reduced-motion`.
-
-## ⚙️ Configuration
-
-### Update GitHub username
-
-```typescript
-// lib/github.ts
-const USERNAME = "YOUR_GITHUB_USERNAME"; // Change this
-const REPOS_PER_PAGE = 9;
-```
-
-### Customize theme colors
-
-```css
-/* app/globals.css */
-:root {
-  --c-primary: #2c3e50;
-  --c-secondary: #3498db;
-  --c-accent: #e74c3c;
-}
-
-.dark-mode {
-  --c-primary: #0f172a;
-  --c-secondary: #3b82f6;
-  --c-accent: #ef4444;
-}
-```
-
-### Update links and contact details
-
-Shared URLs (email, LinkedIn, GitHub, CV path, site URL) live in `data/site.ts`. Page metadata (title, description, Open Graph, Twitter, icons) lives in `app/(site)/layout.tsx` and `app/(links)/links/layout.tsx`.
-
-## 🚢 Deployment
-
-### Netlify (Recommended)
-
-1. Push to GitHub
-2. Connect the repository on [Netlify](https://www.netlify.com)
-3. Deploy automatically (Next.js is detected, Node.js 20.9 or newer)
-
-### Vercel
-
-1. Push to GitHub
-2. Import the repository on [Vercel](https://vercel.com)
-3. Deploy automatically
-
-> This is a full Next.js app (redirects and headers are configured in `next.config.ts`), so it needs a platform that supports Next.js rather than plain static hosting.
-
-## ♿ Accessibility
-
-- Skip-to-content link and semantic landmarks
-- Descriptive `aria-label`s on icon-only controls, with labels that update for the theme toggle
-- `aria-expanded` on the mobile menu and `aria-current` on the active section link
-- Anchor navigation moves focus to the target section
-- `Page Up`, `Page Down`, `Home`, and `End` scroll smoothly (and are ignored inside inputs)
-- Visible focus outlines
-- Animations and smooth scrolling are disabled for users who prefer reduced motion
-
-## 🐛 Troubleshooting
-
-**GitHub Projects Not Loading?**
-- Verify the GitHub username in `lib/github.ts`
-- Check the browser console and network tab for errors (unauthenticated GitHub API requests are rate limited)
-- Clear the cache: `localStorage.removeItem('github_repos_enhanced_cache')`
-
-**Dark Mode Not Persisting?**
-- Check localStorage permissions in the browser
-- Clear and reset: `localStorage.removeItem('theme')`
-
-**Styles Not Updating?**
-- Restart the dev server after changing `package.json` or `postcss.config.mjs`
-- Delete the `.next` folder and run `npm run dev` again
-
-## 🛠️ Skills Showcased
-
-**Backend Development:**
-- Node.js, Express.js
-- RESTful API Design
-- Authentication & Authorization
-- PHP, Laravel
-
-**Databases:**
-- MongoDB (Mongoose)
-- MySQL
-- Redis (Caching)
-
-**DevOps & Tools:**
-- Docker, Kubernetes
-- Git & GitHub
-- Linux Administration
-- Bash Scripting
-
-**Frontend:**
-- Next.js, React, TypeScript
-- Tailwind CSS
-- Responsive Design
-
-**Programming Languages:**
-- JavaScript
-- PHP
-- Bash/Shell
-
-**System Design:**
-- OOP Principles
-- Clean Architecture
-- Design Patterns
-- Scalable Systems
-
-## 💼 Experience
-
-**Vice IT Head** | Trosc Student Club
-- *2025 - Present*
-- Leading backend development initiatives
-- Managing technical team operations
-- Overseeing IT infrastructure
-
-**OOP Instructor** | Google Developer Groups
-- *2023 - 2024*
-- Teaching Object-Oriented Programming fundamentals
-- Mentoring beginner developers
-- Guiding best practices in software development
-
-**Active Member** | Mech Hackers Community
-- *2023 - Present*
-- Participating in hackathons and coding challenges
-- Contributing to community projects
-- Knowledge sharing and collaboration
-
-## 🎓 Education
-
-**Bachelor of Computer Science** | Suez Canal University
-- Expected Graduation: 2026/2027
-- GPA: 3.48/4.0
-- Current: 3rd Year
-
-**Achievements:**
-- ICPC Competitive Programmer
-- Active in GDG and Mech Hackers communities
-- Teaching Assistant for OOP courses
-
-## 🎯 Key Sections
-
-- **Hero** - Introduction with animated background
-- **About** - Professional journey and background
-- **Skills** - Technical expertise and tools
-- **Experience** - Professional timeline
-- **Projects** - Portfolio showcase (static + GitHub API)
-- **Education** - Academic credentials
-- **Contact** - Multiple ways to connect
-- **Links** (`/links`) - All important links in one place
-
-## 🕹️ The Hidden Terminal
-
-### 🎯 The Challenge:
-
-This portfolio contains a **hidden developer terminal** that only the most curious will discover. Finding it proves you think like a true developer - always exploring, questioning, and going beyond the surface.
-
-### 💡 Hints (No Spoilers):
-
-1. **Look closely** at interactive elements - sometimes clicking reveals more than you expect
-2. **Classic gamers** might recognize a legendary pattern from the 1980s
-3. **Keyboard warriors** know that certain key combinations unlock secret powers
-4. **The profile section** might be more interactive than it appears...
-
-### 🏆 What Awaits:
-
-Those who discover the secret will unlock:
-- A fully functional **interactive terminal**
-- Multiple **hidden commands** to explore
-- **Celebration effects** and achievements
-- Proof that you're a **true developer** at heart
-
-### 🤔 Stuck? Here's Help:
-
-<details>
-<summary>Click for Progressive Hints (Mild Spoilers)</summary>
-
-**Hint 1:** Try interacting with the profile image in the hero section. Persistence pays off!
-
-**Hint 2:** There's a famous gaming code from the 1980s that still works today. Gamers know it well.
-
-**Hint 3:** Keyboard shortcut lovers: Try combining Ctrl, Shift, and a letter that starts "Backend"...
-
-**Hint 4:** On mobile? The profile image is your gateway. Keep exploring!
-
-</details>
-
-<details>
-<summary>🎬 Full Solution & Behind the Scenes (Major Spoilers!)</summary>
-
-### 🔓 How to Unlock:
-
-**Method 1: The Discovery Journey** (Recommended for first-timers)
-1. Click the profile image multiple times (10 clicks total, at a calm pace)
-2. Watch as progressive hints reveal themselves
-3. Follow the clues to discover the legendary Konami Code
-4. Enter the sequence: `↑ ↑ ↓ ↓ ← → ← → B A` (on mobile, tap the clue to open an on-screen keypad)
-5. Unlock the terminal and celebrate! 🎉
-
-**Method 2: Quick Access** (For those who know)
-- Press `Ctrl + Shift + B` to instantly open the terminal
-
-**Method 3: Classic Konami Code**
-- Just type the legendary sequence on a keyboard: `↑ ↑ ↓ ↓ ← → ← → B A`
-
-### 🎨 What's Inside:
-
-**Interactive Terminal Commands:**
-- `help` - See all available commands
-- `about` - Learn about me beyond the resume
-- `skills` - View technical skills with progress bars
-- `projects` - Explore featured projects
-- `contact` - Get contact information
-- `secret` - Unlock the ultimate secret message
-- `matrix` - Activate Matrix mode with glitch effects
-- `hack` - Run a humorous hacking simulation
-- `coffee` - Get a virtual coffee break ☕
-- `whoami` - Display your hacker status
-- `clear` and `exit` - Tidy up and leave
-
-**Special Features:**
-- 🎨 ASCII art banner
-- 🎵 Interactive sound effects (Web Audio API)
-- ✨ Celebration confetti and particles
-- 🏆 Achievement system
-- 📱 Mobile-optimized interface with an on-screen Konami keypad
-- 🎭 Matrix-style glitch effects
-- ⌨️ Command history with the arrow keys
-
-### 🛠️ Technical Implementation:
-
-**Built With:**
-- React client components with TypeScript and Tailwind CSS
-- Web Audio API for real-time sound synthesis
-- Web Animations API for particles and celebration effects
-- Custom Konami code state machine
-- Performance-capped particle system
-- Anti-spam protection with rate limiting
-- Scroll locking while overlays and the terminal are open
-
-**Highlights:**
-- 12 interactive terminal commands
-- Progressive hint levels
-- 3 different unlock methods
-
-### 💭 Why This Easter Egg?
-
-This hidden feature demonstrates:
-- **Attention to Detail** - Every interaction carefully crafted
-- **Technical Creativity** - Custom audio, animations, state management
-- **User Experience Focus** - Delightful and responsive
-- **Passion for Craft** - Going beyond requirements
-- **Problem-Solving Skills** - Complex event handling
-
-*The easter egg took nearly as long to build as the portfolio itself - because the best experiences are in the details! 😄*
-</details>
-
-## 🤝 Contributing
-
-Contributions are welcome! Feel free to:
-- Report bugs via [Issues](https://github.com/basem3sam/portfolio/issues)
-- Suggest features or improvements
-- Submit pull requests
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENCE](LICENCE) file for details.
-
-## 👨‍💻 About Me
-
-I'm a Backend Developer and Computer Science student at Suez Canal University, specializing in Node.js, Express, and scalable system architecture. Currently serving as Vice IT Head at Trosc Student Club and former OOP Instructor at Google Developer Groups.
-
-**Current Role:**
-- 🎓 3rd Year CS Student | GPA: 3.48/4.0
-- 💼 Vice IT Head at Trosc Student Club
-- 🏆 ICPC Competitive Programmer
-- 👨‍🏫 Former OOP Instructor at GDG
-- 🚀 Active Member of Mech Hackers Community
-
-**What I Do:**
-- Backend Development with Node.js & Express
-- REST API Design & Implementation
-- System Design & Scalable Architecture
-- Database Management (MongoDB, MySQL, Redis)
-- DevOps & Containerization (Docker, Kubernetes)
-
-## 📞 Connect With Me
-
 <div align="center">
 
-[![Email](https://img.shields.io/badge/Email-basem.esam.omar%40gmail.com-red?style=for-the-badge&logo=gmail&logoColor=white)](mailto:basem.esam.omar@gmail.com)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Basem%20Esam-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/BasemEsam)
-[![GitHub](https://img.shields.io/badge/GitHub-basem3sam-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/basem3sam)
-[![Portfolio](https://img.shields.io/badge/Portfolio-Live%20Site-brightgreen?style=for-the-badge&logo=google-chrome&logoColor=white)](https://basemesam.vercel.app/)
+# Basem Esam
 
-**📍 Location:** Port Said, Egypt | **💼 Status:** Open to opportunities
+**Backend Engineer · Computer Science Student · Builder**
+
+I build production-minded APIs and developer-focused web experiences, with an emphasis on clean architecture, security, and maintainability.
+
+[![Live Portfolio](https://img.shields.io/badge/Portfolio-Live%20Demo-0D9488?style=for-the-badge)](https://basemesam.vercel.app/)
+[![GitHub](https://img.shields.io/badge/GitHub-basem3sam-181717?style=for-the-badge&logo=github)](https://github.com/basem3sam)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/BasemEsam)
+
+**English / العربية** · Responsive design · Light and dark themes · Accessibility-minded
 
 </div>
 
 ---
 
-<div align="center">
+## Overview
 
-**Built with ❤️ by [Basem Esam](https://github.com/basem3sam)**
+This repository contains my personal portfolio: a bilingual, responsive website showcasing my engineering work, technical interests, experience, and projects. It combines a clean presentation layer with interactive details—including a command palette, live GitHub repository data, a Trosc backend case study, and a hidden developer-terminal Easter egg.
 
-⭐ Star this repo if you found it helpful!
+The project is built with **Next.js, React, TypeScript, and Tailwind CSS**. It is designed to be usable with a keyboard, touch input, assistive technologies, and reduced-motion preferences.
 
-**Ready to explore?** Visit the [live site](https://basemesam.vercel.app/) and start your journey! 🎯
+## Highlights
 
-</div>
+- **Bilingual experience:** English and Arabic interfaces, including right-to-left layout and localized content.
+- **Interactive command palette:** Use `Ctrl/Cmd + K` to navigate sections, change themes or language, and access selected actions.
+- **Theme system:** Light and dark themes with persisted preference and system-theme fallback.
+- **Backend case study:** A dedicated Trosc page with architecture context and an endpoint explorer using clearly identified simulated responses.
+- **GitHub integration:** Displays public repository information with caching, retry handling, and graceful error states.
+- **Hidden developer terminal:** A multi-step Easter egg with keyboard and pointer/touch-friendly access paths.
+- **Accessibility:** Semantic structure, keyboard-operable overlays, visible focus states, and reduced-motion support.
+- **SEO and sharing:** Localized metadata, canonical and alternate-language links, sitemap, robots rules, structured data, and a generated Open Graph image.
+- **Print support:** A print stylesheet that prioritizes readable content and hides nonessential interface elements.
+
+## Explore the site
+
+| Page                                                        | Description                                         |
+| ----------------------------------------------------------- | --------------------------------------------------- |
+| [Portfolio](https://basemesam.vercel.app/)                  | Main English portfolio                              |
+| [Arabic portfolio](https://basemesam.vercel.app/ar)         | Arabic interface with RTL layout                    |
+| [Links page](https://basemesam.vercel.app/links)            | Quick access to selected profiles and contact links |
+| [Trosc case study](https://basemesam.vercel.app/work/trosc) | Backend project overview and endpoint explorer      |
+| [Source code](https://github.com/basem3sam/portfolio)       | Browse the repository                               |
+
+> Routes and deployment URLs are based on the project's documented setup. If the deployment domain or route structure changes, update this table accordingly.
+
+## Tech stack
+
+| Area               | Technologies                                                                                      |
+| ------------------ | ------------------------------------------------------------------------------------------------- |
+| Framework          | Next.js App Router                                                                                |
+| UI                 | React                                                                                             |
+| Language           | TypeScript with strict checking                                                                   |
+| Styling            | Tailwind CSS                                                                                      |
+| Typography         | IBM Plex Sans, Arabic sans-serif, and a self-hosted JetBrains Mono variant for terminal rendering |
+| Icons              | Inline SVG icon components                                                                        |
+| External data      | GitHub REST API                                                                                   |
+| Testing            | Playwright and axe-core                                                                           |
+| Code quality       | ESLint and Prettier                                                                               |
+| Performance checks | Lighthouse CI                                                                                     |
+| Browser effects    | Web Audio API and Web Animations API                                                              |
+
+The project keeps runtime dependencies focused on the framework and UI libraries; development and verification tools are configured separately.
+
+## Getting started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) **20.9 or newer**
+- npm
+- Internet access for the initial build if `next/font` needs to fetch and self-host remote fonts
+
+### Install and run locally
+
+```bash
+git clone https://github.com/basem3sam/portfolio.git
+cd portfolio
+npm install
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+To run the browser tests, install Playwright's Chromium browser if it is not already available:
+
+```bash
+npx playwright install chromium
+```
+
+### Available scripts
+
+| Command                | Purpose                                             |
+| ---------------------- | --------------------------------------------------- |
+| `npm run dev`          | Start the development server                        |
+| `npm run build`        | Create a production build                           |
+| `npm start`            | Serve the production build                          |
+| `npm run typecheck`    | Run TypeScript checks without emitting files        |
+| `npm run lint`         | Run ESLint                                          |
+| `npm run lint:fix`     | Apply supported ESLint fixes                        |
+| `npm run format`       | Format files with Prettier                          |
+| `npm run format:check` | Check formatting without changing files             |
+| `npm test`             | Run the Playwright end-to-end suite                 |
+| `npm run test:ui`      | Run the Playwright suite with its UI, if configured |
+| `npm run lighthouse`   | Run the configured Lighthouse CI checks             |
+
+Refer to `package.json` for the definitive list of scripts and their current behavior.
+
+## Project structure
+
+```text
+portfolio/
+├── app/
+│   ├── [lang]/                 # Locale-aware layouts and pages
+│   │   ├── (site)/             # Main portfolio experience
+│   │   ├── (links)/            # Links page
+│   │   ├── work/trosc/         # Trosc case study
+│   │   ├── layout.tsx          # Locale, fonts, metadata, and root UI setup
+│   │   └── opengraph-image.tsx # Social sharing image
+│   ├── fonts/                  # Self-hosted terminal font assets
+│   ├── sitemap.ts
+│   └── robots.ts
+├── components/
+│   ├── behavior/               # Theme, scrolling, and reveal behavior
+│   ├── case-study/             # Case-study components
+│   ├── easter-egg/             # Hidden terminal and access UI
+│   ├── github/                 # GitHub repository integration
+│   ├── layout/                 # Navigation, footer, and shared layout
+│   ├── links/                  # Link-card components
+│   ├── palette/                # Command palette
+│   ├── sections/               # Portfolio sections
+│   ├── seo/                    # Structured data
+│   └── ui/                     # Reusable UI components
+├── data/                       # Site and case-study data
+├── lib/
+│   ├── dictionaries/           # English and Arabic content
+│   ├── github.ts               # GitHub API client and cache
+│   ├── i18n.ts                 # Locale helpers
+│   ├── sounds.ts
+│   ├── effects.ts
+│   └── terminalCommands.ts     # Terminal commands and aliases
+├── public/
+│   └── assets/                 # Images, icons, and CV assets
+├── tests/                      # Playwright and accessibility tests
+├── .github/workflows/          # CI workflow definitions
+├── proxy.ts                    # Locale URL rewriting
+├── playwright.config.ts
+├── lighthouserc.js
+└── package.json
+```
+
+This tree highlights the main areas of the application; consult the repository for the complete file layout.
+
+## Architecture and implementation
+
+### Routing and localization
+
+The site provides English and Arabic experiences. English routes are available without an `/en` prefix, while Arabic routes use `/ar`. The locale-aware layout sets the document language and text direction, and the interface uses logical CSS properties to support RTL layouts.
+
+The links page and Trosc case study are available in both locales. Routing and redirects are configured in the application and Next.js configuration.
+
+### Themes and visual design
+
+The theme system offers a warm, light **Alabaster** palette and a dark **Midnight** palette. Theme preferences are persisted locally, with a system-preference fallback. Theme tokens are defined centrally, and the interface includes restrained texture, ambient gradients, layered card shadows, and a glass-style navigation bar.
+
+### Command palette
+
+The command palette provides a keyboard-friendly way to move around the site and reach common actions. Open it with `Ctrl + K` on Windows/Linux or `⌘ + K` on macOS. It supports keyboard navigation and can be opened from the site's navigation controls.
+
+### GitHub data
+
+The portfolio reads public repository information through the GitHub REST API. The integration includes caching, retries, timeouts, and user-facing error states for situations such as rate limits or network failures.
+
+### Trosc case study
+
+The case study explains the Trosc backend and provides an endpoint explorer for browsing API examples. Explorer responses are simulated examples rather than live execution of every endpoint; consult the linked API documentation or repository for implementation details.
+
+### Search and social sharing
+
+The project includes localized metadata, canonical and alternate-language references, a sitemap, robots configuration, structured person data, and a generated Open Graph image for link previews.
+
+## The hidden Terminal Easter egg
+
+The portfolio includes a hidden developer terminal intended to reward exploration.
+
+- The profile image can reveal the **Konami Master Code** window.
+- That window provides the answer and a clue; revealing it is **not the same as activating the Terminal**.
+- The Terminal has separate activation paths, including keyboard-based and interface-based routes.
+- The terminal interface includes typed output, a touch-friendly keypad, and command aliases for Arabic users.
+
+Try exploring the interface and its keyboard shortcuts to discover the available paths. This section intentionally describes the experience without publishing every solution.
+
+## Testing and quality checks
+
+The repository uses Playwright for end-to-end browser tests and axe-core for automated accessibility checks. The test suite covers important navigation, theme, localization, overlay, Easter egg, and responsive-layout behavior, plus an SEO spec that asserts `robots.txt`, the sitemap, canonical URLs, and `hreflang` alternates on `/`, `/ar`, `/work/trosc`, and `/links`.
+
+Install Chromium when required:
+
+```bash
+npx playwright install chromium
+```
+
+Run the suite:
+
+```bash
+npm test
+```
+
+Other useful checks:
+
+```bash
+npm run typecheck
+npm run lint
+npm run format:check
+npm run build
+```
+
+Run Lighthouse CI using the configured script:
+
+```bash
+npm run lighthouse
+```
+
+Test counts, accessibility results, and Lighthouse scores can change as the code evolves. Use the latest local or CI run as the source of truth for current results.
+
+## Continuous integration
+
+`.github/workflows/ci.yml` runs two independent jobs on every push and pull
+request — `verify` (typecheck, lint, format check) and `e2e` (Playwright +
+axe). Lighthouse CI runs separately in `.github/workflows/lighthouse.yml`
+against the **Vercel preview deployment** of each push (5 runs per route,
+asserted on the median), so its scores reflect the real edge rather than a
+local build. The gates are deliberately not linked with `needs:`, so one
+result never masks another. This needs Vercel Deployment Protection turned off
+for Preview Deployments (see the note at the top of the workflow). See
+`lighthouserc.js` for the enforced thresholds; `npm run build && npm run
+lighthouse` still runs the same checks locally against `npm start`.
+
+## Configuration and customization
+
+| What to change                          | Where to look                                 |
+| --------------------------------------- | --------------------------------------------- |
+| Site links and contact details          | `data/site.ts`                                |
+| Trosc case-study data                   | `data/trosc.ts` and the relevant dictionaries |
+| English and Arabic interface text       | `lib/dictionaries/`                           |
+| GitHub username and repository fetching | `lib/github.ts`                               |
+| Theme colors and visual tokens          | `app/globals.css`                             |
+| Terminal commands and aliases           | `lib/terminalCommands.ts`                     |
+| Terminal font files                     | `app/fonts/`                                  |
+| Lighthouse thresholds                   | `lighthouserc.js`                             |
+| Environment variables (server-only)     | `.env.example` and the table below            |
+| Formatting and lint rules               | `.prettierrc.json` and `eslint.config.mjs`    |
+
+Check the relevant source file before changing configuration; some behavior is shared across locales or components.
+
+### Environment variables
+
+| Variable       | Where it is read                | Notes                                                                    |
+| -------------- | ------------------------------- | ------------------------------------------------------------------------ |
+| `GITHUB_TOKEN` | `app/api/github/repos/route.ts` | Server-only. Raises the GitHub API rate limit for the repositories feed. |
+
+`GITHUB_TOKEN` is a **server-only secret**:
+
+- Create a fine-grained personal access token with read-only access to public
+  repositories, or a classic token with the `public_repo` scope disabled and no
+  extra scopes.
+- In production, set it once in Vercel under
+  **Settings → Environment Variables**. Never commit it, and never put it in a
+  workflow file or a build log.
+- Locally, copy `.env.example` to `.env` and set `GITHUB_TOKEN=<your token>`.
+  Never print the value and never paste it into an issue, chat, or AI tool.
+- **Never prefix it with `NEXT_PUBLIC_`.** Next.js inlines every
+  `NEXT_PUBLIC_*` variable into the client bundle, which would publish the
+  token to every visitor. The route above reads `process.env.GITHUB_TOKEN`
+  server-side only, so the token cannot reach client code.
+- The site still works without the token; GitHub API requests are simply
+  unauthenticated and rate-limited more tightly (60 requests/hour).
+
+## Deployment
+
+The portfolio is configured for deployment on Vercel.
+
+1. Push the repository to GitHub.
+2. Import the repository into [Vercel](https://vercel.com/).
+3. Keep the build settings aligned with the project's Next.js configuration.
+4. Deploy and verify the English and Arabic routes, links page, case study, theme switching, and Terminal interactions.
+
+Review the current hosting provider's plan terms before using it for commercial client work. Hosting-plan rules can change.
+
+## Accessibility
+
+Accessibility is part of the interface design, not an afterthought. The project includes:
+
+- Keyboard navigation and visible focus indicators.
+- A skip link and semantic page landmarks.
+- Accessible overlay behavior and live announcements where appropriate.
+- Touch-friendly controls.
+- Reduced-motion handling.
+- Automated accessibility checks in the browser test suite.
+
+Automated tools help identify issues but do not replace manual keyboard and screen-reader testing.
+
+## Troubleshooting
+
+**The site returns a 404 for an expected route**
+
+Restart the development server and verify the locale-routing configuration, including `proxy.ts` and the relevant route files.
+
+**Fonts fail during the first build**
+
+Check the network connection if `next/font` needs to fetch remote font files. Retry the build after connectivity is restored.
+
+**Terminal box-drawing characters do not align**
+
+Verify that the expected JetBrains Mono font files exist under `app/fonts/` and are loading correctly. A fallback font can render box-drawing glyphs at different widths.
+
+**The GitHub repository section fails to load**
+
+Check connectivity and GitHub API rate limits. The integration includes retry and error handling; inspect the browser console and network response for the specific cause.
+
+**Playwright tests fail before running**
+
+Confirm dependencies are installed and the configured browser is available. Install Chromium with `npx playwright install chromium`, then review the first build or browser error in the test output.
+
+**Formatting or lint checks fail**
+
+Run the corresponding script and review the reported file and line. Use `npm run format` or `npm run lint:fix` where appropriate, then inspect the resulting diff.
+
+## About me
+
+I'm a Computer Science student at **Suez Canal University in Port Said, Egypt**, focused on backend engineering and building reliable software. I enjoy working on APIs, authentication and authorization, data modeling, application security, and maintainable architecture.
+
+My portfolio highlights work across backend systems, full-stack applications, and collaborative projects.
+
+## Experience
+
+### IT Leadership & Backend — TROSC Student Club
+
+Lead IT work and backend development for the student club, including a REST API with authentication, role-based access control, security controls, and API documentation.
+
+### Object-Oriented Programming Instructor — Google Developer Groups on Campus, SCU
+
+Taught C++ and object-oriented programming to students during an instructor program in 2025.
+
+### HR Coordinator & Member — Mech Hackers Community
+
+Contributed to community activities across two terms as an HR coordinator and member.
+
+## Education and certifications
+
+**B.Sc. in Computer Science** — Suez Canal University  
+Class of 2027 · GPA: 3.48/4.0
+
+Selected coursework includes software engineering, operating systems, computer networks, data structures, and database systems.
+
+Certifications and training listed in the portfolio include:
+
+- Cloud Architecture — Information Technology Institute (ITI)
+- PHP Web Development — ITI
+- Web Development using React JS — ITI
+- Certificate of Appreciation — OOP Instructor, GDG SCU
+- Vice IT Head Certificate — TROSC Student Club
+
+## Selected projects
+
+| Project                                                     | Description                                                                                                                  |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| [TROSC Backend](https://github.com/basem3sam/trosc-backend) | REST API for a student club, with authentication, role-based access control, security middleware, and API documentation.     |
+| Store Advisor                                               | An in-development project exploring e-commerce monitoring and data-driven recommendations with a multi-service architecture. |
+| ظبطهالك (Zabthalahak)                                       | Arabic-first platform for a 3D-printing business, with a custom-request flow and RTL interface.                              |
+| Laravel E-commerce App                                      | E-commerce application built with PHP, Laravel, and MySQL.                                                                   |
+| NeuroScan AI                                                | Team project exploring brain-tumor detection with Python, PyTorch, and OpenCV.                                               |
+
+See the portfolio and linked repositories for the latest project details and availability.
+
+## Connect
+
+- **Portfolio:** [basemesam.vercel.app](https://basemesam.vercel.app/)
+- **GitHub:** [basem3sam](https://github.com/basem3sam)
+- **LinkedIn:** [Basem Esam](https://linkedin.com/in/BasemEsam)
+- **LeetCode:** [Basem_Esam](https://leetcode.com/u/Basem_Esam/)
+- **Codeforces:** [BasemEsam](https://codeforces.com/profile/BasemEsam)
+- **Email:** Use the contact link on the portfolio for the current address.
+
+I'm open to backend internships, junior backend opportunities, and freelance work, including remote opportunities.
+
+## License
+
+This project is licensed under the MIT License. See [`LICENCE`](./LICENCE) for the full text.

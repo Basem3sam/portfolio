@@ -73,6 +73,7 @@ const ROUTES = ["/", "/ar", "/work/trosc", "/links"];
  */
 function route(path, perfFloor) {
   const escaped = path.replace(/[.*+?^${}()|[\]/\\]/g, "\\$&");
+
   return {
     matchingUrlPattern: `^https?:\\/\\/[^/]+${escaped}$`,
     // "median" = the median of the 5 category scores. ("median-run" is ignored

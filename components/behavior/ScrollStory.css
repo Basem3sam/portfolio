@@ -1,0 +1,156 @@
+/* ============================================================================
+   Scroll story. `lib/story.ts` writes --sp (0 to 1) onto every [data-story]
+   element; everything here only turns that number into motion.
+
+   Rules of the house:
+   - Scoped to html[data-story-on], which the engine sets only once it is
+     running. No JS, or reduced motion: none of this applies and every element
+     keeps its finished state.
+   - Individual transform properties only (translate / scale), never
+     `transform` or `opacity` on elements that already run reveal animations,
+     so nothing fights the existing entrances.
+   ============================================================================ */
+
+/* --- 1. Hero: the page lets go of the first screen --------------------------
+   The copy lifts away faster than the page scrolls and the portrait settles
+   more slowly, so the three layers (sky, portrait, copy) separate. [exit] */
+html[data-story-on] #hero .hero-top,
+html[data-story-on] #hero .hero-body {
+  translate: 0 calc(var(--sp, 0) * -7svh);
+}
+
+html[data-story-on] #hero .pf {
+  translate: 0 calc(var(--sp, 0) * 3.5svh);
+}
+
+/* --- 2. Section headers: the index number settles and the rule draws ---------
+   (the rule's own `scale: var(--sp, 1) 1` already lives in globals.css) [enter] */
+html[data-story-on] .sh .idx {
+  translate: 0 calc((1 - var(--sp, 1)) * 12px);
+}
+
+/* --- 3. Work cards: each one settles into place as it arrives [enter] -------- */
+html[data-story-on] .spotlight[data-story] {
+  scale: calc(0.96 + 0.04 * var(--sp, 1));
+}
+
+/* --- 4. Stack: the request travels the five layers as you scroll [trace] ----
+   One number, --sp, says where the packet is. Each column turns it into --head:
+   how much of its own stretch of line the packet's head has covered (below 0
+   not yet arrived, above 1 already gone; the small (1 - sp) term is the comet's
+   30px head start). `--i` is the stage index (0 to 4). Everything below reads
+   --head, so the connector, the node, the slab and the 3D plates (which use
+   the same --sp) cannot drift apart. Specificity is raised with [data-revealed]
+   so this wins over the reveal state both ways. */
+html[data-story-on] #stack .stx {
+  --head: calc(var(--sp, 1) * 5 - var(--i, 0) + 0.12 * (1 - var(--sp, 1)));
+}
+
+html[data-story-on] #stack .stx[data-revealed] .stx-seg::after {
+  transition: none;
+  transform: scaleX(clamp(0, var(--head), 1));
+}
+
+html[data-story-on] #stack .stx[data-revealed] .stx-node {
+  transition: transform 0.3s ease;
+  --lit: clamp(0, (var(--head) + 0.03) * 14, 1);
+  background: color-mix(in srgb, var(--c-honey) calc(var(--lit) * 100%), var(--c-page));
+  border-color: color-mix(in srgb, var(--c-honey) calc(var(--lit) * 100%), var(--c-secondary));
+}
+
+/* The slab of the layer the packet is in lifts at its head, in step with the
+   packet (and with the lit plate); hovering its plate lifts it too. */
+html[data-story-on] #stack .stx-slab::after {
+  animation: none;
+  opacity: max(var(--hot, 0), clamp(0, min(var(--head) * 5, (1.1 - var(--head)) * 3), 1));
+}
+
+@media (max-width: 991px) {
+  /* The vertical timeline follows the reader's eye, not the bottom edge of the
+     screen: every step has its own 0 to 1 (--lp, kind "line"), which is how far
+     its top-to-bottom span has passed the reading line at 58% of the viewport.
+     The line fills exactly to that point, the node lights as the step arrives,
+     a comet rides the fill's head, and only the step being read glows (--cur). */
+  html[data-story-on] #stack .fl-stages .stx {
+    --head: var(--lp, 1);
+    --cur: clamp(0, min(var(--lp, 1) * 7, (1 - var(--lp, 1)) * 7), 1);
+  }
+
+  html[data-story-on] #stack .fl-stages .stx:last-child {
+    --cur: clamp(0, var(--lp, 1) * 7, 1);
+  }
+
+  html[data-story-on] #stack .stx[data-revealed] .stx-seg::after {
+    transform: scaleY(clamp(0, var(--head), 1));
+  }
+
+  html[data-story-on] #stack .stx[data-revealed] .stx-seg::before {
+    content: "";
+    position: absolute;
+    z-index: 2;
+    inset-inline-start: 50%;
+    top: calc(var(--lp, 0) * 100%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--c-honey);
+    box-shadow: 0 0 12px 3px color-mix(in srgb, var(--c-honey) 65%, transparent);
+    translate: -50% -50%;
+    opacity: clamp(0, min(var(--lp, 0) * 30, (1 - var(--lp, 0)) * 30), 1);
+    pointer-events: none;
+  }
+
+  html[dir="rtl"][data-story-on] #stack .stx[data-revealed] .stx-seg::before {
+    translate: 50% -50%;
+  }
+
+  /* The node of the step being read swells a little. */
+  html[data-story-on] #stack .stx[data-revealed] .stx-node {
+    box-shadow: 0 0 0 calc(var(--cur, 0) * 6px)
+      color-mix(in srgb, var(--c-honey) calc(var(--cur, 0) * 28%), transparent);
+  }
+}
+
+@media (min-width: 992px) {
+  /* The packet's track is the whole flow; the comet is its ::before, so the
+     whole thing can move with `translate` (compositor-friendly, no layout). */
+  html[data-story-on] #stack .stx-pkt {
+    animation: none;
+    inset-inline: 0;
+    width: auto;
+    background: none;
+    box-shadow: none;
+    opacity: min(1, calc(var(--sp, 1) * 14), calc((1 - var(--sp, 1)) * 14));
+    translate: calc(var(--sp, 1) * (100% - 30px)) 0;
+  }
+
+  html[dir="rtl"] #stack .stx-pkt {
+    translate: calc(var(--sp, 1) * (100% - 30px) * -1) 0;
+  }
+
+  html[data-story-on] #stack .stx-pkt::before {
+    content: "";
+    display: block;
+    width: 30px;
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, transparent, var(--c-honey));
+    box-shadow: 0 0 16px var(--c-honey);
+  }
+
+  html[dir="rtl"][data-story-on] #stack .stx-pkt::before {
+    background: linear-gradient(270deg, transparent, var(--c-honey));
+  }
+}
+
+/* --- 5. About: the opening statement is read word by word [read] ------------
+   Words start dim and light up as the paragraph scrolls through the reading
+   zone. The floor is kept high enough that the dim words stay legible. */
+html[data-story-on] #about .ab-lead .w {
+  opacity: calc(0.5 + 0.5 * clamp(0, var(--sp, 1) * (var(--n, 1) + 5) - var(--i, 0), 1));
+}
+
+/* --- 6. Contact: the big line rises into place [enter] ----------------------- */
+html[data-story-on] .contact .ct-big {
+  translate: 0 calc((1 - var(--sp, 1)) * 28px);
+}

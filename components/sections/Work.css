@@ -1,0 +1,2484 @@
+/* ================================================================
+   Work section.
+
+     feat    the flagship. A dark ink panel with a slow aurora behind it; the
+             live site floats on the right in a window that leans toward the
+             pointer, and the architecture trace hangs off its corner as a
+             glass card. The headline numbers count up underneath.
+     cards   the other projects, as a bento: a tinted stage holding each
+             project's own diagram or live site over its copy. Stage and copy
+             line up across a row (subgrid), so the seams match.
+     live    repositories fetched from GitHub (cards: GitHub.css).
+
+   Motion, all of it quiet and all of it switched off for reduced motion:
+     - cards rise in out of a soft blur, one after the other
+     - the trace lights up in order, then a packet keeps travelling it
+     - numbers count up once; the aurora drifts; pills and the trace card float
+     - the live window leans toward the pointer
+     - "Details" is a sheet that rises inside its own card, so nothing in the
+       layout ever moves when it opens
+
+   Scoped to `#work`; colours come from the shared `--c-*` tokens, except the
+   flagship's own ink palette, which is the same in light and dark themes.
+   Logical properties throughout, so right-to-left is the same layout mirrored.
+   ================================================================ */
+
+/* The ring offset is a registered length so it can be animated: rings drawn with
+   it move outward like a signal leaving a source, with no extra elements. */
+@property --o {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+#work {
+  --w-ease: var(--ease-out);
+  /* Film grain: tiny noise tiles with the transparency baked in, one for light
+     surfaces and one for the dark flagship. */
+  --grain-d: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .1  0 0 0 0 .12  0 0 0 0 .3  0 0 0 .09 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  --grain-l: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .8  0 0 0 0 .86  0 0 0 0 1  0 0 0 .12 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+.dark-mode #work {
+  --grain-d: var(--grain-l);
+}
+
+/* ---------- shared bits ---------- */
+
+#work .status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 600 0.8125rem/1 var(--font-body);
+  letter-spacing: 0.01em;
+  color: var(--c-light-text);
+  white-space: nowrap;
+}
+
+#work .status-ico {
+  flex: none;
+  color: var(--c-muted-text);
+}
+
+#work .status-production .status-ico {
+  color: var(--c-status);
+}
+
+/* The one live state: its pulse line draws itself, then rests. */
+#work .status-production .status-ico polyline {
+  stroke-dasharray: 60;
+  animation: pulse-draw 4.5s ease-in-out infinite;
+}
+
+@keyframes pulse-draw {
+  0% {
+    stroke-dashoffset: 60;
+  }
+  35%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+#work .slug {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: 500 0.875rem/1.3 var(--font-mono-body);
+  color: var(--c-muted-text);
+}
+
+#work .meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--c-muted-text);
+}
+
+#work .desc {
+  margin: 0;
+  color: var(--c-light-text);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+/* The technology list wraps like running text, but a "/" is only ever drawn
+   BETWEEN two technologies on the same line. It never ends a line
+   ("Mongoose /") and never starts one ("/ Express").
+
+   Each item owns a gutter (--sep: 9px, the slash, 9px) on the side the lines
+   are aligned to. The slash is drawn inside that gutter, and the list is pulled
+   out by one gutter and clipped back by the same amount, so the gutter that
+   falls on the aligned edge of a line (before its first item, or after its
+   last) is cut away and only the in-between slashes remain. No script, no
+   measuring, and no spacing that has to be tuned per breakpoint.
+
+   LTR lines start at the left edge: the gutter sits before each item.
+   Arabic pages keep the list right-aligned (below): the gutter sits after. */
+#work .stk {
+  --sep-gap: 9px;
+  --sep: calc(1ch + var(--sep-gap) * 2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 0;
+  width: calc(100% + var(--sep));
+  margin: 0;
+  margin-left: calc(var(--sep) * -1);
+  padding: 0;
+  list-style: none;
+  direction: ltr;
+  clip-path: inset(0 0 0 var(--sep));
+  font: 500 0.78125rem/1.5 var(--font-mono-body);
+  color: var(--c-light-text);
+}
+
+#work .stk li {
+  position: relative;
+  padding-left: var(--sep);
+}
+
+#work .stk li:not(:first-child)::before {
+  content: "/";
+  position: absolute;
+  left: var(--sep-gap);
+  color: var(--c-rule-strong);
+}
+
+[dir="rtl"] #work .stk {
+  justify-content: flex-end;
+  margin-left: 0;
+  margin-right: calc(var(--sep) * -1);
+  clip-path: inset(0 var(--sep) 0 0);
+}
+
+[dir="rtl"] #work .stk li {
+  padding-left: 0;
+  padding-right: var(--sep);
+}
+
+[dir="rtl"] #work .stk li:not(:first-child)::before {
+  content: none;
+}
+
+[dir="rtl"] #work .stk li:not(:last-child)::after {
+  content: "/";
+  position: absolute;
+  right: var(--sep-gap);
+  color: var(--c-rule-strong);
+}
+
+#work .actions {
+  --act-gap: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--act-gap);
+}
+
+#work .actions:empty {
+  display: none;
+}
+
+#work .actions .btn {
+  min-height: 42px;
+  padding-inline: 16px;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+/* The shared pointer glow, made quiet; the edge bar is not used here. */
+#work .spotlight::before {
+  background: radial-gradient(
+    560px circle at var(--mx, 30%) var(--my, 40%),
+    color-mix(in srgb, var(--c-secondary) 8%, transparent),
+    transparent 70%
+  );
+}
+
+#work .spotlight::after {
+  display: none;
+}
+
+/* ---------- details: the trigger and the sheet that rises in the card ---------- */
+
+#work .disc-btn {
+  position: relative;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin-inline-start: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--c-dark-text);
+  font: 600 0.9375rem var(--font-body);
+  cursor: pointer;
+}
+
+/* A line under the label that draws in on hover and stays while it is open. */
+#work .disc-text {
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1.5px no-repeat;
+  padding-bottom: 3px;
+  transition: background-size 0.4s var(--w-ease);
+}
+
+[dir="rtl"] #work .disc-text {
+  background-position: 100% 100%;
+}
+
+#work .disc-chev {
+  transition: rotate 0.5s var(--w-ease);
+}
+
+#work .disc-btn[aria-expanded="true"] .disc-text {
+  background-size: 100% 1.5px;
+}
+
+#work .disc-btn[aria-expanded="true"] .disc-chev {
+  rotate: 180deg;
+}
+
+@media (hover: hover) {
+  #work .disc-btn:hover .disc-text {
+    background-size: 100% 1.5px;
+  }
+
+  #work .disc-btn:hover .disc-chev {
+    translate: 0 2px;
+  }
+
+  #work .disc-btn[aria-expanded="true"]:hover .disc-chev {
+    translate: 0 -2px;
+  }
+}
+
+#work .disc-btn:focus-visible,
+#work .sheet-x:focus-visible {
+  outline: 2px solid var(--c-signal);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+#work .scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  background: rgba(7, 11, 30, 0.5);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.4s ease,
+    visibility 0s linear 0.4s;
+}
+
+#work .scrim[data-open="true"] {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+#work .sheet {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 7;
+  max-height: min(100%, 540px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 18px clamp(20px, 3vw, 32px) 28px;
+  border-top: 1px solid var(--c-hairline);
+  border-radius: 24px 24px 0 0;
+  background: var(--c-surface);
+  box-shadow: 0 -30px 60px -30px rgba(10, 20, 80, 0.45);
+  translate: 0 104%;
+  visibility: hidden;
+  transition:
+    translate 0.6s var(--w-ease),
+    visibility 0s linear 0.6s;
+}
+
+#work .sheet[data-open="true"] {
+  translate: 0 0;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+#work .sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  color: var(--c-dark-text);
+}
+
+/* The project's name stays on the sheet, so it reads on its own once the page
+   has scrolled the card out from under it. */
+#work .sheet-title {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+#work .sheet-title small {
+  font: 600 0.75rem/1 var(--font-body);
+  letter-spacing: 0.02em;
+  color: var(--c-muted-text);
+}
+
+#work .sheet-title b {
+  font: 700 clamp(1.25rem, 1rem + 1vw, 1.625rem) / 1.1 var(--font-display-body);
+  letter-spacing: -0.025em;
+  overflow-wrap: anywhere;
+}
+
+#work .sheet-x {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-inline-end: -8px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+@media (hover: hover) {
+  #work .sheet-x:hover {
+    background: color-mix(in srgb, var(--c-secondary) 10%, transparent);
+  }
+}
+
+#work .sheet-body {
+  display: grid;
+  gap: 14px;
+}
+
+/* Content arrives a beat after the sheet, so it never looks cut off mid-rise. */
+#work .sheet-body > * {
+  opacity: 0;
+  translate: 0 10px;
+  transition:
+    opacity 0.3s ease,
+    translate 0.4s var(--w-ease);
+}
+
+#work .sheet[data-open="true"] .sheet-body > * {
+  opacity: 1;
+  translate: 0 0;
+  transition-duration: 0.5s;
+  transition-delay: 0.18s;
+}
+
+#work .sheet[data-open="true"] .sheet-body > :nth-child(2) {
+  transition-delay: 0.28s;
+}
+
+#work .sheet-body p {
+  max-width: 62ch;
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--c-light-text);
+}
+
+#work .sheet-body .note {
+  padding: 12px 16px;
+  border-inline-start: 2px solid var(--c-honey);
+  border-radius: 0 12px 12px 0;
+  background: color-mix(in srgb, var(--c-honey) 8%, transparent);
+  font-size: 0.875rem;
+  color: var(--c-muted-text);
+}
+
+[dir="rtl"] #work .sheet-body .note {
+  border-radius: 12px 0 0 12px;
+}
+
+/* ---------- trace: the route of a request, with a packet travelling it ---------- */
+
+#work .trace {
+  --t-fg: var(--c-dark-text);
+  --t-muted: var(--c-muted-text);
+  --t-line: var(--c-hairline);
+  --t-rail: var(--c-rule-strong);
+  --t-dot: var(--c-surface);
+  --t-cycle: 6s;
+  container: trace / inline-size;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  margin: 0;
+  padding: 16px 18px 14px;
+  border: 1px solid color-mix(in srgb, var(--c-hairline) 90%, transparent);
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--c-surface) 80%, transparent);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 18px 40px -28px rgba(20, 30, 90, 0.35);
+}
+
+#work .trace-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 12px;
+  font: 500 0.8125rem/1.3 var(--font-body);
+  color: var(--t-muted, var(--c-muted-text));
+}
+
+#work .trace-ping {
+  position: relative;
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--c-secondary);
+}
+
+#work .trace-ping::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border: 1px solid var(--c-secondary);
+  border-radius: 50%;
+  opacity: 0;
+  animation: ping 2.4s ease-out infinite;
+}
+
+@keyframes ping {
+  0% {
+    scale: 0.5;
+    opacity: 0.8;
+  }
+  75%,
+  100% {
+    scale: 1.6;
+    opacity: 0;
+  }
+}
+
+#work .trace-run {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+#work .trace-list {
+  display: grid;
+  flex: 1;
+  grid-template-rows: repeat(var(--n, 5), minmax(40px, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#work .trace-list li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 22px minmax(5rem, 7rem) minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 12px;
+  padding-block: 5px;
+}
+
+/* The rail, running through the dots from the first stop to the last. */
+#work .trace-list li::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 4px;
+  width: 1px;
+  background: var(--t-rail);
+  transform-origin: top;
+}
+
+#work .trace-list li:first-child::before {
+  inset-block-start: 50%;
+}
+
+#work .trace-list li:last-child::before {
+  inset-block-end: 50%;
+}
+
+#work .trace-list li + li::after {
+  content: "";
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 22px 0;
+  height: 1px;
+  background: var(--t-line);
+}
+
+#work .t-dot {
+  position: relative;
+  z-index: 1;
+  justify-self: start;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid var(--t-rail);
+  background: var(--t-dot);
+}
+
+#work .t-name {
+  min-width: 0;
+  font: 500 0.8125rem/1.3 var(--font-mono-body);
+  color: var(--t-fg);
+  overflow-wrap: anywhere;
+  unicode-bidi: isolate;
+}
+
+#work .t-note {
+  min-width: 0;
+  font: 400 0.8125rem/1.35 var(--font-body);
+  color: var(--t-muted);
+}
+
+#work .t-tag {
+  font: 500 0.6875rem/1 var(--font-mono-body);
+  color: var(--t-muted);
+  text-align: end;
+  white-space: nowrap;
+  unicode-bidi: isolate;
+}
+
+html[lang="ar"] #work .t-tag,
+html[lang="ar"] #work .m-tag {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+}
+
+#work .trace-list .hot .t-dot {
+  border-color: var(--c-secondary);
+  background: var(--c-secondary);
+}
+
+#work .trace-list .hot .t-name {
+  font-weight: 700;
+}
+
+#work .trace-list .live .t-dot {
+  border-color: var(--c-status);
+  background: var(--c-status);
+}
+
+/* The packet: a point of light that runs the rail, top to bottom, once per
+   cycle. Each stop glows as it passes (delay = the time the packet gets there). */
+#work .packet {
+  position: absolute;
+  z-index: 2;
+  inset-inline-start: -2px;
+  top: calc(50% / var(--n, 5));
+  width: 13px;
+  height: 13px;
+  margin-top: -6.5px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    #fff 0 22%,
+    color-mix(in srgb, var(--c-secondary) 80%, #fff) 55%
+  );
+  box-shadow:
+    0 0 14px 3px color-mix(in srgb, var(--c-secondary) 70%, transparent),
+    0 0 0 1px rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  animation: packet-run var(--t-cycle) linear infinite;
+}
+
+@keyframes packet-run {
+  0% {
+    top: calc(50% / var(--n, 5));
+    opacity: 0;
+    scale: 0.4;
+  }
+  4% {
+    top: calc(50% / var(--n, 5));
+    opacity: 1;
+    scale: 1;
+  }
+  72% {
+    top: calc(100% - 50% / var(--n, 5));
+    opacity: 1;
+    scale: 1;
+  }
+  80% {
+    top: calc(100% - 50% / var(--n, 5));
+    opacity: 0;
+    scale: 2;
+  }
+  100% {
+    top: calc(100% - 50% / var(--n, 5));
+    opacity: 0;
+  }
+}
+
+@keyframes stop-glow {
+  0% {
+    scale: 1;
+    box-shadow: 0 0 0 0 transparent;
+  }
+  3% {
+    scale: 1.45;
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--c-secondary) 28%, transparent);
+    background: var(--c-secondary);
+    border-color: var(--c-secondary);
+  }
+  16%,
+  100% {
+    scale: 1;
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+#work .trace-foot {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 4px;
+  padding-top: 14px;
+  border-top: 1px solid var(--t-line);
+}
+
+#work .trace-foot div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+#work .trace-foot b {
+  font: 600 1.375rem/1 var(--font-mono-body);
+  color: var(--t-fg);
+  text-align: start;
+  unicode-bidi: isolate;
+}
+
+[dir="rtl"] #work .trace-foot b {
+  text-align: right;
+}
+
+#work .trace-foot span {
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: var(--t-muted);
+}
+
+/* A narrow trace puts each note under its name. */
+@container trace (max-width: 399.98px) {
+  #work .trace-list li {
+    grid-template-columns: 22px minmax(0, 1fr) auto;
+    grid-template-areas:
+      "dot name tag"
+      "dot note note";
+    row-gap: 1px;
+    align-content: center;
+  }
+
+  #work .t-dot {
+    grid-area: dot;
+    align-self: center;
+  }
+
+  #work .t-name {
+    grid-area: name;
+    align-self: end;
+  }
+
+  #work .t-note {
+    grid-area: note;
+    align-self: start;
+  }
+
+  #work .t-tag {
+    grid-area: tag;
+    align-self: end;
+  }
+}
+
+/* First sight: the rail draws and the stops appear in order, once. Then the
+   packet loop takes over. Nothing runs until RevealOnScroll flags the figure;
+   without the flag (no script, reduced motion) the finished trace just shows. */
+#work .trace[data-revealed="false"] .trace-list li {
+  opacity: 0;
+}
+
+#work .trace[data-revealed="false"] .packet,
+#work .trace[data-revealed="false"] .t-dot {
+  animation-play-state: paused;
+}
+
+#work .trace[data-revealed="true"] .trace-list li {
+  animation: trace-in 0.6s var(--w-ease) backwards;
+  animation-delay: calc(var(--i, 0) * 120ms + 120ms);
+}
+
+#work .trace[data-revealed="true"] .trace-list li::before {
+  animation: trace-rail 0.6s var(--w-ease) backwards;
+  animation-delay: calc(var(--i, 0) * 120ms + 120ms);
+}
+
+#work .trace .t-dot {
+  animation: stop-glow var(--t-cycle) linear infinite;
+  animation-delay: calc(var(--t-cycle) * (0.04 + 0.68 * var(--i, 0) / (var(--n, 5) - 1)) + 1.2s);
+}
+
+#work .trace .packet {
+  animation-delay: 1.2s;
+}
+
+@keyframes trace-in {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
+
+@keyframes trace-rail {
+  from {
+    scale: 1 0;
+  }
+}
+
+/* ---------- modules: a system made of parts ---------- */
+
+#work .mods {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  margin: 0;
+}
+
+#work .mods .trace-head {
+  padding-bottom: 12px;
+}
+
+#work .mods ul {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#work .mods li {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--c-hairline) 90%, transparent);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--c-surface) 82%, transparent);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 12px 28px -22px rgba(20, 30, 90, 0.4);
+  transition:
+    translate 0.4s var(--w-ease),
+    border-color 0.25s ease,
+    box-shadow 0.4s ease;
+}
+
+@media (hover: hover) {
+  #work .mods li:hover {
+    translate: 0 -3px;
+    border-color: color-mix(in srgb, var(--c-secondary) 40%, var(--c-hairline));
+    box-shadow: 0 18px 32px -20px rgba(40, 60, 200, 0.45);
+  }
+}
+
+#work .m-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+#work .m-top b {
+  font: 600 0.8125rem/1.2 var(--font-mono-body);
+  color: var(--c-dark-text);
+  unicode-bidi: isolate;
+}
+
+#work .m-tag {
+  font: 500 0.6875rem/1 var(--font-mono-body);
+  color: var(--c-muted-text);
+  white-space: nowrap;
+}
+
+#work .m-note {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--c-muted-text);
+}
+
+#work .mods li.hot {
+  border-color: color-mix(in srgb, var(--c-secondary) 50%, var(--c-hairline));
+  background: color-mix(in srgb, var(--c-secondary) 9%, var(--c-surface));
+}
+
+#work .mods li.hot .m-top b::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-inline-end: 8px;
+  border-radius: 50%;
+  background: var(--c-secondary);
+  vertical-align: 1px;
+  animation: status-pulse-blue 2.4s ease-in-out infinite;
+}
+
+@keyframes status-pulse-blue {
+  50% {
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--c-secondary) 14%, transparent);
+  }
+}
+
+#work .mods[data-revealed="false"] li {
+  opacity: 0;
+}
+
+#work .mods[data-revealed="true"] li {
+  animation: mod-in 0.6s var(--w-ease) backwards;
+  animation-delay: calc(var(--i, 0) * 80ms + 100ms);
+}
+
+@keyframes mod-in {
+  from {
+    opacity: 0;
+    scale: 0.92;
+    translate: 0 10px;
+  }
+}
+
+/* ---------- system map: two faces over a shared core ---------- */
+
+#work .sysmap {
+  --sm-gap: 10px;
+  --sm-line: color-mix(in srgb, var(--c-secondary) 38%, var(--c-hairline));
+  container: sysmap / inline-size;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--c-hairline) 90%, transparent);
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--c-surface) 80%, transparent);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 18px 40px -28px rgba(20, 30, 90, 0.35);
+}
+
+#work .sm-faces,
+#work .sm-core {
+  display: grid;
+  gap: var(--sm-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#work .sm-faces {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+#work .sm-core {
+  grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr));
+}
+
+#work .sm-node {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 11px 12px 12px;
+  border: 1px solid color-mix(in srgb, var(--c-hairline) 92%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--c-surface) 88%, transparent);
+  box-shadow: 0 12px 26px -22px rgba(20, 30, 90, 0.45);
+  transition:
+    translate 0.4s var(--w-ease),
+    border-color 0.25s ease,
+    box-shadow 0.4s ease;
+}
+
+@media (hover: hover) {
+  #work .sm-node:hover {
+    translate: 0 -3px;
+    border-color: color-mix(in srgb, var(--c-secondary) 45%, var(--c-hairline));
+    box-shadow: 0 18px 30px -20px rgba(40, 60, 200, 0.5);
+  }
+}
+
+#work .sm-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+#work .sm-ico {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: var(--c-light-bg);
+  color: var(--c-light-text);
+}
+
+#work .sm-name {
+  min-width: 0;
+  font: 600 0.8125rem/1.2 var(--font-mono-body);
+  color: var(--c-dark-text);
+  overflow-wrap: break-word;
+  unicode-bidi: isolate;
+}
+
+#work .sm-tag {
+  margin-inline-start: auto;
+  font: 500 0.6875rem/1 var(--font-mono-body);
+  color: var(--c-muted-text);
+  white-space: nowrap;
+}
+
+html[lang="ar"] #work .sm-tag {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+}
+
+#work .sm-note {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--c-muted-text);
+}
+
+/* In the core row the tag sits under the name, so the name keeps its width. */
+#work .sm-core .sm-row {
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+
+#work .sm-core .sm-name {
+  flex: 1 1 0;
+}
+
+#work .sm-core .sm-tag {
+  flex-basis: 100%;
+  margin-inline-start: 30px;
+  font-size: 0.65625rem;
+}
+
+/* The private side is the one the design turns on. */
+#work .sm-node.hot {
+  border-color: color-mix(in srgb, var(--c-secondary) 55%, var(--c-hairline));
+  background: color-mix(in srgb, var(--c-secondary) 8%, var(--c-surface));
+}
+
+#work .sm-node.hot .sm-ico {
+  background: var(--c-secondary);
+  color: var(--c-on-secondary);
+}
+
+/* Connectors. Each is a 1px line drawn from a pseudo-element: a faint solid
+   base, with dashes of the accent colour flowing along it. The join gathers the
+   two faces to a single stem; the rail fans the stem out to every module. */
+#work .sm-join,
+#work .sm-rail {
+  display: grid;
+  gap: var(--sm-gap);
+  height: 18px;
+}
+
+#work .sm-join {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+#work .sm-rail {
+  grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr));
+}
+
+#work .sm-join i,
+#work .sm-rail i {
+  position: relative;
+}
+
+#work .sm-join i::before,
+#work .sm-join i::after,
+#work .sm-rail i::before,
+#work .sm-rail i::after,
+#work .sm-stem i {
+  content: "";
+  position: absolute;
+}
+
+/* vertical runs: the drop from a face, the stem, the drop into a module */
+#work .sm-join i::after,
+#work .sm-rail i::after,
+#work .sm-stem i {
+  width: 1px;
+  background:
+    repeating-linear-gradient(to bottom, var(--c-secondary) 0 3px, transparent 3px 8px) 0 0 / 1px
+      8px,
+    linear-gradient(var(--sm-line), var(--sm-line));
+  animation: sm-flow-v 1.6s linear infinite;
+}
+
+#work .sm-join i::after {
+  inset-block: 0 0;
+  inset-inline-start: 50%;
+}
+
+#work .sm-rail i::after {
+  inset-block: 0 0;
+  inset-inline-start: 50%;
+}
+
+#work .sm-stem {
+  position: relative;
+  height: 16px;
+}
+
+#work .sm-stem i {
+  inset-block: 0;
+  inset-inline-start: 50%;
+}
+
+/* horizontal runs: the join's bottom edge and the rail's top edge */
+#work .sm-join i::before,
+#work .sm-rail i::before {
+  height: 1px;
+  background:
+    repeating-linear-gradient(to right, var(--c-secondary) 0 3px, transparent 3px 8px) 0 0 / 8px 1px,
+    linear-gradient(var(--sm-line), var(--sm-line));
+  animation: sm-flow-h 1.6s linear infinite;
+}
+
+#work .sm-join i::before {
+  inset-block-end: 0;
+  inset-inline: calc(var(--sm-gap) / -2) calc(var(--sm-gap) / -2);
+}
+
+#work .sm-join i:first-child::before {
+  inset-inline-start: 50%;
+}
+
+#work .sm-join i:last-child::before {
+  inset-inline-end: 50%;
+}
+
+#work .sm-rail i::before {
+  inset-block-start: 0;
+  inset-inline: calc(var(--sm-gap) / -2) calc(var(--sm-gap) / -2);
+}
+
+#work .sm-rail i:first-child::before {
+  inset-inline-start: 50%;
+}
+
+#work .sm-rail i:last-child::before {
+  inset-inline-end: 50%;
+}
+
+@keyframes sm-flow-v {
+  to {
+    background-position:
+      0 8px,
+      0 0;
+  }
+}
+
+@keyframes sm-flow-h {
+  to {
+    background-position:
+      8px 0,
+      0 0;
+  }
+}
+
+/* A narrow map keeps every part: tags go under names, icons and the core's
+   notes are dropped, and the type tightens so no name ever has to break. */
+@container sysmap (max-width: 400px) {
+  #work .sm-node {
+    padding: 10px 9px 11px;
+  }
+
+  #work .sm-row {
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+
+  #work .sm-ico {
+    display: none;
+  }
+
+  #work .sm-name {
+    flex: 1 1 100%;
+    font-size: 0.75rem;
+  }
+
+  #work .sm-tag,
+  #work .sm-core .sm-tag {
+    flex-basis: 100%;
+    margin-inline-start: 0;
+    font-size: 0.65625rem;
+  }
+
+  #work .sm-core .sm-note {
+    display: none;
+  }
+}
+
+/* The tightest case (a tablet's side-by-side stage): smaller gaps and type so
+   the longest module name still fits on one line. */
+@container sysmap (max-width: 330px) {
+  #work .sysmap {
+    --sm-gap: 6px;
+    padding: 10px;
+  }
+
+  #work .sm-node {
+    padding-inline: 6px;
+  }
+
+  #work .sm-core .sm-name {
+    font-size: 0.6875rem;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Built in order: the faces, then the lines, then the core. */
+#work .sysmap[data-revealed="false"] .sm-node {
+  opacity: 0;
+}
+
+#work .sysmap[data-revealed="true"] .sm-node {
+  animation: mod-in 0.6s var(--w-ease) backwards;
+  animation-delay: calc(var(--i, 0) * 120ms + 100ms);
+}
+
+#work .sysmap[data-revealed="true"] .sm-join i::after,
+#work .sysmap[data-revealed="true"] .sm-join i::before,
+#work .sysmap[data-revealed="true"] .sm-stem i,
+#work .sysmap[data-revealed="true"] .sm-rail i::before,
+#work .sysmap[data-revealed="true"] .sm-rail i::after {
+  opacity: 1;
+}
+
+#work .sysmap[data-revealed="false"] .sm-join i::after,
+#work .sysmap[data-revealed="false"] .sm-join i::before,
+#work .sysmap[data-revealed="false"] .sm-stem i,
+#work .sysmap[data-revealed="false"] .sm-rail i::before,
+#work .sysmap[data-revealed="false"] .sm-rail i::after {
+  opacity: 0;
+}
+
+#work .sm-join i::after,
+#work .sm-join i::before,
+#work .sm-stem i,
+#work .sm-rail i::before,
+#work .sm-rail i::after {
+  transition: opacity 0.6s ease 0.45s;
+}
+
+/* The map is taller than a lone diagram, so its preview is a wider, shorter crop. */
+#work .card-wrap[data-project="zabthalahak"] .stage .sp {
+  --sp-ratio: 16 / 7;
+}
+
+/* ================================================================
+   Flagship
+   ================================================================ */
+
+#work .feat-wrap {
+  container: feat / inline-size;
+}
+
+#work .feat {
+  --ink: #0a1128;
+  --fg: #eef1ff;
+  --fg-2: #a9b4de;
+  --line: rgba(255, 255, 255, 0.11);
+  --fp: clamp(22px, 4.6cqi, 52px);
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "copy"
+    "art"
+    "facts";
+  gap: clamp(28px, 5cqi, 44px);
+  padding: var(--fp);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: clamp(24px, 3.4cqi, 32px);
+  background: var(--ink);
+  color: var(--fg);
+  box-shadow:
+    0 50px 90px -50px rgba(20, 35, 120, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+#work .feat.spotlight::before {
+  background: radial-gradient(
+    640px circle at var(--mx, 30%) var(--my, 40%),
+    rgba(143, 178, 255, 0.13),
+    transparent 70%
+  );
+}
+
+/* Backdrop, three layers. The aurora is two soft lights that drift; the rings
+   are a signal leaving its source, flowing outward from behind the live window;
+   the grain keeps the dark from looking like a flat fill. Scroll depth: the
+   aurora and rings lag the page. */
+#work .feat-aurora {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  overflow: hidden;
+  pointer-events: none;
+  translate: 0 calc(var(--sy, 0) * -36px);
+}
+
+#work .feat-aurora::before,
+#work .feat-aurora::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  /* No filter: the radial gradient already fades to transparent, and a 46px
+     blur on two animated, screen-sized layers cost far more than it added. */
+  will-change: translate, scale;
+}
+
+#work .feat-aurora::before {
+  top: -30%;
+  inset-inline-end: -12%;
+  width: 62%;
+  aspect-ratio: 1;
+  background: radial-gradient(closest-side, rgba(59, 91, 245, 0.7), transparent);
+  animation: aurora-a 18s ease-in-out infinite alternate;
+}
+
+#work .feat-aurora::after {
+  bottom: -35%;
+  inset-inline-start: -10%;
+  width: 48%;
+  aspect-ratio: 1;
+  background: radial-gradient(closest-side, rgba(224, 164, 88, 0.34), transparent);
+  animation: aurora-b 22s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-a {
+  to {
+    translate: -14% 12%;
+    scale: 1.15;
+  }
+}
+
+@keyframes aurora-b {
+  to {
+    translate: 18% -10%;
+    scale: 1.2;
+  }
+}
+
+#work .feat-rings {
+  position: absolute;
+  inset: -12% -6%;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    repeating-radial-gradient(
+      circle at 74% 30%,
+      transparent calc(var(--o) + 0px) calc(var(--o) + 34px),
+      rgba(176, 196, 255, 0.15) calc(var(--o) + 34px) calc(var(--o) + 35px)
+    ),
+    repeating-radial-gradient(
+      circle at 6% 96%,
+      transparent calc(var(--o) * 1.3) calc(var(--o) * 1.3 + 44.5px),
+      rgba(240, 190, 120, 0.16) calc(var(--o) * 1.3 + 44.5px) calc(var(--o) * 1.3 + 45.5px)
+    );
+  mask-image: radial-gradient(75% 90% at 62% 40%, #000 0%, transparent 74%);
+  translate: 0 calc(var(--sy, 0) * -18px);
+  animation: ring-flow 11s linear infinite;
+}
+
+/* One period of every ring set is the distance --o travels: 35px here, scaled
+   in each gradient so the loop is seamless. */
+@keyframes ring-flow {
+  from {
+    --o: 0px;
+  }
+  to {
+    --o: 35px;
+  }
+}
+
+#work .feat-grain {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: var(--grain-l);
+  opacity: 0.55;
+  mix-blend-mode: soft-light;
+}
+
+#work .feat-copy {
+  grid-area: copy;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+#work .feat .status {
+  color: var(--fg-2);
+}
+
+#work .feat .status-ico {
+  color: var(--fg-2);
+}
+
+#work .feat .text-status,
+#work .feat .status-production .status-ico {
+  color: #62e7a6;
+}
+
+#work .feat-title {
+  margin: 20px 0 0;
+  font-family: var(--font-display-body);
+  font-size: clamp(2.375rem, 1rem + 5.4cqi, 4.5rem);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+  color: #fff;
+  text-wrap: balance;
+}
+
+#work .feat .slug {
+  margin-top: 10px;
+  color: var(--fg-2);
+}
+
+#work .feat .meta {
+  margin-top: 16px;
+  color: var(--fg-2);
+}
+
+#work .feat .desc {
+  max-width: 44ch;
+  margin-top: 20px;
+  font-size: 1.1875rem;
+  line-height: 1.5;
+  color: var(--fg);
+}
+
+#work .feat .stk {
+  margin-top: 24px;
+}
+
+#work .feat .stk {
+  color: #cfd7f7;
+}
+
+#work .feat .stk li::before,
+#work .feat .stk li::after {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+#work .feat .actions {
+  align-self: stretch;
+  margin-top: 28px;
+}
+
+#work .feat .btn-ghost {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+}
+
+@media (hover: hover) {
+  #work .feat .btn-ghost:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+#work .feat .btn-primary svg {
+  transition: translate 0.25s var(--w-ease);
+}
+
+@media (hover: hover) {
+  #work .feat .btn-primary:hover svg {
+    translate: 3px 0;
+  }
+
+  [dir="rtl"] #work .feat .btn-primary:hover svg {
+    translate: -3px 0;
+  }
+}
+
+/* Under the buttons, a rule and one quiet line: the details trigger sits on
+   its own, in the copy column, rather than crowding the buttons. */
+#work .feat-more {
+  align-self: stretch;
+  margin-top: 26px;
+  border-top: 1px solid var(--line);
+}
+
+#work .feat .disc-btn {
+  margin-inline-start: 0;
+  color: #fff;
+}
+
+#work .feat .sheet {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: #101a3d;
+  box-shadow: 0 -30px 70px -20px rgba(0, 0, 0, 0.7);
+}
+
+#work .feat .sheet-head,
+#work .feat .sheet-x {
+  color: #fff;
+}
+
+#work .feat .sheet-title small {
+  color: var(--fg-2);
+}
+
+#work .feat .sheet-x {
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+#work .feat .sheet-body p {
+  color: var(--fg-2);
+}
+
+#work .feat .sheet-body .note {
+  color: #cdd5f5;
+}
+
+/* Artwork: the live site floats in a window that leans toward the pointer; the
+   trace is a glass card hanging off its corner. */
+#work .feat-art {
+  --px: 0;
+  --py: 0;
+  grid-area: art;
+  position: relative;
+  display: grid;
+  min-width: 0;
+  perspective: 1500px;
+}
+
+/* Two depth layers, both in the same cell: the window drifts slowly with the
+   scroll, the trace card faster, which is what makes it hang in front. */
+#work .depth {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+
+#work .depth-a {
+  translate: 0 calc(var(--sy, 0) * -22px);
+}
+
+#work .depth-b {
+  align-self: end;
+  justify-self: start;
+  width: min(100%, 440px);
+  margin-top: 54%;
+  translate: 0 calc(var(--sy, 0) * -58px);
+}
+
+#work .art-window {
+  width: 100%;
+  transform-style: preserve-3d;
+  transform: rotateY(calc(-7deg + var(--px) * 5deg)) rotateX(calc(3deg - var(--py) * 4deg));
+  transition: transform 0.7s var(--w-ease);
+  animation: float 9s ease-in-out infinite;
+}
+
+[dir="rtl"] #work .art-window {
+  transform: rotateY(calc(7deg + var(--px) * 5deg)) rotateX(calc(3deg - var(--py) * 4deg));
+}
+
+@keyframes float {
+  50% {
+    translate: 0 -8px;
+  }
+}
+
+#work .feat .sp {
+  --sp-ratio: 16 / 9;
+  border-color: rgba(255, 255, 255, 0.16);
+  border-radius: 16px;
+  background: #0d1633;
+  box-shadow:
+    0 60px 90px -40px rgba(0, 0, 0, 0.8),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+#work .feat .sp-bar {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+#work .feat .sp-host,
+#work .feat .sp-open {
+  color: #a9b4de;
+}
+
+#work .feat .sp-frame {
+  background: #0b1230;
+}
+
+#work .feat .sp-ph {
+  color: #6e7bb0;
+}
+
+#work .art-trace {
+  translate: calc(var(--px) * -10px) calc(var(--py) * -8px);
+  transition: translate 0.7s var(--w-ease);
+}
+
+#work .art-trace .trace {
+  --t-fg: #f2f4ff;
+  --t-muted: #9eabd6;
+  --t-line: rgba(255, 255, 255, 0.1);
+  --t-rail: rgba(255, 255, 255, 0.26);
+  --t-dot: #101a3d;
+  padding: 18px 20px 16px;
+  border-color: rgba(255, 255, 255, 0.16);
+  border-radius: 22px;
+  background: rgba(10, 17, 44, 0.72);
+  backdrop-filter: blur(22px) saturate(1.5);
+  box-shadow:
+    0 40px 70px -30px rgba(0, 0, 0, 0.75),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  animation: float 7s ease-in-out infinite reverse;
+}
+
+#work .art-trace .trace-ping {
+  background: #62e7a6;
+}
+
+#work .art-trace .trace-ping::after {
+  border-color: #62e7a6;
+}
+
+#work .art-trace .packet {
+  background: radial-gradient(circle, #fff 0 22%, #9bb8ff 60%);
+  box-shadow:
+    0 0 16px 4px rgba(120, 160, 255, 0.75),
+    0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
+/* The five headline numbers, large, under a rule. */
+#work .facts {
+  grid-area: facts;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 24px;
+  margin: 0;
+}
+
+#work .fact {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+  padding-block: 18px 6px;
+  border-top: 1px solid var(--line);
+}
+
+#work .facts[data-n="5"] .fact:last-child {
+  grid-column: span 2;
+}
+
+#work .fact dt {
+  font: 500 0.8125rem/1.35 var(--font-body);
+  color: var(--fg-2);
+}
+
+#work .fact dd {
+  margin: 0;
+  font: 700 clamp(2.125rem, 1rem + 3.2cqi, 3.5rem) / 1 var(--font-display-body);
+  letter-spacing: -0.045em;
+  color: #fff;
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: start;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+[dir="rtl"] #work .fact dd {
+  text-align: right;
+}
+
+#work .fact dd em {
+  margin-inline-start: 3px;
+  font-size: 0.55em;
+  font-style: normal;
+  font-weight: 500;
+  letter-spacing: 0;
+  vertical-align: 0.5em;
+  color: var(--c-honey-hi);
+}
+
+/* Tablet and up: the numbers sit in a single line. */
+@container feat (min-width: 560px) {
+  #work .facts {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  #work .facts[data-n="5"] .fact:last-child {
+    grid-column: auto;
+  }
+}
+
+/* A wide sheet sets the two paragraphs side by side instead of leaving the
+   right half empty. */
+@container feat (min-width: 760px) {
+  #work .feat .sheet {
+    padding-inline: var(--fp);
+  }
+
+  #work .feat .sheet-body:has(.note) {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 40px;
+    align-items: start;
+  }
+}
+
+/* The stacked artwork is a wide window with the trace tucked under its edge. */
+@container feat (max-width: 959.98px) {
+  #work .depth-b {
+    width: min(100%, 480px);
+    margin-top: 40%;
+    justify-self: center;
+  }
+}
+
+@container feat (max-width: 559.98px) {
+  #work .depth-b {
+    margin-top: 54%;
+  }
+
+  #work .art-trace {
+    translate: 0 0;
+  }
+
+  #work .art-window {
+    transform: rotateY(-4deg) rotateX(2deg);
+  }
+
+  [dir="rtl"] #work .art-window {
+    transform: rotateY(4deg) rotateX(2deg);
+  }
+
+  /* Stacked buttons: Case study spans the row; Repository and Live site share
+     the next row equally, and a lone one spans it. Buttons that cannot fit two
+     to a row (very narrow phones) each take their own full-width row instead,
+     because the label never wraps. */
+  #work .feat-copy .actions .btn {
+    min-height: 44px;
+  }
+
+  #work .feat-copy .actions .btn-primary {
+    flex: 1 1 100%;
+  }
+
+  #work .feat-copy .actions .btn-ghost {
+    flex: 1 1 calc((100% - var(--act-gap)) / 2);
+  }
+}
+
+/* Wide: copy beside the artwork, numbers along the bottom. */
+@container feat (min-width: 960px) {
+  #work .feat {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.04fr);
+    grid-template-areas:
+      "copy art"
+      "facts facts";
+    column-gap: clamp(32px, 5cqi, 64px);
+    align-items: center;
+  }
+
+  #work .depth-b {
+    width: min(78%, 440px);
+    margin-top: 40%;
+    margin-inline-start: -6%;
+  }
+}
+
+/* ================================================================
+   The other projects: bento
+   ================================================================ */
+
+#work .cards {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(16px, 2.2vw, 24px);
+  margin-top: clamp(16px, 2.2vw, 24px);
+}
+
+#work .card-wrap {
+  --a1: var(--c-secondary);
+  --a2: var(--c-honey);
+  display: flex;
+  min-width: 0;
+}
+
+#work .card-wrap[data-project="store-advisor"] {
+  --a1: #7c5cff;
+  --a2: var(--c-secondary);
+}
+
+#work .card-wrap[data-project="zabthalahak"] {
+  --a1: var(--c-honey);
+  --a2: #f05d7a;
+}
+
+#work .card-wrap[data-project="laravel"] {
+  --a1: #f05340;
+  --a2: var(--c-honey);
+}
+
+#work .card-wrap[data-project="neuroscan"] {
+  --a1: #14b8a6;
+  --a2: var(--c-secondary);
+}
+
+/* Cards rise in out of a soft blur, one after the other. */
+#work .card-wrap[data-revealed="false"] {
+  opacity: 0;
+}
+
+#work .card-wrap[data-revealed="true"] {
+  animation: card-in 1s var(--w-ease) backwards;
+  animation-delay: calc(var(--c, 0) * 110ms);
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    translate: 0 36px;
+    filter: blur(10px);
+  }
+}
+
+#work .card {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--c-hairline);
+  border-radius: 28px;
+  /* Paper: grain over a faint wash of the project's colour, fading to plain. */
+  background:
+    var(--grain-d),
+    linear-gradient(
+      165deg,
+      color-mix(in srgb, var(--a1) 7%, var(--c-surface)),
+      var(--c-surface) 46%
+    ),
+    var(--c-surface);
+  box-shadow: var(--sh-sm);
+  transition:
+    translate 0.5s var(--w-ease),
+    border-color 0.3s ease,
+    box-shadow 0.5s ease;
+}
+
+/* The stage: the project's two colours as soft light, and rings flowing out of
+   two opposite corners. Where the two sets cross they interfere, which is what
+   gives it depth; it is the same signal motif as the flagship, in the
+   project's own colours. */
+#work .stage {
+  position: relative;
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+  min-width: 0;
+  padding: clamp(18px, 3vw, 28px);
+  border-bottom: 1px solid var(--c-hairline);
+  background:
+    var(--grain-d),
+    radial-gradient(
+      90% 120% at 0% 0%,
+      color-mix(in srgb, var(--a1) 26%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      80% 110% at 100% 100%,
+      color-mix(in srgb, var(--a2) 20%, transparent),
+      transparent 62%
+    ),
+    var(--c-light-bg);
+}
+
+#work .stage::before,
+#work .stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  animation: ring-flow 12s linear infinite;
+}
+
+#work .stage::before {
+  background: repeating-radial-gradient(
+    circle at 100% 0%,
+    transparent calc(var(--o) * 0.771429) calc(var(--o) * 0.771429 + 26px),
+    color-mix(in srgb, var(--a1) 34%, transparent) calc(var(--o) * 0.771429 + 26px)
+      calc(var(--o) * 0.771429 + 27px)
+  );
+  mask-image: radial-gradient(circle at 100% 0%, #000 0%, transparent 70%);
+}
+
+#work .stage::after {
+  background: repeating-radial-gradient(
+    circle at 0% 100%,
+    transparent calc(var(--o) * 0.942857) calc(var(--o) * 0.942857 + 32px),
+    color-mix(in srgb, var(--a2) 30%, transparent) calc(var(--o) * 0.942857 + 32px)
+      calc(var(--o) * 0.942857 + 33px)
+  );
+  mask-image: radial-gradient(circle at 0% 100%, #000 0%, transparent 70%);
+  animation-duration: 15s;
+}
+
+#work .stage > * {
+  position: relative;
+  translate: 0 calc(var(--sy, 0) * 10px);
+}
+
+#work .stage .sp {
+  --sp-ratio: 16 / 10;
+  box-shadow: 0 30px 50px -30px rgba(20, 30, 90, 0.5);
+}
+
+#work .card-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  padding: clamp(20px, 3vw, 30px);
+}
+
+#work .card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  align-self: stretch;
+  min-height: 32px;
+}
+
+#work .card h3 {
+  margin: 14px 0 0;
+  font-family: var(--font-display-body);
+  font-size: clamp(1.5rem, 1.1rem + 1.2vw, 2rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  overflow-wrap: anywhere;
+}
+
+#work .card .meta {
+  margin-top: 8px;
+}
+
+#work .card .desc {
+  max-width: 54ch;
+  margin-top: 14px;
+}
+
+#work .card .stk {
+  margin-top: 20px;
+}
+
+#work .card-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  align-self: stretch;
+  margin-top: auto;
+  padding-top: 24px;
+}
+
+#work .go {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--c-rule-strong);
+  border-radius: 50%;
+  color: var(--c-muted-text);
+  transition:
+    translate 0.4s var(--w-ease),
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease;
+}
+
+/* One link stretched over the whole card; the buttons, the preview and the
+   details control sit above it. */
+#work .card h3 a {
+  color: inherit;
+  text-decoration: none;
+  background: linear-gradient(var(--c-honey), var(--c-honey)) 0 100% / 0 2px no-repeat;
+  padding-bottom: 2px;
+  transition: background-size 0.45s var(--w-ease);
+}
+
+[dir="rtl"] #work .card h3 a {
+  background-position: 100% 100%;
+}
+
+#work .card h3 a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+#work .card .sp,
+#work .card .actions {
+  position: relative;
+  z-index: 2;
+}
+
+#work .card h3 a:focus-visible {
+  outline: none;
+}
+
+#work .card:has(h3 a:focus-visible) {
+  outline: 2px solid var(--c-signal);
+  outline-offset: 3px;
+}
+
+#work .card.is-link:has(h3 a:focus-visible),
+#work .card.is-link:focus-within {
+  border-color: color-mix(in srgb, var(--c-secondary) 45%, var(--c-hairline));
+}
+
+@media (hover: hover) {
+  #work .card.is-link:hover {
+    translate: 0 -5px;
+    border-color: color-mix(in srgb, var(--c-secondary) 40%, var(--c-hairline));
+    box-shadow:
+      0 40px 70px -40px rgba(40, 60, 200, 0.5),
+      var(--sh-md);
+  }
+
+  #work .card.is-link:hover h3 a {
+    background-size: 100% 2px;
+  }
+
+  #work .card.is-link:hover .go {
+    translate: 3px -3px;
+    border-color: var(--c-secondary);
+    background: var(--c-secondary);
+    color: var(--c-on-secondary);
+  }
+
+  [dir="rtl"] #work .card.is-link:hover .go {
+    translate: -3px -3px;
+  }
+}
+
+/* Two columns from a laptop: stage and copy line up across each row. */
+@media (min-width: 900px) {
+  #work .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: clamp(16px, 2.2vw, 24px);
+    row-gap: 0;
+  }
+
+  #work .card-wrap {
+    display: grid;
+    grid-row: span 2;
+    grid-template-rows: subgrid;
+    margin-bottom: clamp(16px, 2.2vw, 24px);
+  }
+
+  #work .card {
+    display: grid;
+    grid-row: span 2;
+    grid-template-rows: subgrid;
+    row-gap: 0;
+  }
+
+  #work .stage {
+    min-height: 0;
+  }
+}
+
+/* A single wide column (tablet): stage beside copy. */
+@media (min-width: 640px) and (max-width: 899.98px) {
+  #work .card .sheet-body:has(.note) {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 32px;
+    align-items: start;
+  }
+
+  #work .card {
+    flex-direction: row;
+  }
+
+  #work .stage {
+    flex: 0 0 48%;
+    border-bottom: 0;
+    border-inline-end: 1px solid var(--c-hairline);
+  }
+}
+
+/* Wherever the card is stacked (stage above copy, up to the 640px switch to a
+   row) its buttons fill the copy column: each action takes an equal share of
+   the row, one spanning it when alone, and Details sits on the row below.
+   This used to stop at 480px, so 480-639px had content-sized buttons beside a
+   Details link while narrower screens had full-width ones. */
+@media (max-width: 639.98px) {
+  #work .card .actions {
+    flex: 1 1 100%;
+  }
+
+  #work .card .actions .btn {
+    flex: 1 1 calc((100% - var(--act-gap)) / 2);
+    min-height: 44px;
+  }
+
+  #work .card .disc-btn {
+    flex: 1 1 100%;
+    justify-content: space-between;
+  }
+}
+
+/* ================================================================
+   Live from GitHub (cards live in GitHub.css)
+   ================================================================ */
+
+#work .live-block {
+  margin-top: clamp(72px, 10vw, 120px);
+}
+
+#work .live-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 24px;
+  margin-bottom: clamp(22px, 3vw, 32px);
+}
+
+#work .live-lbl {
+  margin: 0;
+  font-family: var(--font-display-body);
+  font-size: clamp(1.75rem, 1.2rem + 2vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  color: var(--c-dark-text);
+}
+
+/* A plain text link: the underline draws in, the arrow leans forward. */
+#work .live-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--c-dark-text);
+  text-decoration: none;
+}
+
+#work .live-link span {
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1.5px no-repeat;
+  padding-bottom: 3px;
+  transition: background-size 0.4s var(--w-ease);
+}
+
+[dir="rtl"] #work .live-link span {
+  background-position: 100% 100%;
+}
+
+#work .live-link svg {
+  transition: translate 0.35s var(--w-ease);
+}
+
+@media (hover: hover) {
+  #work .live-link:hover span {
+    background-size: 100% 1.5px;
+  }
+
+  #work .live-link:hover svg {
+    translate: 4px 0;
+  }
+
+  [dir="rtl"] #work .live-link:hover svg {
+    translate: -4px 0;
+  }
+}
+
+#work .live-link:focus-visible {
+  outline: 2px solid var(--c-signal);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* ---------- reduced motion: finished states only ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  #work .feat-aurora::before,
+  #work .feat-aurora::after,
+  #work .art-window,
+  #work .art-trace .trace,
+  #work .sm-node,
+  #work .sm-join i::before,
+  #work .sm-join i::after,
+  #work .sm-stem i,
+  #work .sm-rail i::before,
+  #work .sm-rail i::after,
+  #work .feat-rings,
+  #work .stage::before,
+  #work .stage::after,
+  #work .status-production .status-ico polyline,
+  #work .trace-ping::after,
+  #work .card-wrap,
+  #work .trace .t-dot,
+  #work .trace .trace-list li,
+  #work .trace .trace-list li::before,
+  #work .mods li {
+    animation: none;
+  }
+
+  #work .packet {
+    display: none;
+  }
+
+  #work .art-window {
+    transform: rotateY(-4deg);
+  }
+
+  [dir="rtl"] #work .art-window {
+    transform: rotateY(4deg);
+  }
+}
+
+/* ---------- performance: keep the scroll at frame rate ----------------------
+   Costs, worst first: the rings animate a registered custom property, which
+   repaints a masked full-section gradient on the main thread every frame; the
+   trace card backdrop-blurs a moving 3D layer; the grain is a blended layer
+   over everything. So:
+   - the rings stand still while the page is scrolling (WorkScroll sets
+     data-scrolling) and everywhere on weak or touch devices;
+   - on the "low" tier (PerfGovernor), and on touch / small screens, the
+     backdrop blurs, blend, 3D and endless floats are replaced by flat,
+     slightly more opaque fills. Content and layout are untouched. */
+#work[data-scrolling] .feat-rings {
+  animation-play-state: paused;
+}
+
+#work .feat-rings {
+  contain: paint;
+}
+
+html[data-perf="low"] #work .feat-rings,
+html[data-perf="low"] #work .feat-aurora::before,
+html[data-perf="low"] #work .feat-aurora::after,
+html[data-perf="low"] #work .art-window,
+html[data-perf="low"] #work .art-trace .trace {
+  animation: none;
+}
+
+html[data-perf="low"] #work .feat-grain {
+  display: none;
+}
+
+html[data-perf="low"] #work .art-window {
+  transform: rotateY(-4deg);
+  transition: none;
+}
+
+html[data-perf="low"] #work .scrim,
+html[data-perf="low"] #work .trace,
+html[data-perf="low"] #work .mods li,
+html[data-perf="low"] #work .sysmap,
+html[data-perf="low"] #work .art-trace .trace {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+html[data-perf="low"] #work .art-trace .trace {
+  background: rgba(10, 17, 44, 0.94);
+}
+
+html[data-perf="low"] #work .card-wrap[data-revealed="true"] {
+  animation-name: card-in-lite;
+}
+
+@media (hover: none), (width < 768px) {
+  #work .feat-rings {
+    animation: none;
+  }
+
+  #work .feat-grain {
+    display: none;
+  }
+
+  #work .art-window {
+    animation: none;
+    transform-style: flat;
+  }
+
+  #work .art-trace .trace {
+    animation: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(10, 17, 44, 0.92);
+  }
+
+  #work .scrim,
+  #work .trace,
+  #work .mods li,
+  #work .sysmap {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  #work .card-wrap[data-revealed="true"] {
+    animation-name: card-in-lite;
+  }
+}
+
+/* Same entrance without the filter: animating blur() on a whole card (with
+   glass children inside it) re-rasters it every frame. */
+@keyframes card-in-lite {
+  from {
+    opacity: 0;
+    translate: 0 28px;
+  }
+}
+
+/* The project cards' stages run the same --o ring animation as the featured
+   rings: two masked, repainted gradients per card, several cards on screen.
+   Same treatment: they rest while the page scrolls, and stand still on the
+   low tier and on touch / small screens. */
+#work[data-scrolling] .stage::before,
+#work[data-scrolling] .stage::after {
+  animation-play-state: paused;
+}
+
+html[data-perf="low"] #work .stage::before,
+html[data-perf="low"] #work .stage::after {
+  animation: none;
+}
+
+@media (hover: none), (width < 768px) {
+  #work .stage::before,
+  #work .stage::after {
+    animation: none;
+  }
+}
+
+/* ================================================================
+   Flagship on narrow cards (container < 960px): the "stage" treatment.
+
+   Problem: stacked on a phone the card is ~1400px tall and ~340px wide, and
+   its backdrop (lights and rings placed in percentages of the card's HEIGHT)
+   fell outside the card, leaving long stretches of flat ink above and below
+   the artwork.
+
+   Design: the artwork becomes a framed stage, built exactly like the stages
+   of the project cards below it (cobalt glow top-left, warm glow
+   bottom-right, cobalt rings from the top-right corner, warm rings from the
+   bottom-left corner, a hairline frame). The light and the rings therefore live
+   inside a panel that always has the right size, instead of being scattered
+   over empty ink; the card outside it keeps the desktop's cobalt light behind
+   the headline and warm light under the numbers, plus the grain. The numbers
+   become a compact 3 + 2 ledger and the gaps tighten, so the card is
+   noticeably shorter.
+   ================================================================ */
+@container feat (max-width: 959.98px) {
+  #work .feat {
+    gap: 24px;
+  }
+
+  /* -- card-level backdrop: kept, but anchored in px / cqi so it stays inside -- */
+  #work .feat-aurora::before {
+    top: -130px;
+    inset-inline-end: -36%;
+    width: min(110cqi, 460px);
+    opacity: 0.6;
+  }
+
+  #work .feat-aurora::after {
+    top: auto;
+    bottom: -110px;
+    inset-inline-start: -34%;
+    width: min(104cqi, 440px);
+    opacity: 0.9;
+  }
+
+  #work .feat-rings {
+    display: none;
+  }
+
+  #work .feat-grain {
+    display: block;
+    opacity: 0.4;
+    mix-blend-mode: normal;
+  }
+
+  /* -- the stage -- */
+  #work .feat-art {
+    --a1: #5b7cff;
+    --a2: #e0a458;
+    isolation: isolate;
+    overflow: hidden;
+    padding: clamp(14px, 4.4cqi, 26px);
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    border-radius: 22px;
+    background:
+      radial-gradient(
+        90% 120% at 0% 0%,
+        color-mix(in srgb, var(--a1) 40%, transparent),
+        transparent 64%
+      ),
+      radial-gradient(
+        85% 110% at 100% 100%,
+        color-mix(in srgb, var(--a2) 26%, transparent),
+        transparent 64%
+      ),
+      rgba(255, 255, 255, 0.025);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.07),
+      0 30px 60px -40px rgba(0, 0, 0, 0.7);
+  }
+
+  #work .feat-art::before,
+  #work .feat-art::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  #work .feat-art::before {
+    background: repeating-radial-gradient(
+      circle at 100% 0%,
+      transparent 0 26px,
+      color-mix(in srgb, var(--a1) 46%, transparent) 26px 27px
+    );
+    mask-image: radial-gradient(circle at 100% 0%, #000 0%, transparent 72%);
+  }
+
+  #work .feat-art::after {
+    background: repeating-radial-gradient(
+      circle at 0% 100%,
+      transparent 0 32px,
+      color-mix(in srgb, var(--a2) 38%, transparent) 32px 33px
+    );
+    mask-image: radial-gradient(circle at 0% 100%, #000 0%, transparent 72%);
+  }
+
+  #work .feat-art .depth {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* the trace tucks under the window with less dead gap above it */
+  #work .depth-b {
+    width: min(100%, 520px);
+    margin-top: 34%;
+    translate: 0 calc(var(--sy, 0) * -18px);
+  }
+
+  /* -- numbers: a compact 3 + 2 ledger instead of three tall rows -- */
+  #work .facts[data-n="5"] {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0 14px;
+  }
+
+  #work .facts[data-n="5"] .fact {
+    grid-column: span 2;
+    gap: 6px;
+    padding-block: 14px 2px;
+  }
+
+  #work .facts[data-n="5"] .fact:nth-child(n + 4),
+  #work .facts[data-n="5"] .fact:last-child {
+    grid-column: span 3;
+  }
+
+  #work .facts[data-n="5"] .fact dd {
+    font-size: clamp(1.75rem, 7.6cqi, 2.5rem);
+  }
+
+  #work .facts[data-n="5"] .fact dt {
+    font-size: 0.75rem;
+  }
+}
+
+@container feat (max-width: 559.98px) {
+  #work .feat-art .depth-a,
+  #work .feat-art .depth-b {
+    translate: none;
+  }
+
+  #work .feat-aurora {
+    translate: none;
+  }
+}
+
+/* tablets keep the one-row numbers */
+@container feat (min-width: 560px) and (max-width: 959.98px) {
+  #work .facts[data-n="5"] {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  #work .facts[data-n="5"] .fact,
+  #work .facts[data-n="5"] .fact:nth-child(n + 4),
+  #work .facts[data-n="5"] .fact:last-child {
+    grid-column: auto;
+  }
+}
+
+html[data-perf="low"] #work .feat-grain {
+  display: none;
+}
+
+@media print {
+  #work .feat-grain {
+    display: none;
+  }
+}

@@ -1,21 +1,42 @@
-let locked = false;
+import { getLenis } from "@/lib/lenis";
 
+let locked = false;
+let lockedY = 0;
+
+/**
+ * Freezes page scrolling while an overlay (palette, gate, terminal) is open.
+ *
+ * The page is frozen in place with `overflow: hidden` on the root. It used to
+ * be pinned by making the body `position: fixed; top: -Ypx`, which keeps the
+ * picture still but makes `window.scrollY` read 0 for as long as the overlay is
+ * open. Everything that reads the scroll position then believed the visitor
+ * was back at the top of the page: the navbar capsule changed shape and the
+ * progress rail emptied, the back-to-top button hid, the hero depth effect and
+ * the scroll story rewound, and the marquee saw a huge jump as a burst of speed.
+ *
+ * With `overflow: hidden` the position is never touched, so none of that
+ * happens. `scrollbar-gutter: stable` (globals.css) keeps the scrollbar's
+ * space reserved, so the layout does not change width when it disappears.
+ */
 export function lockScroll() {
   if (locked) return;
   locked = true;
-  document.body.style.overflow = "hidden";
-  document.body.style.position = "fixed";
-  document.body.style.width = "100%";
-  document.body.style.top = `-${window.scrollY}px`;
+  lockedY = window.scrollY;
+  // Stop Lenis so it cannot keep animating (or intercept the wheel) underneath.
+  getLenis()?.stop();
+  document.documentElement.style.overflow = "hidden";
+  // Lets the stylesheet darken the scrollbar strip beside a dark overlay.
+  document.documentElement.setAttribute("data-scroll-locked", "");
 }
 
 export function unlockScroll() {
   if (!locked) return;
   locked = false;
-  const top = document.body.style.top;
-  document.body.style.overflow = "";
-  document.body.style.position = "";
-  document.body.style.width = "";
-  document.body.style.top = "";
-  window.scrollTo(0, parseInt(top || "0") * -1);
+  document.documentElement.style.overflow = "";
+  document.documentElement.removeAttribute("data-scroll-locked");
+  getLenis()?.start();
+  // The position was never moved, so this only matters if something else did.
+  if (Math.abs(window.scrollY - lockedY) > 1) {
+    window.scrollTo({ top: lockedY, left: 0, behavior: "instant" });
+  }
 }

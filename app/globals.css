@@ -10,21 +10,40 @@
   --breakpoint-xl: 1200px;
   --breakpoint-2xl: 1400px;
 
-  --font-sans: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  --radius-ui-1: 4px;
+  --radius-ui-2: 6px;
+  --radius-ui-3: 10px;
 
-  --animate-wave: wave 15s ease-in-out infinite;
-  --animate-glowing: glowing 20s linear infinite;
-  --animate-float-around: floatAround 20s ease-in-out infinite;
-  --animate-bg-shift: backgroundShift 15s ease-in-out infinite;
-  --animate-hero-in-1: heroIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) 100ms both;
-  --animate-hero-in-2: heroIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) 500ms both;
-  --animate-hero-in-3: heroIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) 900ms both;
-  --animate-reveal-up: revealUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) backwards;
-  --animate-reveal-left: revealLeft 0.6s cubic-bezier(0.4, 0, 0.2, 1) backwards;
-  --animate-reveal-right: revealRight 0.6s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+  /* Type scale (redesign phase 2). Utilities: text-display, text-h1, text-h2,
+     text-h3, text-lead. Each carries its own line-height. */
+  --text-display: clamp(2.75rem, 7.4vw, 5.25rem);
+  --text-display--line-height: 1.02;
+  --text-h1: clamp(2.25rem, 5.4vw, 3.75rem);
+  --text-h1--line-height: 1.05;
+  --text-h2: clamp(1.75rem, 3.6vw, 2.5rem);
+  --text-h2--line-height: 1.1;
+  --text-h3: 1.5rem;
+  --text-h3--line-height: 1.25;
+  --text-lead: 1.25rem;
+  --text-lead--line-height: 1.55;
+  --text-wordmark: clamp(3.5rem, 11vw, 7.5rem);
+  --text-wordmark--line-height: 0.92;
+
+  /* Hero entrance cascade. Delays are kept short on purpose: `heroIn` starts at
+     opacity 0 with `both` fill, so a long delay removes that content from
+     Largest-Contentful-Paint candidacy. Measured on mobile/4x-CPU, the old
+     100/500/900ms tiers delayed LCP by ~1.3s on /ar and ~3.2s on /. The
+     cascade order and feel are preserved; only the waits are tightened. */
+  --animate-hero-in-1: heroIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0ms both;
+  --animate-hero-in-2: heroIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) 160ms both;
+  --animate-hero-in-3: heroIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) 320ms both;
+  --animate-rule-grow: ruleGrow 0.7s cubic-bezier(0.4, 0, 0.2, 1) 150ms backwards;
+  --animate-glow-breathe: glowBreathe 16s ease-in-out infinite;
+  --animate-reveal-up: revealUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) backwards;
   --animate-github-card: githubCard 0.6s cubic-bezier(0.4, 0, 0.2, 1) backwards;
   --animate-scanline: scanline 8s linear infinite;
-  --animate-terminal-line: terminalLine 0.3s ease-in;
+  --animate-crt-sweep: crtSweep 7s linear infinite;
+  --animate-terminal-line: terminalLine 0.3s ease-in both;
   --animate-glitch: glitch 0.3s infinite;
   --animate-badge-pulse: badgePulse 2s infinite;
   --animate-header-sweep: headerSweep 3s ease-in-out infinite;
@@ -48,50 +67,15 @@
   --animate-matrix-fall: matrixFall 3s linear infinite;
   --animate-symbol-float: symbolFloat 4s ease-in-out infinite;
   --animate-master-pop: masterPop 1s ease-out;
+  --animate-pop-in: popIn 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+  --animate-attention: ringPulse 2s ease-in-out 3;
+  --animate-menu-item-in: menuItemIn 0.28s cubic-bezier(0.4, 0, 0.2, 1) backwards;
 
-  @keyframes wave {
-    0%,
-    100% {
-      transform: translate(0, 0);
-    }
-    50% {
-      transform: translate(-25px, -10px);
-    }
-  }
+  --animate-marquee: marquee 80s linear infinite;
 
-  @keyframes glowing {
-    0%,
-    100% {
-      background-position: 0 0;
-    }
-    50% {
-      background-position: 400% 0;
-    }
-  }
-
-  @keyframes floatAround {
-    0%,
-    100% {
-      transform: translate(0, 0) rotate(0deg);
-    }
-    25% {
-      transform: translate(30px, -30px) rotate(90deg);
-    }
-    50% {
-      transform: translate(0, -60px) rotate(180deg);
-    }
-    75% {
-      transform: translate(-30px, -30px) rotate(270deg);
-    }
-  }
-
-  @keyframes backgroundShift {
-    0%,
-    100% {
-      transform: scale(1) rotate(0deg);
-    }
-    50% {
-      transform: scale(1.1) rotate(180deg);
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
     }
   }
 
@@ -106,24 +90,26 @@
     }
   }
 
+  @keyframes ruleGrow {
+    from {
+      transform: scaleX(0);
+    }
+  }
+
+  @keyframes glowBreathe {
+    0%,
+    100% {
+      opacity: 0.65;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
   @keyframes revealUp {
     from {
       opacity: 0;
-      transform: translateY(40px);
-    }
-  }
-
-  @keyframes revealLeft {
-    from {
-      opacity: 0;
-      transform: translateX(40px);
-    }
-  }
-
-  @keyframes revealRight {
-    from {
-      opacity: 0;
-      transform: translateX(-40px);
+      transform: translateY(28px);
     }
   }
 
@@ -137,6 +123,15 @@
   @keyframes scanline {
     to {
       background-position: 0 100%;
+    }
+  }
+
+  @keyframes crtSweep {
+    from {
+      top: -12%;
+    }
+    to {
+      top: 112%;
     }
   }
 
@@ -165,10 +160,10 @@
   @keyframes badgePulse {
     0%,
     100% {
-      box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
     }
     50% {
-      box-shadow: 0 0 40px rgba(0, 255, 65, 0.8);
+      box-shadow: 0 0 40px rgba(251, 191, 36, 0.8);
     }
   }
 
@@ -227,10 +222,10 @@
   @keyframes textGlow {
     0%,
     100% {
-      text-shadow: 0 0 15px rgba(0, 255, 65, 0.6);
+      text-shadow: 0 0 15px rgba(251, 191, 36, 0.6);
     }
     50% {
-      text-shadow: 0 0 25px rgba(0, 255, 65, 0.9);
+      text-shadow: 0 0 25px rgba(251, 191, 36, 0.9);
     }
   }
 
@@ -304,12 +299,12 @@
     100% {
       opacity: 0.4;
       transform: scale(0.8);
-      text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+      text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
     }
     50% {
       opacity: 1;
       transform: scale(1.3);
-      text-shadow: 0 0 30px rgba(0, 255, 65, 1);
+      text-shadow: 0 0 30px rgba(251, 191, 36, 1);
     }
   }
 
@@ -317,13 +312,13 @@
     0%,
     100% {
       box-shadow:
-        0 0 10px rgba(0, 255, 65, 0.3),
-        inset 0 0 10px rgba(0, 255, 65, 0.1);
+        0 0 10px rgba(251, 191, 36, 0.3),
+        inset 0 0 10px rgba(251, 191, 36, 0.1);
     }
     50% {
       box-shadow:
-        0 0 20px rgba(0, 255, 65, 0.5),
-        inset 0 0 15px rgba(0, 255, 65, 0.2);
+        0 0 20px rgba(251, 191, 36, 0.5),
+        inset 0 0 15px rgba(251, 191, 36, 0.2);
     }
   }
 
@@ -389,14 +384,38 @@
       opacity: 1;
     }
   }
+
+  @keyframes popIn {
+    from {
+      opacity: 0;
+      transform: translateY(6px) scale(0.96);
+    }
+  }
+
+  @keyframes menuItemIn {
+    from {
+      opacity: 0;
+      transform: translateX(-8px);
+    }
+  }
 }
 
 @theme inline {
+  --color-page: var(--c-page);
   --color-primary: var(--c-primary);
   --color-secondary: var(--c-secondary);
+  --color-on-secondary: var(--c-on-secondary);
+  --color-signal: var(--c-signal);
   --color-accent: var(--c-accent);
-  --color-gradient-start: var(--c-gradient-start);
-  --color-gradient-end: var(--c-gradient-end);
+  --color-hairline: var(--c-hairline);
+  --color-rule-strong: var(--c-rule-strong);
+  --color-status: var(--c-status);
+  --color-note: var(--c-note);
+  --color-honey: var(--c-honey);
+  --color-honey-hi: var(--c-honey-hi);
+  --color-mark: var(--c-mark);
+  --color-glass: var(--c-glass);
+  --color-glass-edge: var(--c-glass-edge);
   --color-light-bg: var(--c-light-bg);
   --color-surface: var(--c-surface);
   --color-dark-bg: var(--c-dark-bg);
@@ -409,58 +428,141 @@
   --shadow-md: var(--sh-md);
   --shadow-lg: var(--sh-lg);
   --shadow-xl: var(--sh-xl);
+
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-mono-body);
+  --font-display: var(--font-display-body);
 }
 
+/* ================================================================
+   DESIGN TOKENS (redesign phase 1)
+
+   Roles. One meaning per colour, so the page never has to guess:
+     secondary / signal  ACTION   buttons, links, focus (cobalt)
+     note / honey        IDENTITY marks, numerals, eyebrows, rules (warm gold)
+     status              LIVE     production only (green)
+     accent              ERROR    destructive and error states (red)
+   Everything else is a cool neutral on one ladder. The ladder means the
+   same thing in both themes: dark-bg (deepest) < light-bg (recessed panel)
+   < page < surface (raised card).
+
+   note is the TEXT-safe gold (4.7:1 or better on every light surface).
+   honey is for graphics (rules, dots, progress), 3:1 against the page.
+   honey-hi is the bright wash and glow gold, never used for text.
+   ================================================================ */
 :root {
-  --c-page: #ffffff;
-  --c-primary: #2c3e50;
-  --c-secondary: #3498db;
-  --c-accent: #e74c3c;
-  --c-gradient-start: #667eea;
-  --c-gradient-end: #764ba2;
-  --c-light-bg: #f8f9fa;
+  --c-page: #fbfbfd;
+  --c-primary: #0b1230;
+  --c-secondary: #3b5bf5;
+  --c-on-secondary: #ffffff;
+  --c-signal: #2a44d8;
+  --c-accent: #b3261e;
+  --c-hairline: #d8dde8;
+  --c-rule-strong: #a0a9bd;
+  --c-status: #12703a;
+  --c-note: #965800;
+  --c-honey: #c77a06;
+  --c-honey-hi: #f0ae2a;
+  --c-mark: #fbd68c;
+  --c-light-bg: #f2f4f9;
   --c-surface: #ffffff;
-  --c-dark-bg: #1a2530;
-  --c-dark-text: #2c3e50;
-  --c-light-text: #5a6c7d;
-  --c-muted-text: #95a5a6;
-  --c-avatar-from: #667eea;
-  --c-avatar-to: #764ba2;
-  --sh-xs: 0 1px 3px rgba(0, 0, 0, 0.06);
-  --sh-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-  --sh-md: 0 5px 15px rgba(0, 0, 0, 0.1);
-  --sh-lg: 0 15px 35px rgba(0, 0, 0, 0.15);
-  --sh-xl: 0 20px 50px rgba(0, 0, 0, 0.2);
-  --wave-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.05" d="M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,213.3C672,192,768,128,864,128C960,128,1056,192,1152,197.3C1248,203,1344,149,1392,122.7L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+  --c-dark-bg: #e8ebf3;
+  --c-dark-text: #0b1230;
+  --c-light-text: #343f5a;
+  --c-muted-text: #4d5873;
+  --c-glass: rgba(255, 255, 255, 0.9);
+  --c-glass-edge: rgba(14, 23, 38, 0.12);
+  --c-inner-light: rgba(255, 255, 255, 0.5);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --sh-xs: 0 1px 2px rgba(11, 18, 48, 0.06), inset 0 1px 0 var(--c-inner-light);
+  --sh-sm:
+    0 1px 2px rgba(11, 18, 48, 0.05), 0 2px 8px rgba(11, 18, 48, 0.06),
+    inset 0 1px 0 var(--c-inner-light);
+  --sh-md:
+    0 2px 4px rgba(11, 18, 48, 0.04), 0 8px 20px rgba(11, 18, 48, 0.08),
+    inset 0 1px 0 var(--c-inner-light);
+  --sh-lg:
+    0 4px 8px rgba(11, 18, 48, 0.04), 0 16px 32px rgba(11, 18, 48, 0.1),
+    inset 0 1px 0 var(--c-inner-light);
+  --sh-xl:
+    0 8px 16px rgba(11, 18, 48, 0.05), 0 24px 48px rgba(11, 18, 48, 0.12),
+    inset 0 1px 0 var(--c-inner-light);
+  --bg-ambient: radial-gradient(
+    ellipse 120% 50% at 50% -20%,
+    rgba(255, 255, 255, 0.55) 0%,
+    transparent 55%
+  );
+  --grain-opacity: 0.015;
+  /* Soft tonal washes + halftone corner (mockup rev 25/26). Non-`--c-*` on
+     purpose: they are decorative overlays, never text or border colours. */
+  --wash-a: rgba(91, 63, 209, 0.085);
+  --wash-b: rgba(59, 91, 245, 0.08);
+  --dots: 0.16;
+  --font-body:
+    var(--font-instrument, "Instrument Sans"), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display-body: var(--font-jakarta, "Plus Jakarta Sans"), var(--font-body);
+  --font-mono-body:
+    var(--font-jetbrains, "JetBrains Mono"), ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+/* Arabic: one family for body and headings (Latin display face has no Arabic glyphs). */
+html[lang="ar"] {
+  --font-body:
+    var(--font-readex, "Readex Pro"), "IBM Plex Sans Arabic", "Segoe UI", "Noto Sans Arabic",
+    Tahoma, sans-serif;
+  --font-display-body: var(--font-body);
 }
 
 .dark-mode {
-  --c-page: #0f172a;
-  --c-primary: #0f172a;
-  --c-secondary: #3b82f6;
-  --c-accent: #ef4444;
-  --c-gradient-start: #6366f1;
-  --c-gradient-end: #8b5cf6;
-  --c-light-bg: #1e293b;
-  --c-surface: #1e293b;
-  --c-dark-bg: #0f172a;
-  --c-dark-text: #f1f5f9;
-  --c-light-text: #cbd5e1;
-  --c-muted-text: #94a3b8;
-  --c-avatar-from: #334155;
-  --c-avatar-to: #475569;
-  --sh-xs: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --sh-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
-  --sh-md: 0 5px 15px rgba(0, 0, 0, 0.5);
-  --sh-lg: 0 15px 35px rgba(0, 0, 0, 0.6);
-  --sh-xl: 0 20px 50px rgba(0, 0, 0, 0.7);
-  --wave-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23000000" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,213.3C672,192,768,128,864,128C960,128,1056,192,1152,197.3C1248,203,1344,149,1392,122.7L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+  --c-page: #0e1522;
+  --c-primary: #0e1522;
+  --c-secondary: #6b9bff;
+  --c-on-secondary: #06101f;
+  --c-signal: #8fb2ff;
+  --c-accent: #ff8a7a;
+  --c-hairline: #1f2b42;
+  --c-rule-strong: #3b4c6c;
+  --c-status: #4ade80;
+  --c-note: #e0a458;
+  --c-honey: #e0a458;
+  --c-honey-hi: #e0a458;
+  --c-mark: #d9993f;
+  --c-light-bg: #0a101a;
+  --c-surface: #162033;
+  --c-dark-bg: #070b13;
+  --c-dark-text: #e8edf7;
+  --c-light-text: #b0bbd0;
+  --c-muted-text: #8f9db6;
+  --c-glass: rgba(14, 22, 38, 0.82);
+  --c-glass-edge: rgba(255, 255, 255, 0.15);
+  --c-inner-light: rgba(232, 237, 247, 0.045);
+  --sh-xs: 0 1px 2px rgba(0, 0, 0, 0.3), inset 0 1px 0 var(--c-inner-light);
+  --sh-sm:
+    0 1px 3px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.3), inset 0 1px 0 var(--c-inner-light);
+  --sh-md: 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 var(--c-inner-light);
+  --sh-lg: 0 10px 26px rgba(0, 0, 0, 0.45), inset 0 1px 0 var(--c-inner-light);
+  --sh-xl: 0 18px 42px rgba(0, 0, 0, 0.55), inset 0 1px 0 var(--c-inner-light);
+  --bg-ambient:
+    radial-gradient(ellipse 130% 60% at 50% -15%, rgba(107, 155, 255, 0.035) 0%, transparent 55%),
+    radial-gradient(ellipse 100% 45% at 50% 115%, rgba(224, 164, 88, 0.025) 0%, transparent 50%);
+  --grain-opacity: 0.028;
+  --wash-a: rgba(224, 164, 88, 0.075);
+  --wash-b: rgba(107, 155, 255, 0.1);
+  --dots: 0.2;
 }
 
 @utility container {
   width: 100%;
   margin-inline: auto;
   padding-inline: 0.75rem;
+
+  /* The built-in container adds a 376px cap at the project's `xs` step, which
+     left a 376px column floating in the middle of 376–575px screens (large
+     phones, small landscape). Phones use the full width; the stepped caps
+     below take over from 576px. */
+  @media (width < 576px) {
+    max-width: 100%;
+  }
 
   @media (width >= 576px) {
     max-width: 540px;
@@ -479,20 +581,228 @@
   }
 }
 
-@utility bg-hero-gradient {
-  background-image: linear-gradient(135deg, var(--c-primary) 0%, var(--c-dark-bg) 100%);
+/* Navbar (redesign phase 3). Everything is driven by --np (0..1), written on
+   the <nav> by Navbar.tsx from scroll position, so the bar becomes a glass
+   capsule at scroll speed with no timed transition. The capsule is a
+   background layer: the content never moves, so nothing reflows while it
+   morphs. Vertical budget at np=1: 16px nav padding, capsule extends 11px
+   beyond the content, leaving 5px to the viewport edge. */
+@utility nav-shell {
+  /* --ne is --np (smoothed scroll progress, see Navbar.tsx) run through a
+     smoothstep, so the capsule eases in and out instead of tracking the
+     scroll position one-to-one. Everything that shapes the capsule reads it. */
+  --ne: calc(var(--np, 0) * var(--np, 0) * (3 - 2 * var(--np, 0)));
+  padding-block: calc(1.375rem - var(--ne, 0) * 0.375rem);
 }
 
-@utility bg-brand-x {
-  background-image: linear-gradient(90deg, var(--c-secondary), var(--c-gradient-start));
+@utility nav-capsule {
+  position: relative;
+  isolation: isolate;
+
+  &::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+    inset-block: calc(var(--ne, 0) * -0.6875rem);
+    inset-inline: calc(var(--ne, 0) * -0.5rem);
+    border-radius: calc(0.875rem + var(--ne, 0) * 0.5rem);
+    background: color-mix(in srgb, var(--c-glass) calc(var(--ne, 0) * 100%), transparent);
+    border: 1px solid color-mix(in srgb, var(--c-glass-edge) calc(var(--ne, 0) * 100%), transparent);
+    backdrop-filter: blur(calc(var(--ne, 0) * 20px)) saturate(calc(1 + var(--ne, 0) * 0.8));
+    -webkit-backdrop-filter: blur(calc(var(--ne, 0) * 20px)) saturate(calc(1 + var(--ne, 0) * 0.8));
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, white calc(var(--ne, 0) * 40%), transparent),
+      0 22px 36px -24px color-mix(in srgb, black calc(var(--ne, 0) * 45%), transparent);
+  }
+
+  /* On phones the container IS the viewport width, so an offset measured from
+     its edge (-0.5rem) pushed the capsule past the screen: its left and right
+     edges were clipped. Below 576px the offset is measured from the content
+     edge instead (the container's 12px gutter): the capsule grows from the
+     content edge at rest to 6px from the screen edge at full progress. */
+  @media (width < 576px) {
+    &::before {
+      inset-inline: calc(0.75rem - var(--ne, 0) * 0.375rem);
+    }
+  }
+
+  /* From 992px the capsule grows 20px past the content on each side, but the
+     container is only 960px wide until 1200px, so just above 992px there are
+     fewer than 20px between it and the screen edge and the capsule ran off the
+     screen. The growth is capped at the space that really exists (viewport
+     minus container, halved, minus 1rem of slack for a classic scrollbar). */
+  @media (width >= 992px) {
+    &::before {
+      inset-inline: calc(var(--ne, 0) * -1 * min(1.25rem, max(0px, (100vw - 100%) / 2 - 1rem)));
+    }
+  }
 }
 
-@utility bg-brand-y {
-  background-image: linear-gradient(180deg, var(--c-secondary), var(--c-gradient-start));
+/* Section progress rail inside the capsule's lower edge.
+
+   The capsule is rounded (radius 14px growing to 22px) and, below 992px, only
+   pokes 8px past the content on each side. A rail running the full content
+   width there left its ends outside the curve of the bottom corners, over the
+   capsule's border. Two things keep it inside:
+   - it sits 4px above the capsule's bottom edge (was 2px), and
+   - below 992px its ends are pulled in 6px, so even at the corner's tightest
+     point the 3px rail is clear of the curve and the border.
+   From 992px the capsule is 20px wider than the content on each side, which
+   already clears the curve, so the rail stays flush with the content. */
+@utility nav-progress {
+  position: absolute;
+  inset-inline: 0.375rem;
+  bottom: calc(var(--ne, 0) * -0.6875rem + 0.25rem);
+  display: flex;
+  gap: 0.3125rem;
+  height: 0.1875rem;
+  opacity: var(--ne, 0);
+  pointer-events: none;
+
+  /* Phones: the capsule's edge is 6px from the screen, so the rail starts 14px
+     inside it (it would otherwise sit on the capsule's border). */
+  @media (width < 576px) {
+    inset-inline: 1.25rem;
+  }
+
+  @media (width >= 992px) {
+    inset-inline: 0;
+  }
 }
 
-@utility bg-avatar {
-  background-image: linear-gradient(135deg, var(--c-avatar-from) 0%, var(--c-avatar-to) 100%);
+/* Hero portrait halo (redesign phase 4): a warm-to-cobalt glow and one thin
+   concentric ring. Decorative only; both layers sit behind the photo. */
+@utility hero-halo {
+  position: relative;
+  isolation: isolate;
+
+  &::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: -22%;
+    border-radius: 9999px;
+    pointer-events: none;
+    background: radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--c-honey-hi) 30%, transparent),
+      color-mix(in srgb, var(--c-secondary) 12%, transparent) 55%,
+      transparent 72%
+    );
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: -9%;
+    border-radius: 9999px;
+    pointer-events: none;
+    border: 1px solid color-mix(in srgb, var(--c-honey) 45%, transparent);
+  }
+}
+
+@utility marquee-mask {
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+/* Work cards (redesign phase 5). --mx / --my are written by Spotlight.tsx.
+   The glow and edge bar appear on hover or keyboard focus inside the card and
+   are removed under reduced motion. */
+@utility spotlight {
+  position: relative;
+  isolation: isolate;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease-out;
+    background: radial-gradient(
+      420px circle at var(--mx, 30%) var(--my, 40%),
+      color-mix(in srgb, var(--c-honey-hi) 16%, transparent),
+      transparent 70%
+    );
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset-block: 12px;
+    inset-inline-start: 0;
+    width: 3px;
+    border-radius: 3px;
+    pointer-events: none;
+    background: var(--c-note);
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 0.3s ease-out;
+  }
+
+  &:hover::before,
+  &:focus-within::before {
+    opacity: 1;
+  }
+
+  &:hover::after,
+  &:focus-within::after {
+    transform: scaleY(1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &::before,
+    &::after {
+      display: none;
+    }
+  }
+}
+
+@utility nav-menu-panel {
+  background-color: color-mix(
+    in srgb,
+    color-mix(in srgb, var(--c-page) 90%, black) 95%,
+    transparent
+  );
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--c-secondary) 7%, transparent),
+    transparent 60%
+  );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 14%, transparent),
+    0 14px 30px -14px rgb(0 0 0 / 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+@utility stagger-60 {
+  --stagger: 60ms;
+}
+
+@utility stagger-80 {
+  --stagger: 80ms;
+}
+
+@utility nav-scrim {
+  background: color-mix(in srgb, var(--c-page) 35%, transparent);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+/* Registered with inherits:false so setting it on <html> (ScrollbarTone does,
+   as the band under the scroll position changes) restyles only <html>. As an
+   ordinary custom property it is inherited, and every change forced a style
+   recalculation of the whole document in the middle of a scroll. */
+@property --edge-color {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #05123a;
 }
 
 @layer base {
@@ -503,18 +813,90 @@
     scrollbar-gutter: stable;
   }
 
+  /* Offscreen bands stop their endless loops (PauseOffscreen sets the flag).
+     They resume exactly where they stopped; nothing is removed. */
+  [data-offscreen="true"],
+  [data-offscreen="true"] *,
+  [data-offscreen="true"] *::before,
+  [data-offscreen="true"] *::after {
+    animation-play-state: paused !important;
+  }
+
+  /* Lenis (smooth wheel scrolling). Its own stylesheet, inlined so the rules
+     live next to the html rule they interact with. Lenis scrolls with
+     behavior: "instant", so the scroll-behavior above only governs native
+     jumps (keyboard, find-in-page) and the no-JS case. */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+
+  /* Deliberately no ".lenis-stopped { overflow: clip }" (Lenis's default).
+     lib/scrollLock.ts already freezes the page with a fixed body, which also
+     holds on iOS; clipping the root as well made it stop being a scroll
+     container and reset the scroll position to the top on unlock. */
+
+  .lenis [data-lenis-prevent],
+  .lenis [data-lenis-prevent-wheel],
+  .lenis [data-lenis-prevent-touch],
+  .lenis [data-lenis-prevent-vertical],
+  .lenis [data-lenis-prevent-horizontal] {
+    overscroll-behavior: contain;
+  }
+
+  /* While a glide is running, an iframe under the cursor would swallow the
+     wheel and stall the page. At rest it stays fully interactive. */
+  .lenis.lenis-smooth iframe {
+    pointer-events: none;
+  }
+
   body {
     background-color: var(--c-page);
     color: var(--c-dark-text);
+    font-family: var(--font-body);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* Display face on headings; utilities (font-mono, font-sans) still win. */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display-body);
+    text-wrap: balance;
+  }
+
+  /* The ambient wash lives on its own fixed layer instead of
+     "background-attachment: fixed" on the body. Same look, but the browser can
+     composite it, so it is not repainted on every scroll frame (which smooth
+     scrolling makes visible as jank, most of all on phones and laptops). */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: var(--bg-ambient);
+  }
+
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 2147483647;
+    pointer-events: none;
+    opacity: var(--grain-opacity);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+  }
+
+  /* Focus ring (mockup): 2px with a 3px offset so it clears rounded
+     corners and pill shapes instead of hugging them. */
   a:focus,
   button:focus {
-    outline: 3px solid var(--c-secondary);
-    outline-offset: 2px;
+    outline: 2px solid var(--c-signal);
+    outline-offset: 3px;
   }
 
   a:focus:not(:focus-visible),
@@ -523,14 +905,24 @@
   }
 
   ::selection {
-    background-color: var(--c-secondary);
-    color: #ffffff;
+    background-color: color-mix(in srgb, var(--c-honey) 28%, transparent);
+    color: var(--c-dark-text);
   }
 
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(52, 152, 219, 0.6) transparent;
-  }
+  /* ================================================================
+     SCROLLBARS — completely rebuilt.
+     The old code set scrollbar-color on * which silently disabled
+     every ::-webkit-scrollbar pseudo-element in Chromium, and
+     .dark-mode * never matched html (the page scrollbar's owner)
+     because html is the PARENT of body.dark-mode, not a descendant.
+     The page scrollbar was permanently stuck with the light value.
+
+     Now: the universal pseudo-elements style all scrollbars (page +
+     inner containers) in light mode. html:has(.dark-mode) overrides
+     the PAGE scrollbar in dark mode (html owns it). .dark-mode
+     descendants override INNER scrollbars in dark mode. No
+     scrollbar-color is set anywhere — the pseudo-elements live.
+     ================================================================ */
 
   ::-webkit-scrollbar {
     width: 10px;
@@ -541,31 +933,134 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background-color: rgba(52, 152, 219, 0.6);
+    background: color-mix(in srgb, var(--c-secondary) 50%, transparent);
     border: 2px solid transparent;
     border-radius: 10px;
     background-clip: padding-box;
   }
 
-  ::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(52, 152, 219, 0.9);
+  @media (hover: hover) {
+    ::-webkit-scrollbar-thumb:hover {
+      background: color-mix(in srgb, var(--c-secondary) 75%, transparent);
+    }
   }
 
   ::-webkit-scrollbar-thumb:active {
-    background-color: #2980b9;
+    background: color-mix(in srgb, var(--c-secondary) 85%, transparent);
   }
 
+  /* Dark mode: PAGE scrollbar (html owns it; :has() detects the
+     body-level .dark-mode class from the parent html element) */
+  html:has(.dark-mode)::-webkit-scrollbar-track {
+    background: var(--c-page);
+  }
+
+  html:has(.dark-mode)::-webkit-scrollbar-thumb {
+    background: var(--c-secondary);
+    border: 2px solid var(--c-page);
+  }
+
+  @media (hover: hover) {
+    html:has(.dark-mode)::-webkit-scrollbar-thumb:hover {
+      background: var(--c-signal);
+    }
+  }
+
+  /* Dark mode: INNER scrollbars (terminal output, overflow containers) —
+     these ARE descendants of body.dark-mode, so the descendant selector
+     reaches them directly */
   .dark-mode ::-webkit-scrollbar-track {
-    background: var(--c-light-bg);
+    background: var(--c-page);
   }
 
   .dark-mode ::-webkit-scrollbar-thumb {
     background: var(--c-secondary);
-    border: 2px solid var(--c-light-bg);
+    border: 2px solid var(--c-page);
   }
 
-  .dark-mode ::-webkit-scrollbar-thumb:hover {
-    background: #2563eb;
+  @media (hover: hover) {
+    .dark-mode ::-webkit-scrollbar-thumb:hover {
+      background: var(--c-signal);
+    }
+  }
+
+  /* ================================================================
+     Light mode: the page scrollbar's strip follows the band beside it.
+
+     The 10px strip scrollbar-gutter reserves shows the html background
+     (it does not scroll with the page). ScrollbarTone sets
+     html[data-edge="dark"] while a dark band covers the middle of the
+     screen, and lockScroll() sets html[data-scroll-locked] while an
+     overlay (terminal, palette, gate) is open; both turn the strip dark.
+     Dark mode is dark everywhere already, so it is excluded.
+     html owns the page scrollbar, so these select html's pseudo-elements.
+
+     The strip and the thumb fade together. Browsers do not run CSS
+     transitions on scrollbar pseudo-elements, so the thumb's colours live
+     in registered custom properties on html (see the @property rules above
+     this layer): those can be transitioned, and the thumb just reads them.
+     ================================================================ */
+
+  html:not(:has(.dark-mode)) {
+    background-color: var(--c-page);
+  }
+
+  html[data-edge="dark"]:not(:has(.dark-mode)) {
+    background-color: var(--edge-color, #05123a);
+  }
+
+  html[data-scroll-locked]:not(:has(.dark-mode)) {
+    background-color: #060b16;
+  }
+
+  /* The thumb colours are written straight into each state. They used to live
+     in three inherited, transitioned custom properties, which restyled every
+     element on the page for each frame of a 0.7s fade, exactly while the
+     visitor was scrolling. The thumb now switches at once; only the strip
+     (the html background, which restyles nothing else) still fades. */
+  html:not(:has(.dark-mode))::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, var(--c-secondary) 50%, transparent);
+  }
+
+  html[data-edge="dark"]:not(:has(.dark-mode))::-webkit-scrollbar-thumb,
+  html[data-scroll-locked]:not(:has(.dark-mode))::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, #9db8ff 48%, transparent);
+  }
+
+  @media (hover: hover) {
+    html:not(:has(.dark-mode))::-webkit-scrollbar-thumb:hover {
+      background-color: color-mix(in srgb, var(--c-secondary) 75%, transparent);
+    }
+
+    html[data-edge="dark"]:not(:has(.dark-mode))::-webkit-scrollbar-thumb:hover,
+    html[data-scroll-locked]:not(:has(.dark-mode))::-webkit-scrollbar-thumb:hover {
+      background-color: color-mix(in srgb, #9db8ff 72%, transparent);
+    }
+  }
+
+  html:not(:has(.dark-mode))::-webkit-scrollbar-thumb:active {
+    background-color: color-mix(in srgb, var(--c-secondary) 85%, transparent);
+  }
+
+  html[data-edge="dark"]:not(:has(.dark-mode))::-webkit-scrollbar-thumb:active,
+  html[data-scroll-locked]:not(:has(.dark-mode))::-webkit-scrollbar-thumb:active {
+    background-color: color-mix(in srgb, #9db8ff 85%, transparent);
+  }
+
+  /* A slow, even-ended ease for the strip only. */
+  @media (prefers-reduced-motion: no-preference) {
+    html:not(:has(.dark-mode)) {
+      transition: background-color 0.5s cubic-bezier(0.45, 0, 0.25, 1);
+    }
+  }
+
+  [data-reveal][data-stagger][data-revealed="false"] > * {
+    opacity: 0;
+  }
+
+  [data-reveal][data-stagger][data-revealed="true"] > * {
+    animation: revealUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    animation-delay: calc(var(--stagger) * var(--stagger-index));
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -577,5 +1072,689 @@
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
+  }
+}
+
+/* Print rules live OUTSIDE @layer base on purpose. Unlayered rules beat layered
+   ones, so inside the layer the unlayered .dark-mode tokens won and a dark-mode
+   visitor printed a dark page. Here they come last and win. */
+@media print {
+  :root,
+  .dark-mode {
+    --c-page: #ffffff;
+    --c-primary: #ffffff;
+    --c-secondary: #1f35b8;
+    --c-on-secondary: #ffffff;
+    --c-signal: #1f35b8;
+    --c-accent: #8f1d17;
+    --c-hairline: #d4d4d0;
+    --c-rule-strong: #a1a1aa;
+    --c-status: #15803d;
+    --c-note: #7a4a00;
+    --c-honey: #7a4a00;
+    --c-honey-hi: #7a4a00;
+    --c-mark: #ffffff;
+    --c-light-bg: #f3f3f0;
+    --c-surface: #ffffff;
+    --c-dark-bg: #ffffff;
+    --c-dark-text: #1a1d21;
+    --c-light-text: #3f3f46;
+    --c-muted-text: #52525b;
+    --sh-xs: none;
+    --sh-sm: none;
+    --sh-md: none;
+    --sh-lg: none;
+    --sh-xl: none;
+  }
+
+  html {
+    overflow-x: visible;
+    scroll-padding-top: 0;
+  }
+
+  body {
+    background: #ffffff;
+    background-image: none;
+  }
+
+  body::before,
+  body::after {
+    display: none;
+  }
+
+  [data-reveal] {
+    opacity: 1 !important;
+  }
+
+  [data-reveal][data-stagger] > * {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+
+  article {
+    break-inside: avoid;
+  }
+
+  a {
+    text-decoration: none !important;
+  }
+
+  #work article a[href^="http"]::after,
+  #contact a[href^="http"]::after {
+    content: " <" attr(href) ">";
+    font-size: 0.8em;
+    color: #52525b;
+    word-break: break-all;
+  }
+}
+
+/* Arabic is a cursive script: any letter-spacing breaks the joins, and Readex
+   needs more leading. Unlayered on purpose so it beats Tailwind's layered
+   tracking-* utilities. Latin snippets inside Arabic pages lose tracking too,
+   which is the correct trade-off. */
+html[lang="ar"] body {
+  line-height: 1.9;
+}
+
+html[lang="ar"] * {
+  letter-spacing: 0 !important;
+}
+
+html[lang="ar"] :is(h1, h2, h3) {
+  line-height: 1.3;
+}
+
+/* ================================================================
+   DESIGN SYSTEM (Portfolio Design Mockup, revisions 4–35)
+
+   Shared primitives only — section headers, gutter, buttons, chips,
+   status dots, the mist canvas, the entrance rise, section shells
+   and the tonal washes. Section-specific rules live next to their
+   component in components/sections/<name>.css so parallel work on
+   different sections never collides here.
+
+   Token mapping (mockup name → repo name):
+     sheet→page  panel→light-bg  deep→dark-bg  raise→surface
+     rule→hairline  rule-2→rule-strong  ink→dark-text  ink-2→light-text
+     ink-3→muted-text  signal(#3b5bf5)→secondary  signal-hi→signal
+     note(graphics)→honey  note(text)→note  mark-block→mark
+     ht-a→secondary  ht-b→honey-hi  live→status  focus→signal
+   ================================================================ */
+:root {
+  /* Content column: 48 / 24 / 16 gutters, capped by a 1200px sheet. The
+     percentage resolves against whatever element consumes it, which is
+     always a full-width section, so the column lands at 1104px on wide
+     screens — the same width as the nav dock. */
+  --pad: max(16px, calc((100% - 1200px) / 2 + 16px));
+}
+
+@media (min-width: 576px) {
+  :root {
+    --pad: max(24px, calc((100% - 1200px) / 2 + 24px));
+  }
+}
+
+@media (min-width: 992px) {
+  :root {
+    --pad: max(48px, calc((100% - 1200px) / 2 + 48px));
+  }
+}
+
+@layer components {
+  /* ---------- section shell ---------- */
+  .sec {
+    position: relative;
+    padding-block: clamp(64px, 10vw, 112px);
+    padding-inline: var(--pad);
+  }
+
+  .sec-panel {
+    background-color: var(--c-light-bg);
+    border-block: 1px solid var(--c-hairline);
+  }
+
+  .sec-deep {
+    background-color: var(--c-dark-bg);
+    /* Rev 26 (mockup L2310): the deep band feathers into the page colour at
+       both edges instead of being cut off — no border, no card radius. */
+    box-shadow:
+      inset 0 130px 90px -90px var(--c-page),
+      inset 0 -130px 90px -90px var(--c-page);
+  }
+
+  /* Tonal washes + a halftone corner that echoes the hero stage. On the
+     sections the mockup pins to a plain surface (About) simply omit it. */
+  .sec-wash {
+    position: relative;
+    isolation: isolate;
+    background-image:
+      radial-gradient(60% 55% at 100% 0%, var(--wash-a), transparent 72%),
+      radial-gradient(52% 48% at 0% 100%, var(--wash-b), transparent 72%);
+    background-repeat: no-repeat;
+  }
+
+  .sec-wash::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    inset-inline-end: 0;
+    width: min(46%, 520px);
+    height: 340px;
+    pointer-events: none;
+    background: radial-gradient(var(--c-honey) 1.1px, transparent 1.6px) 0 0 / 15px 15px;
+    opacity: var(--dots);
+    -webkit-mask-image: radial-gradient(closest-side at 100% 0, #000, transparent);
+    mask-image: radial-gradient(closest-side at 100% 0, #000, transparent);
+  }
+
+  [dir="rtl"] .sec-wash::after {
+    -webkit-mask-image: radial-gradient(closest-side at 0 0, #000, transparent);
+    mask-image: radial-gradient(closest-side at 0 0, #000, transparent);
+  }
+
+  /* ---------- section header: index + rule + squiggled title ---------- */
+  .sh {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: clamp(32px, 5vw, 56px);
+    padding-bottom: 0.35em;
+  }
+
+  .sh-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .idx {
+    flex: none;
+    font-family: var(--font-mono-body);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--c-note);
+    direction: ltr;
+  }
+
+  .sh-top .rule {
+    flex: 1;
+    height: 1px;
+    background: var(--c-rule-strong);
+    transform-origin: left center;
+    scale: var(--sp, 1) 1;
+  }
+
+  [dir="rtl"] .sh-top .rule {
+    transform-origin: right center;
+  }
+
+  .sh h2 {
+    position: relative;
+    width: fit-content;
+    max-width: 100%;
+    font-size: var(--text-h2);
+    line-height: 1.1;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+
+  /* Hand-drawn underline. It draws itself in once the header reveals. */
+  .sh h2::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+    bottom: -0.3em;
+    /* Width of the title's last rendered line, set by SectionTitle. Falls back
+       to the full box until it runs (no JS / before hydration). */
+    width: var(--sh-ul, 100%);
+    height: 0.3em;
+    background: var(--c-honey);
+    opacity: 0.85;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 12' preserveAspectRatio='none'%3E%3Cpath d='M0 6C12 1 22 11 36 5S58 2 70 6 90 10 100 6' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E")
+      0 0 / 3.4em 100% round no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 12' preserveAspectRatio='none'%3E%3Cpath d='M0 6C12 1 22 11 36 5S58 2 70 6 90 10 100 6' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E")
+      0 0 / 3.4em 100% round no-repeat;
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 1.3s cubic-bezier(0.65, 0, 0.35, 1) 0.7s;
+  }
+
+  [dir="rtl"] .sh h2::after {
+    scale: -1 1;
+    clip-path: inset(0 100% 0 0);
+  }
+
+  .sh[data-revealed="true"] h2::after,
+  .sh:not([data-reveal]) h2::after {
+    clip-path: inset(0 0 0 0);
+  }
+
+  .sh p {
+    color: var(--c-light-text);
+    max-width: 60ch;
+  }
+
+  /* ---------- mono label ---------- */
+  .lbl {
+    font-family: var(--font-mono-body);
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--c-muted-text);
+  }
+
+  html[lang="ar"] .lbl {
+    font-family: var(--font-body);
+    letter-spacing: 0;
+    text-transform: none;
+    font-size: 0.875rem;
+  }
+
+  /* ---------- buttons ---------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding-inline: 20px;
+    border-radius: var(--radius-ui-2);
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition:
+      background-color 0.18s,
+      border-color 0.18s,
+      box-shadow 0.18s,
+      color 0.18s,
+      filter 0.18s;
+  }
+
+  .btn-primary {
+    background-image: linear-gradient(
+      135deg,
+      var(--c-signal) 0%,
+      var(--c-secondary) 55%,
+      color-mix(in srgb, var(--c-secondary) 70%, #6b4be0) 100%
+    );
+    color: var(--c-on-secondary);
+  }
+
+  @media (hover: hover) {
+    .btn-primary:hover {
+      filter: brightness(1.06);
+    }
+  }
+
+  .btn-primary:active {
+    filter: brightness(0.92);
+  }
+
+  .dark-mode .btn-primary {
+    box-shadow: 0 0 22px rgba(107, 155, 255, 0.28);
+  }
+
+  @media (hover: hover) {
+    .dark-mode .btn-primary:hover {
+      box-shadow: 0 0 28px rgba(107, 155, 255, 0.4);
+    }
+  }
+
+  .btn-ghost {
+    background: transparent;
+    border-color: var(--c-rule-strong);
+    color: var(--c-dark-text);
+  }
+
+  @media (hover: hover) {
+    .btn-ghost:hover {
+      border-color: var(--c-secondary);
+      color: var(--c-secondary);
+      background-color: color-mix(in srgb, var(--c-secondary) 10%, transparent);
+    }
+  }
+
+  .btn-quiet {
+    padding-inline: 8px;
+    color: var(--c-secondary);
+  }
+
+  @media (hover: hover) {
+    .btn-quiet:hover {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+  }
+
+  .btn:focus-visible,
+  .ibtn:focus-visible,
+  .pillbtn:focus-visible {
+    outline: 2px solid var(--c-signal);
+    outline-offset: 3px;
+  }
+
+  .ibtn {
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--c-hairline);
+    border-radius: var(--radius-ui-2);
+    display: inline-grid;
+    place-items: center;
+    background: transparent;
+    color: var(--c-light-text);
+    cursor: pointer;
+    text-decoration: none;
+    transition:
+      border-color 0.18s,
+      color 0.18s,
+      background-color 0.18s;
+  }
+
+  @media (hover: hover) {
+    .ibtn:hover {
+      border-color: var(--c-secondary);
+      color: var(--c-secondary);
+      background-color: color-mix(in srgb, var(--c-secondary) 10%, transparent);
+    }
+  }
+
+  .pillbtn {
+    min-height: 44px;
+    padding-inline: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--c-hairline);
+    border-radius: var(--radius-ui-2);
+    background: transparent;
+    color: var(--c-light-text);
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition:
+      border-color 0.18s,
+      color 0.18s,
+      background-color 0.18s;
+  }
+
+  @media (hover: hover) {
+    .pillbtn:hover {
+      border-color: var(--c-secondary);
+      color: var(--c-secondary);
+      background-color: color-mix(in srgb, var(--c-secondary) 10%, transparent);
+    }
+  }
+
+  /* ---------- chips, pills, status ---------- */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 4px;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .chip {
+    font-family: var(--font-mono-body);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.3;
+    padding: 5px 8px;
+    border: 1px solid var(--c-rule-strong);
+    border-radius: var(--radius-ui-1);
+    background: var(--c-page);
+    color: var(--c-dark-text);
+    direction: ltr;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s,
+      color 0.2s;
+  }
+
+  .chip.on {
+    border-color: var(--c-secondary);
+    color: var(--c-secondary);
+    box-shadow: 0 0 0 1px var(--c-secondary);
+  }
+
+  @media (hover: hover) {
+    .chip:hover {
+      border-color: var(--c-secondary);
+      color: var(--c-secondary);
+      box-shadow: 0 0 0 1px var(--c-secondary);
+    }
+  }
+
+  html[lang="ar"] .chip {
+    font-family: var(--font-body);
+  }
+
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    padding-inline: 12px;
+    border-radius: 999px;
+    border: 1px solid var(--c-rule-strong);
+    font-size: 0.875rem;
+    color: var(--c-dark-text);
+  }
+
+  .pill.fill {
+    background: var(--c-honey);
+    border-color: var(--c-honey);
+    color: var(--c-page);
+    font-weight: 600;
+  }
+
+  .dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex: none;
+    background: var(--c-status);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-status) 14%, transparent);
+  }
+
+  .status {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .st {
+    font-family: var(--font-mono-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  html[lang="ar"] .st {
+    font-family: var(--font-body);
+    letter-spacing: 0;
+    text-transform: none;
+    font-size: 0.9375rem;
+  }
+
+  .st-live {
+    color: var(--c-status);
+  }
+
+  .st-dev,
+  .st-done {
+    color: var(--c-light-text);
+  }
+
+  /* ---------- provenance line (shared by the work section and the
+     case-study hero) ---------- */
+
+  .slug {
+    font-family: var(--font-mono-body);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--c-muted-text);
+    direction: ltr;
+    unicode-bidi: isolate;
+    display: inline-block;
+    margin-top: 6px;
+  }
+
+  .prov {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    align-items: center;
+    font-size: 0.875rem;
+    color: var(--c-light-text);
+  }
+
+  .prov .sep {
+    color: var(--c-rule-strong);
+  }
+
+  .more {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    min-height: 44px;
+    color: var(--c-secondary);
+    text-decoration: none;
+    text-underline-offset: 4px;
+  }
+
+  @media (hover: hover) {
+    .more:hover {
+      text-decoration: underline;
+    }
+  }
+
+  /* ---------- mist: three slowly drifting blurred circles ---------- */
+  .ag {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: var(--ag-opacity, 0.8);
+  }
+
+  .ag i {
+    position: absolute;
+    display: block;
+    border-radius: 50%;
+    filter: blur(70px);
+    will-change: transform;
+    animation: ag-drift calc(46s / var(--ag-speed, 1)) ease-in-out infinite alternate;
+  }
+
+  .ag[data-variant="mist"] i:nth-child(1) {
+    width: 58%;
+    aspect-ratio: 1;
+    left: -12%;
+    top: -26%;
+    background: color-mix(in srgb, var(--c-honey-hi) 16%, transparent);
+  }
+
+  .ag[data-variant="mist"] i:nth-child(2) {
+    width: 52%;
+    aspect-ratio: 1;
+    right: -10%;
+    bottom: -30%;
+    background: color-mix(in srgb, var(--c-secondary) 12%, transparent);
+    animation-delay: -9s;
+    animation-direction: alternate-reverse;
+  }
+
+  .ag[data-variant="mist"] i:nth-child(3) {
+    width: 38%;
+    aspect-ratio: 1;
+    left: 34%;
+    top: 20%;
+    background: color-mix(in srgb, var(--c-secondary) 16%, transparent);
+    animation-delay: -17s;
+  }
+
+  @keyframes ag-drift {
+    from {
+      transform: translate3d(-6%, -4%, 0) scale(1);
+    }
+    to {
+      transform: translate3d(8%, 6%, 0) scale(1.14);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ag i {
+      animation: none;
+    }
+  }
+
+  /* ---------- entrance rise (mockup rev 10/32) ---------- */
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  #hero [data-rise] {
+    animation: rise 1s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+    animation-delay: calc(160ms + var(--d, 0ms) * 2);
+  }
+
+  @media (max-width: 900px) {
+    #hero [data-rise] {
+      animation-duration: 0.55s;
+      animation-delay: calc(40ms + var(--d, 0ms));
+    }
+  }
+}
+
+/* Theme switch: a quick crossfade of the whole page (see toggleTheme). The
+   overlay lets clicks through so the toggle works mid-fade. */
+::view-transition {
+  pointer-events: none;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.3s;
+  animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1);
+  mix-blend-mode: normal;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }

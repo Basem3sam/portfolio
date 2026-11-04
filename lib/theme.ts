@@ -4,6 +4,9 @@ const STORAGE_KEY = "theme";
 const DARK_CLASS = "dark-mode";
 const THEME_EVENT = "themeChange";
 
+/** The browser UI colour (the phone's address bar and status area). */
+const THEME_COLORS: Record<Theme, string> = { light: "#fbfbfd", dark: "#0e1522" };
+
 const FAVICONS: Record<Theme, { png32: string; png16: string; apple: string }> = {
   light: {
     png32: "/assets/icons/light/favicon-32x32.png",
@@ -29,28 +32,94 @@ export function getCurrentTheme(): Theme {
   return document.body.classList.contains(DARK_CLASS) ? "dark" : "light";
 }
 
-function updateFavicons(theme: Theme) {
-  const icons = FAVICONS[theme];
-  const favicon32 = document.querySelector<HTMLLinkElement>("link[sizes='32x32']");
-  const favicon16 = document.querySelector<HTMLLinkElement>("link[sizes='16x16']");
-  const appleIcon = document.querySelector<HTMLLinkElement>("link[rel='apple-touch-icon']");
+const ICON_SELECTOR = 'link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]';
 
-  if (favicon32) favicon32.href = icons.png32;
-  if (favicon16) favicon16.href = icons.png16;
-  if (appleIcon) appleIcon.href = icons.apple;
+function iconHref(link: HTMLLinkElement, icons: (typeof FAVICONS)[Theme]) {
+  if (link.rel === "apple-touch-icon") return icons.apple;
+  return link.getAttribute("sizes") === "16x16" ? icons.png16 : icons.png32;
 }
 
-export function applyTheme(theme: Theme) {
+// The metadata API renders these <link> tags and React owns them: removing
+// one makes React throw "Cannot read properties of null (reading
+// 'removeChild')" when it later unmounts it. Swap the href in place instead.
+function updateFavicons(theme: Theme) {
+  const icons = FAVICONS[theme];
+  const links = Array.from(document.head.querySelectorAll<HTMLLinkElement>(ICON_SELECTOR));
+
+  if (links.length > 0) {
+    links.forEach((link) => {
+      const href = iconHref(link, icons);
+      if (link.getAttribute("href") !== href) link.setAttribute("href", href);
+    });
+    return;
+  }
+
+  const fallback: [string, string, string?][] = [
+    ["icon", icons.png32, "32x32"],
+    ["icon", icons.png16, "16x16"],
+    ["apple-touch-icon", icons.apple, "180x180"],
+  ];
+
+  fallback.forEach(([rel, href, sizes]) => {
+    const link = document.createElement("link");
+    link.rel = rel;
+    link.href = href;
+    if (sizes) link.setAttribute("sizes", sizes);
+    document.head.appendChild(link);
+  });
+}
+
+// Next renders two theme-color tags keyed to the *system* scheme, so they would
+// ignore the site's own toggle (a dark phone on the light theme kept a dark
+// bar). Set both to the active theme's colour in place; the tags stay React's.
+function updateThemeColor(theme: Theme) {
+  document.head.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach((meta) => {
+    if (meta.getAttribute("content") !== THEME_COLORS[theme]) {
+      meta.setAttribute("content", THEME_COLORS[theme]);
+    }
+  });
+}
+
+function commitTheme(theme: Theme) {
   document.body.classList.toggle(DARK_CLASS, theme === "dark");
   updateFavicons(theme);
+  updateThemeColor(theme);
   try {
     localStorage.setItem(STORAGE_KEY, theme);
   } catch {}
   document.dispatchEvent(new CustomEvent(THEME_EVENT, { detail: { theme } }));
 }
 
+export function applyTheme(theme: Theme) {
+  commitTheme(theme);
+}
+
+type ViewTransitionDocument = Document & {
+  startViewTransition?: (update: () => void) => unknown;
+};
+
+/** A user-driven switch: the old and new page crossfade as one image, so every
+ * colour (and the photo, glows and shadows) eases together instead of snapping. */
+let pendingTheme: Theme | null = null;
+
 export function toggleTheme() {
-  applyTheme(getCurrentTheme() === "dark" ? "light" : "dark");
+  // A second click mid-fade flips from where the first one is heading, not
+  // from the page's still-unchanged class.
+  const next: Theme = (pendingTheme ?? getCurrentTheme()) === "dark" ? "light" : "dark";
+  pendingTheme = next;
+  const doc = document as ViewTransitionDocument;
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (reduced || typeof doc.startViewTransition !== "function") {
+    pendingTheme = null;
+    commitTheme(next);
+    return;
+  }
+
+  doc.startViewTransition(() => {
+    commitTheme(next);
+    if (pendingTheme === next) pendingTheme = null;
+  });
 }
 
 export function subscribeToTheme(callback: () => void) {

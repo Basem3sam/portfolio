@@ -1,0 +1,609 @@
+/* Footer — always dark in both themes, ported from `Portfolio Design Mockup.html`:
+   `.foot` base (L822–845) + the rev 24 token block (L1636–1665) + rev 26
+   full-bleed fix (L2309–2311). The `--c-*` tokens are re-declared on `.foot`
+   itself so every Tailwind token utility inside inverts with it. Shared
+   primitives (.lbl, .ag) come from app/globals.css. */
+
+.foot {
+  --c-dark-text: #f2f6ff;
+  --c-light-text: rgba(232, 240, 255, 0.84);
+  --c-muted-text: rgba(232, 240, 255, 0.62);
+  --c-hairline: rgba(255, 255, 255, 0.14);
+  --c-rule-strong: rgba(255, 255, 255, 0.3);
+  --c-page: #0a1736;
+  --c-surface: rgba(255, 255, 255, 0.08);
+  --c-light-bg: rgba(255, 255, 255, 0.06);
+  --c-note: #f4c77d;
+  --c-secondary: #a9c4ff;
+  --c-status: #5be08e;
+  --wash-a: rgba(98, 140, 255, 0.26);
+  --wash-b: rgba(244, 199, 125, 0.12);
+
+  position: relative;
+  overflow: hidden;
+  /* Fills the screen: scrolled to the end, only the footer is on show and
+     no sliver of the section above peeks in. Taller content simply grows. */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100svh;
+  color: var(--c-dark-text);
+  background-image: linear-gradient(180deg, #05123a 0, #030a22 100%);
+}
+
+.foot .ag {
+  --ag-speed: 0.6;
+  --ag-opacity: 0.8;
+}
+
+.foot-in {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: clamp(28px, 5svh, 48px);
+  padding: clamp(72px, 14svh, 144px) var(--pad) 28px;
+}
+
+/* --- four columns --------------------------------------------------------- */
+.ft-top {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.3fr) minmax(0, 0.6fr) minmax(0, 1.45fr)
+    minmax(0, 0.9fr);
+  gap: 40px 48px;
+  align-items: start;
+}
+
+.ft-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font-family: var(--font-mono-body);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--c-dark-text);
+  text-decoration: none;
+}
+
+.mrk {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  color: var(--c-note);
+}
+
+.ft-line {
+  margin: 0;
+  max-width: 34ch;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--c-light-text);
+}
+
+.foot-avail {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 1px solid var(--c-rule-strong);
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  color: var(--c-dark-text);
+  background-color: var(--c-page);
+}
+
+.foot-avail i {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--c-status);
+}
+
+.ft-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.ft-col > .lbl {
+  margin-bottom: 10px;
+  color: var(--c-muted-text);
+}
+
+.ft-col a:not(.ft-up) {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  max-width: 100%;
+  font-size: 0.9375rem;
+  color: var(--c-light-text);
+  text-decoration: none;
+  transition: color 0.4s ease;
+}
+
+.ft-col a:not(.ft-up) span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.ft-col a:not(.ft-up)::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 9px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+[dir="rtl"] .ft-col a:not(.ft-up)::after {
+  transform-origin: right;
+}
+
+.ft-col a:not(.ft-up):focus-visible {
+  color: var(--c-dark-text);
+}
+
+@media (hover: hover) {
+  .ft-col a:not(.ft-up):hover {
+    color: var(--c-dark-text);
+  }
+}
+
+.ft-col a:not(.ft-up):focus-visible::after {
+  transform: scaleX(1);
+}
+
+@media (hover: hover) {
+  .ft-col a:not(.ft-up):hover::after {
+    transform: scaleX(1);
+  }
+}
+
+.ft-col a:not(.ft-up) svg {
+  flex: none;
+  color: var(--c-note);
+}
+
+/* Reach column: every contact icon sits in the same 36px tile at every width.
+   The SVG is padded to make the tile, and an SVG clips to its content box by
+   default, which shaved the strokes off the phone, LinkedIn and GitHub marks.
+   overflow: visible lets the full glyph draw inside the tile. */
+.ft-rc a:not(.ft-up) {
+  gap: 14px;
+}
+
+.ft-rc a:not(.ft-up) svg {
+  box-sizing: border-box;
+  width: 36px;
+  height: 36px;
+  padding: 10px;
+  overflow: visible;
+  border-radius: 50%;
+  background: var(--c-surface);
+  transition: background-color 0.4s ease;
+}
+
+/* the hover underline starts under the text, not under the tile */
+.ft-rc a:not(.ft-up)::after {
+  inset-inline-start: 50px;
+}
+
+.ft-rc a:not(.ft-up):focus-visible svg {
+  background: rgb(255 255 255 / 0.16);
+}
+
+@media (hover: hover) {
+  .ft-rc a:not(.ft-up):hover svg {
+    background: rgb(255 255 255 / 0.16);
+  }
+}
+
+.ft-col a.tel {
+  font-family: var(--font-mono-body);
+  font-weight: 500;
+  font-size: 1rem;
+  color: var(--c-dark-text);
+}
+
+.ft-city {
+  margin: 0;
+  font-family: var(--font-display-body);
+  font-size: 1.375rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--c-dark-text);
+}
+
+.ft-time {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 4px;
+  color: var(--c-muted-text);
+}
+
+.ft-time span {
+  font-family: var(--font-mono-body);
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--c-note);
+  direction: ltr;
+}
+
+.ft-time small {
+  font-size: 0.8125rem;
+}
+
+.ft-up {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  padding: 6px 6px 6px 16px;
+  min-height: 44px;
+  border: 1px solid var(--c-rule-strong);
+  border-radius: 999px;
+  font-family: var(--font-mono-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--c-dark-text);
+  text-decoration: none;
+  transition:
+    background-color 0.4s ease,
+    border-color 0.4s ease;
+}
+
+[dir="rtl"] .ft-up {
+  padding: 6px 16px 6px 6px;
+}
+
+.ft-up i {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--c-dark-text);
+  color: #06101f;
+  transition: transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.ft-up:focus-visible {
+  background: rgb(255 255 255 / 0.1);
+  border-color: var(--c-light-text);
+}
+
+@media (hover: hover) {
+  .ft-up:hover {
+    background: rgb(255 255 255 / 0.1);
+    border-color: var(--c-light-text);
+  }
+}
+
+.ft-up:focus-visible i {
+  transform: translateY(-3px);
+}
+
+@media (hover: hover) {
+  .ft-up:hover i {
+    transform: translateY(-3px);
+  }
+}
+
+[dir="rtl"] .ft-up:focus-visible i {
+  transform: translateY(-3px);
+}
+
+@media (hover: hover) {
+  [dir="rtl"] .ft-up:hover i {
+    transform: translateY(-3px);
+  }
+}
+
+/* --- the wordmark ---------------------------------------------------------
+   A single gradient painted through the glyphs (background-clip: text). The
+   old version used -webkit-text-stroke with negative tracking, which drew every
+   overlapping glyph contour and the variable font's internal paths on top of
+   each other. One fill has no contours to cross, so overlaps are invisible. */
+/* The box is the size container: the word is sized from ITS width (cqi), so
+   it always fits the column whichever display face actually loaded. */
+.foot-word-box {
+  container-type: inline-size;
+  /* Auto margins share the spare height above and below the wordmark, so it
+     floats between the columns and the bottom row at any screen height. */
+  margin-block: auto;
+  overflow: hidden;
+}
+
+.foot-word {
+  direction: ltr;
+  font-family: var(--font-display-body);
+  font-size: min(12rem, 14cqi);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.035em;
+  text-align: center;
+  white-space: nowrap;
+  padding-bottom: 0.06em;
+  color: transparent;
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--c-dark-text) 22%, transparent) 0%,
+    color-mix(in srgb, var(--c-secondary) 9%, transparent) 55%,
+    transparent 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-rendering: geometricPrecision;
+  user-select: none;
+}
+
+/* --- bottom row -----------------------------------------------------------
+   Two cells on one baseline grid: the legal line at the start, and the quiet
+   line + secret-terminal glyph at the end. Both lines share one size, colour
+   and style so they read as a pair. The rule spans the full content column;
+   only the *content* steps aside (--btt-clear) where the floating back-to-top
+   button could sit on top of it, instead of a fixed 88px at every width. */
+.foot-bot {
+  --btt-clear: 0px;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 24px;
+  padding-top: 12px;
+  padding-inline-end: var(--btt-clear);
+  border-top: 1px solid var(--c-hairline);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--c-muted-text);
+}
+
+.foot-end {
+  display: flex;
+  align-items: center;
+  justify-self: end;
+  gap: 4px;
+  min-width: 0;
+}
+
+.foot-quiet {
+  min-width: 0;
+}
+
+/* The glyph keeps its 44px hit area, but shows a 36px hairline ring so it
+   reads as a deliberate control (same language as the back-to-top pill)
+   rather than a stray icon that only appears on hover. */
+.foot-glyph {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--c-muted-text);
+  transition:
+    color 0.5s ease,
+    background-color 0.5s ease;
+}
+
+.foot-glyph::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 1px solid var(--c-hairline);
+  border-radius: 50%;
+  transition: border-color 0.5s ease;
+}
+
+.foot-glyph:hover,
+.foot-glyph:focus-visible {
+  color: var(--c-note);
+  background: var(--c-light-bg);
+}
+
+.foot-glyph:hover::before,
+.foot-glyph:focus-visible::before {
+  border-color: color-mix(in srgb, var(--c-note) 55%, transparent);
+}
+
+.foot-glyph:focus-visible {
+  outline: 2px solid var(--c-note);
+  outline-offset: 2px;
+}
+
+/* Floating back-to-top: 44px at 32px from the edge from 768px up. The content
+   column's own gutter already clears it on wide screens (>= 1272px). */
+@media (min-width: 768px) and (max-width: 991px) {
+  .foot-bot {
+    --btt-clear: 64px;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1271px) {
+  .foot-bot {
+    --btt-clear: 40px;
+  }
+}
+
+/* Below 768px the two cells no longer fit side by side without squeezing the
+   text, so they stack into one centred, symmetrical pair. */
+@media (max-width: 767px) {
+  .foot-bot {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    row-gap: 2px;
+    padding-top: 20px;
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  .foot-end {
+    justify-self: center;
+    justify-content: center;
+  }
+}
+
+/* --- responsive ----------------------------------------------------------- */
+@media (max-width: 900px) {
+  .ft-top {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px;
+  }
+
+  .foot-in {
+    padding-top: clamp(56px, 10svh, 96px);
+  }
+}
+
+@media (max-width: 560px) {
+  /* One calm column, one rhythm: brand → reach → explore → location.
+     No per-column borders; the small labels do the separating. */
+  .foot-in {
+    gap: 36px;
+    padding-top: 56px;
+    padding-bottom: 24px;
+  }
+
+  .ft-top {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "brand"
+      "rc"
+      "ex"
+      "loc";
+    gap: 32px;
+  }
+
+  .ft-brand {
+    grid-area: brand;
+    gap: 14px;
+  }
+
+  .ft-rc {
+    grid-area: rc;
+  }
+
+  .ft-ex {
+    grid-area: ex;
+  }
+
+  .ft-loc {
+    grid-area: loc;
+  }
+
+  .ft-line {
+    max-width: 36ch;
+    font-size: 0.9375rem;
+  }
+
+  .ft-col > .lbl {
+    margin-bottom: 8px;
+  }
+
+  /* reach: icon tiles + text, full-width rows */
+  .ft-rc {
+    align-items: stretch;
+    gap: 4px;
+  }
+
+  .ft-rc a:not(.ft-up) {
+    width: 100%;
+    min-height: 52px;
+  }
+
+  .ft-rc a:not(.ft-up)::after,
+  .ft-ex a::after {
+    display: none;
+  }
+
+  /* explore: two tidy columns of plain links */
+  .ft-ex {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 20px;
+    align-items: stretch;
+  }
+
+  .ft-ex > .lbl {
+    grid-column: 1 / -1;
+  }
+
+  .ft-ex a {
+    min-height: 44px;
+  }
+
+  /* location: one soft panel holding city, time and back-to-top */
+  .ft-loc {
+    align-items: stretch;
+    padding: 18px;
+    border: 1px solid var(--c-hairline);
+    border-radius: 18px;
+    background: var(--c-light-bg);
+  }
+
+  .ft-city {
+    font-size: 1.25rem;
+  }
+
+  .ft-up {
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 16px;
+    padding-inline: 16px 6px;
+    font-size: 0.875rem;
+  }
+
+  [dir="rtl"] .ft-up {
+    padding-inline: 16px 6px;
+  }
+
+  /* wordmark: sized to sit well inside the width, with line-height tall
+     enough that background-clip never trims the b/s/m shapes */
+  .foot-word-box {
+    padding-block: 4px;
+  }
+
+  .foot-word {
+    font-size: min(12rem, 14.5cqi);
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+    padding-bottom: 0.1em;
+  }
+
+  /* bottom row: lift it above the floating back-to-top button (20px from the
+     edge on phones) so nothing is squeezed or lopsided. */
+  .foot-in {
+    padding-bottom: 76px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ft-col a:not(.ft-up)::after,
+  .ft-up i {
+    transition: none;
+  }
+}

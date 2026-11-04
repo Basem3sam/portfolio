@@ -1,61 +1,106 @@
-import { Fragment } from "react";
-import Badge from "@/components/ui/Badge";
-import Section from "@/components/ui/Section";
-import SectionTitle from "@/components/ui/SectionTitle";
+import { Fragment, type CSSProperties } from "react";
+import SectionHeader from "@/components/ui/SectionHeader";
+import type { Dictionary } from "@/lib/dictionaries/en";
+import "./About.css";
 
-const badges = [
-  "Backend Development",
-  "Node.js",
-  "Express",
-  "MongoDB",
-  "REST APIs",
-  "Competitive Programming",
-];
+type AboutProps = {
+  dict: Dictionary["about"];
+};
 
-export default function About() {
+/**
+ * About (04): statement, timeline rail, then the education ledger — the
+ * mockup's `sec-about` markup (Portfolio Design Mockup.html, lines
+ * 2663–2690). The old standalone Education section lives on as the
+ * `.ab-edu` ledger at the bottom.
+ */
+/**
+ * Splits a sentence into words so each can light up as it is read (see
+ * ScrollStory.css). Split on spaces only, so Arabic letters keep their joins.
+ * The words are ordinary inline spans: reading order and text are unchanged.
+ */
+function Words({ text }: { text: string }) {
+  const words = text.trim().split(/\s+/);
   return (
-    <Section id="about" className="bg-light-bg">
-      <div className="container">
-        <SectionTitle>About Me</SectionTitle>
-        <div className="-mx-3 flex flex-wrap">
-          <div className="mx-auto w-full shrink-0 px-3 lg:w-2/3">
-            <p className="mb-4 text-[1.25rem] font-light">
-              A passionate backend developer and ICPC competitive programmer with a
-              strong foundation in system design, OOP, and clean architecture
-              principles.
-            </p>
+    <>
+      {words.map((word, index) => (
+        <Fragment key={index}>
+          <span className="w" style={{ "--i": index } as CSSProperties}>
+            {word}
+          </span>
+          {index < words.length - 1 ? " " : null}
+        </Fragment>
+      ))}
+    </>
+  );
+}
 
-            <p className="mb-4">
-              My journey in technology started early, inspired by a teacher&apos;s
-              encouragement of my first website at age 11. Growing up in a family
-              electronics repair shop gave me a unique, hands-on perspective on
-              technology that continues to influence my approach to software
-              development.
-            </p>
+export default function About({ dict }: AboutProps) {
+  const leadWords = dict.lead.trim().split(/\s+/).length;
 
-            <p className="mb-4">
-              Currently in my 3rd year at Suez Canal University, I&apos;ve been
-              focused on programming since 2022. Beyond coding, I&apos;m passionate
-              about knowledge sharing, having served as an OOP instructor at GDG and
-              as an active member of the Mech Hackers community.
-            </p>
+  return (
+    <section id="about" className="sec sec-panel sec-wash">
+      <div className="ag" data-variant="mist" aria-hidden="true">
+        <i />
+        <i />
+        <i />
+      </div>
 
-            <p className="mb-4">
-              Currently, I serve as the Vice IT Head at Trosc Student Club, leading
-              the backend development for the club&apos;s website.
-            </p>
+      <SectionHeader number="04" title={dict.title} />
 
-            <div className="mt-6">
-              {badges.map((badge, index) => (
-                <Fragment key={badge}>
-                  {index > 0 && " "}
-                  <Badge variant="primary">{badge}</Badge>
-                </Fragment>
+      <div className="ab3">
+        <div className="ab-main" data-reveal>
+          <p className="ab-lead" data-story="read" style={{ "--n": leadWords } as CSSProperties}>
+            <Words text={dict.lead} />
+          </p>
+          <p className="ab-body">{dict.body}</p>
+        </div>
+
+        <ol className="ab-rail" data-reveal aria-label={dict.timelineLabel}>
+          {dict.timeline.map((entry) => (
+            <li key={entry.year} className={entry.next ? "next" : undefined}>
+              <span className="yr">{entry.year}</span>
+              <b>{entry.title}</b>
+              <p>{entry.text}</p>
+            </li>
+          ))}
+        </ol>
+
+        <div className="ab-edu" data-reveal>
+          <div className="ed-deg">
+            <p className="lbl">{dict.educationLabel}</p>
+            <h3>{dict.degree}</h3>
+            <p className="uni">{dict.university}</p>
+            <div className="pills">
+              {dict.degreePills.map((pill, index) => (
+                <span key={pill} className={index === 0 ? "pill fill" : "pill"}>
+                  {pill}
+                </span>
               ))}
             </div>
           </div>
+
+          <div className="ed-cw">
+            <p className="lbl">{dict.courseworkLabel}</p>
+            <ul className="plain">
+              {dict.coursework.map((course) => (
+                <li key={course}>{course}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="ed-ct">
+            <p className="lbl">{dict.certificationsLabel}</p>
+            <ul className="certs">
+              {dict.certifications.map((cert) => (
+                <li key={cert.name}>
+                  <span>{cert.name}</span>
+                  <em dir="ltr">{cert.org}</em>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
-    </Section>
+    </section>
   );
 }

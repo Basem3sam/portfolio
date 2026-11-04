@@ -1,40 +1,209 @@
 "use client";
 
-import type { Ref } from "react";
-import { HINT_LEVELS } from "@/components/easter-egg/constants";
+import { cx } from "@/lib/cx";
+import { useEffect, useRef, useState, type Ref } from "react";
+import Icon from "@/components/ui/Icon";
+import type { Locale } from "@/lib/i18n";
+import "@/components/easter-egg/Clue.css";
 
 type SecretClueProps = {
   buttonRef: Ref<HTMLButtonElement>;
   revealed: boolean;
-  level: number;
-  onActivate: () => void;
+  unlocked: boolean;
+  locale: Locale;
+  onHint: () => void;
+  onPrompt: () => void;
+  onOpen: () => void;
+  onEngagedChange: (engaged: boolean) => void;
 };
 
-const tooltip =
-  "pointer-events-none absolute rounded-sm border border-[#00ff41] bg-[rgba(10,14,39,0.95)] whitespace-nowrap text-[#00ff41] opacity-0 shadow-[0_0_20px_rgba(0,255,65,0.3)] transition-opacity duration-300";
+const labels = {
+  en: {
+    title: "Secret terminal",
+    hint: "Show a hint",
+    enter: "Enter code",
+    open: "Open terminal",
+  },
+  ar: {
+    title: "الطرفية السرية",
+    hint: "عرض تلميح",
+    enter: "أدخل الكود",
+    open: "فتح الطرفية",
+  },
+} as const;
 
-export default function SecretClue({ buttonRef, revealed, level, onActivate }: SecretClueProps) {
+// Pointer grace: the menu stays open while the pointer is inside it or
+// inside the button, and for this long after the pointer last left both.
+const POINTER_GRACE_MS = 400;
+
+/**
+ * The round clue button at the start edge (mockup `.clue`): it appears on
+ * the third portrait click, pings three times, then rests; it fades near
+ * the footer. The menu is a real menu — arrows move, Esc closes, focus
+ * returns to the button.
+ */
+export default function SecretClue({
+  buttonRef,
+  revealed,
+  unlocked,
+  locale,
+  onHint,
+  onPrompt,
+  onOpen,
+  onEngagedChange,
+}: SecretClueProps) {
+  const [open, setOpen] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [footerNear, setFooterNear] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const firstItemRef = useRef<HTMLButtonElement>(null);
+  const closeTimer = useRef(0);
+  const t = labels[locale];
+
+  useEffect(() => {
+    onEngagedChange((open || hovered) && revealed);
+  }, [open, hovered, revealed, onEngagedChange]);
+
+  // The clue button bows out at the page end: it is a mid-page exploration
+  // aid, and fading it over the footer removes floating-button clutter.
+  useEffect(() => {
+    const footer = document.querySelector("footer");
+    if (!footer) return;
+
+    const observer = new IntersectionObserver(([entry]) => setFooterNear(entry.isIntersecting), {
+      threshold: 0.35,
+    });
+
+    observer.observe(footer);
+    return () => observer.disconnect();
+  }, []);
+
+  const scheduleClose = () => {
+    window.clearTimeout(closeTimer.current);
+    closeTimer.current = window.setTimeout(() => setOpen(false), POINTER_GRACE_MS);
+  };
+
+  const cancelClose = () => {
+    window.clearTimeout(closeTimer.current);
+  };
+
+  useEffect(() => {
+    if (!open) return;
+
+    cancelClose();
+    firstItemRef.current?.focus();
+
+    const items = () =>
+      Array.from(containerRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? []);
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        cancelClose();
+        setOpen(false);
+        return;
+      }
+
+      if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+
+      const list = items();
+      if (list.length === 0) return;
+
+      event.preventDefault();
+      const index = list.indexOf(document.activeElement as HTMLElement);
+      const next =
+        event.key === "ArrowDown"
+          ? list[(index + 1 + list.length) % list.length]
+          : list[(index - 1 + list.length) % list.length];
+      next.focus();
+    };
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!containerRef.current?.contains(event.target as Node)) {
+        cancelClose();
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("pointerdown", handlePointerDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("pointerdown", handlePointerDown);
+      cancelClose();
+    };
+  }, [open]);
+
+  // Focus returns to the button when the menu closes (mockup a11y note).
+  const wasOpen = useRef(false);
+  useEffect(() => {
+    if (open) {
+      wasOpen.current = true;
+      return;
+    }
+    if (!wasOpen.current) return;
+    wasOpen.current = false;
+    containerRef.current?.querySelector<HTMLButtonElement>(".clue")?.focus({ preventScroll: true });
+  }, [open]);
+
+  const trigger = (action: () => void) => {
+    cancelClose();
+    setOpen(false);
+    action();
+  };
+
+  const state = revealed ? (footerNear ? "away" : "shown") : "hidden";
+
   return (
-    <button
-      ref={buttonRef}
-      type="button"
-      className={`group fixed bottom-[30px] left-[30px] z-[1000] flex size-10 items-center justify-center rounded-full bg-[linear-gradient(135deg,#667eea_0%,#764ba2_100%)] shadow-[0_0_20px_rgba(102,126,234,0.5)] transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)] max-[481px]:bottom-[25px] max-[481px]:left-5 max-[481px]:size-[50px] ${revealed ? "visible scale-100 rotate-[360deg] cursor-default opacity-70 max-md:cursor-pointer max-md:active:scale-90" : "invisible scale-0 rotate-0 opacity-0"}`}
-      aria-label="Secret terminal"
-      onClick={onActivate}
+    <div
+      ref={containerRef}
+      onPointerEnter={() => {
+        cancelClose();
+        setHovered(true);
+      }}
+      onPointerLeave={() => {
+        scheduleClose();
+        setHovered(false);
+      }}
+      className={cx("clue-wrap print:hidden", open && revealed && "clue-open")}
+      data-open={open && revealed ? "true" : "false"}
     >
-      <i className="fas fa-terminal text-[18px] text-white"></i>
-      <span
-        className={`${tooltip} bottom-0 left-[60px] hidden px-3 py-2 text-[12px] md:block md:group-hover:opacity-100`}
-        aria-hidden="true"
+      {open && revealed && (
+        <div role="menu" aria-label={t.title} className="cmenu">
+          <p className="cmenu-label">{t.title}</p>
+          <button ref={firstItemRef} type="button" role="menuitem" onClick={() => trigger(onHint)}>
+            <Icon name="helpCircle" className="i" />
+            {t.hint}
+          </button>
+          <button type="button" role="menuitem" onClick={() => trigger(onPrompt)}>
+            <Icon name="code" className="i" />
+            {t.enter}
+          </button>
+          {unlocked && (
+            <button type="button" role="menuitem" onClick={() => trigger(onOpen)}>
+              <Icon name="terminal" className="i" />
+              {t.open}
+            </button>
+          )}
+        </div>
+      )}
+
+      <button
+        ref={buttonRef}
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label={t.title}
+        data-state={state}
+        className={cx("clue", revealed && "ping")}
+        onClick={() => {
+          cancelClose();
+          setOpen((value) => !value);
+        }}
       >
-        {HINT_LEVELS[level].tooltip}
-      </span>
-      <span
-        className={`${tooltip} bottom-[60px] left-0 px-2.5 py-1.5 text-[11px] group-active:opacity-100 md:hidden`}
-        aria-hidden="true"
-      >
-        ✨ Tap for secret terminal
-      </span>
-    </button>
+        <Icon name="terminal" className="i" />
+      </button>
+    </div>
   );
 }
