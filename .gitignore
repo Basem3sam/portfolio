@@ -1,22 +1,65 @@
-# dependencies
-/node_modules
+# Dependencies
+/node_modules/
 
-# next.js
+# Build output and generated archives
+/dist/
+/build/
 /.next/
 /out/
+/export/
+
+# Environment files and secrets
+.env
+.env.*
+!.env.example
 next-env.d.ts
 
-# typescript
+# TypeScript
 *.tsbuildinfo
 
-# env files
-.env*
-
-# misc
-.DS_Store
+# Logs
 npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
 
-# export output
-/export/
-scripts/
-commit-message.txt
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Test output
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/.lighthouseci/
+
+# Private AI-assisted development workflow. These directories and files are
+# kept locally for the maintainer's own use and deliberately never committed:
+#   .opencode/                 local agent state and the project-local kit
+#   scripts/                   personal export/packaging tooling (archives the
+#                              project for AI review); contains no application
+#                              code - if real project scripts are ever added,
+#                              prefer a negation rule over removing this line
+#   docs/                      internal audit reports, implementation plans,
+#                              working notes, redesign evidence (screenshots,
+#                              test logs) and third-party design references
+#   prompts/                   AI prompt templates for the private workflow
+#   AGENTS.md                  agent instructions for the private workflow
+#   PLAN-TO-PRODUCTION.md      internal implementation plan
+#   README-SETUP.md            internal workflow-kit setup notes
+/.opencode/
+/scripts/*
+!/scripts/lhci-summary.mjs
+/docs/
+/prompts/
+/AGENTS.md
+/PLAN-TO-PRODUCTION.md
+/README-SETUP.md
+
+# Temporary local files
+/commit-message.txt
+
+Portfolio Design Mockup.html
+Portfolio Design Mockup.md
