@@ -217,7 +217,7 @@ export default function KonamiKeyboard({
             <button
               key={key}
               type="button"
-              className={`k ${className}${pressed === key ? "press" : ""}`}
+              className={cx("k", className, pressed === key && "press")}
               aria-label={KEY_NAME[key]}
               onClick={() => press(key)}
             >
@@ -228,7 +228,7 @@ export default function KonamiKeyboard({
             <button
               key={key}
               type="button"
-              className={`k let ${key}${pressed === key ? "press" : ""}`}
+              className={cx("k let", key, pressed === key && "press")}
               aria-label={KEY_NAME[key]}
               onClick={() => press(key)}
             >
