@@ -63,9 +63,11 @@ const ORIGIN = REMOTE ? BASE_URL : "http://localhost:3000";
 const ROUTES = ["/", "/ar", "/work/trosc", "/links"];
 
 /**
- * One assertion set per route. Accessibility, best-practices and SEO are 1.0
- * everywhere; only the performance floor differs. Every collected URL must
- * match exactly one pattern, so each is anchored to `scheme://host` + path.
+ * One assertion set per route. Accessibility and best-practices are 1.0
+ * everywhere; only the performance floor differs. SEO is skipped on preview
+ * deployments because Vercel previews are intentionally noindexed. Every
+ * collected URL must match exactly one pattern, so each is anchored to
+ * `scheme://host` + path.
  */
 function route(path, perfFloor) {
   const escaped = path.replace(/[/]/g, "\\/");
@@ -79,7 +81,7 @@ function route(path, perfFloor) {
       "categories:performance": ["error", { minScore: perfFloor }],
       "categories:accessibility": ["error", { minScore: 1 }],
       "categories:best-practices": ["error", { minScore: 1 }],
-      "categories:seo": ["error", { minScore: 1 }],
+      ...(REMOTE ? {} : { "categories:seo": ["error", { minScore: 1 }] }),
     },
   };
 }
@@ -93,7 +95,9 @@ module.exports = {
       url: ROUTES.map((path) => `${ORIGIN}${path}`),
       numberOfRuns: 5,
       settings: {
-        onlyCategories: ["performance", "accessibility", "best-practices", "seo"],
+        onlyCategories: REMOTE
+          ? ["performance", "accessibility", "best-practices"]
+          : ["performance", "accessibility", "best-practices", "seo"],
         // A single local server speaks HTTP/1.1, so the audit is meaningless
         // there. A Vercel deployment negotiates HTTP/2, so it stays on.
         skipAudits: REMOTE ? [] : ["uses-http2"],
