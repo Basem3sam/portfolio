@@ -35,8 +35,15 @@ test("homepage renders the pitch with correct facts", async ({ page }) => {
   // project's KPI wall (100+ endpoints, 200+ members, 94.8% coverage).
   await expect(page.locator("#work")).toContainText("trosc-backend");
   await expect(page.locator("#work")).toContainText("production");
-  for (const fact of ["100+", "200+", "94.8%"]) {
-    await expect(page.locator("#work")).toContainText(fact);
+  // The figures count up from 0 the first time they are mostly on screen
+  // (WorkStat), so bring each one into view before reading it.
+  for (const [fact, label] of [
+    ["100+", "endpoints"],
+    ["200+", "members"],
+    ["94.8%", "statement coverage"],
+  ]) {
+    await page.locator("#work .fact").filter({ hasText: label }).first().scrollIntoViewIfNeeded();
+    await expect(page.locator("#work")).toContainText(fact, { timeout: 15_000 });
   }
 });
 
