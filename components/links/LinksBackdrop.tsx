@@ -68,6 +68,12 @@ export default function LinksBackdrop() {
     let gap = 18;
     let ink: RGB = [59, 91, 245];
     let warm: RGB = [240, 174, 42];
+    // Per-theme strength, from CSS (.lk-bd in LinksPage.css): dot opacity floor,
+    // opacity range, dot size multiplier, and the cursor-swell opacity.
+    let dotMin = 0.12;
+    let dotSpan = 0.26;
+    let dotSize = 1;
+    let hotAlpha = 0.75;
     let frame = 0;
     let lastDraw = 0;
     let started = 0;
@@ -84,7 +90,16 @@ export default function LinksBackdrop() {
     const readColors = () => {
       const style = getComputedStyle(document.body);
       ink = parseColor(style.getPropertyValue("--c-secondary"), ink);
-      warm = parseColor(style.getPropertyValue("--c-honey-hi"), warm);
+      const tune = getComputedStyle(canvas);
+      const num = (name: string, fallback: number) => {
+        const value = parseFloat(tune.getPropertyValue(name));
+        return Number.isFinite(value) ? value : fallback;
+      };
+      warm = parseColor(tune.getPropertyValue("--lk-warm") || style.getPropertyValue("--c-honey-hi"), warm);
+      dotMin = num("--lk-dot-min", dotMin);
+      dotSpan = num("--lk-dot-span", dotSpan);
+      dotSize = num("--lk-dot-size", dotSize);
+      hotAlpha = num("--lk-hot-alpha", hotAlpha);
     };
 
     const resize = () => {
@@ -114,7 +129,7 @@ export default function LinksBackdrop() {
       const t = now - started;
       const intro = reduced ? 1 : clamp01((t - 150) / INTRO_MS);
       const introEase = 1 - Math.pow(1 - intro, 3);
-      const rMax = gap * 0.36;
+      const rMax = gap * 0.36 * dotSize;
       // On a phone the content covers the full width, so the field is quieter.
       const strength = width < 600 ? 0.62 : 1;
       const centreX = width * 0.5;
@@ -172,11 +187,11 @@ export default function LinksBackdrop() {
 
       // Each level is drawn at one alpha: bigger dots a touch stronger.
       for (let level = 0; level < LEVELS; level++) {
-        ctx.fillStyle = rgba(ink, 0.12 + 0.26 * (level / (LEVELS - 1)));
+        ctx.fillStyle = rgba(ink, dotMin + dotSpan * (level / (LEVELS - 1)));
         ctx.fill(fresh[level]);
       }
       if (hotCount) {
-        ctx.fillStyle = rgba(warm, 0.75);
+        ctx.fillStyle = rgba(warm, hotAlpha);
         ctx.fill(hot);
       }
 
