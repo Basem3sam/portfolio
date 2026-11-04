@@ -21,26 +21,36 @@ test("only the production project carries the status colour", async ({ page }) =
   const trosc = page.locator("#work article").filter({ hasText: "trosc-backend" }).first();
   await expect(trosc.locator("span.text-status")).toContainText("production");
   for (const name of ["store-advisor", "zabthalahak", "laravel-ecommerce-app", "neuroscan-ai"]) {
-    const row = page
-      .locator("#work article")
-      .filter({ has: page.locator("h3", { hasText: name }) });
+    const row = page.locator("#work article").filter({ has: page.locator("h3", { hasText: name }) });
     await expect(row.locator("span.text-status")).toHaveCount(0);
   }
 });
 
-test("spotlight follows the pointer, including while the page scrolls under it", async ({
-  page,
-  browserName,
-}) => {
+test("spotlight follows the pointer, including while the page scrolls under it", async ({ page, browserName }) => {
   test.skip(browserName !== "chromium", "pointer emulation is only asserted in Chromium");
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/");
+  // The pointer listeners attach on hydration (the hero photo gets
+  // cursor-pointer from the same pass); a move sent earlier is lost for good.
+  await page.waitForFunction(() =>
+    Boolean(document.querySelector("#hero picture img")?.classList.contains("cursor-pointer")),
+  );
   const card = page.locator("#work article").nth(1);
   await card.scrollIntoViewIfNeeded();
-  const box = (await card.boundingBox())!;
-  await page.mouse.move(box.x + 120, box.y + 40);
   const mx = () => card.evaluate((el) => (el as HTMLElement).style.getPropertyValue("--mx"));
-  await expect.poll(mx).toBe("120px");
+  // Re-send the move from the card's current position each attempt: the card
+  // can still be settling (scroll story) and a single move may land elsewhere.
+  await expect
+    .poll(
+      async () => {
+        const box = (await card.boundingBox())!;
+        await page.mouse.move(box.x + 100, box.y + 40);
+        await page.mouse.move(box.x + 120, box.y + 40);
+        return mx();
+      },
+      { timeout: 15_000 },
+    )
+    .toBe("120px");
 
   const myBefore = await card.evaluate((el) => (el as HTMLElement).style.getPropertyValue("--my"));
   await page.mouse.wheel(0, 30);
