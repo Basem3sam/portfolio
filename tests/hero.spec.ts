@@ -166,6 +166,8 @@ test("below 992px the portrait stays on screen, centred, and lines up with the t
   for (const width of [320, 360, 390, 430, 500, 528, 600, 768, 991]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");
+    // Line heights shift when the web fonts swap in; measure after they have.
+    await page.evaluate(() => document.fonts.ready);
     const m = await page.evaluate(() => {
       const pf = (document.querySelector("#pf") as HTMLElement).getBoundingClientRect();
       const h1 = (document.querySelector("#hero h1") as HTMLElement).getBoundingClientRect();
@@ -227,6 +229,8 @@ test("from 992px the copy box and the portrait box are an equal, level pair", as
   for (const width of [992, 1045, 1100, 1199, 1280, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");
+    // Line heights shift when the web fonts swap in; measure after they have.
+    await page.evaluate(() => document.fonts.ready);
     const m = await page.evaluate(() => {
       const rect = (selector: string) =>
         (document.querySelector(selector) as HTMLElement).getBoundingClientRect();

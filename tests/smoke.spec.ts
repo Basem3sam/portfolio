@@ -24,16 +24,19 @@ type Page = import("@playwright/test").Page;
 type Locator = import("@playwright/test").Locator;
 
 /**
- * The easter-egg key listener attaches on hydration and there is no DOM marker
- * for it (the old cursor-pointer class on the hero photo is gone), and keys
- * sent earlier are lost. So send the keys, check the shell answered, and send
- * them again until it does.
+ * The easter-egg key listener attaches on hydration and nothing in the DOM
+ * marks that, so keys sent too early are lost. Send them until the egg's own
+ * markup mounts (it renders `.egg`), and then stop: pressing again while it is
+ * still opening would only fight the open in progress. The mount and the
+ * entrance are slow on a busy machine, so the final wait is generous.
  */
-const pressUntilVisible = (press: () => Promise<void>, target: Locator) =>
-  expect(async () => {
+const pressUntilVisible = async (page: Page, press: () => Promise<void>, target: Locator) => {
+  await expect(async () => {
     await press();
-    await expect(target).toBeVisible({ timeout: 4_000 });
+    await expect(page.locator(".egg").first()).toBeAttached({ timeout: 3_000 });
   }).toPass({ timeout: 45_000 });
+  await expect(target).toBeVisible({ timeout: 45_000 });
+};
 
 const typeKonami = async (page: Page) => {
   for (const key of KONAMI) await page.keyboard.press(key);
@@ -128,13 +131,13 @@ test("locked users unlock through the code entry area and on-screen keypad", asy
   // Ten keypad clicks, each waiting for the button to settle, plus the
   // overlay's entrance: the default 30s budget is not enough for the whole
   // journey on a machine without a GPU. The assertions are unchanged.
-  test.setTimeout(90_000);
+  test.setTimeout(150_000);
 
   await page.goto("/");
 
   // Locked: the shortcut opens the code entry area, never the terminal
   const enterButton = page.getByRole("button", { name: "Enter Konami Code" });
-  await pressUntilVisible(() => page.keyboard.press("Control+Shift+b"), enterButton);
+  await pressUntilVisible(page, () => page.keyboard.press("Control+Shift+b"), enterButton);
 
   await enterButton.click();
 
@@ -147,20 +150,23 @@ test("locked users unlock through the code entry area and on-screen keypad", asy
 });
 
 test("konami code unlocks the terminal", async ({ page }) => {
+  test.setTimeout(150_000);
   await page.goto("/");
 
-  await pressUntilVisible(() => typeKonami(page), page.locator("#secret-terminal"));
+  await pressUntilVisible(page, () => typeKonami(page), page.locator("#secret-terminal"));
 });
 
 test("terminal access resets when the page is refreshed", async ({ page }) => {
+  test.setTimeout(150_000);
   await page.goto("/");
 
-  await pressUntilVisible(() => typeKonami(page), page.locator("#secret-terminal"));
+  await pressUntilVisible(page, () => typeKonami(page), page.locator("#secret-terminal"));
 
   await page.reload();
 
   // Locked again: the shortcut opens the code entry area, not the terminal
   await pressUntilVisible(
+    page,
     () => page.keyboard.press("Control+Shift+b"),
     page.getByRole("button", { name: "Enter Konami Code" }),
   );
@@ -367,7 +373,7 @@ test.describe("navbar section links resolve to the home page from any route", ()
       // that now carries a WebGL tide band: the default 30s budget is not
       // enough for the whole loop on a machine without a GPU. The assertions
       // below are unchanged.
-      test.setTimeout(90_000);
+      test.setTimeout(150_000);
 
       for (const section of SECTIONS) {
         await page.goto(route);

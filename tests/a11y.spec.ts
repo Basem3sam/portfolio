@@ -52,14 +52,18 @@ test.describe("accessibility", () => {
   test("open terminal has no axe violations", async ({ page }) => {
     await page.goto("/");
 
+    test.setTimeout(150_000);
+
     // The konami listener attaches on hydration and nothing in the DOM marks
-    // that, so keys typed earlier are lost. Type the code until it opens.
+    // that, so keys typed too early are lost. Type the code until the egg
+    // mounts, then give the terminal time to open.
     await expect(async () => {
       for (const key of KONAMI) {
         await page.keyboard.press(key);
       }
-      await expect(page.locator("#secret-terminal")).toBeVisible({ timeout: 4_000 });
+      await expect(page.locator(".egg").first()).toBeAttached({ timeout: 3_000 });
     }).toPass({ timeout: 45_000 });
+    await expect(page.locator("#secret-terminal")).toBeVisible({ timeout: 45_000 });
     const results = await new AxeBuilder({ page }).analyze();
     expect(results.violations).toEqual([]);
   });
