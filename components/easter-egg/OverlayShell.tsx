@@ -122,7 +122,7 @@ export default function OverlayShell({
           data-lenis-prevent
           aria-modal="true"
           aria-label={title}
-          className={`egc${cardClassName ? ` ${cardClassName}` : ""}`}
+          className={cx("egc", cardClassName)}
         >
           <div className="egh">
             <span className="egk">{chip}</span>
