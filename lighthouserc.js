@@ -2,7 +2,9 @@
  * Lighthouse CI configuration.
  *
  * IMPORTANT - threshold policy (owner decision, 2026-10-13):
- *   - Accessibility, best-practices and SEO stay at 1.0 on every route.
+ *   - Accessibility and best-practices stay at 1.0 on every route.
+ *   - SEO stays at 1.0 for local runs. Preview deployments are noindexed by
+ *     platform policy, so SEO assertions are skipped there.
  *   - Performance is asserted PER ROUTE with `assertMatrix` (JSON cannot
  *     carry comments, which is why this file is `.js`).
  *   - Floors were set from a fresh build of HEAD 96722a6, 3 runs per route,
@@ -64,13 +66,14 @@ const ROUTES = ["/", "/ar", "/work/trosc", "/links"];
 
 /**
  * One assertion set per route. Accessibility and best-practices are 1.0
- * everywhere; only the performance floor differs. SEO is skipped on preview
- * deployments because Vercel previews are intentionally noindexed. Every
- * collected URL must match exactly one pattern, so each is anchored to
+ * everywhere; only the performance floor differs. SEO is asserted locally and
+ * skipped on preview runs because preview URLs are intentionally noindexed.
+ * Every collected URL must match exactly one pattern, so each is anchored to
  * `scheme://host` + path.
  */
 function route(path, perfFloor) {
-  const escaped = path.replace(/[/]/g, "\\/");
+  const escaped = path.replace(/[.*+?^${}()|[\]/\\]/g, "\\$&");
+
   return {
     matchingUrlPattern: `^https?:\\/\\/[^/]+${escaped}$`,
     // "median" = the median of the 5 category scores. ("median-run" is ignored
