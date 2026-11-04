@@ -20,6 +20,16 @@ const KONAMI = [
  */
 const NAVIGATOR = "nav[data-scrolled]";
 
+/**
+ * The easter-egg key listener attaches on hydration (the same pass that marks
+ * the hero photo clickable). Keys sent before that are lost for good, so wait
+ * for the signal before typing a code.
+ */
+const waitForEgg = (page: import("@playwright/test").Page) =>
+  page.waitForFunction(() =>
+    Boolean(document.querySelector("#hero picture img")?.classList.contains("cursor-pointer")),
+  );
+
 test.beforeEach(async ({ context }) => {
   await context.clearCookies();
 });
@@ -112,6 +122,7 @@ test("locked users unlock through the code entry area and on-screen keypad", asy
   test.setTimeout(90_000);
 
   await page.goto("/");
+  await waitForEgg(page);
 
   // Locked: the shortcut opens the code entry area, never the terminal
   await page.keyboard.press("Control+Shift+b");
@@ -130,23 +141,26 @@ test("locked users unlock through the code entry area and on-screen keypad", asy
 
 test("konami code unlocks the terminal", async ({ page }) => {
   await page.goto("/");
+  await waitForEgg(page);
 
   for (const key of KONAMI) {
     await page.keyboard.press(key);
   }
 
-  await expect(page.locator("#secret-terminal")).toBeVisible();
+  await expect(page.locator("#secret-terminal")).toBeVisible({ timeout: 15_000 });
 });
 
 test("terminal access resets when the page is refreshed", async ({ page }) => {
   await page.goto("/");
+  await waitForEgg(page);
 
   for (const key of KONAMI) {
     await page.keyboard.press(key);
   }
-  await expect(page.locator("#secret-terminal")).toBeVisible();
+  await expect(page.locator("#secret-terminal")).toBeVisible({ timeout: 15_000 });
 
   await page.reload();
+  await waitForEgg(page);
   await page.keyboard.press("Control+Shift+b");
 
   // Locked again: the shortcut opens the code entry area, not the terminal

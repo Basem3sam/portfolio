@@ -89,7 +89,13 @@ test("phone hero actions and contact row share one left and right edge", async (
       ctaRight: Math.max(...ctas.map((r) => r.right)),
       reachLeft: reach[0].left,
       reachRight: reach[reach.length - 1].right,
-      sameRow: new Set(reach.map((r) => Math.round(r.top))).size === 1,
+      // Below the 24rem container-query breakpoint the phone tile takes a whole
+      // row and the icon tiles share the row under it (Hero.css), so a lone
+      // icon never sits on a line of its own. The icons must share one row,
+      // and the phone tile must not sit below them.
+      sameRow:
+        new Set(reach.slice(1).map((r) => Math.round(r.top))).size === 1 &&
+        Math.round(reach[0].top) <= Math.round(reach[1].top),
     };
   });
   expect(Math.abs(edges.reachLeft - edges.ctaLeft)).toBeLessThanOrEqual(1);

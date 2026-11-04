@@ -87,10 +87,12 @@ test("xl shows one #contact link (the button); lg keeps the plain link", async (
   );
 });
 
-test("the Arabic bar fills from the right", async ({ page }) => {
+test("the progress bar keeps reading left to right in Arabic", async ({ page }) => {
+  // Navbar.tsx sets dir="ltr" on the rail on purpose: it tracks scroll depth,
+  // not text flow, so it is not mirrored in RTL.
   await page.goto("/ar");
   await page.waitForLoadState("networkidle");
   const fill = page.locator(`${NAVIGATOR} .nav-progress b`).first();
   const dir = await fill.evaluate((el) => getComputedStyle(el.parentElement!).direction);
-  expect(dir).toBe("rtl");
+  expect(dir).toBe("ltr");
 });
