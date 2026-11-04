@@ -136,13 +136,13 @@ test("locked users unlock through the code entry area and on-screen keypad", asy
   await page.goto("/");
 
   // Locked: the shortcut opens the code entry area, never the terminal
-  const enterButton = page.getByRole("button", { name: "Enter Konami Code" });
+  const enterButton = page.getByRole("button", { name: "Enter the sequence" });
   await pressUntilVisible(page, () => page.keyboard.press("Control+Shift+b"), enterButton);
 
   await enterButton.click();
 
   // The complete mouse-only journey: solve the code on the on-screen keypad
-  for (const key of ["↑", "↑", "↓", "↓", "←", "→", "←", "→", "B", "A"]) {
+  for (const key of ["Up", "Up", "Down", "Down", "Left", "Right", "Left", "Right", "B", "A"]) {
     await page.getByRole("button", { name: key, exact: true }).click();
   }
 
@@ -168,7 +168,7 @@ test("terminal access resets when the page is refreshed", async ({ page }) => {
   await pressUntilVisible(
     page,
     () => page.keyboard.press("Control+Shift+b"),
-    page.getByRole("button", { name: "Enter Konami Code" }),
+    page.getByRole("button", { name: "Enter the sequence" }),
   );
   await expect(page.locator("#secret-terminal")).not.toBeVisible();
 });
@@ -262,8 +262,8 @@ test("work KPI values align on one line at every width", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
 
-  // The featured KPI wall packs 3-across on desktop (6 columns, tiles span 2)
-  // and 2-across on phones, with the members tile filling the last row alone.
+  // The featured KPI wall is one row of five on desktop and a compact 3 + 2
+  // ledger on phones (6 columns: three tiles span 2, the last two span 3).
   // Rows are grouped by TILE tops: the approved layout itself lets the
   // coverage tile's label wrap to two lines on phones, which drops that
   // tile's value a line below its row-mate without changing the grid.
@@ -295,9 +295,9 @@ test("work KPI values align on one line at every width", async ({ page }) => {
 
   await expectRows([5]);
   await page.setViewportSize({ width: 390, height: 844 });
-  await expectRows([2, 2, 1]);
+  await expectRows([3, 2]);
   await page.setViewportSize({ width: 320, height: 568 });
-  await expectRows([2, 2, 1]);
+  await expectRows([3, 2]);
 });
 
 test("navbar highlights the section navigated to, not the previous one", async ({ page }) => {

@@ -162,7 +162,6 @@ test("below 992px the portrait stays on screen, centred, and lines up with the t
 }) => {
   // Rects include transforms, so measure with the entrance animations off.
   await page.emulateMedia({ reducedMotion: "reduce" });
-  const sizes: number[] = [];
   for (const width of [320, 360, 390, 430, 500, 528, 600, 768, 991]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");
@@ -175,6 +174,10 @@ test("below 992px the portrait stays on screen, centred, and lines up with the t
         document
           .getAnimations()
           .filter((a) => a.effect?.getComputedTiming().iterations !== Infinity)
+          // Only the hero's own entrance. Animations further down the page (the
+          // Experience story lines) are paused by PauseOffscreen until they
+          // scroll into view, so their `finished` promise never settles.
+          .filter((a) => !!(a.effect as KeyframeEffect | null)?.target?.closest?.("#hero"))
           .map((a) => a.finished.catch(() => {})),
       );
     });
@@ -184,21 +187,25 @@ test("below 992px the portrait stays on screen, centred, and lines up with the t
       // The page reserves a 10px scrollbar strip (scrollbar-gutter: stable), so
       // centre against the hero section, not the full viewport width.
       const hero = (document.querySelector("#hero") as HTMLElement).getBoundingClientRect();
+      const col = (
+        document.querySelector("#hero .hero-top") as HTMLElement
+      ).getBoundingClientRect();
       return {
         w: Math.round(pf.width),
         left: pf.left,
         right: hero.right - pf.right,
         off: Math.abs(pf.left + pf.width / 2 - (hero.left + hero.width / 2)),
         edge: Math.abs(pf.left - h1.left),
+        colWidth: Math.abs(pf.width - col.width),
       };
     });
     expect(m.left, `left ${width}`).toBeGreaterThanOrEqual(0);
     expect(m.right, `right ${width}`).toBeGreaterThanOrEqual(0);
     expect(m.off, `centre ${width}`).toBeLessThanOrEqual(2);
     expect(m.edge, `edge ${width}`).toBeLessThanOrEqual(1);
-    if (width >= 528) sizes.push(m.w);
+    // The portrait box is exactly as wide as the text column (up to its 640px cap).
+    expect(m.colWidth, `column width ${width}`).toBeLessThanOrEqual(1);
   }
-  expect(Math.max(...sizes) - Math.min(...sizes)).toBeLessThanOrEqual(1);
 });
 
 test("below 992px every text block sits on one left edge", async ({ page }) => {
@@ -250,6 +257,10 @@ test("from 992px the copy box and the portrait box are an equal, level pair", as
         document
           .getAnimations()
           .filter((a) => a.effect?.getComputedTiming().iterations !== Infinity)
+          // Only the hero's own entrance. Animations further down the page (the
+          // Experience story lines) are paused by PauseOffscreen until they
+          // scroll into view, so their `finished` promise never settles.
+          .filter((a) => !!(a.effect as KeyframeEffect | null)?.target?.closest?.("#hero"))
           .map((a) => a.finished.catch(() => {})),
       );
     });

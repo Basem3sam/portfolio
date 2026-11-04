@@ -1797,6 +1797,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
               className={cx("etb", glitch && "gl")}
               id="terminal-output"
               tabIndex={0}
+              role="region"
               aria-label="Terminal output"
             >
               {lines.map((line) => {

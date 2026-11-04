@@ -63,7 +63,9 @@ test.describe("accessibility", () => {
       }
       await expect(page.locator(".egg").first()).toBeAttached({ timeout: 3_000 });
     }).toPass({ timeout: 45_000 });
-    await expect(page.locator("#secret-terminal")).toBeVisible({ timeout: 45_000 });
+    // The terminal is `inert` while it opens, and axe treats inert content as hidden
+    // from screen readers, so scan only once it is open and interactive.
+    await expect(page.locator("#secret-terminal:not([inert])")).toBeVisible({ timeout: 45_000 });
     const results = await new AxeBuilder({ page }).analyze();
     expect(results.violations).toEqual([]);
   });

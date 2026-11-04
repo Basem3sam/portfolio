@@ -9,7 +9,12 @@ test("TROSC is the featured card with its facts; the other four are rows", async
   await expect(cards.filter({ hasText: "trosc-backend" }).first()).toBeVisible();
   const featured = cards.filter({ hasText: "trosc-backend" }).first();
   for (const fact of ["100+", "12", "17", "200+"]) {
-    await expect(featured.locator("dd", { hasText: fact }).first()).toBeVisible();
+    // WorkStat resets each figure to 0 after hydration and counts up once it is
+    // mostly on screen, so bring the card's facts into view before reading them.
+    await featured.locator(".fact").first().scrollIntoViewIfNeeded();
+    await expect(featured.locator("dd", { hasText: fact }).first()).toBeVisible({
+      timeout: 15_000,
+    });
   }
   for (const name of ["store-advisor", "zabthalahak", "laravel-ecommerce-app", "neuroscan-ai"]) {
     await expect(page.locator("#work h3", { hasText: name })).toHaveCount(1);
