@@ -55,6 +55,10 @@ test("progress rail fills with scroll and clears the controls above it", async (
   await expect.poll(async () => (await width())[4]).toBeGreaterThan(50);
   expect((await width())[0]).toBe(100);
 
+  // The rail's offset follows the capsule's --ne, so measure only once the
+  // capsule has settled; mid-ease the gap is still growing.
+  await expect.poll(() => np(page), SETTLE).toBe(1);
+
   // At least 4px between the rail and the lowest control (the old bug was ~1px).
   const gap = await page.evaluate(() => {
     const nav = document.querySelector("nav[data-scrolled]") as HTMLElement;
