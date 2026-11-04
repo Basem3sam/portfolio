@@ -2310,42 +2310,54 @@ html[data-perf="low"] #work .stage::after {
 }
 
 /* ================================================================
-   Flagship on narrow cards (container < 960px): the "stage" treatment.
+   Flagship on narrow cards (container < 960px).
 
-   Problem: stacked on a phone the card is ~1400px tall and ~340px wide, and
-   its backdrop (lights and rings placed in percentages of the card's HEIGHT)
-   fell outside the card, leaving long stretches of flat ink above and below
-   the artwork.
+   Stacked on a phone the card used to be very tall: the request-path plate was
+   a tall vertical list that sat on top of the live preview and hid most of it,
+   the backdrop was placed in percentages of the card's HEIGHT (so its lights
+   fell outside the card), and the numbers took three tall rows.
 
-   Design: the artwork becomes a framed stage, built exactly like the stages
-   of the project cards below it (cobalt glow top-left, warm glow
-   bottom-right, cobalt rings from the top-right corner, warm rings from the
-   bottom-left corner, a hairline frame). The light and the rings therefore live
-   inside a panel that always has the right size, instead of being scattered
-   over empty ink; the card outside it keeps the desktop's cobalt light behind
-   the headline and warm light under the numbers, plus the grain. The numbers
-   become a compact 3 + 2 ledger and the gaps tighten, so the card is
-   noticeably shorter.
+   Now:
+   • the live preview is shown whole, and the plate slides over only its lower
+     edge, a deliberate tuck that keeps the depth of the desktop composition;
+   • on a phone the request path becomes a compact 3 x 2 pipeline of tiles; the
+     tiles light up in order, the same signal the packet draws on desktop;
+   • the backdrop keeps the desktop's four ingredients, re-anchored so they
+     always sit where the design means them to: a cobalt light behind the
+     headline, rings radiating from behind the live preview, a small warm light
+     in the lower corner (kept small and low, so it stays gold instead of
+     turning the navy muddy), and the grain;
+   • the numbers are a compact 3 + 2 ledger and the copy is a touch tighter.
    ================================================================ */
 @container feat (max-width: 959.98px) {
   #work .feat {
-    gap: 24px;
+    gap: 22px;
   }
 
-  /* -- card-level backdrop: kept, but anchored in px / cqi so it stays inside -- */
+  /* -- copy: a little tighter -- */
+  #work .feat .desc {
+    margin-top: 14px;
+    font-size: 1.0625rem;
+  }
+
+  #work .feat .stk {
+    margin-top: 16px;
+  }
+
+  /* -- backdrop (card level) -- */
   #work .feat-aurora::before {
-    top: -130px;
-    inset-inline-end: -36%;
+    top: -120px;
+    inset-inline-end: -30%;
     width: min(110cqi, 460px);
-    opacity: 0.6;
+    opacity: 0.65;
   }
 
   #work .feat-aurora::after {
     top: auto;
-    bottom: -110px;
-    inset-inline-start: -34%;
-    width: min(104cqi, 440px);
-    opacity: 0.9;
+    bottom: -130px;
+    inset-inline-start: -22%;
+    width: min(84cqi, 340px);
+    opacity: 0.85;
   }
 
   #work .feat-rings {
@@ -2358,72 +2370,85 @@ html[data-perf="low"] #work .stage::after {
     mix-blend-mode: normal;
   }
 
-  /* -- the stage -- */
+  /* -- artwork: preview first and whole, plate tucked over its lower edge -- */
   #work .feat-art {
-    --a1: #5b7cff;
-    --a2: #e0a458;
+    position: relative;
     isolation: isolate;
-    overflow: hidden;
-    padding: clamp(14px, 4.4cqi, 26px);
-    border: 1px solid rgba(255, 255, 255, 0.11);
-    border-radius: 22px;
-    background:
-      radial-gradient(
-        90% 120% at 0% 0%,
-        color-mix(in srgb, var(--a1) 40%, transparent),
-        transparent 64%
-      ),
-      radial-gradient(
-        85% 110% at 100% 100%,
-        color-mix(in srgb, var(--a2) 26%, transparent),
-        transparent 64%
-      ),
-      rgba(255, 255, 255, 0.025);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.07),
-      0 30px 60px -40px rgba(0, 0, 0, 0.7);
-  }
-
-  #work .feat-art::before,
-  #work .feat-art::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-  }
-
-  #work .feat-art::before {
-    background: repeating-radial-gradient(
-      circle at 100% 0%,
-      transparent 0 26px,
-      color-mix(in srgb, var(--a1) 46%, transparent) 26px 27px
-    );
-    mask-image: radial-gradient(circle at 100% 0%, #000 0%, transparent 72%);
-  }
-
-  #work .feat-art::after {
-    background: repeating-radial-gradient(
-      circle at 0% 100%,
-      transparent 0 32px,
-      color-mix(in srgb, var(--a2) 38%, transparent) 32px 33px
-    );
-    mask-image: radial-gradient(circle at 0% 100%, #000 0%, transparent 72%);
+    display: flex;
+    flex-direction: column;
   }
 
   #work .feat-art .depth {
     position: relative;
+    grid-area: auto;
+    width: 100%;
+    translate: none;
+  }
+
+  #work .feat-art .depth-a {
     z-index: 1;
   }
 
-  /* the trace tucks under the window with less dead gap above it */
-  #work .depth-b {
+  #work .feat-art .depth-b {
+    z-index: 2;
+    align-self: center;
+    justify-self: auto;
     width: min(100%, 520px);
-    margin-top: 34%;
-    translate: 0 calc(var(--sy, 0) * -18px);
+    margin-top: -26px;
   }
 
-  /* -- numbers: a compact 3 + 2 ledger instead of three tall rows -- */
+  #work .feat-art .art-window {
+    transform: none;
+    animation: none;
+  }
+
+  #work .feat .sp {
+    --sp-ratio: 16 / 10;
+  }
+
+  #work .art-trace {
+    translate: none;
+  }
+
+  #work .art-trace .trace {
+    padding: 14px;
+    animation: none;
+  }
+
+  /* Cobalt light behind the preview, and the rings leaving it. */
+  #work .feat-art::before,
+  #work .feat-art::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset-inline-start: 50%;
+    top: calc(31cqi + 14px);
+    translate: -50% -50%;
+    aspect-ratio: 1;
+    pointer-events: none;
+  }
+
+  [dir="rtl"] #work .feat-art::before,
+  [dir="rtl"] #work .feat-art::after {
+    translate: 50% -50%;
+  }
+
+  #work .feat-art::before {
+    width: min(150cqi, 620px);
+    background: radial-gradient(closest-side, rgba(59, 91, 245, 0.55), transparent);
+  }
+
+  #work .feat-art::after {
+    width: min(250cqi, 980px);
+    background: repeating-radial-gradient(
+      circle,
+      transparent 0 34px,
+      rgba(176, 196, 255, 0.2) 34px 35px
+    );
+    mask-image: radial-gradient(closest-side, #000 20%, transparent 100%);
+  }
+
+  /* -- numbers: a compact 3 + 2 ledger -- */
   #work .facts[data-n="5"] {
     grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 0 14px;
@@ -2432,7 +2457,7 @@ html[data-perf="low"] #work .stage::after {
   #work .facts[data-n="5"] .fact {
     grid-column: span 2;
     gap: 6px;
-    padding-block: 14px 2px;
+    padding-block: 12px 2px;
   }
 
   #work .facts[data-n="5"] .fact:nth-child(n + 4),
@@ -2450,18 +2475,17 @@ html[data-perf="low"] #work .stage::after {
 }
 
 @container feat (max-width: 559.98px) {
-  #work .feat-art .depth-a,
-  #work .feat-art .depth-b {
-    translate: none;
-  }
-
   #work .feat-aurora {
     translate: none;
   }
 }
 
-/* tablets keep the one-row numbers */
+/* tablets keep the one-row numbers; the preview goes back to 16:9 */
 @container feat (min-width: 560px) and (max-width: 959.98px) {
+  #work .feat .sp {
+    --sp-ratio: 16 / 9;
+  }
+
   #work .facts[data-n="5"] {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
@@ -2470,6 +2494,124 @@ html[data-perf="low"] #work .stage::after {
   #work .facts[data-n="5"] .fact:nth-child(n + 4),
   #work .facts[data-n="5"] .fact:last-child {
     grid-column: auto;
+  }
+}
+
+/* ---- the request path as a 3 x 2 pipeline, on phones ---- */
+@container trace (max-width: 559.98px) {
+  #work .trace-head {
+    padding-bottom: 10px;
+    font-size: 0.78rem;
+  }
+
+  #work .trace-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: none;
+    gap: 8px;
+  }
+
+  #work .trace-list li {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      "dot tag"
+      "name name";
+    align-content: space-between;
+    row-gap: 8px;
+    padding: 9px 10px 10px;
+    border: 1px solid var(--t-line);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.035);
+  }
+
+  #work .trace-list li::before {
+    display: none;
+  }
+
+  /* each tile flashes as the signal reaches it (same timing as its dot) */
+  #work .trace-list li:first-child::after,
+  #work .trace-list li + li::after {
+    inset: -1px;
+    height: auto;
+    border: 1px solid var(--c-secondary);
+    border-radius: 12px;
+    background: none;
+    opacity: 0;
+    pointer-events: none;
+    animation: tile-pulse var(--t-cycle) linear infinite;
+    animation-delay: calc(var(--t-cycle) * (0.04 + 0.68 * var(--i, 0) / (var(--n, 5) - 1)) + 1.2s);
+  }
+
+  #work .trace[data-revealed="false"] .trace-list li::after {
+    animation-play-state: paused;
+  }
+
+  #work .trace-list .hot {
+    border-color: color-mix(in srgb, var(--c-secondary) 45%, transparent);
+    background: color-mix(in srgb, var(--c-secondary) 12%, transparent);
+  }
+
+  #work .t-dot {
+    grid-area: dot;
+  }
+
+  #work .t-tag {
+    grid-area: tag;
+    align-self: center;
+    font-size: 0.625rem;
+  }
+
+  #work .t-name {
+    grid-area: name;
+    align-self: end;
+    font-size: 0.75rem;
+    line-height: 1.25;
+    overflow-wrap: normal;
+  }
+
+  #work .t-note,
+  #work .packet {
+    display: none;
+  }
+
+  #work .trace-foot {
+    gap: 12px;
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+
+  #work .trace-foot div {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  #work .trace-foot b {
+    font-size: 1.125rem;
+  }
+
+  #work .trace-foot span {
+    font-size: 0.75rem;
+    line-height: 1.25;
+  }
+}
+
+/* very narrow plates: two columns, so no name is ever cut mid-word */
+@container trace (max-width: 299.98px) {
+  #work .trace-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@keyframes tile-pulse {
+  0% {
+    opacity: 0;
+  }
+  3% {
+    opacity: 1;
+  }
+  16%,
+  100% {
+    opacity: 0;
   }
 }
 
