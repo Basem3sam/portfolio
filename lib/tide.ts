@@ -14,7 +14,7 @@
  * console error.
  */
 
-import { releaseGlContext } from "./gl";
+import { isSoftwareRenderer, releaseGlContext } from "./gl";
 
 export type TideOptions = {
   /** Film-grain amplitude passed to the shader (mockup default 0.25). */
@@ -128,6 +128,10 @@ export function mountTide(
     powerPreference: "low-power",
   });
   if (!gl || gl.isContextLost()) return null;
+  if (isSoftwareRenderer(gl)) {
+    releaseGlContext(gl);
+    return null;
+  }
 
   const compile = (type: number, source: string) => {
     const shader = gl.createShader(type);

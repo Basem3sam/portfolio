@@ -166,17 +166,29 @@ test("below 992px the portrait stays on screen, centred, and lines up with the t
   for (const width of [320, 360, 390, 430, 500, 528, 600, 768, 991]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");
-    // Line heights shift when the web fonts swap in; measure after they have.
-    await page.evaluate(() => document.fonts.ready);
+    // Measure the settled layout: web fonts swapped in, and the entrance rise
+    // (a 14px translateY on the portrait and copy) finished. Rects include
+    // transforms, so a half-finished rise reads as a layout offset.
+    await page.evaluate(async () => {
+      await document.fonts.ready;
+      await Promise.all(
+        document
+          .getAnimations()
+          .filter((a) => a.effect?.getComputedTiming().iterations !== Infinity)
+          .map((a) => a.finished.catch(() => {})),
+      );
+    });
     const m = await page.evaluate(() => {
       const pf = (document.querySelector("#pf") as HTMLElement).getBoundingClientRect();
       const h1 = (document.querySelector("#hero h1") as HTMLElement).getBoundingClientRect();
-      const view = document.documentElement.clientWidth;
+      // The page reserves a 10px scrollbar strip (scrollbar-gutter: stable), so
+      // centre against the hero section, not the full viewport width.
+      const hero = (document.querySelector("#hero") as HTMLElement).getBoundingClientRect();
       return {
         w: Math.round(pf.width),
         left: pf.left,
-        right: view - pf.right,
-        off: Math.abs(pf.left + pf.width / 2 - view / 2),
+        right: hero.right - pf.right,
+        off: Math.abs(pf.left + pf.width / 2 - (hero.left + hero.width / 2)),
         edge: Math.abs(pf.left - h1.left),
       };
     });
@@ -229,8 +241,18 @@ test("from 992px the copy box and the portrait box are an equal, level pair", as
   for (const width of [992, 1045, 1100, 1199, 1280, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");
-    // Line heights shift when the web fonts swap in; measure after they have.
-    await page.evaluate(() => document.fonts.ready);
+    // Measure the settled layout: web fonts swapped in, and the entrance rise
+    // (a 14px translateY on the portrait and copy) finished. Rects include
+    // transforms, so a half-finished rise reads as a layout offset.
+    await page.evaluate(async () => {
+      await document.fonts.ready;
+      await Promise.all(
+        document
+          .getAnimations()
+          .filter((a) => a.effect?.getComputedTiming().iterations !== Infinity)
+          .map((a) => a.finished.catch(() => {})),
+      );
+    });
     const m = await page.evaluate(() => {
       const rect = (selector: string) =>
         (document.querySelector(selector) as HTMLElement).getBoundingClientRect();

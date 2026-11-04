@@ -15,7 +15,7 @@
  * caller keeps its CSS-gradient stage — never a blank rectangle.
  */
 
-import { releaseGlContext } from "./gl";
+import { isSoftwareRenderer, releaseGlContext } from "./gl";
 
 export type GlassFoldOptions = {
   /**
@@ -125,6 +125,10 @@ export function mountGlassFold(
     powerPreference: "low-power",
   });
   if (!gl || gl.isContextLost()) return null;
+  if (isSoftwareRenderer(gl)) {
+    releaseGlContext(gl);
+    return null;
+  }
 
   const compile = (type: number, source: string) => {
     const shader = gl.createShader(type);

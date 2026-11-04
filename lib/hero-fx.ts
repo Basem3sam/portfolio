@@ -9,7 +9,8 @@
  * sky follows the theme (`.dark-mode` swaps the `--nb-*` ramp in Hero.css).
  */
 
-import { releaseGlContext } from "./gl";
+import { isSoftwareRenderer, releaseGlContext } from "./gl";
+import { onLowTier } from "./perf";
 
 type Rgb = [number, number, number];
 
@@ -493,6 +494,14 @@ export function mountHeroFx(
     const gl = nb.getContext("webgl2", { antialias: false, alpha: false, depth: false });
     glCtx = gl;
 
+    // A CPU-rendered context (headless CI, remote desktop, blocklisted GPU)
+    // turns this shader into multi-second main-thread stalls. The halftone
+    // sky is already painting, so simply never switch to the nebula.
+    if (gl && isSoftwareRenderer(gl)) {
+      gl.getExtension("WEBGL_lose_context")?.loseContext();
+      return;
+    }
+
     if (gl && !gl.isContextLost()) {
       const compile = (type: number, source: string) => {
         const shader = gl.createShader(type);
@@ -774,14 +783,35 @@ export function mountHeroFx(
           gl.drawArrays(gl.TRIANGLES, 0, 3);
         };
 
+        let fellBack = false;
+        const fallBack = () => {
+          if (fellBack) return;
+          fellBack = true;
+          if (raf) cancelAnimationFrame(raf);
+          raf = 0;
+          window.clearTimeout(halftoneStopTimer);
+          host.removeAttribute("data-nb");
+          sizeHalftone();
+          if (!halftoneRaf) halftoneRaf = requestAnimationFrame(tick);
+          gl.getExtension("WEBGL_lose_context")?.loseContext();
+        };
+
         const frame = (now: number) => {
           raf = 0;
           if (now - lastDraw >= (now - lastScroll < 140 ? scrollGap : frameGap)) {
             if (lastDraw > 0 && now - lastDraw > 66) {
-              if (++slowFrames >= 8 && quality > minQuality) {
-                quality = Math.max(minQuality, quality * 0.8);
-                slowFrames = 0;
-                sizeNb();
+              // A frame over 200ms is a stall, not a slow frame: count it triple.
+              slowFrames += now - lastDraw > 200 ? 3 : 1;
+              if (slowFrames >= 8) {
+                if (quality > minQuality) {
+                  quality = Math.max(minQuality, quality * 0.8);
+                  slowFrames = 0;
+                  sizeNb();
+                } else {
+                  // Already at the floor and still slow: hand the sky back.
+                  fallBack();
+                  return;
+                }
               }
             } else if (slowFrames > 0) {
               slowFrames--;
@@ -789,10 +819,11 @@ export function mountHeroFx(
             lastDraw = now;
             paint();
           }
-          if (visible && !document.hidden && !reduce) raf = requestAnimationFrame(frame);
+          if (visible && !document.hidden && !reduce && !fellBack)
+            raf = requestAnimationFrame(frame);
         };
         const wake = () => {
-          if (!reduce && !raf && visible && !document.hidden) {
+          if (!reduce && !raf && visible && !document.hidden && !fellBack) {
             lastDraw = 0;
             raf = requestAnimationFrame(frame);
           }
@@ -951,13 +982,10 @@ export function mountHeroFx(
         // its last frame. Hand the sky back to the halftone instead.
         listen(nb, "webglcontextlost", (event: Event) => {
           event.preventDefault();
-          if (raf) cancelAnimationFrame(raf);
-          raf = 0;
-          window.clearTimeout(halftoneStopTimer);
-          host.removeAttribute("data-nb");
-          sizeHalftone();
-          if (!halftoneRaf) halftoneRaf = requestAnimationFrame(tick);
+          fallBack();
         });
+        // The shared perf governor said this device is struggling.
+        cleanups.push(onLowTier(fallBack));
       }
     }
   };

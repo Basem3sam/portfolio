@@ -19,3 +19,23 @@ export function releaseGlContext(gl: WebGLRenderingContext | WebGL2RenderingCont
     gl.getExtension("WEBGL_lose_context")?.loseContext();
   }, 0);
 }
+
+/**
+ * True when the context is rendered on the CPU (SwiftShader, llvmpipe, a
+ * "software" adapter): headless CI, remote desktops, blocklisted GPUs.
+ * Every fragment then costs main-thread-visible time, and the page's
+ * decorative shaders turn into multi-second stalls that starve rAF,
+ * scroll-spy, pointer handlers and entrance animations. These effects are
+ * decoration only, so on such a machine the caller keeps its CSS/2D fallback.
+ */
+export function isSoftwareRenderer(gl: WebGLRenderingContext | WebGL2RenderingContext): boolean {
+  try {
+    const info = gl.getExtension("WEBGL_debug_renderer_info");
+    const renderer = String(
+      info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER),
+    );
+    return /swiftshader|llvmpipe|softpipe|software|microsoft basic render/i.test(renderer);
+  } catch {
+    return false;
+  }
+}
