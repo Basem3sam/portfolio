@@ -1754,19 +1754,15 @@ export default function Terminal({ open, onClose }: TerminalProps) {
               <em>zsh</em>
             </b>
             <span className="r">
-              <button
-                type="button"
-                className="erk"
-                onClick={() => submit("trophies")}
-                aria-label={`Trophies: ${count} of ${TOTAL_DISCOVERIES} found, rank ${rank}. Show trophies`}
-              >
+              <button type="button" className="erk" onClick={() => submit("trophies")}>
                 <span className="erk-bar" style={progress} aria-hidden="true" />
-                <span key={bump} className="erk-n" aria-hidden="true">
+                <span key={bump} className="erk-n">
                   {count}/{TOTAL_DISCOVERIES}
-                </span>
-                <span className="erk-r" aria-hidden="true">
-                  {rank}
-                </span>
+                </span>{" "}
+                <span className="erk-r">{rank}</span>
+                {/* The visible text ("0/22 guest") leads the accessible name, so the name
+                    contains what is on screen (WCAG 2.5.3); the rest is spoken only. */}
+                <span className="sr-only"> trophies found. Show trophies</span>
               </button>
               <button
                 type="button"

@@ -44,8 +44,12 @@ test("spotlight follows the pointer, including while the page scrolls under it",
     .poll(
       async () => {
         const box = (await card.boundingBox())!;
-        await page.mouse.move(box.x + 100, box.y + 40);
-        await page.mouse.move(box.x + 120, box.y + 40);
+        // scrollIntoViewIfNeeded can leave a tall card's top edge above the
+        // viewport or under the navbar, and the mouse cannot reach a point
+        // outside the viewport. Aim at a point of the card that is on screen.
+        const y = Math.min(Math.max(box.y + 40, 110), box.y + box.height - 20, 780);
+        await page.mouse.move(box.x + 100, y);
+        await page.mouse.move(box.x + 120, y);
         return mx();
       },
       { timeout: 15_000 },
