@@ -874,7 +874,9 @@ html[lang="ar"] {
   body::before {
     content: "";
     position: fixed;
-    inset: 0;
+    /* Large viewport, so a phone's browser bars sliding away never expose a gap. */
+    inset: 0 0 auto 0;
+    height: 100lvh;
     z-index: -1;
     pointer-events: none;
     background-image: var(--bg-ambient);
@@ -883,7 +885,8 @@ html[lang="ar"] {
   body::after {
     content: "";
     position: fixed;
-    inset: 0;
+    inset: 0 0 auto 0;
+    height: 100lvh;
     z-index: 2147483647;
     pointer-events: none;
     opacity: var(--grain-opacity);

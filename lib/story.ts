@@ -105,6 +105,18 @@ export function createStory() {
     if (!measureFrame) measureFrame = requestAnimationFrame(measure);
   };
 
+  // On a phone the browser bars sliding away fires "resize" with only the
+  // height changed, mid-scroll. Re-measuring then shifts the scroll-linked
+  // values for nothing, so touch screens only re-measure when the width changes
+  // (rotation, split-screen). Other resizes are still caught by the observers.
+  let lastWidth = typeof window === "undefined" ? 0 : window.innerWidth;
+  const onResize = () => {
+    const width = window.innerWidth;
+    if (width === lastWidth && window.matchMedia("(pointer: coarse)").matches) return;
+    lastWidth = width;
+    scheduleMeasure();
+  };
+
   const apply = () => {
     for (const item of items) {
       const next =
@@ -130,7 +142,7 @@ export function createStory() {
       document.documentElement.setAttribute("data-story-on", "");
       live = true;
 
-      window.addEventListener("resize", scheduleMeasure, { passive: true });
+      window.addEventListener("resize", onResize, { passive: true });
       window.addEventListener("load", scheduleMeasure);
       void document.fonts?.ready.then(() => live && scheduleMeasure());
       if (typeof ResizeObserver === "function") {
@@ -166,7 +178,7 @@ export function createStory() {
     destroy() {
       live = false;
       if (trailing) window.clearTimeout(trailing);
-      window.removeEventListener("resize", scheduleMeasure);
+      window.removeEventListener("resize", onResize);
       window.removeEventListener("load", scheduleMeasure);
       observer?.disconnect();
       if (measureFrame) cancelAnimationFrame(measureFrame);
