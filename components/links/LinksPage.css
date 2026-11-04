@@ -1368,6 +1368,15 @@ html[dir="rtl"] .lk--tile .wm {
   pointer-events: none;
 }
 
+/* Why the field never showed in light mode: globals.css gives <html> its own
+   background there (html:not(:has(.dark-mode))), so the body's background stops
+   propagating to the canvas and paints as an opaque box OVER the z-index:-1
+   canvas. Dark mode has no html background, so it worked. On this page only,
+   let the body be see-through in light mode; html still supplies --c-page. */
+body:not(.dark-mode):has(.lk-page) {
+  background-color: transparent;
+}
+
 body.dark-mode .lk-bd {
   --lk-dot-min: 0.12;
   --lk-dot-span: 0.26;
