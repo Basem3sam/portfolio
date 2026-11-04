@@ -50,7 +50,8 @@ Thumbs.db
 #   PLAN-TO-PRODUCTION.md      internal implementation plan
 #   README-SETUP.md            internal workflow-kit setup notes
 /.opencode/
-/scripts/
+/scripts/*
+!/scripts/lhci-summary.mjs
 /docs/
 /prompts/
 /AGENTS.md
