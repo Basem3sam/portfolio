@@ -2310,38 +2310,42 @@ html[data-perf="low"] #work .stage::after {
 }
 
 /* ================================================================
-   Flagship backdrop on narrow cards (container < 960px).
+   Flagship on narrow cards (container < 960px): the "stage" treatment.
 
-   The desktop design is: a cobalt light behind the live window, rings
-   flowing outward from that window, a warm light low on the left, and a fine
-   grain over the ink. On a phone the card is ~1400px tall and ~340px wide, and
-   the lights and rings were placed in percentages of the card's HEIGHT, so they
-   fell outside the card and left flat ink. Here the same four ingredients are
-   re-anchored so they hold the same composition at any width:
+   Problem: stacked on a phone the card is ~1400px tall and ~340px wide, and
+   its backdrop (lights and rings placed in percentages of the card's HEIGHT)
+   fell outside the card, leaving long stretches of flat ink above and below
+   the artwork.
 
-   • cobalt light + rings are drawn from the ARTWORK (.feat-art), centred on
-     the live window, so the signal always radiates from the window;
-   • the card-level aurora is kept, in px / cqi, so the cobalt light still
-     rises behind the headline and the warm light still pools under the stats;
-   • the card-level rings are retired here (the artwork's rings replace them,
-     so no hairlines run behind the headline);
-   • the grain returns without its blend mode (the blend was the expensive
-     part), as one static layer.
+   Design: the artwork becomes a framed stage, built exactly like the stages
+   of the project cards below it (cobalt glow top-left, warm glow
+   bottom-right, cobalt rings from the top-right corner, warm rings from the
+   bottom-left corner, a hairline frame). The light and the rings therefore live
+   inside a panel that always has the right size, instead of being scattered
+   over empty ink; the card outside it keeps the desktop's cobalt light behind
+   the headline and warm light under the numbers, plus the grain. The numbers
+   become a compact 3 + 2 ledger and the gaps tighten, so the card is
+   noticeably shorter.
    ================================================================ */
 @container feat (max-width: 959.98px) {
+  #work .feat {
+    gap: 24px;
+  }
+
+  /* -- card-level backdrop: kept, but anchored in px / cqi so it stays inside -- */
   #work .feat-aurora::before {
-    top: -120px;
-    inset-inline-end: -34%;
-    width: min(112cqi, 460px);
-    opacity: 0.62;
+    top: -130px;
+    inset-inline-end: -36%;
+    width: min(110cqi, 460px);
+    opacity: 0.6;
   }
 
   #work .feat-aurora::after {
     top: auto;
-    bottom: -90px;
-    inset-inline-start: -30%;
+    bottom: -110px;
+    inset-inline-start: -34%;
     width: min(104cqi, 440px);
-    opacity: 1;
+    opacity: 0.9;
   }
 
   #work .feat-rings {
@@ -2354,52 +2358,118 @@ html[data-perf="low"] #work .stage::after {
     mix-blend-mode: normal;
   }
 
-  /* Cobalt light behind the live window, and the rings leaving it. */
+  /* -- the stage -- */
+  #work .feat-art {
+    --a1: #5b7cff;
+    --a2: #e0a458;
+    isolation: isolate;
+    overflow: hidden;
+    padding: clamp(14px, 4.4cqi, 26px);
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    border-radius: 22px;
+    background:
+      radial-gradient(
+        90% 120% at 0% 0%,
+        color-mix(in srgb, var(--a1) 40%, transparent),
+        transparent 64%
+      ),
+      radial-gradient(
+        85% 110% at 100% 100%,
+        color-mix(in srgb, var(--a2) 26%, transparent),
+        transparent 64%
+      ),
+      rgba(255, 255, 255, 0.025);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.07),
+      0 30px 60px -40px rgba(0, 0, 0, 0.7);
+  }
+
   #work .feat-art::before,
   #work .feat-art::after {
     content: "";
     position: absolute;
-    z-index: -1;
-    inset-inline-start: 50%;
-    top: 24%;
-    translate: -50% -50%;
-    aspect-ratio: 1;
+    inset: 0;
+    z-index: 0;
     pointer-events: none;
   }
 
-  [dir="rtl"] #work .feat-art::before,
-  [dir="rtl"] #work .feat-art::after {
-    translate: 50% -50%;
-  }
-
   #work .feat-art::before {
-    width: min(150cqi, 620px);
-    background: radial-gradient(closest-side, rgba(59, 91, 245, 0.62), transparent);
+    background: repeating-radial-gradient(
+      circle at 100% 0%,
+      transparent 0 26px,
+      color-mix(in srgb, var(--a1) 46%, transparent) 26px 27px
+    );
+    mask-image: radial-gradient(circle at 100% 0%, #000 0%, transparent 72%);
   }
 
   #work .feat-art::after {
-    width: min(250cqi, 980px);
     background: repeating-radial-gradient(
-      circle,
-      transparent 0 34px,
-      rgba(176, 196, 255, 0.22) 34px 35px
+      circle at 0% 100%,
+      transparent 0 32px,
+      color-mix(in srgb, var(--a2) 38%, transparent) 32px 33px
     );
-    mask-image: radial-gradient(closest-side, #000 18%, transparent 100%);
+    mask-image: radial-gradient(circle at 0% 100%, #000 0%, transparent 72%);
   }
 
+  #work .feat-art .depth {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* the trace tucks under the window with less dead gap above it */
   #work .depth-b {
-    translate: 0 calc(var(--sy, 0) * -26px);
+    width: min(100%, 520px);
+    margin-top: 34%;
+    translate: 0 calc(var(--sy, 0) * -18px);
+  }
+
+  /* -- numbers: a compact 3 + 2 ledger instead of three tall rows -- */
+  #work .facts[data-n="5"] {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0 14px;
+  }
+
+  #work .facts[data-n="5"] .fact {
+    grid-column: span 2;
+    gap: 6px;
+    padding-block: 14px 2px;
+  }
+
+  #work .facts[data-n="5"] .fact:nth-child(n + 4),
+  #work .facts[data-n="5"] .fact:last-child {
+    grid-column: span 3;
+  }
+
+  #work .facts[data-n="5"] .fact dd {
+    font-size: clamp(1.75rem, 7.6cqi, 2.5rem);
+  }
+
+  #work .facts[data-n="5"] .fact dt {
+    font-size: 0.75rem;
   }
 }
 
 @container feat (max-width: 559.98px) {
-  #work .depth-a,
-  #work .depth-b {
+  #work .feat-art .depth-a,
+  #work .feat-art .depth-b {
     translate: none;
   }
 
   #work .feat-aurora {
     translate: none;
+  }
+}
+
+/* tablets keep the one-row numbers */
+@container feat (min-width: 560px) and (max-width: 959.98px) {
+  #work .facts[data-n="5"] {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  #work .facts[data-n="5"] .fact,
+  #work .facts[data-n="5"] .fact:nth-child(n + 4),
+  #work .facts[data-n="5"] .fact:last-child {
+    grid-column: auto;
   }
 }
 
