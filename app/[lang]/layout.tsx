@@ -9,14 +9,10 @@ import {
 import localFont from "next/font/local";
 import type { ReactNode } from "react";
 import "@/app/globals.css";
-import PauseOffscreen from "@/components/behavior/PauseOffscreen";
+import DeferredBehaviors from "@/components/behavior/DeferredBehaviors";
 import PerfGovernor from "@/components/behavior/PerfGovernor";
-import RouteFlow from "@/components/behavior/RouteFlow";
 import RevealOnScroll from "@/components/behavior/RevealOnScroll";
-import ScrollbarTone from "@/components/behavior/ScrollbarTone";
 import ScrollManager from "@/components/behavior/ScrollManager";
-import ScrollStory from "@/components/behavior/ScrollStory";
-import SmoothScroll from "@/components/behavior/SmoothScroll";
 import ThemeEffects from "@/components/behavior/ThemeEffects";
 import ThemeScript from "@/components/behavior/ThemeScript";
 import JsonLd from "@/components/seo/JsonLd";
@@ -162,13 +158,11 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
         <JsonLd />
         <ThemeEffects />
         <PerfGovernor />
-        <SmoothScroll />
-        <ScrollStory />
-        <RouteFlow />
         <ScrollManager />
-        <ScrollbarTone />
         <RevealOnScroll />
-        <PauseOffscreen />
+        {/* Smooth scroll, scroll story, route transitions, scrollbar tone and
+            offscreen pausing: loaded after first paint (see the component). */}
+        <DeferredBehaviors />
       </body>
     </html>
   );
