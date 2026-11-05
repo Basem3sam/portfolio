@@ -95,7 +95,10 @@ export default function LinksBackdrop() {
         const value = parseFloat(tune.getPropertyValue(name));
         return Number.isFinite(value) ? value : fallback;
       };
-      warm = parseColor(tune.getPropertyValue("--lk-warm") || style.getPropertyValue("--c-honey-hi"), warm);
+      warm = parseColor(
+        tune.getPropertyValue("--lk-warm") || style.getPropertyValue("--c-honey-hi"),
+        warm,
+      );
       dotMin = num("--lk-dot-min", dotMin);
       dotSpan = num("--lk-dot-span", dotSpan);
       dotSize = num("--lk-dot-size", dotSize);
