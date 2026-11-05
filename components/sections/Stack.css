@@ -707,6 +707,11 @@ html:not([data-story-on]) #stack .xl-p {
     transform-origin: top center;
   }
 
+  /* the RTL rule above (right center) would grow a vertical fill from its middle */
+  html[dir="rtl"] #stack .stx-seg::after {
+    transform-origin: top center;
+  }
+
   #stack .stx[data-revealed="false"] .stx-seg::after {
     transform: scaleY(0);
   }
