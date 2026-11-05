@@ -1355,9 +1355,9 @@ html[dir="rtl"] .lk--tile .wm {
 .lk-bd {
   /* Dot field strength per theme, read by LinksBackdrop.tsx. Light: finer,
      softer dots and a deeper honey so the cursor swell shows on white. */
-  --lk-dot-min: 0.07;
-  --lk-dot-span: 0.2;
-  --lk-dot-size: 0.85;
+  --lk-dot-min: 0.15;
+  --lk-dot-span: 0.3;
+  --lk-dot-size: 0.95;
   --lk-hot-alpha: 0.85;
   --lk-warm: var(--c-honey);
   position: fixed;
