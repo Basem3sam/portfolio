@@ -44,7 +44,10 @@ test.describe("accessibility", () => {
   test("command palette has no axe violations while open", async ({ page }) => {
     await page.goto("/");
     await page.keyboard.press("Control+k");
-    await page.waitForTimeout(300);
+    // The palette's code is fetched on first use, so wait for the dialog
+    // itself rather than assuming it is open after a fixed delay.
+    await expect(page.getByRole("dialog", { name: "Command palette" })).toBeVisible();
+    await page.waitForTimeout(500);
     const results = await new AxeBuilder({ page }).analyze();
     expect(results.violations).toEqual([]);
   });

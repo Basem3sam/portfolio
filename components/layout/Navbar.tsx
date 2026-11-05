@@ -635,6 +635,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
           <button
             type="button"
             onClick={openPalette}
+            data-palette-trigger=""
             aria-label={palette.trigger}
             className={`${mobilePaletteButton} lg:hidden`}
           >
@@ -829,6 +830,7 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
                       <button
                         type="button"
                         onClick={openPalette}
+                        data-palette-trigger=""
                         // The name must contain the visible shortcut text
                         // (WCAG 2.5.3), so voice control can say "click Ctrl K".
                         aria-label={`${palette.trigger}, ${modKey} K`}
