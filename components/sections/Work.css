@@ -2309,8 +2309,7 @@ html[data-perf="low"] #work .stage::after {
   }
 }
 
-#work .feat-dots,
-#work .feat-rail {
+#work .feat-silk {
   display: none;
 }
 
@@ -2336,7 +2335,12 @@ html[data-perf="low"] #work .stage::after {
    ================================================================ */
 @container feat (max-width: 959.98px) {
   #work .feat {
-    gap: 22px;
+    gap: 18px;
+  }
+
+  /* the repo name repeats the title and has its own button below */
+  #work .feat .slug {
+    display: none;
   }
 
   /* -- copy: a little tighter -- */
@@ -2349,24 +2353,22 @@ html[data-perf="low"] #work .stage::after {
     margin-top: 16px;
   }
 
-  /* -- backdrop: the site's own language, spread over the whole card --
+  /* -- backdrop: the flagship's own --
 
-     The sections of this site share one backdrop recipe: tonal washes from two
-     opposite corners and a honey halftone corner. The flagship uses it too, but
-     because the stacked card is tall the washes are repeated down its length
-     (nothing is left flat), the rings of the project stages leave the same two
-     corners, and a rail with nodes (the motif of Experience, Stack and About)
-     runs down the left edge: the request travelling through the card.
-     Everything here is a static paint except the packet on the rail, which is
-     a compositor-only transform, so it is cheap and still reads when frozen. */
+     Cards 02-04 are pale stages with concentric rings. Card 01 is the dark,
+     live one, so it gets a different language: a smooth cobalt / periwinkle /
+     gold mesh and one bundle of silk strands (lib/silk.ts) flowing down the
+     whole card. Static paints only; the single motion is a slow sideways sway
+     of the silk, a compositor-only transform. */
 
-  /* 1. Washes + a deeper foot. */
+  /* 1. A mesh of soft lights spread down the whole card, on a deep base. */
   #work .feat {
     background:
-      radial-gradient(120% 30% at 100% 0%, rgba(52, 82, 215, 0.5), transparent 70%),
-      radial-gradient(110% 24% at 0% 34%, rgba(120, 150, 255, 0.17), transparent 70%),
-      radial-gradient(110% 24% at 100% 62%, rgba(59, 91, 245, 0.3), transparent 70%),
-      radial-gradient(120% 26% at 0% 100%, rgba(224, 164, 88, 0.19), transparent 70%),
+      radial-gradient(120% 28% at 100% 0%, rgba(52, 82, 215, 0.55), transparent 70%),
+      radial-gradient(100% 22% at 0% 30%, rgba(120, 150, 255, 0.2), transparent 70%),
+      radial-gradient(100% 22% at 100% 56%, rgba(59, 91, 245, 0.32), transparent 70%),
+      radial-gradient(100% 20% at 0% 78%, rgba(130, 100, 235, 0.16), transparent 70%),
+      radial-gradient(120% 24% at 0% 100%, rgba(224, 164, 88, 0.22), transparent 70%),
       linear-gradient(180deg, #0c1640 0%, var(--ink) 40%, #080d22 100%);
   }
 
@@ -2400,7 +2402,7 @@ html[data-perf="low"] #work .stage::after {
     top: -120px;
     inset-inline-end: -30%;
     width: min(110cqi, 460px);
-    opacity: 0.55;
+    opacity: 0.5;
   }
 
   #work .feat-aurora::after {
@@ -2408,105 +2410,25 @@ html[data-perf="low"] #work .stage::after {
     bottom: -130px;
     inset-inline-start: -22%;
     width: min(84cqi, 340px);
-    opacity: 0.6;
+    opacity: 0.55;
   }
 
-  /* 4. The rings of the project stages: cobalt from the top corner, gold from
-        the bottom one, fading well before they reach the middle of the text. */
+  /* 4. No rings here: those belong to the cards below. */
   #work .feat-rings {
-    inset: 0;
-    animation: none;
-    translate: none;
-    mask-image: none;
-    background: none;
+    display: none;
   }
 
-  #work .feat-rings::before,
-  #work .feat-rings::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-  }
-
-  #work .feat-rings::before {
-    background: repeating-radial-gradient(
-      circle at 100% 0%,
-      transparent 0 30px,
-      rgba(160, 186, 255, 0.24) 30px 31px
-    );
-    mask-image: radial-gradient(circle 560px at 100% 0%, #000 0%, transparent 100%);
-  }
-
-  #work .feat-rings::after {
-    background: repeating-radial-gradient(
-      circle at 0% 100%,
-      transparent 0 36px,
-      rgba(232, 178, 104, 0.26) 36px 37px
-    );
-    mask-image: radial-gradient(circle 520px at 0% 100%, #000 0%, transparent 100%);
-  }
-
-  [dir="rtl"] #work .feat-rings::before {
-    background: repeating-radial-gradient(
-      circle at 0% 0%,
-      transparent 0 30px,
-      rgba(160, 186, 255, 0.24) 30px 31px
-    );
-    mask-image: radial-gradient(circle 560px at 0% 0%, #000 0%, transparent 100%);
-  }
-
-  [dir="rtl"] #work .feat-rings::after {
-    background: repeating-radial-gradient(
-      circle at 100% 100%,
-      transparent 0 36px,
-      rgba(232, 178, 104, 0.26) 36px 37px
-    );
-    mask-image: radial-gradient(circle 520px at 100% 100%, #000 0%, transparent 100%);
-  }
-
-  /* 5. The halftone corner the sections have (honey, top), and its answer in
-        cobalt at the foot. */
-  #work .feat-dots {
+  /* 5. The silk. Wider than the card so it can sway without showing an edge. */
+  #work .feat-silk {
     display: block;
     position: absolute;
-    inset: 0;
-    z-index: -2;
-    overflow: hidden;
-    pointer-events: none;
-  }
-
-  #work .feat-dots::before,
-  #work .feat-dots::after {
-    content: "";
-    position: absolute;
-  }
-
-  #work .feat-dots::before {
+    z-index: -1;
     top: 0;
-    inset-inline-end: 0;
-    width: min(70%, 300px);
-    height: 280px;
-    background: radial-gradient(#e8b268 1.15px, transparent 1.7px) 0 0 / 15px 15px;
-    opacity: 0.8;
-    mask-image: radial-gradient(closest-side at 100% 0, #000, transparent);
-  }
-
-  #work .feat-dots::after {
-    bottom: 0;
-    inset-inline-start: 0;
-    width: min(64%, 280px);
-    height: 240px;
-    background: radial-gradient(#9db8ff 1.15px, transparent 1.7px) 0 0 / 15px 15px;
-    opacity: 0.7;
-    mask-image: radial-gradient(closest-side at 0 100%, #000, transparent);
-  }
-
-  [dir="rtl"] #work .feat-dots::before {
-    mask-image: radial-gradient(closest-side at 0 0, #000, transparent);
-  }
-
-  [dir="rtl"] #work .feat-dots::after {
-    mask-image: radial-gradient(closest-side at 100% 100%, #000, transparent);
+    inset-inline-start: -16px;
+    width: calc(100% + 32px);
+    height: 100%;
+    pointer-events: none;
+    animation: silk-sway 18s ease-in-out infinite alternate;
   }
 
   /* 6. Fine grain over everything. */
@@ -2514,74 +2436,6 @@ html[data-perf="low"] #work .stage::after {
     display: block;
     opacity: 0.4;
     mix-blend-mode: normal;
-  }
-
-  /* 7. The rail: the request's route down the card, with a packet running it. */
-  #work .feat-rail {
-    display: block;
-    position: absolute;
-    z-index: -1;
-    inset-block: 34px;
-    inset-inline-start: 10px;
-    width: 2px;
-    overflow: hidden;
-    border-radius: 2px;
-    background: linear-gradient(
-      rgba(160, 190, 255, 0.7),
-      rgba(160, 190, 255, 0.3) 55%,
-      rgba(244, 189, 104, 0.7)
-    );
-    pointer-events: none;
-  }
-
-  /* Two periods tall, moved by exactly one: a seamless loop. */
-  #work .feat-rail i {
-    position: absolute;
-    inset-inline: 0;
-    top: 0;
-    height: 200%;
-    background: linear-gradient(
-        180deg,
-        transparent 80%,
-        rgba(160, 190, 255, 0.9) 96%,
-        #fff 99%,
-        transparent 100%
-      )
-      0 0 / 100% 50% repeat-y;
-    translate: 0 -50%;
-    animation: rail-run 7s linear infinite;
-  }
-
-  /* A node where each block of the card begins (the same honey node and halo
-     as the other rails). */
-  #work .feat-copy,
-  #work .facts {
-    position: relative;
-  }
-
-  #work .feat-copy::before,
-  #work .feat-art::before,
-  #work .facts::before {
-    content: "";
-    position: absolute;
-    inset-inline-start: calc(-1 * var(--fp) + 5px);
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: #f4bd68;
-    box-shadow: 0 0 0 4px rgba(244, 189, 104, 0.24);
-  }
-
-  #work .feat-copy::before {
-    top: 4px;
-  }
-
-  #work .feat-art::before {
-    top: 10px;
-  }
-
-  #work .facts::before {
-    top: 22px;
   }
 
   /* -- artwork: preview first and whole, plate tucked over its lower edge -- */
@@ -2608,7 +2462,7 @@ html[data-perf="low"] #work .stage::after {
     align-self: center;
     justify-self: auto;
     width: min(100%, 520px);
-    margin-top: -26px;
+    margin-top: -40px;
   }
 
   #work .feat-art .art-window {
@@ -2617,7 +2471,7 @@ html[data-perf="low"] #work .stage::after {
   }
 
   #work .feat .sp {
-    --sp-ratio: 16 / 10;
+    --sp-ratio: 16 / 9;
   }
 
   #work .art-trace {
@@ -2655,8 +2509,8 @@ html[data-perf="low"] #work .stage::after {
 
   #work .facts[data-n="5"] .fact {
     grid-column: span 2;
-    gap: 6px;
-    padding-block: 12px 2px;
+    gap: 4px;
+    padding-block: 10px 0;
   }
 
   #work .facts[data-n="5"] .fact:nth-child(n + 4),
@@ -2665,7 +2519,7 @@ html[data-perf="low"] #work .stage::after {
   }
 
   #work .facts[data-n="5"] .fact dd {
-    font-size: clamp(1.75rem, 7.6cqi, 2.5rem);
+    font-size: clamp(1.6rem, 7cqi, 2.25rem);
   }
 
   #work .facts[data-n="5"] .fact dt {
@@ -2801,22 +2655,23 @@ html[data-perf="low"] #work .stage::after {
   }
 }
 
-@keyframes rail-run {
+@keyframes silk-sway {
+  from {
+    translate: -10px 0;
+  }
   to {
-    translate: 0 0;
+    translate: 10px 0;
   }
 }
 
-/* Frozen (low tier / reduced motion) the rail is simply a calm line. */
-html[data-perf="low"] #work .feat-rail i {
+/* Frozen (low tier / reduced motion) the silk simply holds still. */
+html[data-perf="low"] #work .feat-silk {
   animation: none;
-  opacity: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #work .feat-rail i {
+  #work .feat-silk {
     animation: none;
-    opacity: 0;
   }
 }
 

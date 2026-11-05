@@ -22,6 +22,7 @@ import {
 } from "@/data/site";
 import type { Dictionary } from "@/lib/dictionaries/en";
 import type { Locale } from "@/lib/i18n";
+import { SILK, SILK_VIEWBOX } from "@/lib/silk";
 import "./Work.css";
 
 type WorkProps = {
@@ -348,10 +349,25 @@ function Featured({
         <div className="feat-aurora" aria-hidden="true" />
         <div className="feat-rings" aria-hidden="true" />
         <div className="feat-grain" aria-hidden="true" />
-        <div className="feat-dots" aria-hidden="true" />
-        <div className="feat-rail" aria-hidden="true">
-          <i />
-        </div>
+        <svg
+          className="feat-silk"
+          viewBox={`0 0 ${SILK_VIEWBOX.w} ${SILK_VIEWBOX.h}`}
+          preserveAspectRatio="none"
+          aria-hidden="true"
+          focusable="false"
+        >
+          {SILK.map((s, i) => (
+            <path
+              key={i}
+              d={s.d}
+              fill="none"
+              stroke={s.stroke}
+              strokeWidth={s.width}
+              strokeOpacity={s.opacity}
+              vectorEffect="non-scaling-stroke"
+            />
+          ))}
+        </svg>
 
         <div className="feat-copy">
           <Status project={project} dict={dict} />
