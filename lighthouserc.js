@@ -59,6 +59,9 @@
 
 const BASE_URL = (process.env.LHCI_BASE_URL || "").replace(/\/+$/, "");
 const REMOTE = BASE_URL !== "";
+// Set by lighthouse.yml. Preview URLs are noindexed, so SEO is only skipped
+// for remote PREVIEW runs; local and production runs assert it.
+const SKIP_SEO = REMOTE && process.env.LHCI_TARGET !== "production";
 const ORIGIN = REMOTE ? BASE_URL : "http://localhost:3000";
 
 /** Same four routes either way; `ORIGIN` is the only thing that changes. */
@@ -84,7 +87,7 @@ function route(path, perfFloor) {
       "categories:performance": ["error", { minScore: perfFloor }],
       "categories:accessibility": ["error", { minScore: 1 }],
       "categories:best-practices": ["error", { minScore: 1 }],
-      ...(REMOTE ? {} : { "categories:seo": ["error", { minScore: 1 }] }),
+      ...(SKIP_SEO ? {} : { "categories:seo": ["error", { minScore: 1 }] }),
     },
   };
 }
@@ -98,7 +101,7 @@ module.exports = {
       url: ROUTES.map((path) => `${ORIGIN}${path}`),
       numberOfRuns: 5,
       settings: {
-        onlyCategories: REMOTE
+        onlyCategories: SKIP_SEO
           ? ["performance", "accessibility", "best-practices"]
           : ["performance", "accessibility", "best-practices", "seo"],
         // A single local server speaks HTTP/1.1, so the audit is meaningless

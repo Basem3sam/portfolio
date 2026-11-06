@@ -12,6 +12,10 @@ name: Lighthouse (Vercel preview)
 # pinned @lhci/cli is fetched by npx. Thresholds live in lighthouserc.js,
 # which reads the target from LHCI_BASE_URL.
 #
+# Production deployments are scored too, with SEO asserted. A failure there
+# cannot block the release (it is already live); it is an alert. Keep previews
+# as the real gate.
+#
 # SETUP (once): the preview must be reachable without a login. In Vercel:
 # Project -> Settings -> Deployment Protection -> turn off protection for
 # Preview Deployments (this site is public anyway). If it is left on, the
@@ -29,20 +33,25 @@ permissions:
 jobs:
   lighthouse:
     name: Lighthouse CI (preview)
-    # Only successful Preview deployments. Production deploys and the
-    # pending / in_progress / failure states are skipped.
+    # Only successful Preview or Production deployments. The pending /
+    # in_progress / failure states are skipped. Previews are the gate (they run
+    # before merge); Production is a post-deploy check of what visitors get.
     if: >-
       github.event.deployment_status.state == 'success' &&
-      startsWith(github.event.deployment.environment, 'Preview')
+      (startsWith(github.event.deployment.environment, 'Preview') ||
+       startsWith(github.event.deployment.environment, 'Production'))
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
     # A newer push supersedes the run for an older deployment of the same ref.
     concurrency:
-      group: lighthouse-${{ github.event.deployment.ref }}
+      group: lighthouse-${{ github.event.deployment.environment }}-${{ github.event.deployment.ref }}
       cancel-in-progress: true
 
     env:
+      # "production" re-enables the SEO assertion in lighthouserc.js (previews
+      # are noindexed, so SEO is skipped there).
+      LHCI_TARGET: ${{ startsWith(github.event.deployment.environment, 'Production') && 'production' || 'preview' }}
       # Passed through env (never interpolated into the script) so a crafted
       # URL cannot inject shell.
       DEPLOYMENT_URL: ${{ github.event.deployment_status.environment_url || github.event.deployment_status.target_url }}
