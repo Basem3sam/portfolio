@@ -10,7 +10,7 @@
  */
 
 import { isSoftwareRenderer, releaseGlContext } from "./gl";
-import { onLowTier } from "./perf";
+import { isLowTier, onLowTier } from "./perf";
 
 type Rgb = [number, number, number];
 
@@ -472,6 +472,22 @@ export function mountHeroFx(
   let halftoneRaf = 0;
   let halftoneStopTimer = 0;
 
+  /**
+   * True while the halftone is the sky for good: this device cannot run the
+   * nebula (CPU-rendered GL, no WebGL2, a failed shader) or has handed the sky
+   * back to it. In that case it redraws at a gentler cadence, because nothing
+   * will ever replace it and every frame is main-thread work. The field drifts
+   * slowly (a few pixels a second), so 20fps reads the same as 30; ripples
+   * still travel smoothly. While the nebula is still expected (the first idle
+   * moments on a GPU device) it keeps the full rate, and the nebula itself is
+   * never throttled by this.
+   */
+  let halftoneIsFinal = false;
+  const halftoneGap = () => {
+    if (halftoneIsFinal) return f.W < 700 ? 56 : 50;
+    return f.W < 700 ? 42 : 33;
+  };
+
   /** Frees the 2D sky once the nebula has fully faded in over it. */
   const stopHalftone = () => {
     if (halftoneRaf) cancelAnimationFrame(halftoneRaf);
@@ -491,6 +507,8 @@ export function mountHeroFx(
    */
   const bootNebula = () => {
     if (disposed) return;
+    // Final unless this boot reaches a working nebula (see `if (ready)` below).
+    halftoneIsFinal = true;
     const gl = nb.getContext("webgl2", { antialias: false, alpha: false, depth: false });
     glCtx = gl;
 
@@ -544,6 +562,7 @@ export function mountHeroFx(
       if (fs) gl.deleteShader(fs);
 
       if (ready) {
+        halftoneIsFinal = false;
         const vao = gl.createVertexArray();
         const palette: Record<"v" | "h" | "d" | "w" | "c" | "o" | "s", Rgb> = {
           v: [0, 0, 0],
@@ -610,14 +629,21 @@ export function mountHeroFx(
         // Phones start a notch below full resolution (the sky is 5px cells, and
         // the canvas is smoothly upscaled), and run it at ~25fps.
         const compact = host.clientWidth < 600;
-        let quality = compact ? 0.8 : 1;
         const minQuality = 0.5;
+        // A device already marked low-tier (Save-Data, little memory, or a
+        // struggle earlier in this tab) still gets the nebula: it just starts
+        // lower and calmer instead of being denied it. Only a device that
+        // cannot run it at all (CPU-rendered GL, no WebGL2) goes without.
+        const lowTier = isLowTier();
+        let quality = compact ? 0.8 : 1;
+        if (lowTier) quality = Math.max(minQuality, quality * 0.64);
         // The sky drifts slowly and touch has no pointer light, so 20fps is
         // indistinguishable from 25 on a phone. While the page is being
         // scrolled it drops to ~10fps: the GPU is better spent keeping the
         // scroll itself smooth than redrawing a sky that is moving past.
-        const frameGap = compact ? 50 : 33;
+        let frameGap = compact ? 50 : 33;
         const scrollGap = compact ? 100 : 33;
+        if (lowTier) frameGap = Math.max(frameGap, compact ? 56 : 40);
         let lastScroll = -1e9;
         let slowFrames = 0;
         // The gap the previous draw was throttled to. The slow-frame check below
@@ -791,6 +817,7 @@ export function mountHeroFx(
         const fallBack = () => {
           if (fellBack) return;
           fellBack = true;
+          halftoneIsFinal = true;
           if (raf) cancelAnimationFrame(raf);
           raf = 0;
           window.clearTimeout(halftoneStopTimer);
@@ -992,8 +1019,18 @@ export function mountHeroFx(
           event.preventDefault();
           fallBack();
         });
-        // The shared perf governor said this device is struggling.
-        cleanups.push(onLowTier(fallBack));
+        // The shared perf governor said this device is struggling. Give the
+        // nebula the remedy it already uses on itself (fewer pixels, a calmer
+        // frame rate) instead of dropping it outright. If even the floor is
+        // too slow, the slow-frame check in `frame` hands the sky back.
+        const degrade = () => {
+          if (fellBack) return;
+          quality = Math.max(minQuality, quality * 0.64);
+          frameGap = Math.max(frameGap, compact ? 56 : 40);
+          slowFrames = 0;
+          sizeNb();
+        };
+        cleanups.push(onLowTier(degrade));
       }
     }
   };
@@ -1017,7 +1054,7 @@ export function mountHeroFx(
   let lastFrame = 0;
   const tick = (now: number) => {
     halftoneRaf = requestAnimationFrame(tick);
-    if (document.hidden || now - lastFrame < (f.W < 700 ? 42 : 33)) return;
+    if (document.hidden || now - lastFrame < halftoneGap()) return;
     lastFrame = now;
     if (!f.visible || !f.W || !f.H) return;
     if (reduce) {
