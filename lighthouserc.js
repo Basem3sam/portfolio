@@ -106,7 +106,12 @@ module.exports = {
           : ["performance", "accessibility", "best-practices", "seo"],
         // A single local server speaks HTTP/1.1, so the audit is meaningless
         // there. A Vercel deployment negotiates HTTP/2, so it stays on.
-        skipAudits: REMOTE ? [] : ["uses-http2"],
+        // Remote runs hit a Vercel deployment URL, which Vercel serves with an
+        // `X-Robots-Tag: noindex` header (the repo itself sets none). That
+        // fails `is-crawlable` and drops SEO to 0.69 on every route, so it is
+        // skipped for the score; every other SEO audit still counts. Verify
+        // indexing on the real domain separately (tests/seo.spec.ts).
+        skipAudits: REMOTE ? ["is-crawlable"] : ["uses-http2"],
       },
     },
     assert: {
