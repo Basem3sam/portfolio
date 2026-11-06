@@ -2203,17 +2203,12 @@
     box-shadow: 0 -10px 28px -14px color-mix(in srgb, var(--e-note) 45%, transparent);
   }
 
-  /* Sound toggle in the header. */
+  /* Sound toggle in the header: same 44px target and 18px icon as the close button. */
   .egg .esn {
-    width: 36px;
-    height: 36px;
-    font-size: 1.05rem;
     color: var(--e-live);
   }
   .egg .esn.off {
     color: var(--e-dim);
-    text-decoration: line-through;
-    text-decoration-thickness: 2px;
   }
 
   /* "+ trophy" lines glow gold as they land. */

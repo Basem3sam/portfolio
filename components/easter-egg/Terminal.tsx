@@ -1776,7 +1776,7 @@ export default function Terminal({ open, onClose }: TerminalProps) {
                   if (!next) playBlipSound();
                 }}
               >
-                <span aria-hidden="true">♪</span>
+                <Icon name={muted ? "volumeOff" : "volume"} className="i" />
               </button>
               <span className="esc">Esc to close</span>
               <button type="button" className="egx" aria-label="Close terminal" onClick={close}>

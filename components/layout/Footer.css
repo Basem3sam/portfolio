@@ -91,22 +91,21 @@
 }
 
 .foot-avail {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  border: 1px solid var(--c-rule-strong);
-  border-radius: 999px;
-  font-size: 0.8125rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: 32ch;
+  margin-top: 6px;
+  font-size: 0.875rem;
+  line-height: 1.5;
   color: var(--c-dark-text);
-  background-color: var(--c-page);
 }
 
 .foot-avail i {
-  width: 7px;
-  height: 7px;
+  width: 18px;
+  height: 2px;
   flex: none;
-  border-radius: 50%;
+  margin-top: 0.7em;
   background: var(--c-status);
 }
 
