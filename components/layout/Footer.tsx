@@ -50,12 +50,40 @@ export default function Footer({ locale = "en" }: FooterProps) {
 
       <div className="foot-in">
         <div className="ft-top">
-          <div className="ft-brand">
-            <SectionLink hash="#hero" locale={locale} className="logo">
-              <Mark className="mrk" />
-              <span>basem.esam</span>
-            </SectionLink>
-            <p className="ft-line">{footer.line}</p>
+          <div className="ft-lead">
+            <div className="ft-brand">
+              <SectionLink hash="#hero" locale={locale} className="logo">
+                <Mark className="mrk" />
+                <span>basem.esam</span>
+              </SectionLink>
+              <p className="ft-line">{footer.line}</p>
+            </div>
+
+            <div className="ft-col ft-rc">
+              <p className="lbl">{footer.reachLabel}</p>
+              <p className="fa-row" role="note">
+                <span className="fa-tile" aria-hidden="true">
+                  <i className="fa-dot"></i>
+                </span>
+                <span className="fa-txt">{footer.avail}</span>
+              </p>
+              <a className="tel" href={PHONE_TEL}>
+                <Icon name="phone" className="size-4" />
+                <span dir="ltr">{PHONE_DISPLAY}</span>
+              </a>
+              <a href={MAILTO}>
+                <Icon name="mail" className="size-4" />
+                <span dir="ltr">{EMAIL}</span>
+              </a>
+              <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer">
+                <Icon name="linkedIn" className="size-4" />
+                <span>{contact.linkedinLabel}</span>
+              </a>
+              <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
+                <Icon name="github" className="size-4" />
+                <span>{contact.githubLabel}</span>
+              </a>
+            </div>
           </div>
 
           <nav className="ft-col ft-ex" aria-label={footer.navLabel}>
@@ -69,32 +97,6 @@ export default function Footer({ locale = "en" }: FooterProps) {
               {nav.allLinks}
             </Link>
           </nav>
-
-          <div className="ft-col ft-rc">
-            <p className="lbl">{footer.reachLabel}</p>
-            <p className="fa-row" role="note">
-              <span className="fa-tile" aria-hidden="true">
-                <i className="fa-dot"></i>
-              </span>
-              <span className="fa-txt">{footer.avail}</span>
-            </p>
-            <a className="tel" href={PHONE_TEL}>
-              <Icon name="phone" className="size-4" />
-              <span dir="ltr">{PHONE_DISPLAY}</span>
-            </a>
-            <a href={MAILTO}>
-              <Icon name="mail" className="size-4" />
-              <span dir="ltr">{EMAIL}</span>
-            </a>
-            <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer">
-              <Icon name="linkedIn" className="size-4" />
-              <span>{contact.linkedinLabel}</span>
-            </a>
-            <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
-              <Icon name="github" className="size-4" />
-              <span>{contact.githubLabel}</span>
-            </a>
-          </div>
 
           <div className="ft-col ft-loc">
             <p className="lbl">{footer.basedLabel}</p>

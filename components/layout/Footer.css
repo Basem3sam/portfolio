@@ -46,14 +46,27 @@
   padding: clamp(72px, 14svh, 144px) var(--pad) 28px;
 }
 
-/* --- four columns --------------------------------------------------------- */
+/* --- three columns ---------------------------------------------------------
+   Lead (brand, with Reach me stacked under it), Explore, Based in. Stacking
+   Reach under the brand keeps the left column as tall as the Explore list, so
+   there is no empty hole under the logo at any width. */
 .ft-top {
   display: grid;
-  grid-template-columns:
-    minmax(0, 1.3fr) minmax(0, 0.6fr) minmax(0, 1.45fr)
-    minmax(0, 0.9fr);
-  gap: 40px 48px;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.7fr) minmax(0, 0.9fr);
+  gap: 40px 56px;
   align-items: start;
+}
+
+.ft-lead {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  min-width: 0;
+}
+
+.ft-lead .ft-rc {
+  width: 100%;
+  max-width: 26rem;
 }
 
 .ft-brand {
@@ -515,25 +528,12 @@
   }
 }
 
-/* Narrow desktop: give the Reach column the room the email address needs. */
-@media (min-width: 901px) and (max-width: 1100px) {
-  .ft-top {
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.6fr) minmax(0, 1.7fr) minmax(0, 0.9fr);
-    gap: 40px 32px;
-  }
-}
-
 /* --- responsive ----------------------------------------------------------- */
 @media (max-width: 900px) {
-  /* Brand gets its own full-width row, so it is never a short block stranded
-     beside a tall column. Explore, Reach and Based-in share the row below. */
+  /* Same three columns, tighter gutters and a wider Based-in share. */
   .ft-top {
-    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.7fr) minmax(0, 1.1fr);
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.7fr) minmax(0, 1fr);
     gap: 40px 32px;
-  }
-
-  .ft-brand {
-    grid-column: 1 / -1;
   }
 
   .foot-in {
@@ -541,9 +541,10 @@
   }
 }
 
+/* Small tablet: lead and Explore side by side, Based in as a full-width row. */
 @media (min-width: 561px) and (max-width: 700px) {
   .ft-top {
-    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.7fr);
   }
 
   .ft-loc {
@@ -564,7 +565,7 @@
 }
 
 @media (max-width: 560px) {
-  /* One calm column, one rhythm: brand → reach → explore → location.
+  /* One calm column, one rhythm: brand + reach → explore → location.
      No per-column borders; the small labels do the separating. */
   .foot-in {
     gap: 36px;
@@ -575,20 +576,19 @@
   .ft-top {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
-      "brand"
-      "rc"
+      "lead"
       "ex"
       "loc";
     gap: 32px;
   }
 
-  .ft-brand {
-    grid-area: brand;
-    gap: 14px;
+  .ft-lead {
+    grid-area: lead;
+    gap: 32px;
   }
 
-  .ft-rc {
-    grid-area: rc;
+  .ft-brand {
+    gap: 14px;
   }
 
   .ft-ex {
