@@ -90,38 +90,36 @@
   color: var(--c-light-text);
 }
 
-/* Availability: a flat ticket, the same object as the hero's "open to work"
-   ticket (dashed stub, green light, offset shadow) scaled down to footer size.
-   Body face and no tilt in both languages, so English and Arabic match; the
-   offset shadow mirrors with the direction. */
-.foot-avail {
-  --fa-x: 3px;
+/* Availability: the first row of the Reach column. It reuses the contact
+   rows' 36px circle tile (green light instead of an icon) and sits above them
+   with a dashed rule, the hero ticket's stub line. No card, no new shapes, so
+   it follows the column at every width and in both directions. */
+.fa-row {
   display: flex;
-  align-items: stretch;
-  width: fit-content;
-  max-width: 100%;
-  margin: 8px 0 0;
-  border: 1px solid var(--c-rule-strong);
-  border-radius: 10px;
-  background: var(--c-light-bg);
-  box-shadow: var(--fa-x) 3px 0 color-mix(in srgb, var(--c-note) 32%, transparent);
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 44px;
+  margin: 0 0 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed var(--c-rule-strong);
   font-size: 0.9375rem;
-  font-weight: 500;
   line-height: 1.45;
   color: var(--c-dark-text);
 }
 
-[dir="rtl"] .foot-avail {
-  --fa-x: -3px;
+[dir="rtl"] .fa-row {
   line-height: 1.7;
 }
 
-.fa-stub {
+.fa-tile {
   display: grid;
   flex: none;
   place-items: center;
-  width: 44px;
-  border-inline-end: 1px dashed var(--c-rule-strong);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--c-surface);
 }
 
 .fa-dot {
@@ -157,8 +155,6 @@
 
 .fa-txt {
   min-width: 0;
-  max-width: 26ch;
-  padding: 11px 16px;
   text-wrap: balance;
 }
 
@@ -585,6 +581,11 @@
   .ft-rc a:not(.ft-up) {
     width: 100%;
     min-height: 52px;
+  }
+
+  .fa-row {
+    min-height: 52px;
+    margin-bottom: 4px;
   }
 
   .ft-rc a:not(.ft-up)::after,

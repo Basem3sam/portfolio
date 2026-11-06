@@ -56,12 +56,6 @@ export default function Footer({ locale = "en" }: FooterProps) {
               <span>basem.esam</span>
             </SectionLink>
             <p className="ft-line">{footer.line}</p>
-            <p className="foot-avail" role="note">
-              <span className="fa-stub" aria-hidden="true">
-                <i className="fa-dot"></i>
-              </span>
-              <span className="fa-txt">{footer.avail}</span>
-            </p>
           </div>
 
           <nav className="ft-col ft-ex" aria-label={footer.navLabel}>
@@ -78,6 +72,12 @@ export default function Footer({ locale = "en" }: FooterProps) {
 
           <div className="ft-col ft-rc">
             <p className="lbl">{footer.reachLabel}</p>
+            <p className="fa-row" role="note">
+              <span className="fa-tile" aria-hidden="true">
+                <i className="fa-dot"></i>
+              </span>
+              <span className="fa-txt">{footer.avail}</span>
+            </p>
             <a className="tel" href={PHONE_TEL}>
               <Icon name="phone" className="size-4" />
               <span dir="ltr">{PHONE_DISPLAY}</span>
