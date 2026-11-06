@@ -21,12 +21,9 @@
 
   position: relative;
   overflow: hidden;
-  /* Fills the screen: scrolled to the end, only the footer is on show and
-     no sliver of the section above peeks in. Taller content simply grows. */
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  min-height: 100svh;
+  /* Height is the content's own. It used to be forced to a full screen, which
+     on tall viewports stretched the gaps between the columns, the wordmark and
+     the bottom row into dead space. */
   color: var(--c-dark-text);
   background-image: linear-gradient(180deg, #05123a 0, #030a22 100%);
 }
@@ -40,24 +37,28 @@
   position: relative;
   z-index: 1;
   display: flex;
-  flex: 1;
   flex-direction: column;
-  gap: clamp(28px, 5svh, 48px);
-  padding: clamp(72px, 14svh, 144px) var(--pad) 28px;
+  gap: clamp(32px, 4vw, 48px);
+  padding: clamp(56px, 7vw, 96px) var(--pad) 28px;
 }
 
 /* --- columns ---------------------------------------------------------------
-   Desktop: four columns, brand | explore | reach | location. Every block is a
-   named grid area, so each breakpoint below only re-draws the area map: on
-   tablet Reach me stacks under the brand (so the brand is never a short block
-   stranded beside a tall list), on phones everything is one column. */
+   Three steps, 4 -> 2 -> 1, each one drawn only by the area map:
+   - 1080px and up: four columns, brand | explore | reach | location.
+   - 600-1079px: two columns. Brand with Reach me under it on one side,
+     Explore with Based in under it on the other. The middle row is the only
+     flexible one, so each side closes up on its own content and neither
+     stranded block leaves a hole beside a taller neighbour.
+   - below 600px: one column.
+   DOM order stays brand, explore, reach, location, so tab order follows the
+   reading order at every width. */
 .ft-top {
   display: grid;
   grid-template-columns:
-    minmax(0, 1.3fr) minmax(0, 0.6fr) minmax(0, 1.45fr)
+    minmax(0, 1.2fr) minmax(0, 0.6fr) minmax(0, 1.5fr)
     minmax(0, 0.9fr);
   grid-template-areas: "brand ex rc loc";
-  gap: 40px 48px;
+  gap: 40px 36px;
   align-items: start;
 }
 
@@ -251,6 +252,14 @@
   color: var(--c-note);
 }
 
+/* Explore: plain text links need less height than the icon rows beside them,
+   and a tighter list keeps this column level with its neighbours. */
+@media (min-width: 600px) {
+  .ft-ex a:not(.ft-up) {
+    min-height: 40px;
+  }
+}
+
 /* Reach column: every contact icon sits in the same 36px tile at every width.
    The SVG is padded to make the tile, and an SVG clips to its content box by
    default, which shaved the strokes off the phone, LinkedIn and GitHub marks.
@@ -397,9 +406,6 @@
    it always fits the column whichever display face actually loaded. */
 .foot-word-box {
   container-type: inline-size;
-  /* Auto margins share the spare height above and below the wordmark, so it
-     floats between the columns and the bottom row at any screen height. */
-  margin-block: auto;
   overflow: hidden;
 }
 
@@ -536,58 +542,24 @@
   }
 }
 
-/* Narrow desktop: give the Reach column the room the email address needs. */
-@media (min-width: 901px) and (max-width: 1100px) {
-  .ft-top {
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.6fr) minmax(0, 1.7fr) minmax(0, 0.9fr);
-    gap: 40px 32px;
-  }
-}
-
 /* --- responsive ----------------------------------------------------------- */
-@media (max-width: 900px) {
-  /* Tablet: brand with Reach me stacked under it, Explore and Based in each
-     span both rows beside them. */
+@media (max-width: 1079px) {
   .ft-top {
-    grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.7fr) minmax(0, 1fr);
-    grid-template-areas:
-      "brand ex loc"
-      "rc    ex loc";
-    gap: 40px 32px;
-  }
-
-  .foot-in {
-    padding-top: clamp(56px, 10svh, 96px);
-  }
-}
-
-/* Small tablet: brand + Reach beside Explore, Based in as a full-width row. */
-@media (min-width: 561px) and (max-width: 700px) {
-  .ft-top {
-    grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.7fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto 1fr auto;
     grid-template-areas:
       "brand ex"
       "rc    ex"
-      "loc   loc";
+      "rc    loc";
+    gap: 36px clamp(32px, 6vw, 72px);
   }
 
-  .ft-loc {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 4px 28px;
-  }
-
-  .ft-loc > .lbl {
-    flex-basis: 100%;
-  }
-
-  .ft-loc .ft-up {
-    margin: 0 0 0 auto;
+  .ft-line {
+    max-width: 40ch;
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 599px) {
   /* One calm column, one rhythm: brand → reach → explore → location.
      No per-column borders; the small labels do the separating. */
   .foot-in {
@@ -635,11 +607,11 @@
 
   .ft-rc a:not(.ft-up) {
     width: 100%;
-    min-height: 52px;
+    min-height: 48px;
   }
 
   .fa-row {
-    min-height: 52px;
+    min-height: 48px;
     margin-bottom: 4px;
   }
 
