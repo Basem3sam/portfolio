@@ -559,39 +559,20 @@
   }
 }
 
-/* Two columns, wide enough: Based in becomes one short row (city and time on
-   the left, Back to top on the right) that sits level with the foot of the
-   Reach column. Stacked, the pill used to hang below both columns on its own. */
-@media (min-width: 760px) and (max-width: 1079px) {
+/* Two columns: Explore's links and the pill's top margin are a touch tighter,
+   so the right column is no taller than the left and Based in (pill included)
+   ends level with the foot of Reach me instead of hanging below it. */
+@media (min-width: 600px) and (max-width: 1079px) {
+  .ft-ex a:not(.ft-up) {
+    min-height: 34px;
+  }
+
   .ft-loc {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas:
-      "lbl  lbl"
-      "city up"
-      "time up";
-    align-items: center;
     align-self: end;
-    column-gap: 16px;
-  }
-
-  .ft-loc > .lbl {
-    grid-area: lbl;
-  }
-
-  .ft-loc .ft-city {
-    grid-area: city;
-    align-self: end;
-  }
-
-  .ft-loc .ft-time {
-    grid-area: time;
-    align-self: start;
   }
 
   .ft-loc .ft-up {
-    grid-area: up;
-    margin-top: 0;
+    margin-top: 14px;
   }
 }
 
