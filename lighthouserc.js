@@ -116,14 +116,17 @@ module.exports = {
     },
     assert: {
       assertMatrix: [
-        // Re-based 2026-11-04: a GitHub runner measured 0.62 / 0.77 / 0.67
-        // here against `npm start` (local median was 0.83).
-        route("/", 0.65),
-        // Local median 0.72; floor just under it (see header).
-        route("/ar", 0.71),
-        // Local median 0.87 / 0.91; both meet the 0.85 floor.
-        route("/work/trosc", 0.85),
-        route("/links", 0.85),
+        // Re-based 2026-11-06 from the first Vercel deployment run (median of 5):
+        //   /            perf 0.73 (runs 0.67-0.77)  LCP 4361ms  TBT 461ms
+        //   /ar          perf 0.77 (runs 0.71-0.80)  LCP 4742ms  TBT 285ms
+        //   /work/trosc  perf 0.96 (runs 0.95-0.97)  LCP 2486ms  TBT 141ms
+        //   /links       perf 0.96 (runs 0.96-0.97)  LCP 2637ms  TBT  75ms
+        // Floors sit ~0.04 under the median (~0.03 for the stable routes) so
+        // normal run-to-run noise does not fail CI but a real regression does.
+        route("/", 0.69),
+        route("/ar", 0.73),
+        route("/work/trosc", 0.92),
+        route("/links", 0.92),
       ],
     },
   },
