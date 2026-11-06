@@ -8,7 +8,13 @@
  * safe in a server component) and drawn as one static SVG: a single paint, no
  * filters, no masks.
  */
-export type SilkStrand = { d: string; stroke: string; width: number; opacity: number };
+/**
+ * Which of the three strand colours a strand uses. The colours themselves are
+ * in Work.css (`.sk-warm`, `.sk-light`, `.sk-mid`), with the rest of the card's
+ * palette, so this file holds no colour literals.
+ */
+export type SilkTone = "warm" | "light" | "mid";
+export type SilkStrand = { d: string; tone: SilkTone; width: number; opacity: number };
 
 export const SILK_VIEWBOX = { w: 390, h: 1200 };
 
@@ -54,7 +60,7 @@ function build(): SilkStrand[] {
     const fall = 1 - Math.abs(u) / (STRANDS / 2);
     out.push({
       d: smooth(pts),
-      stroke: warm ? "#f4bd68" : k % 2 ? "#a9c2ff" : "#6f90ff",
+      tone: warm ? "warm" : k % 2 ? "light" : "mid",
       width: warm ? 1.25 : 1,
       opacity: round((0.12 + 0.55 * Math.pow(fall, 1.2)) * (warm ? 1.15 : 1)),
     });

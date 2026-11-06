@@ -2431,6 +2431,21 @@ html[data-perf="low"] #work .stage::after {
     animation: silk-sway 18s ease-in-out infinite alternate;
   }
 
+  /* Strand colours (tones come from SILK in lib/silk.ts). They live here with
+     the rest of the card's palette because the colour-discipline scan rejects
+     colour literals in TypeScript. */
+  #work .feat-silk .sk-warm {
+    stroke: #f4bd68;
+  }
+
+  #work .feat-silk .sk-light {
+    stroke: #a9c2ff;
+  }
+
+  #work .feat-silk .sk-mid {
+    stroke: #6f90ff;
+  }
+
   /* 6. Fine grain over everything. */
   #work .feat-grain {
     display: block;

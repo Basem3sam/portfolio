@@ -360,8 +360,8 @@ function Featured({
             <path
               key={i}
               d={s.d}
+              className={`sk-${s.tone}`}
               fill="none"
-              stroke={s.stroke}
               strokeWidth={s.width}
               strokeOpacity={s.opacity}
               vectorEffect="non-scaling-stroke"

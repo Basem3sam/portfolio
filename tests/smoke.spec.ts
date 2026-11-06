@@ -261,6 +261,10 @@ test("no permanent overlay is painted when the palette is closed", async ({ page
 test("work KPI values align on one line at every width", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
+  // The values are measured in lines, so the web fonts must have settled: on a
+  // cold first load the fallback face is wider and a value can wrap for a
+  // moment, which made this test fail once and pass on retry.
+  await page.evaluate(() => document.fonts.ready);
 
   // The featured KPI wall is one row of five on desktop and a compact 3 + 2
   // ledger on phones (6 columns: three tiles span 2, the last two span 3).
