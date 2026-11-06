@@ -58,3 +58,77 @@ for (const [path, runs] of [...byRoute].sort(([a], [b]) => a.localeCompare(b))) 
       `| ${ms(m((l) => metric(l, "largest-contentful-paint")))} | ${ms(m((l) => metric(l, "total-blocking-time")))} |`,
   );
 }
+
+/*
+ * Diagnostics: for each route, the run whose performance score is the median,
+ * so the table above can be explained instead of only reported. Everything is
+ * read defensively (audit shapes vary between Lighthouse versions); a missing
+ * audit just drops its line.
+ */
+const short = (url) => {
+  try {
+    const u = new URL(url);
+    return u.pathname.length > 56 ? `...${u.pathname.slice(-53)}` : u.pathname;
+  } catch {
+    return String(url ?? "").slice(0, 56);
+  }
+};
+const items = (lhr, id) => lhr.audits[id]?.details?.items ?? [];
+
+console.log("\n### Diagnostics (median run per route)\n");
+for (const [path, runs] of [...byRoute].sort(([a], [b]) => a.localeCompare(b))) {
+  const scores = runs.map((lhr) => score(lhr, "performance") ?? 0).sort((a, b) => a - b);
+  const mid = scores[Math.floor(scores.length / 2)];
+  const lhr = runs.find((r) => (score(r, "performance") ?? 0) === mid) ?? runs[0];
+
+  console.log(`<details><summary><code>${path}</code></summary>\n`);
+
+  const longTasks = items(lhr, "long-tasks");
+  if (longTasks.length) {
+    const blocking = longTasks.reduce((sum, t) => sum + Math.max(0, (t.duration ?? 0) - 50), 0);
+    console.log(
+      `**Long tasks:** ${longTasks.length} (>50 ms), ${Math.round(blocking)} ms over the 50 ms budget`,
+    );
+    const worst = [...longTasks].sort((a, b) => b.duration - a.duration).slice(0, 5);
+    for (const t of worst) {
+      console.log(`- ${Math.round(t.duration)} ms at ${Math.round(t.startTime)} ms: ${short(t.url)}`);
+    }
+    console.log("");
+  } else {
+    console.log("**Long tasks:** none reported\n");
+  }
+
+  const bootup = items(lhr, "bootup-time")
+    .sort((a, b) => (b.total ?? 0) - (a.total ?? 0))
+    .slice(0, 6);
+  if (bootup.length) {
+    console.log("**Script cost (total / scripting / parse):**");
+    for (const b of bootup) {
+      console.log(
+        `- ${short(b.url)}: ${Math.round(b.total ?? 0)} / ${Math.round(b.scripting ?? 0)} / ${Math.round(b.scriptParseCompile ?? 0)} ms`,
+      );
+    }
+    console.log("");
+  }
+
+  const work = items(lhr, "mainthread-work-breakdown")
+    .filter((g) => (g.duration ?? 0) >= 20)
+    .map((g) => `${g.groupLabel ?? g.group} ${Math.round(g.duration)} ms`);
+  if (work.length) console.log(`**Main thread:** ${work.join(", ")}\n`);
+
+  const lcp = lhr.audits["largest-contentful-paint-element"]?.details?.items ?? [];
+  const lcpNode = lcp[0]?.items?.[0]?.node;
+  if (lcpNode) console.log(`**LCP element:** \`${lcpNode.selector ?? lcpNode.snippet ?? "?"}\``);
+  const phases = lcp.find((i) => Array.isArray(i.items) && i.items[0]?.phase)?.items ?? [];
+  if (phases.length) {
+    console.log(
+      `**LCP phases:** ${phases.map((p) => `${p.phase} ${Math.round(p.timing ?? 0)} ms`).join(", ")}`,
+    );
+  }
+
+  const unused = lhr.audits["unused-javascript"]?.details?.items ?? [];
+  const unusedBytes = unused.reduce((sum, i) => sum + (i.wastedBytes ?? 0), 0);
+  if (unusedBytes) console.log(`\n**Unused JavaScript:** ~${Math.round(unusedBytes / 1024)} KiB`);
+
+  console.log("\n</details>\n");
+}

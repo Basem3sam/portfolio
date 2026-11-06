@@ -14,7 +14,6 @@ import {
   PROFILE_CUTOUT_SIZES_HERO,
   PROFILE_CUTOUT_SRCSET,
 } from "@/data/site";
-import { mountHeroFx } from "@/lib/hero-fx";
 import type { Dictionary } from "@/lib/dictionaries/en";
 import "./Hero.css";
 
@@ -54,7 +53,29 @@ export default function Hero({ dict }: HeroProps) {
     const halftone = halftoneRef.current;
     const nebula = nebulaRef.current;
     if (!host || !halftone || !nebula) return;
-    return mountHeroFx(host, halftone, nebula);
+
+    // The sky's code (~44 KB: halftone, WebGL nebula) is its own chunk and
+    // starts on the frame after hydration instead of inside it, so parsing it
+    // and its first layout reads no longer sit in the same task as the
+    // portrait's paint. `cancelled` covers unmounting and Strict Mode re-runs.
+    let cancelled = false;
+    let dispose: (() => void) | undefined;
+    const frame = requestAnimationFrame(() => {
+      import("@/lib/hero-fx")
+        .then(({ mountHeroFx }) => {
+          if (cancelled) return;
+          dispose = mountHeroFx(host, halftone, nebula);
+        })
+        .catch(() => {
+          // Decoration only: the page is complete without the sky.
+        });
+    });
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(frame);
+      dispose?.();
+    };
   }, []);
 
   // The ring answers the pointer. Layers of the loop shift by depth as the
