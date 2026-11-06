@@ -90,31 +90,44 @@
   color: var(--c-light-text);
 }
 
-/* Availability: a margin note, not a badge. Same hand as the portrait note
-   (Caveat, honey ink, a slight tilt) with the hero ticket's green light and a
-   pen-drawn squiggle under it. Arabic has no Caveat glyphs, so it falls back to
-   the body face, untilted. */
+/* Availability: a flat ticket, the same object as the hero's "open to work"
+   ticket (dashed stub, green light, offset shadow) scaled down to footer size.
+   Body face and no tilt in both languages, so English and Arabic match; the
+   offset shadow mirrors with the direction. */
 .foot-avail {
+  --fa-x: 3px;
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  max-width: 30ch;
-  margin: 6px 0 0;
-  font-family: var(--font-caveat), var(--font-body);
-  font-size: 1.65rem;
-  font-weight: 600;
-  line-height: 1.05;
-  color: var(--c-note);
-  rotate: -1.6deg;
-  transform-origin: left center;
+  align-items: stretch;
+  width: fit-content;
+  max-width: 100%;
+  margin: 8px 0 0;
+  border: 1px solid var(--c-rule-strong);
+  border-radius: 10px;
+  background: var(--c-light-bg);
+  box-shadow: var(--fa-x) 3px 0 color-mix(in srgb, var(--c-note) 32%, transparent);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--c-dark-text);
+}
+
+[dir="rtl"] .foot-avail {
+  --fa-x: -3px;
+  line-height: 1.7;
+}
+
+.fa-stub {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  border-inline-end: 1px dashed var(--c-rule-strong);
 }
 
 .fa-dot {
   position: relative;
-  flex: none;
-  width: 11px;
-  height: 11px;
-  margin-top: 0.38em;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
   background: var(--c-status);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-status) 18%, transparent);
@@ -143,59 +156,10 @@
 }
 
 .fa-txt {
-  display: block;
   min-width: 0;
+  max-width: 26ch;
+  padding: 11px 16px;
   text-wrap: balance;
-}
-
-.fa-sq {
-  display: block;
-  width: 5.5em;
-  height: 0.3em;
-  margin-top: 0.3em;
-  fill: none;
-  stroke: var(--c-status);
-  stroke-width: 2;
-  stroke-linecap: round;
-  overflow: visible;
-}
-
-.fa-sq path {
-  vector-effect: non-scaling-stroke;
-  stroke-dasharray: 1;
-}
-
-/* The squiggle is pen-drawn as the footer scrolls into view where the browser
-   supports scroll timelines; elsewhere it is simply already drawn. */
-@supports (animation-timeline: view()) {
-  .fa-sq path {
-    stroke-dashoffset: 1;
-    animation: fasq linear both;
-    animation-timeline: view();
-    animation-range: entry 10% entry 100%;
-  }
-}
-
-@keyframes fasq {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-[dir="rtl"] .foot-avail {
-  font-family: var(--font-body);
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 1.6;
-  rotate: 0deg;
-}
-
-[dir="rtl"] .fa-dot {
-  margin-top: 0.62em;
-}
-
-[dir="rtl"] .fa-sq {
-  margin-top: 0.2em;
 }
 
 .ft-col {
@@ -699,8 +663,4 @@
     animation: none;
   }
 
-  .fa-sq path {
-    animation: none;
-    stroke-dashoffset: 0;
-  }
 }
