@@ -362,23 +362,18 @@ export function mountHeroFx(
   let cols = readHalftoneCols(host);
 
   /*
-   * The halftone's slow drift is decoration. Each frame is a few thousand dots
-   * of trigonometry, and on a CPU-bound device (or Lighthouse's throttled
-   * phone) a frame longer than 50ms is a long task: started at hydration, they
-   * kept the main thread from ever going quiet and inflated Total Blocking
-   * Time. So the sky paints ONE frame at once and then holds still until the
-   * page is interactive: DRIFT_DELAY_MS after mount, or the first pointer
-   * move / press (a ripple needs frames), whichever comes first. The drift
-   * clock freezes while held, so it resumes where it stopped instead of
-   * jumping. Where the nebula takes over (GPU devices) the drift never needs
-   * to start at all.
+   * The halftone's slow drift is decoration, but a frame is a few thousand dots
+   * of trigonometry. On a CPU-bound device (CI runners, old phones, remote
+   * desktops) one frame can take 100ms+, and drawing them continuously keeps
+   * the main thread from ever going quiet (Lighthouse measured 12-16 long
+   * tasks on the home page). So frames are timed: a frame slower than
+   * SLOW_FRAME_MS freezes the drift for good. The sky stays exactly as painted
+   * and only redraws when something changes (resize, a press ripple). Capable
+   * devices never hit the limit and drift as before, with no delay.
    */
-  const DRIFT_DELAY_MS = 4000;
-  let driftOpen = false;
-  let drewOnce = false;
+  const SLOW_FRAME_MS = 45;
+  let slowLock = false;
   let lastClockMs = 0;
-  let frozenClock = -1;
-  let driftOffset = 0;
 
   const sizeHalftone = () => {
     // The nebula has taken over and the halftone's backing store was freed.
@@ -452,7 +447,6 @@ export function mountHeroFx(
       f.local.x = event.clientX;
       f.local.y = event.clientY;
       f.local.inside = true;
-      driftOpen = true;
       updatePointer();
     },
     { passive: true },
@@ -466,7 +460,6 @@ export function mountHeroFx(
   onPress((x, y, el) => {
     // Once the nebula has taken over the halftone is hidden and stopped.
     if (reduce || isControl(el) || host.hasAttribute("data-nb")) return;
-    driftOpen = true;
     const r = host.getBoundingClientRect();
     f.rip.push({ x: x - r.left, y: y - r.top, t: performance.now() });
     if (f.rip.length > 4) f.rip.shift();
@@ -1078,30 +1071,21 @@ export function mountHeroFx(
     if (document.hidden || now - lastFrame < halftoneGap()) return;
     lastFrame = now;
     if (!f.visible || !f.W || !f.H) return;
-    // Held still (see DRIFT_DELAY_MS): redraw only when something changed
-    // (a resize, the hero scrolling back into view), at the frozen clock.
-    const held = !reduce && drewOnce && !driftOpen;
-    if (held && frozenClock < 0) frozenClock = lastClockMs;
-    if (reduce || held) {
+    // Frozen on a slow device (see SLOW_FRAME_MS): redraw only when something
+    // changed, or while a press ripple is travelling, at the frozen clock.
+    const frozen = !reduce && slowLock && f.rip.length === 0;
+    if (reduce || frozen) {
       if (!f.dirty) return;
       f.dirty = false;
     }
-    if (!held && frozenClock >= 0) {
-      // Resume the drift from where it was frozen, not from "now".
-      driftOffset = now - frozenClock;
-      frozenClock = -1;
-    }
-    const clockMs = held ? frozenClock : now - driftOffset;
+    const clockMs = slowLock ? lastClockMs : now;
     f.rip = f.rip.filter((r) => now - r.t < 2400);
+    const started = performance.now();
     halftoneFrame(now, clockMs);
     lastClockMs = clockMs;
-    drewOnce = true;
+    if (!reduce && !slowLock && performance.now() - started > SLOW_FRAME_MS) slowLock = true;
   };
   halftoneRaf = requestAnimationFrame(tick);
-  const driftTimer = window.setTimeout(() => {
-    driftOpen = true;
-  }, DRIFT_DELAY_MS);
-  cleanups.push(() => window.clearTimeout(driftTimer));
   cleanups.push(() => {
     if (halftoneRaf) cancelAnimationFrame(halftoneRaf);
   });
