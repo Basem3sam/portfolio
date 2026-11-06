@@ -83,6 +83,22 @@ for (const [path, runs] of [...byRoute].sort(([a], [b]) => a.localeCompare(b))) 
 
   console.log(`<details><summary><code>${path}</code></summary>\n`);
 
+  // The real (unthrottled) paint times from the trace. The table above is the
+  // simulated phone; if these are far smaller, the delay is the simulation.
+  const real = items(lhr, "metrics")[0];
+  if (real) {
+    const parts = [
+      ["first paint", real.observedFirstPaint],
+      ["FCP", real.observedFirstContentfulPaint],
+      ["LCP", real.observedLargestContentfulPaint],
+      ["DOMContentLoaded", real.observedDomContentLoaded],
+      ["load", real.observedLoad],
+    ]
+      .filter(([, v]) => typeof v === "number")
+      .map(([name, v]) => `${name} ${Math.round(v)} ms`);
+    if (parts.length) console.log(`**Observed (real) timings:** ${parts.join(", ")}\n`);
+  }
+
   const longTasks = items(lhr, "long-tasks");
   if (longTasks.length) {
     const blocking = longTasks.reduce((sum, t) => sum + Math.max(0, (t.duration ?? 0) - 50), 0);
