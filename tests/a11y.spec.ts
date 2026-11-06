@@ -66,9 +66,14 @@ test.describe("accessibility", () => {
       }
       await expect(page.locator(".egg").first()).toBeAttached({ timeout: 3_000 });
     }).toPass({ timeout: 45_000 });
-    // The terminal is `inert` while it opens, and axe treats inert content as hidden
-    // from screen readers, so scan only once it is open and interactive.
+    // `inert` clears before the overlay gets `.show`, and until then it is still
+    // visibility:hidden and fading in, which axe reads as hidden from screen readers.
+    // Scan only once it is interactive, shown, and fully opaque.
     await expect(page.locator("#secret-terminal:not([inert])")).toBeVisible({ timeout: 45_000 });
+    const overlay = page.locator(".egg .eov.show:has(#secret-terminal)");
+    await expect(overlay).toBeVisible();
+    await expect(page.locator(".erk")).toBeVisible();
+    await expect.poll(() => overlay.evaluate((el) => getComputedStyle(el).opacity)).toBe("1");
     const results = await new AxeBuilder({ page }).analyze();
     expect(results.violations).toEqual([]);
   });

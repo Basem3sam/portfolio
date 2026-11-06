@@ -176,11 +176,20 @@ test.describe("client / proxy contract", () => {
   };
 
   const renderWork = async (page: Page) => {
-    // <GitHubProjects/> mounts at the bottom of the Work section and only
-    // starts its request once it is within 800px of the viewport. Scrolling to
-    // the top of #work leaves it far out of range, so scroll to the feed itself.
+    // <GitHubProjects/> only starts its request once it is within 800px of the
+    // viewport, and its observer attaches on hydration. A scroll done before
+    // hydration can be undone by layout shifts, so keep scrolling to the feed
+    // until the proxy request has actually been seen.
+    let requested = false;
+    page.on("request", (request) => {
+      if (request.url().includes("/api/github/repos")) requested = true;
+    });
+
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    await page.locator("#work .live-block").scrollIntoViewIfNeeded();
+    await expect(async () => {
+      await page.locator("#work .live-block").scrollIntoViewIfNeeded({ timeout: 2_000 });
+      expect(requested).toBe(true);
+    }).toPass({ timeout: 20_000, intervals: [250, 500, 1_000] });
   };
 
   test("renders repositories from the proxy payload", async ({ page }) => {
