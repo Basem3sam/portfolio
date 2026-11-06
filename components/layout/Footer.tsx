@@ -56,10 +56,15 @@ export default function Footer({ locale = "en" }: FooterProps) {
               <span>basem.esam</span>
             </SectionLink>
             <p className="ft-line">{footer.line}</p>
-            <span className="foot-avail">
-              <i aria-hidden="true"></i>
-              {footer.avail}
-            </span>
+            <p className="foot-avail" role="note">
+              <i className="fa-dot" aria-hidden="true"></i>
+              <span className="fa-txt">
+                {footer.avail}
+                <svg className="fa-sq" viewBox="0 0 120 8" aria-hidden="true" preserveAspectRatio="none">
+                  <path pathLength={1} d="M2 5 C12 1 18 8 30 4 S48 1 60 5 S84 8 96 3 S112 2 118 4" />
+                </svg>
+              </span>
+            </p>
           </div>
 
           <nav className="ft-col ft-ex" aria-label={footer.navLabel}>
