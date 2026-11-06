@@ -90,17 +90,19 @@
   color: var(--c-light-text);
 }
 
-/* Availability: sits under the brand line as one more tile row, the same 36px
-   circle tile the contact rows use (green light instead of an icon). No card,
-   no shadow, no new shapes, so it follows the brand block at every width and
-   in both directions. */
+/* Availability: the first row of the Reach column. It reuses the contact
+   rows' 36px circle tile (green light instead of an icon) and sits above them
+   with a dashed rule, the hero ticket's stub line. No card, no new shapes, so
+   it follows the column at every width and in both directions. */
 .fa-row {
   display: flex;
   align-items: center;
   gap: 14px;
-  max-width: 34ch;
+  width: 100%;
   min-height: 44px;
-  margin: 4px 0 0;
+  margin: 0 0 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed var(--c-rule-strong);
   font-size: 0.9375rem;
   line-height: 1.45;
   color: var(--c-dark-text);
@@ -615,6 +617,11 @@
   .ft-rc a:not(.ft-up) {
     width: 100%;
     min-height: 52px;
+  }
+
+  .fa-row {
+    min-height: 52px;
+    margin-bottom: 4px;
   }
 
   .ft-rc a:not(.ft-up)::after,
