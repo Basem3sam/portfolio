@@ -123,8 +123,10 @@ module.exports = {
         //   /links       perf 0.96 (runs 0.96-0.97)  LCP 2637ms  TBT  75ms
         // Floors sit ~0.04 under the median (~0.03 for the stable routes) so
         // normal run-to-run noise does not fail CI but a real regression does.
+        // Three later runs gave medians of 0.73-0.76 (/) and 0.74-0.77 (/ar),
+        // with single runs as low as 0.57, so /ar's floor was loosened to 0.70.
         route("/", 0.69),
-        route("/ar", 0.73),
+        route("/ar", 0.7),
         route("/work/trosc", 0.92),
         route("/links", 0.92),
       ],

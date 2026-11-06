@@ -126,6 +126,27 @@ for (const [path, runs] of [...byRoute].sort(([a], [b]) => a.localeCompare(b))) 
     );
   }
 
+  // What the first paint waited on: fonts and stylesheets with their timing
+  // (ms since navigation start), and the render-blocking list. Explains a long
+  // "Render Delay" in the LCP phases.
+  const requests = items(lhr, "network-requests")
+    .filter((r) => r.resourceType === "Font" || r.resourceType === "Stylesheet")
+    .sort((a, b) => (a.networkRequestTime ?? 0) - (b.networkRequestTime ?? 0));
+  if (requests.length) {
+    console.log("\n**Fonts and stylesheets (start -> end, size):**");
+    for (const r of requests) {
+      console.log(
+        `- ${r.resourceType} ${short(r.url)}: ${Math.round(r.networkRequestTime ?? 0)} -> ${Math.round(r.networkEndTime ?? 0)} ms, ${Math.round((r.transferSize ?? 0) / 1024)} KiB`,
+      );
+    }
+  }
+  const blocking = items(lhr, "render-blocking-resources");
+  if (blocking.length) {
+    console.log(
+      `\n**Render-blocking:** ${blocking.map((b) => `${short(b.url)} (${Math.round(b.wastedMs ?? 0)} ms)`).join(", ")}`,
+    );
+  }
+
   const unused = lhr.audits["unused-javascript"]?.details?.items ?? [];
   const unusedBytes = unused.reduce((sum, i) => sum + (i.wastedBytes ?? 0), 0);
   if (unusedBytes) console.log(`\n**Unused JavaScript:** ~${Math.round(unusedBytes / 1024)} KiB`);
