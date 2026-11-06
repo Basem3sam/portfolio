@@ -346,6 +346,31 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
     let frame = 0;
     const segments = Array.from(progressRef.current?.children ?? []) as HTMLElement[];
 
+    const painted = segments.map(() => ({
+      display: undefined as string | undefined,
+      grow: undefined as string | undefined,
+      width: undefined as string | undefined,
+    }));
+    const fills = segments.map((segment) => segment.firstElementChild as HTMLElement | null);
+
+    const paintSegment = (index: number, display: string, grow: string | null, width: string) => {
+      const last = painted[index];
+      const segment = segments[index];
+      if (last.display !== display) {
+        last.display = display;
+        segment.style.display = display;
+      }
+      if (grow !== null && last.grow !== grow) {
+        last.grow = grow;
+        segment.style.flexGrow = grow;
+      }
+      const fill = fills[index];
+      if (fill && width !== "" && last.width !== width) {
+        last.width = width;
+        fill.style.width = width;
+      }
+    };
+
     const paintProgress = () => {
       if (menuOpen || segments.length === 0) return;
 
@@ -360,12 +385,11 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
         // Routes without the home sections (case study): one segment that
         // tracks the whole document.
         const max = document.documentElement.scrollHeight - window.innerHeight;
-        segments.forEach((segment, index) => {
-          segment.style.display = index === 0 ? "" : "none";
+        const width = `${clamp01(max > 0 ? window.scrollY / max : 0) * 100}%`;
+        segments.forEach((_, index) => {
+          if (index === 0) paintSegment(index, "", "1", width);
+          else paintSegment(index, "none", null, "");
         });
-        segments[0].style.flexGrow = "1";
-        const fill = segments[0].firstElementChild as HTMLElement | null;
-        if (fill) fill.style.width = `${clamp01(max > 0 ? window.scrollY / max : 0) * 100}%`;
         return;
       }
 
@@ -374,19 +398,20 @@ export default function Navbar({ labels, theme, locale, languageSwitch, palette 
       // bar used to do this; the rail is now the only progress indicator).
       const root = document.documentElement;
       const atBottom = root.scrollHeight - window.innerHeight - window.scrollY <= 2;
+      const rects = segments.map((_, index) => sectionEls[index]?.getBoundingClientRect());
 
-      segments.forEach((segment, index) => {
-        const el = sectionEls[index];
-        segment.style.display = el ? "" : "none";
-        if (!el) return;
-        const rect = el.getBoundingClientRect();
-        segment.style.flexGrow = String(Math.max(1, Math.round(rect.height)));
-        const fill = segment.firstElementChild as HTMLElement | null;
-        if (fill) {
-          fill.style.width = atBottom
-            ? "100%"
-            : `${clamp01((line - rect.top) / rect.height) * 100}%`;
+      segments.forEach((_, index) => {
+        const rect = rects[index];
+        if (!rect) {
+          paintSegment(index, "none", null, "");
+          return;
         }
+        paintSegment(
+          index,
+          "",
+          String(Math.max(1, Math.round(rect.height))),
+          atBottom ? "100%" : `${clamp01((line - rect.top) / rect.height) * 100}%`,
+        );
       });
     };
 
